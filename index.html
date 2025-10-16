@@ -3,96 +3,203 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Opay</title>
+<title>Opay Transaction Receipt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
   body {
-    background:#f4f6f8;
+    background: linear-gradient(135deg, #f4f6f8 0%, #e8ecf1 100%);
     font-family: 'Inter', sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:40px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
   }
   .receipt {
-    background:#fff;
-    border-radius:16px;
-    width:360px;
-    padding:28px 24px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.1);
-    position:relative;
+    background: #fff;
+    border-radius: 20px;
+    width: 380px;
+    padding: 30px 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 6px 10px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0,184,115,0.1);
+  }
+  .receipt::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #00b873, #00a8e1);
   }
   .watermark {
-    position:absolute;
-    top:50%; left:50%;
-    transform:translate(-50%,-50%) rotate(-25deg);
-    font-size:28px;
-    color:rgba(0,0,0,0.05);
-    white-space:nowrap;
-    pointer-events:none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    font-size: 70px;
+    color: rgba(0,184,115,0.04);
+    white-space: nowrap;
+    pointer-events: none;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .brand-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+  .logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #00b873, #00a8e1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
   }
   .brand {
-    text-align:center;
-    font-weight:600;
-    font-size:22px;
-    color:#00b873;
-    margin-bottom:4px;
+    font-weight: 700;
+    font-size: 26px;
+    color: #00b873;
+    letter-spacing: -0.5px;
   }
   .title {
-    text-align:center;
-    color:#555;
-    font-size:15px;
-    margin-bottom:18px;
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-weight: 500;
   }
   .amount {
-    text-align:center;
-    font-size:30px;
-    font-weight:600;
-    color:#00b873;
-    margin-bottom:8px;
+    text-align: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: #00b873;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
   }
   .status {
-    text-align:center;
-    color:#222;
-    font-size:16px;
-    margin-bottom:20px;
+    text-align: center;
+    color: #222;
+    font-size: 16px;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .success-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0,184,115,0.1);
+    color: #00b873;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .success-badge::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #00b873;
+    border-radius: 50%;
+    margin-right: 6px;
   }
   .row {
-    display:flex;
-    justify-content:space-between;
-    margin:10px 0;
-    font-size:15px;
-    color:#333;
+    display: flex;
+    justify-content: space-between;
+    margin: 14px 0;
+    font-size: 15px;
+    color: #333;
   }
-  .label { color:#666; }
+  .label { 
+    color: #666;
+    font-weight: 500;
+  }
   .divider {
-    border-top:1px dashed #ccc;
-    margin:18px 0;
+    border-top: 1px dashed #e0e0e0;
+    margin: 20px 0;
+    position: relative;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #f4f6f8;
+  }
+  .divider::before {
+    left: -25px;
+  }
+  .divider::after {
+    right: -25px;
   }
   .footer {
-    text-align:center;
-    font-size:12px;
-    color:#777;
-    margin-top:16px;
-    line-height:1.4;
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    margin-top: 20px;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+  .stamp {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(0,184,115,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(15deg);
+    opacity: 0.7;
+  }
+  .stamp-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: #00b873;
+    text-align: center;
+    line-height: 1.2;
   }
 </style>
 </head>
 <body>
   <div class="receipt">
-    <div class="watermark">OPay</div>
-    <div class="brand">Opay </div>
+    <div class="watermark">OPAY</div>
+    
+    <div class="brand-section">
+      <div class="logo">O</div>
+      <div class="brand">Opay</div>
+    </div>
+    
     <div class="title">Transaction Receipt</div>
 
     <div class="amount">₦500,000.00</div>
-    <div class="status">Successful<br>Sept 29, 2025&nbsp;14:45</div>
+    
+    <div class="status">
+      <div class="success-badge">Successful</div>
+      <div>Sept 29, 2025&nbsp;14:45</div>
+    </div>
 
     <div class="divider"></div>
 
     <div class="row">
       <div class="label">Recipient:</div>
-      <div>Joshua similoluwa</div>
+      <div>Joshua Similoluwa</div>
     </div>
     <div class="row">
       <div class="label">Recipient Phone:</div>
@@ -116,9 +223,13 @@
       <div class="label">Transaction ID:</div>
       <div>PP20250929000123456789</div>
     </div>
+    
+    <div class="stamp">
+      <div class="stamp-text">PAID<br>OPAY</div>
+    </div>
 
     <div class="footer">
-      Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, instant loans, and good annual interest On your savings. OPay is licensed by the Central Bank of Nigeria and insured by the NDIC.
+      Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, instant loans, and good annual interest on your savings. OPay is licensed by the Central Bank of Nigeria and insured by the NDIC.
     </div>
   </div>
 </body>
