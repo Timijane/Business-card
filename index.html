@@ -1,236 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Opay Transaction Receipt</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<style>
-  body {
-    background: linear-gradient(135deg, #f4f6f8 0%, #e8ecf1 100%);
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    margin: 0;
-  }
-  .receipt {
-    background: #fff;
-    border-radius: 20px;
-    width: 380px;
-    padding: 30px 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 6px 10px rgba(0,0,0,0.05);
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(0,184,115,0.1);
-  }
-  .receipt::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to right, #00b873, #00a8e1);
-  }
-  .watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-25deg);
-    font-size: 70px;
-    color: rgba(0,184,115,0.04);
-    white-space: nowrap;
-    pointer-events: none;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
-  .brand-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    gap: 10px;
-  }
-  .logo {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #00b873, #00a8e1);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 18px;
-  }
-  .brand {
-    font-weight: 700;
-    font-size: 26px;
-    color: #00b873;
-    letter-spacing: -0.5px;
-  }
-  .title {
-    text-align: center;
-    color: #666;
-    font-size: 15px;
-    margin-bottom: 20px;
-    font-weight: 500;
-  }
-  .amount {
-    text-align: center;
-    font-size: 36px;
-    font-weight: 700;
-    color: #00b873;
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-  }
-  .status {
-    text-align: center;
-    color: #222;
-    font-size: 16px;
-    margin-bottom: 24px;
-    font-weight: 500;
-  }
-  .success-badge {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(0,184,115,0.1);
-    color: #00b873;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  .success-badge::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #00b873;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    margin: 14px 0;
-    font-size: 15px;
-    color: #333;
-  }
-  .label { 
-    color: #666;
-    font-weight: 500;
-  }
-  .divider {
-    border-top: 1px dashed #e0e0e0;
-    margin: 20px 0;
-    position: relative;
-  }
-  .divider::before, .divider::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #f4f6f8;
-  }
-  .divider::before {
-    left: -25px;
-  }
-  .divider::after {
-    right: -25px;
-  }
-  .footer {
-    text-align: center;
-    font-size: 12px;
-    color: #777;
-    margin-top: 20px;
-    line-height: 1.5;
-    padding: 0 10px;
-  }
-  .stamp {
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(0,184,115,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(15deg);
-    opacity: 0.7;
-  }
-  .stamp-text {
-    font-size: 12px;
-    font-weight: 700;
-    color: #00b873;
-    text-align: center;
-    line-height: 1.2;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay Transaction Receipt</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .receipt-container {
+            width: 100%;
+            max-width: 400px;
+            perspective: 1000px;
+        }
+        
+        .receipt {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 120, 212, 0.15);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+        
+        .receipt:hover {
+            transform: translateY(-5px) rotateX(5deg);
+        }
+        
+        .receipt::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #00b14f, #0095da);
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(0, 177, 79, 0.05);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #00b14f, #0095da);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0, 177, 79, 0.3);
+        }
+        
+        .brand {
+            font-weight: 800;
+            font-size: 24px;
+            color: #00b14f;
+            letter-spacing: -0.5px;
+        }
+        
+        .receipt-id {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+        
+        .title {
+            text-align: center;
+            color: #444;
+            font-size: 16px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .amount-section {
+            background: linear-gradient(135deg, #f8fffc, #f0f9ff);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            border: 1px solid rgba(0, 177, 79, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .amount-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: #00b14f;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 177, 79, 0.1);
+            color: #00b14f;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status i {
+            margin-right: 6px;
+            font-size: 12px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .divider.dashed {
+            background: transparent;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 16px 0;
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .value {
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 24px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stamp {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(0, 177, 79, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(15deg);
+            opacity: 0.7;
+            z-index: 0;
+        }
+        
+        .stamp-text {
+            font-size: 12px;
+            font-weight: 800;
+            color: #00b14f;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .security-note {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            margin-top: 8px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00b14f, #0095da);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #00b14f;
+            color: #00b14f;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 177, 79, 0.3);
+        }
+        
+        .receipt-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            gap: 20px;
+        }
+        
+        .footer-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #00b14f;
+            font-size: 12px;
+            gap: 4px;
+        }
+        
+        .footer-icon i {
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-  <div class="receipt">
-    <div class="watermark">OPAY</div>
-    
-    <div class="brand-section">
-      <div class="logo">O</div>
-      <div class="brand">Opay</div>
+    <div class="receipt-container">
+        <div class="receipt">
+            <div class="watermark">OPAY</div>
+            
+            <div class="header">
+                <div class="logo-container">
+                    <div class="logo">O</div>
+                    <div class="brand">OPay</div>
+                </div>
+                <div class="receipt-id">Receipt #PP2025071000123456789</div>
+            </div>
+            
+            <div class="title">Transaction Receipt</div>
+            
+            <div class="amount-section">
+                <div class="amount-label">Amount Transferred</div>
+                <div class="amount">₦500,000.00</div>
+                <div class="status">
+                    <i class="fas fa-check-circle"></i> Successful
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="info-row">
+                <div class="label">Recipient:</div>
+                <div class="value">Joshua Similoluwa</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="label">Recipient Phone:</div>
+                <div class="value">0803-555-1234</div>
+            </div>
+            
+            <div class="divider dashed"></div>
+            
+            <div class="info-row">
+                <div class="label">Sender:</div>
+                <div class="value">Okewunmi Timileyin</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="label">Sender Phone:</div>
+                <div class="value">90***********</div>
+            </div>
+            
+            <div class="divider dashed"></div>
+            
+            <div class="info-row">
+                <div class="label">Transaction Date:</div>
+                <div class="value" id="current-date">July 10, 2024 14:45</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="label">Transaction ID:</div>
+                <div class="value">PP2025071000123456789</div>
+            </div>
+            
+            <div class="stamp">
+                <div class="stamp-text">PAID<br>OPAY</div>
+            </div>
+            
+            <div class="footer">
+                <p>Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, instant loans, and good annual interest on your savings.</p>
+                <p class="security-note">OPay is licensed by the Central Bank of Nigeria and insured by the NDIC.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+            </div>
+            
+            <div class="receipt-footer">
+                <div class="footer-icon">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure</span>
+                </div>
+                <div class="footer-icon">
+                    <i class="fas fa-bolt"></i>
+                    <span>Instant</span>
+                </div>
+                <div class="footer-icon">
+                    <i class="fas fa-headset"></i>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="title">Transaction Receipt</div>
 
-    <div class="amount">₦500,000.00</div>
-    
-    <div class="status">
-      <div class="success-badge">Successful</div>
-      <div>Sept 29, 2025&nbsp;14:45</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="row">
-      <div class="label">Recipient:</div>
-      <div>Joshua Similoluwa</div>
-    </div>
-    <div class="row">
-      <div class="label">Recipient Phone:</div>
-      <div>0803-555-1234</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="row">
-      <div class="label">Sender:</div>
-      <div>Okewunmi Timileyin</div>
-    </div>
-    <div class="row">
-      <div class="label">Sender Phone:</div>
-      <div>90***********</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="row">
-      <div class="label">Transaction ID:</div>
-      <div>PP20250929000123456789</div>
-    </div>
-    
-    <div class="stamp">
-      <div class="stamp-text">PAID<br>OPAY</div>
-    </div>
-
-    <div class="footer">
-      Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, instant loans, and good annual interest on your savings. OPay is licensed by the Central Bank of Nigeria and insured by the NDIC.
-    </div>
-  </div>
+    <script>
+        // Update date and time to current
+        function updateDateTime() {
+            const now = new Date();
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('current-date').textContent = `${dateString} ${timeString}`;
+        }
+        
+        // Initialize with current date and time
+        updateDateTime();
+        
+        // Update time every minute
+        setInterval(updateDateTime, 60000);
+    </script>
 </body>
 </html>
