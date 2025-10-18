@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Dashboard</title>
+<title>MEET — Dashboard (Interactive Prototype)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
   :root{
     --primary:#0061FF;
@@ -15,14 +14,14 @@
     --text:#111827;
     --muted:#6b7280;
     --radius:12px;
-    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --shadow:0 6px 18px rgba(16,24,40,0.06);
   }
   body.dark {
     --bg:#081226;
     --card:#0b1726;
     --text:#e6eef8;
     --muted:#93a3bd;
-    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+    --shadow:0 6px 18px rgba(0,0,0,0.6);
   }
   *{box-sizing:border-box}
   body{
@@ -30,155 +29,168 @@
     font-family:Inter,system-ui,Segoe UI,Arial;
     background:var(--bg);
     color:var(--text);
-    display:flex;
     height:100vh;
+    display:flex;
+    flex-direction:column;
     transition:background .35s,color .35s;
   }
 
-  /* Sidebar */
-  aside{
-    width:80px;
-    background:var(--card);
-    box-shadow:var(--shadow);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:12px 0;
-    position:fixed;
-    top:0;bottom:0;left:0;
-    z-index:100;
-  }
-  aside .nav-icon{
-    color:var(--muted);
-    font-size:22px;
-    margin:18px 0;
-    cursor:pointer;
-    transition:color .3s;
-  }
-  aside .nav-icon.active,
-  aside .nav-icon:hover{color:var(--primary);}
-
-  /* Main */
-  main{
-    margin-left:80px;
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    overflow:auto;
-  }
-
-  /* Header */
+  /* header */
   header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:12px 20px;
     background:var(--card);
     box-shadow:var(--shadow);
-    padding:10px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
     position:sticky;
     top:0;
-    z-index:50;
+    z-index:100;
   }
-  .brand{font-weight:700;color:var(--primary);font-size:20px}
-  .search input{
-    padding:6px 12px;
-    border-radius:20px;
-    border:1px solid #ccc;
-    background:var(--bg);
-    color:var(--text);
-    outline:none;
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
   }
-  .user-controls{
-    display:flex;align-items:center;gap:10px;
+  .logo-icon{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
   }
-  .user-controls img{
-    width:40px;height:40px;border-radius:50%;object-fit:cover;
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
+  .menu-toggle {
+    display:none;
+    font-size:26px;
+    cursor:pointer;
+    background:transparent;
+    border:none;
+    color:var(--primary);
   }
 
-  /* Feed Section */
-  .content{padding:20px;max-width:760px;margin:auto;width:100%}
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;margin:0 20px;
+  }
+  body.dark .search{background:#0f2134}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
 
-  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
 
-  .create-top{display:flex;gap:12px;align-items:center}
-  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
-  .avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
-  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;border:1px solid transparent;cursor:text}
-  body.dark .create-input{background:#071129}
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+    transition:transform .3s ease;
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  main{flex:1;padding:20px;overflow:auto}
 
-  .post{margin-bottom:16px}
-  .post-head{display:flex;gap:12px;align-items:center}
-  .post-head .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
-  .p-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
-  .post-meta .name{font-weight:700}
-  .post-meta .time{font-size:12px;color:var(--muted)}
-  .post-body{margin-top:12px;font-size:15px;line-height:1.5}
-  .post-media{margin-top:12px;border-radius:12px;overflow:hidden}
-  .post-media img,.post-media video{width:100%;display:block}
-  .post-actions{display:flex;gap:12px;margin-top:12px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px}
-  .like-btn,.comment-btn{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
-  .like-btn.liked{color:var(--primary)}
+  /* Mobile sidebar */
+  @media(max-width:900px){
+    aside {
+      position:fixed;
+      top:0;
+      left:0;
+      bottom:0;
+      transform:translateX(-100%);
+      z-index:200;
+    }
+    aside.open {
+      transform:translateX(0);
+    }
+    .menu-toggle {
+      display:block;
+    }
+    .search {
+      display:none;
+    }
+  }
 
-  /* Assistant Floating Button */
-  .assist-toggle{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--primary),var(--accent));width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow);cursor:pointer;z-index:200}
+  /* Smaller tweaks */
+  @media(max-width:600px){
+    header {
+      padding:10px;
+    }
+    .header-right > div:last-child {
+      display:none;
+    }
+    main {
+      padding:12px;
+    }
+  }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside>
-  <a href="index.html" title="Feed"><i class="fa-solid fa-house nav-icon active"></i></a>
-  <a href="chat.html" title="Chat"><i class="fa-solid fa-comments nav-icon"></i></a>
-  <a href="conference.html" title="Conference"><i class="fa-solid fa-video nav-icon"></i></a>
-  <a href="market.html" title="Marketplace"><i class="fa-solid fa-store nav-icon"></i></a>
-  <a href="profile.html" title="Profile"><i class="fa-solid fa-user nav-icon"></i></a>
-  <a href="meetversity.html" title="Meetversity"><i class="fa-solid fa-graduation-cap nav-icon"></i></a>
-  <a href="organization.html" title="Organization"><i class="fa-solid fa-building nav-icon"></i></a>
-</aside>
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
 
-<main>
-  <header>
+<header>
+  <div class="left">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="logo-icon" title="MEET"></div>
     <div class="brand">MEET</div>
-    <div class="search"><input placeholder="Search MEET..." /></div>
-    <div class="user-controls">
-      <button id="darkToggle" style="border:none;background:transparent;font-size:18px;cursor:pointer">🌙</button>
-      <img src="https://i.pravatar.cc/100?img=5" alt="">
-    </div>
-  </header>
-
-  <div class="content">
-    <!-- Post Creation -->
-    <div class="card create-card">
-      <div class="create-top">
-        <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
-        <div class="create-input" id="openPost">What's on your mind?</div>
-      </div>
-    </div>
-
-    <div id="feed"></div>
   </div>
-</main>
 
-<div class="assist-toggle" id="assistToggle">AI</div>
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search people, courses, jobs..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="sidebar">
+    <button class="active" data-tab="feed">🏠 Feed</button>
+    <button data-tab="chat">💬 Chat</button>
+    <button data-tab="conference">🎥 Conference</button>
+    <button data-tab="market">🛒 Marketplace</button>
+    <button data-tab="profile">👤 Profile</button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700">Go Live</button>
+  </aside>
+
+  <main>
+    <h2>Feed Content Here</h2>
+  </main>
+</div>
 
 <script>
-  const darkToggle = document.getElementById("darkToggle");
-  darkToggle.addEventListener("click",()=>{
-    document.body.classList.toggle("dark");
-  });
-
-  /* Basic Feed Simulation */
-  const feed = document.getElementById("feed");
-  const mock = [
-    {name:'Emily Chen',time:'2h',text:'Just published a free course on MEET!',img:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f'},
-    {name:'Marcus Lee',time:'5h',text:'We’re hiring UI/UX designers 💼',img:''}
-  ];
-  mock.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='card post';
-    div.innerHTML=`<div class="post-head"><div class="p-avatar"><img src="https://i.pravatar.cc/100?u=${p.name}" /></div><div class="post-meta"><div class="name">${p.name}</div><div class="time">${p.time}</div></div></div><div class="post-body">${p.text}</div>${p.img?`<div class='post-media'><img src='${p.img}'></div>`:''}<div class="post-actions"><button class="like-btn">❤ Like</button><button class="comment-btn">💬 Comment</button></div>`;
-    feed.appendChild(div);
-  });
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+});
 </script>
+
 </body>
 </html>
