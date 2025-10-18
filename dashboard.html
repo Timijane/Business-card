@@ -1,355 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MEET - Feed</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+  :root{
+    --primary:#0061FF;
+    --accent:#5AE4A8;
+    --bg:#f7f9fb;
+    --card:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --radius:12px;
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+  }
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
+    --text:#e6eef8;
+    --muted:#93a3bd;
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    height:100vh;
+    transition:background .35s,color .35s;
+  }
 
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #0061ff;
-      --secondary: #00c2cb;
-      --bg: #f5f7fa;
-      --card: #fff;
-      --text: #1b1b1b;
-      --muted: #707070;
-      --shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+  /* Sidebar */
+  aside{
+    width:80px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:12px 0;
+    position:fixed;
+    top:0;bottom:0;left:0;
+    z-index:100;
+  }
+  aside .nav-icon{
+    color:var(--muted);
+    font-size:22px;
+    margin:18px 0;
+    cursor:pointer;
+    transition:color .3s;
+  }
+  aside .nav-icon.active,
+  aside .nav-icon:hover{color:var(--primary);}
 
-    [data-theme="dark"] {
-      --bg: #181818;
-      --card: #242424;
-      --text: #f5f5f5;
-      --muted: #b1b1b1;
-    }
+  /* Main */
+  main{
+    margin-left:80px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:auto;
+  }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      min-height: 100vh;
-      transition: background .3s, color .3s;
-    }
+  /* Header */
+  header{
+    background:var(--card);
+    box-shadow:var(--shadow);
+    padding:10px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .brand{font-weight:700;color:var(--primary);font-size:20px}
+  .search input{
+    padding:6px 12px;
+    border-radius:20px;
+    border:1px solid #ccc;
+    background:var(--bg);
+    color:var(--text);
+    outline:none;
+  }
+  .user-controls{
+    display:flex;align-items:center;gap:10px;
+  }
+  .user-controls img{
+    width:40px;height:40px;border-radius:50%;object-fit:cover;
+  }
 
-    /* Sidebar */
-    aside {
-      width: 80px;
-      background: var(--card);
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0;
-      box-shadow: var(--shadow);
-      z-index: 100;
-    }
+  /* Feed Section */
+  .content{padding:20px;max-width:760px;margin:auto;width:100%}
 
-    aside .nav-icon {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 22px;
-      margin: 18px 0;
-      cursor: pointer;
-      transition: color .3s;
-    }
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
 
-    aside .nav-icon:hover,
-    aside .nav-icon.active {
-      color: var(--primary);
-    }
+  .create-top{display:flex;gap:12px;align-items:center}
+  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
+  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;border:1px solid transparent;cursor:text}
+  body.dark .create-input{background:#071129}
 
-    main {
-      margin-left: 90px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      gap: 20px;
-    }
+  .post{margin-bottom:16px}
+  .post-head{display:flex;gap:12px;align-items:center}
+  .post-head .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .p-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
+  .post-meta .name{font-weight:700}
+  .post-meta .time{font-size:12px;color:var(--muted)}
+  .post-body{margin-top:12px;font-size:15px;line-height:1.5}
+  .post-media{margin-top:12px;border-radius:12px;overflow:hidden}
+  .post-media img,.post-media video{width:100%;display:block}
+  .post-actions{display:flex;gap:12px;margin-top:12px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px}
+  .like-btn,.comment-btn{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
+  .like-btn.liked{color:var(--primary)}
 
-    header {
-      width: 100%;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 10px 20px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand h1 {
-      font-size: 22px;
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .search-box {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-    }
-
-    .search-box input {
-      width: 60%;
-      padding: 8px 12px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-      outline: none;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .user-controls {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .user-controls img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--primary);
-    }
-
-    .feed-post {
-      background: var(--card);
-      box-shadow: var(--shadow);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 700px;
-      padding: 15px 20px;
-    }
-
-    .feed-post header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: none;
-      box-shadow: none;
-      padding: 0;
-    }
-
-    .feed-post header img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .feed-post header .poster-info h3 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .feed-post header .poster-info p {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .feed-post .content {
-      margin: 15px 0;
-      font-size: 15px;
-    }
-
-    .feed-post .image {
-      width: 100%;
-      height: 300px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .feed-post footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .feed-post footer button {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: var(--muted);
-      font-size: 16px;
-      transition: color 0.2s;
-    }
-
-    .feed-post footer button:hover {
-      color: var(--primary);
-    }
-
-    /* Floating Action Buttons */
-    #darkToggle {
-      background: var(--card);
-      border: 1px solid #ccc;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      color: var(--text);
-      transition: all 0.3s;
-    }
-
-    #darkToggle:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    /* Assistant Floating Button */
-    .assistant-btn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      font-size: 22px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: all 0.3s;
-    }
-
-    .assistant-btn:hover {
-      transform: scale(1.05);
-      background: var(--secondary);
-    }
-
-    /* Responsive */
-    @media (max-width: 800px) {
-      aside {
-        width: 60px;
-      }
-      main {
-        margin-left: 70px;
-      }
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-      }
-      .search-box input {
-        width: 100%;
-      }
-    }
-  </style>
+  /* Assistant Floating Button */
+  .assist-toggle{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--primary),var(--accent));width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow);cursor:pointer;z-index:200}
+</style>
 </head>
-
 <body>
-  <!-- Sidebar -->
-  <aside>
-    <a href="index.html" title="Feed"><i class="fa-solid fa-house nav-icon active"></i></a>
-    <a href="chat.html" title="Chat"><i class="fa-solid fa-comments nav-icon"></i></a>
-    <a href="conference.html" title="Conference"><i class="fa-solid fa-video nav-icon"></i></a>
-    <a href="market.html" title="Marketplace"><i class="fa-solid fa-store nav-icon"></i></a>
-    <a href="profile.html" title="Profile"><i class="fa-solid fa-user nav-icon"></i></a>
-    <a href="meetversity.html" title="Meetversity"><i class="fa-solid fa-graduation-cap nav-icon"></i></a>
-    <a href="organization.html" title="Organization"><i class="fa-solid fa-building nav-icon"></i></a>
-  </aside>
 
-  <!-- Main -->
-  <main>
-    <header>
-      <div class="brand">
-        <h1>MEET</h1>
+<!-- Sidebar -->
+<aside>
+  <a href="index.html" title="Feed"><i class="fa-solid fa-house nav-icon active"></i></a>
+  <a href="chat.html" title="Chat"><i class="fa-solid fa-comments nav-icon"></i></a>
+  <a href="conference.html" title="Conference"><i class="fa-solid fa-video nav-icon"></i></a>
+  <a href="market.html" title="Marketplace"><i class="fa-solid fa-store nav-icon"></i></a>
+  <a href="profile.html" title="Profile"><i class="fa-solid fa-user nav-icon"></i></a>
+  <a href="meetversity.html" title="Meetversity"><i class="fa-solid fa-graduation-cap nav-icon"></i></a>
+  <a href="organization.html" title="Organization"><i class="fa-solid fa-building nav-icon"></i></a>
+</aside>
+
+<main>
+  <header>
+    <div class="brand">MEET</div>
+    <div class="search"><input placeholder="Search MEET..." /></div>
+    <div class="user-controls">
+      <button id="darkToggle" style="border:none;background:transparent;font-size:18px;cursor:pointer">🌙</button>
+      <img src="https://i.pravatar.cc/100?img=5" alt="">
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- Post Creation -->
+    <div class="card create-card">
+      <div class="create-top">
+        <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
+        <div class="create-input" id="openPost">What's on your mind?</div>
       </div>
-
-      <div class="search-box">
-        <input type="text" placeholder="Search on MEET..." />
-      </div>
-
-      <div class="user-controls">
-        <button id="darkToggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
-        <img src="https://i.pravatar.cc/100?img=5" alt="User">
-      </div>
-    </header>
-
-    <!-- Feed Post Example -->
-    <div class="feed-post">
-      <header>
-        <img src="https://i.pravatar.cc/100?img=6" alt="User">
-        <div class="poster-info">
-          <h3>Alex Johnson</h3>
-          <p>1 hour ago</p>
-        </div>
-      </header>
-
-      <div class="content">
-        Building the future of MEET 🚀 — a global platform for connection, learning, and growth.
-      </div>
-
-      <div class="image" style="background-image:url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d');"></div>
-
-      <footer>
-        <div>
-          <button><i class="fa-solid fa-thumbs-up"></i></button>
-          <button><i class="fa-solid fa-comment"></i></button>
-          <button><i class="fa-solid fa-share"></i></button>
-        </div>
-        <p>120 Likes • 45 Comments</p>
-      </footer>
     </div>
 
-    <!-- Another Feed Post -->
-    <div class="feed-post">
-      <header>
-        <img src="https://i.pravatar.cc/100?img=12" alt="User">
-        <div class="poster-info">
-          <h3>Maria Lopez</h3>
-          <p>3 hours ago</p>
-        </div>
-      </header>
+    <div id="feed"></div>
+  </div>
+</main>
 
-      <div class="content">
-        Just finished recording a new course for <b>Meetversity</b>! Excited to share soon 🎥✨
-      </div>
+<div class="assist-toggle" id="assistToggle">AI</div>
 
-      <div class="image" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f');"></div>
+<script>
+  const darkToggle = document.getElementById("darkToggle");
+  darkToggle.addEventListener("click",()=>{
+    document.body.classList.toggle("dark");
+  });
 
-      <footer>
-        <div>
-          <button><i class="fa-solid fa-thumbs-up"></i></button>
-          <button><i class="fa-solid fa-comment"></i></button>
-          <button><i class="fa-solid fa-share"></i></button>
-        </div>
-        <p>340 Likes • 90 Comments</p>
-      </footer>
-    </div>
-  </main>
-
-  <!-- Assistant Button -->
-  <button class="assistant-btn" title="Ask MEET AI"><i class="fa-solid fa-robot"></i></button>
-
-  <script>
-    const darkToggle = document.getElementById("darkToggle");
-    darkToggle.addEventListener("click", () => {
-      document.body.dataset.theme =
-        document.body.dataset.theme === "dark" ? "" : "dark";
-    });
-  </script>
+  /* Basic Feed Simulation */
+  const feed = document.getElementById("feed");
+  const mock = [
+    {name:'Emily Chen',time:'2h',text:'Just published a free course on MEET!',img:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f'},
+    {name:'Marcus Lee',time:'5h',text:'We’re hiring UI/UX designers 💼',img:''}
+  ];
+  mock.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='card post';
+    div.innerHTML=`<div class="post-head"><div class="p-avatar"><img src="https://i.pravatar.cc/100?u=${p.name}" /></div><div class="post-meta"><div class="name">${p.name}</div><div class="time">${p.time}</div></div></div><div class="post-body">${p.text}</div>${p.img?`<div class='post-media'><img src='${p.img}'></div>`:''}<div class="post-actions"><button class="like-btn">❤ Like</button><button class="comment-btn">💬 Comment</button></div>`;
+    feed.appendChild(div);
+  });
+</script>
 </body>
 </html>
