@@ -1,662 +1,210 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Profile + Messenger (Hybrid)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --primary:#0061FF;
-    --accent:#5AE4A8;
-    --bg:#f6f8fb;
-    --card:#fff;
-    --text:#0f1724;
-    --muted:#6b7280;
-    --radius:12px;
-    --shadow: 0 10px 30px rgba(16,24,40,0.06);
-  }
-  body.dark{
-    --bg:#071026;
-    --card:#071a2a;
-    --text:#e6eef8;
-    --muted:#93a3bd;
-    --shadow: 0 10px 30px rgba(0,0,0,0.6);
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
-  a{color:inherit;text-decoration:none}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEET - Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --primary: #0061ff;
+      --secondary: #00c2cb;
+      --bg: #f5f7fa;
+      --card: #fff;
+      --text: #1b1b1b;
+      --muted: #707070;
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+    }
+    aside {
+      width: 80px;
+      background: var(--card);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      box-shadow: var(--shadow);
+      z-index: 100;
+    }
+    aside .nav-icon {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 22px;
+      margin: 18px 0;
+      cursor: pointer;
+      transition: color .3s;
+    }
+    aside .nav-icon:hover,
+    aside .nav-icon.active {
+      color: var(--primary);
+    }
 
-  /* Header */
-  header{display:flex;align-items:center;gap:16px;padding:12px 18px;background:var(--card);box-shadow:var(--shadow);position:sticky;top:0;z-index:60}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo .icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;border-radius:8px}
-  .brand{font-weight:700;color:var(--primary)}
-  .search{flex:1;display:flex;align-items:center;background:#eef3ff;padding:8px;border-radius:10px}
-  body.dark .search{background:#0f2b40}
-  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
-  .hdr-actions{display:flex;align-items:center;gap:12px}
-  .hdr-actions button{background:transparent;border:0;font-size:18px;cursor:pointer}
+    main {
+      margin-left: 90px;
+      flex: 1;
+      padding-bottom: 80px;
+    }
 
-  /* Layout */
-  .app{display:flex;flex:1;overflow:hidden}
-  aside{width:220px;padding:18px;background:var(--card);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-  aside .nav-btn{background:transparent;border:0;padding:10px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer}
-  aside .nav-btn.active{background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));color:var(--primary)}
-  main{flex:1;overflow:auto;padding:18px}
+    .cover-photo {
+      width: 100%;
+      height: 250px;
+      background: url('https://images.unsplash.com/photo-1522075469751-3a6694fb2f61') center/cover no-repeat;
+      position: relative;
+    }
+    .profile-photo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      position: absolute;
+      bottom: -80px;
+      left: 40px;
+      object-fit: cover;
+      box-shadow: var(--shadow);
+    }
 
-  /* Profile layout */
-  .profile-top{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
-  .banner{height:160px;background:linear-gradient(135deg,var(--primary),var(--accent));position:relative;display:flex;align-items:flex-end;padding:14px;color:white}
-  .banner input{display:none}
-  .banner .change{position:absolute;right:12px;top:12px;background:rgba(255,255,255,0.16);padding:6px 8px;border-radius:8px;backdrop-filter: blur(3px);cursor:pointer}
-  .profile-head{display:flex;gap:18px;padding:16px}
-  .profile-pic{width:120px;height:120px;border-radius:16px;padding:6px;background:linear-gradient(135deg,var(--primary),var(--accent));margin-top:-56px}
-  .profile-pic img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:4px solid #fff}
-  .profile-meta{flex:1}
-  .profile-meta h2{margin:0;font-size:22px}
-  .profile-meta .handle{color:var(--muted);margin-top:6px}
-  .profile-actions{display:flex;gap:8px;margin-top:12px}
-  .btn{padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;font-weight:700;cursor:pointer}
-  .btn-outline{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .profile-header {
+      background: var(--card);
+      padding: 100px 30px 30px;
+      box-shadow: var(--shadow);
+    }
+    .profile-header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .profile-header p.title {
+      margin: 6px 0 10px;
+      color: var(--muted);
+    }
+    .profile-header .bio {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 700px;
+    }
 
-  /* details grid */
-  .profile-body{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:10px}
-  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
-  .details-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .detail-item{padding:10px;border-radius:8px;background:linear-gradient(90deg,#fbfcff,#f6fffa)}
-  body.dark .detail-item{background:rgba(255,255,255,0.02)}
+    .profile-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 30px;
+    }
+    .info-card {
+      background: var(--card);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .info-card h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 18px;
+    }
+    .info-card p {
+      margin: 8px 0;
+      color: var(--text);
+      font-size: 14px;
+    }
 
-  /* edit form */
-  .field{margin-bottom:10px}
-  .field label{display:block;font-weight:600;color:var(--muted);font-size:13px;margin-bottom:6px}
-  .field input, .field textarea, .field select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
-  body.dark .field input, body.dark .field textarea{background:#071a2a;color:#fff;border-color:rgba(255,255,255,0.04)}
-  .small{font-size:13px;color:var(--muted)}
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .social-links a {
+      color: var(--primary);
+      font-size: 20px;
+      text-decoration: none;
+    }
 
-  /* skills */
-  .skills{display:flex;gap:8px;flex-wrap:wrap}
-  .skill-chip{background:linear-gradient(90deg,#f0f9ff,#f2fff6);padding:6px 8px;border-radius:8px;font-weight:700}
-
-  /* Chat messenger style */
-  .chat-wrap{display:flex;gap:12px;height:68vh}
-  .chat-list{width:300px;background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);overflow:auto}
-  .chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;cursor:pointer}
-  .chat-item:hover{background:linear-gradient(90deg, rgba(0,97,255,0.03), rgba(90,228,168,0.02))}
-  .chat-item.active{background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03))}
-  .chat-item .c-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden}
-  .chat-item .c-meta{display:flex;flex-direction:column}
-  .chat-item .c-meta .name{font-weight:700}
-  .chat-item .c-meta .last{font-size:13px;color:var(--muted)}
-
-  .chat-panel{flex:1;background:var(--card);border-radius:12px;padding:12px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
-  .chat-header{display:flex;align-items:center;gap:12px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.04)}
-  .chat-window{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-  .bubble{max-width:72%;padding:10px;border-radius:12px;line-height:1.4}
-  .bubble.me{align-self:flex-end;background:linear-gradient(90deg, rgba(0,97,255,0.12), rgba(90,228,168,0.08));font-weight:600}
-  .bubble.them{align-self:flex-start;background:#eef7ff}
-  body.dark .bubble.them{background:rgba(255,255,255,0.04)}
-  .chat-compose{display:flex;gap:8px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.04)}
-  .chat-compose input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06)}
-  body.dark .chat-compose input{background:#071a2a;color:#fff;border-color:rgba(255,255,255,0.04)}
-  .icon-btn{background:transparent;border:0;font-size:18px;cursor:pointer}
-
-  /* small */
-  .muted{color:var(--muted)}
-  .center{display:flex;align-items:center;justify-content:center}
-  @media (max-width:900px){
-    aside{display:none}
-    .profile-body{grid-template-columns:1fr}
-    .chat-list{display:none}
-  }
-</style>
+    @media (max-width: 800px) {
+      aside {
+        width: 60px;
+      }
+      main {
+        margin-left: 70px;
+      }
+      .profile-photo {
+        width: 120px;
+        height: 120px;
+        bottom: -60px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- svg mask -->
-<svg style="position:absolute;width:0;height:0" aria-hidden>
-  <defs>
-    <mask id="m-mask" viewBox="0 0 100 100">
-      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
-    </mask>
-  </defs>
-</svg>
-
-<header>
-  <div class="logo">
-    <div class="icon" title="MEET"></div>
-    <div class="brand">MEET</div>
-  </div>
-  <div class="search"><input id="globalSearch" placeholder="Search people, courses, jobs..." /></div>
-  <div class="hdr-actions">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:12px;color:var(--muted)">Online</div>
-      <div style="width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card)"></div>
-    </div>
-    <button id="themeToggle" title="Toggle theme">🌙</button>
-    <div style="display:flex;align-items:center;gap:10px">
-      <img id="hdrPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #fff">
-      <div id="hdrName" style="font-weight:700">Alex</div>
-    </div>
-  </div>
-</header>
-
-<div style="display:flex;flex:1">
+  <!-- Sidebar -->
   <aside>
-    <button class="nav-btn" data-tab="feed">🏠 Feed</button>
-    <button class="nav-btn" data-tab="chat">💬 Chat</button>
-    <button class="nav-btn active" data-tab="profile">👤 Profile</button>
-    <button class="nav-btn" data-tab="conference">🎥 Conference</button>
-    <button class="nav-btn" data-tab="market">🛒 Marketplace</button>
-    <div style="flex:1"></div>
-    <button id="editProfileBtn" class="btn-outline">Edit Profile</button>
+    <a href="index.html" title="Feed"><i class="fa-solid fa-house nav-icon"></i></a>
+    <a href="chat.html" title="Chat"><i class="fa-solid fa-comments nav-icon"></i></a>
+    <a href="conference.html" title="Conference"><i class="fa-solid fa-video nav-icon"></i></a>
+    <a href="market.html" title="Marketplace"><i class="fa-solid fa-store nav-icon"></i></a>
+    <a href="profile.html" title="Profile" class="active"><i class="fa-solid fa-user nav-icon"></i></a>
+    <a href="meetversity.html" title="Meetversity"><i class="fa-solid fa-graduation-cap nav-icon"></i></a>
+    <a href="organization.html" title="Organization"><i class="fa-solid fa-building nav-icon"></i></a>
   </aside>
 
+  <!-- Main Profile Section -->
   <main>
-    <!-- PROFILE -->
-    <section id="profileSection">
-      <div class="profile-top">
-        <div class="banner" id="bannerArea">
-          <div style="font-weight:700;font-size:20px">Your banner — make it personal</div>
-          <label class="change" id="changeBannerBtn">Change banner<input id="bannerInput" type="file" accept="image/*" /></label>
-        </div>
+    <div class="cover-photo">
+      <img class="profile-photo" src="https://i.pravatar.cc/300?img=11" alt="Profile">
+    </div>
 
-        <div class="profile-head">
-          <div class="profile-pic" id="profilePicWrap">
-            <img id="profilePic" src="https://i.pravatar.cc/200?img=5" alt="profile">
-          </div>
-          <div class="profile-meta">
-            <h2 id="profileName">Alex</h2>
-            <div class="handle small" id="profileHandle">@alex</div>
-            <div class="small" id="profileBio">Creator • Teacher • Developer</div>
-            <div class="profile-actions">
-              <button id="editBtn" class="btn">Edit Profile</button>
-              <button id="shareBtn" class="btn-outline">Share Profile</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-body">
-          <div>
-            <div class="card">
-              <h3>About</h3>
-              <div style="margin-top:12px" id="aboutDetails">
-                <div class="details-list">
-                  <div class="detail-item">Primary School: <div id="primarySchool" class="muted">—</div></div>
-                  <div class="detail-item">Secondary School: <div id="secondarySchool" class="muted">—</div></div>
-                  <div class="detail-item">College / University: <div id="university" class="muted">—</div></div>
-                  <div class="detail-item">Other Schools: <div id="otherSchools" class="muted">—</div></div>
-                  <div class="detail-item">Country: <div id="country" class="muted">—</div></div>
-                  <div class="detail-item">Town / City: <div id="city" class="muted">—</div></div>
-                  <div class="detail-item">Region: <div id="region" class="muted">—</div></div>
-                  <div class="detail-item">Date of Birth: <div id="dob" class="muted">—</div></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card" style="margin-top:12px">
-              <h3>Posts</h3>
-              <div id="profilePosts"></div>
-            </div>
-          </div>
-
-          <aside style="display:flex;flex-direction:column;gap:12px">
-            <div class="card">
-              <h3>Skills</h3>
-              <div id="skillsWrap" class="skills" style="margin-top:8px"></div>
-              <div style="margin-top:10px"><input id="skillInput" placeholder="Add a skill and press Enter"></div>
-            </div>
-
-            <div class="card">
-              <h3>Contact & Info</h3>
-              <div class="small">Location</div>
-              <div id="contactLocation" style="margin-top:8px" class="muted">—</div>
-              <div style="margin-top:8px">
-                <button id="viewPublicBtn" class="btn-outline">View Public Profile</button>
-              </div>
-            </div>
-          </aside>
-        </div>
+    <div class="profile-header">
+      <h1>Alex Johnson</h1>
+      <p class="title">Software Engineer at MEET</p>
+      <p class="bio">Innovative and passionate developer specializing in web and AI technologies. Dedicated to building tools that connect people and ideas worldwide.</p>
+      <div class="social-links">
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-facebook"></i></a>
       </div>
-    </section>
+    </div>
 
-    <!-- CHAT -->
-    <section id="chatSection" style="display:none">
-      <div class="chat-wrap">
-        <div class="chat-list" id="chatList"></div>
-        <div class="chat-panel" id="chatPanel">
-          <div class="chat-header">
-            <div class="p-avatar" style="width:52px;height:52px;padding:2px"><img id="chatHeaderPic" src="" style="width:100%;height:100%;border-radius:50%;object-fit:cover"></div>
-            <div>
-              <div id="chatHeaderName" style="font-weight:700">Select a chat</div>
-              <div id="chatHeaderStatus" class="small muted">Offline</div>
-            </div>
-            <div style="margin-left:auto;display:flex;gap:8px">
-              <button class="icon-btn" id="callBtn" title="Start call">📞</button>
-              <button class="icon-btn" id="videoBtn" title="Start video">🎥</button>
-            </div>
-          </div>
-
-          <div class="chat-window" id="chatWindow"><div class="center muted">Select a conversation from the left to begin.</div></div>
-
-          <div class="chat-compose">
-            <input id="msgInput" placeholder="Write a message..." />
-            <button id="sendMsg" class="btn">Send</button>
-          </div>
-        </div>
+    <div class="profile-info">
+      <div class="info-card">
+        <h3>🎓 Education</h3>
+        <p><strong>Primary School:</strong> Meadow Hills Elementary</p>
+        <p><strong>College:</strong> City Community College</p>
+        <p><strong>University:</strong> University of Toronto</p>
+        <p><strong>Other:</strong> Advanced AI Bootcamp, OpenAI</p>
       </div>
-    </section>
 
-    <!-- placeholders for other tabs -->
-    <section id="feedSection" style="display:none">
-      <div class="card center">Feed — placeholder</div>
-    </section>
-    <section id="conferenceSection" style="display:none">
-      <div class="card center">Conference — placeholder</div>
-    </section>
-    <section id="marketSection" style="display:none">
-      <div class="card center">Marketplace — placeholder</div>
-    </section>
+      <div class="info-card">
+        <h3>🌍 Location</h3>
+        <p><strong>Country:</strong> Canada</p>
+        <p><strong>Region:</strong> Ontario</p>
+        <p><strong>City:</strong> Toronto</p>
+        <p><strong>Date of Birth:</strong> 12 April 1996</p>
+      </div>
+
+      <div class="info-card">
+        <h3>💼 Experience</h3>
+        <p><strong>2022–Present:</strong> Software Engineer at MEET</p>
+        <p><strong>2020–2022:</strong> Front-End Developer at InnovateX</p>
+        <p><strong>2018–2020:</strong> Web Developer at CodeLabs</p>
+      </div>
+
+      <div class="info-card">
+        <h3>📞 Contact</h3>
+        <p><strong>Email:</strong> alexjohnson@meet.com</p>
+        <p><strong>Phone:</strong> +1 647 555 0198</p>
+        <p><strong>Website:</strong> www.meet.com/alexjohnson</p>
+      </div>
+    </div>
   </main>
-</div>
-
-<!-- Edit Profile Modal -->
-<div id="editModal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:90">
-  <div style="background:var(--card);padding:18px;border-radius:12px;max-width:720px;width:92%;box-shadow:var(--shadow);">
-    <h3>Edit Profile</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field">
-        <label>Full name</label>
-        <input id="editName" />
-      </div>
-      <div class="field">
-        <label>Handle (no @)</label>
-        <input id="editHandle" />
-      </div>
-      <div class="field" style="grid-column:1/3">
-        <label>Bio</label>
-        <textarea id="editBio"></textarea>
-      </div>
-      <div class="field">
-        <label>Primary School</label>
-        <input id="editPrimary" />
-      </div>
-      <div class="field">
-        <label>Secondary School</label>
-        <input id="editSecondary" />
-      </div>
-      <div class="field">
-        <label>College / University</label>
-        <input id="editUniversity" />
-      </div>
-      <div class="field">
-        <label>Other Schools</label>
-        <input id="editOther" />
-      </div>
-      <div class="field">
-        <label>Country</label>
-        <input id="editCountry" />
-      </div>
-      <div class="field">
-        <label>Town / City</label>
-        <input id="editCity" />
-      </div>
-      <div class="field">
-        <label>Region</label>
-        <input id="editRegion" />
-      </div>
-      <div class="field">
-        <label>Date of Birth</label>
-        <input id="editDOB" type="date" />
-      </div>
-      <div class="field" style="grid-column:1/3">
-        <label>Profile photo</label>
-        <input id="editPic" type="file" accept="image/*" />
-      </div>
-      <div class="field" style="grid-column:1/3">
-        <label>Banner image</label>
-        <input id="editBanner" type="file" accept="image/*" />
-      </div>
-    </div>
-
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button id="cancelEdit" class="btn-outline">Cancel</button>
-      <button id="saveEdit" class="btn">Save Profile</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/*
-  MEET - Profile + Messenger SPA prototype
-  - Persists profile, banner, profile pic, chats using localStorage
-  - Chat is messenger-style with left contact list and conversation pane
-  - Edit profile modal accepts image uploads (stored as dataURL)
-*/
-
-/* Storage keys */
-const KEY_USER = 'meet_user_profile_v1';
-const KEY_CHATS = 'meet_user_chats_v1';
-const KEY_POSTS = 'meet_user_posts_v1';
-const KEY_THEME = 'meet_theme_v1';
-
-/* Basic helper */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-function uid(){ return 'id_' + Math.random().toString(36).slice(2,9) }
-function tAgo(ts){ const s = Math.floor((Date.now()-ts)/1000); if(s<60) return s+'s'; if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d' }
-
-/* --- initialize theme --- */
-(function initTheme(){
-  const t = localStorage.getItem(KEY_THEME) || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-  if(t === 'dark') document.body.classList.add('dark');
-  $('#themeToggle').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-})();
-$('#themeToggle').addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
-  localStorage.setItem(KEY_THEME, now);
-  $('#themeToggle').textContent = now==='dark' ? '☀️' : '🌙';
-});
-
-/* --- mock user / load or create --- */
-function defaultUser(){
-  return {
-    id: uid(),
-    name: 'Alex',
-    handle: 'alex',
-    bio: 'Creator • Teacher • Developer',
-    avatar: 'https://i.pravatar.cc/200?img=5',
-    banner: null, // dataURL
-    primarySchool:'',
-    secondarySchool:'',
-    university:'',
-    otherSchools:'',
-    country:'',
-    city:'',
-    region:'',
-    dob:'',
-    skills: []
-  };
-}
-function loadUser(){
-  try{
-    const raw = localStorage.getItem(KEY_USER);
-    if(!raw){ const u = defaultUser(); localStorage.setItem(KEY_USER, JSON.stringify(u)); return u }
-    return JSON.parse(raw);
-  }catch(e){ return defaultUser() }
-}
-function saveUser(u){ localStorage.setItem(KEY_USER, JSON.stringify(u)) }
-
-/* --- chats seed/load --- */
-const seedChats = [
-  { id:'c1', name:'Sarah Johnson', avatar:'https://i.pravatar.cc/100?img=12', online:true, messages:[
-    {from:'them', text:'Hi Alex! Loved your last course 😊', time:Date.now()-1000*60*60},
-    {from:'me', text:'Thanks Sarah — new module drops tomorrow!', time:Date.now()-1000*60*30}
-  ]},
-  { id:'c2', name:'Ken Okoro', avatar:'https://i.pravatar.cc/100?img=25', online:false, messages:[
-    {from:'them', text:'Are you available for an interview?', time:Date.now()-1000*60*60*5}
-  ]},
-  { id:'c3', name:'Maya', avatar:'https://i.pravatar.cc/100?img=18', online:true, messages:[]}
-];
-
-function loadChats(){
-  try{
-    const raw = localStorage.getItem(KEY_CHATS);
-    if(!raw){ localStorage.setItem(KEY_CHATS, JSON.stringify(seedChats)); return seedChats.slice() }
-    return JSON.parse(raw);
-  }catch(e){ return seedChats.slice() }
-}
-function saveChats(chats){ localStorage.setItem(KEY_CHATS, JSON.stringify(chats)) }
-
-/* --- posts (for profile posts) --- */
-function loadPosts(){
-  try{ return JSON.parse(localStorage.getItem(KEY_POSTS)) || [] } catch(e){ return [] }
-}
-function savePosts(ps){ localStorage.setItem(KEY_POSTS, JSON.stringify(ps)) }
-
-/* --- app state --- */
-let user = loadUser();
-let chats = loadChats();
-let posts = loadPosts();
-let activeChatId = null;
-
-/* --- utility to render profile area --- */
-function renderProfile(){
-  user = loadUser();
-  $('#profileName').textContent = user.name || '—';
-  $('#profileHandle').textContent = '@' + (user.handle || '—');
-  $('#profileBio').textContent = user.bio || '—';
-  $('#hdrName').textContent = user.name || 'MEET';
-  $('#hdrPic').src = user.avatar;
-  $('#profilePic').src = user.avatar;
-  // banner
-  if(user.banner){
-    $('#bannerArea').style.backgroundImage = `url(${user.banner})`;
-    $('#bannerArea').style.backgroundSize = 'cover';
-    $('#bannerArea').style.backgroundPosition = 'center';
-  } else {
-    $('#bannerArea').style.background = 'linear-gradient(135deg,var(--primary),var(--accent))';
-  }
-  // details
-  $('#primarySchool').textContent = user.primarySchool || '—';
-  $('#secondarySchool').textContent = user.secondarySchool || '—';
-  $('#university').textContent = user.university || '—';
-  $('#otherSchools').textContent = user.otherSchools || '—';
-  $('#country').textContent = user.country || '—';
-  $('#city').textContent = user.city || '—';
-  $('#region').textContent = user.region || '—';
-  $('#dob').textContent = user.dob || '—';
-  // skills
-  const skillsWrap = $('#skillsWrap'); skillsWrap.innerHTML = '';
-  (user.skills || []).forEach(s=>{
-    const sp = document.createElement('div'); sp.className = 'skill-chip'; sp.textContent = s;
-    skillsWrap.appendChild(sp);
-  });
-  // posts
-  const profPosts = $('#profilePosts'); profPosts.innerHTML = '';
-  posts.filter(p => p.userId === user.id).forEach(p=>{
-    const d = document.createElement('div'); d.className = 'card'; d.style.marginBottom='8px';
-    d.innerHTML = `<div style="font-weight:700">${p.text ? p.text.slice(0,80) : '(media)'} </div><div class="muted">${new Date(p.time).toLocaleString()}</div>`;
-    profPosts.appendChild(d);
-  });
-}
-
-/* --- render chat list --- */
-function renderChatList(){
-  const list = $('#chatList'); list.innerHTML = '';
-  chats.forEach(c=>{
-    const el = document.createElement('div'); el.className = 'chat-item';
-    if(activeChatId === c.id) el.classList.add('active');
-    el.innerHTML = `<div class="c-avatar"><img src="${c.avatar}" style="width:100%;height:100%;border-radius:50%"></div>
-                    <div class="c-meta"><div class="name">${c.name}</div><div class="last muted">${c.messages.length? c.messages[c.messages.length-1].text.slice(0,40): 'No messages yet'}</div></div>`;
-    el.addEventListener('click', ()=>{ openChat(c.id) });
-    list.appendChild(el);
-  });
-}
-
-/* --- open chat --- */
-function openChat(id){
-  activeChatId = id;
-  renderChatList();
-  const c = chats.find(x=>x.id===id);
-  if(!c) return;
-  $('#chatHeaderName').textContent = c.name;
-  $('#chatHeaderPic').src = c.avatar;
-  $('#chatHeaderStatus').textContent = c.online ? 'Online' : 'Last seen ' + (c.messages.length? tAgo(c.messages[c.messages.length-1].time) : 'offline');
-  renderMessages(c.messages);
-}
-
-/* --- render messages --- */
-function renderMessages(messages){
-  const win = $('#chatWindow'); win.innerHTML = '';
-  if(!messages.length) { win.innerHTML = '<div class="center muted">No messages yet — start the conversation.</div>'; return; }
-  messages.forEach(m=>{
-    const b = document.createElement('div');
-    b.className = 'bubble ' + (m.from === 'me' ? 'me' : 'them');
-    b.textContent = m.text;
-    const ts = document.createElement('div'); ts.style.fontSize='11px'; ts.style.marginTop='6px'; ts.style.opacity='0.7'; ts.className='small muted';
-    ts.textContent = new Date(m.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    b.appendChild(ts);
-    win.appendChild(b);
-  });
-  win.scrollTop = win.scrollHeight;
-}
-
-/* --- send chat message --- */
-$('#sendMsg').addEventListener('click', sendMessage);
-$('#msgInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendMessage(); });
-
-function sendMessage(){
-  const txt = $('#msgInput').value.trim(); if(!txt || !activeChatId) return;
-  const c = chats.find(x=>x.id===activeChatId);
-  c.messages.push({from:'me', text:txt, time:Date.now()});
-  saveChats(chats);
-  $('#msgInput').value = '';
-  renderMessages(c.messages);
-  renderChatList();
-  // simple auto-reply for demo
-  setTimeout(()=>{ c.messages.push({from:'them', text:'Thanks — got that!', time:Date.now()}); saveChats(chats); renderMessages(c.messages); renderChatList(); }, 900);
-}
-
-/* --- open edit modal and populate --- */
-function openEditModal(){
-  $('#editModal').style.display = 'flex';
-  const u = user;
-  $('#editName').value = u.name || '';
-  $('#editHandle').value = u.handle || '';
-  $('#editBio').value = u.bio || '';
-  $('#editPrimary').value = u.primarySchool || '';
-  $('#editSecondary').value = u.secondarySchool || '';
-  $('#editUniversity').value = u.university || '';
-  $('#editOther').value = u.otherSchools || '';
-  $('#editCountry').value = u.country || '';
-  $('#editCity').value = u.city || '';
-  $('#editRegion').value = u.region || '';
-  $('#editDOB').value = u.dob || '';
-  // we allow file inputs for pic/banner; these will be handled on change
-}
-
-/* --- save edited profile --- */
-$('#saveEdit').addEventListener('click', async ()=>{
-  // read values
-  const u = loadUser();
-  u.name = $('#editName').value.trim() || u.name;
-  u.handle = $('#editHandle').value.trim() || u.handle;
-  u.bio = $('#editBio').value.trim() || u.bio;
-  u.primarySchool = $('#editPrimary').value.trim();
-  u.secondarySchool = $('#editSecondary').value.trim();
-  u.university = $('#editUniversity').value.trim();
-  u.otherSchools = $('#editOther').value.trim();
-  u.country = $('#editCountry').value.trim();
-  u.city = $('#editCity').value.trim();
-  u.region = $('#editRegion').value.trim();
-  u.dob = $('#editDOB').value || '';
-  // check file inputs (profile pic and banner)
-  const picFile = $('#editPic').files[0];
-  const bannerFile = $('#editBanner').files[0];
-  if(picFile){
-    u.avatar = await fileToDataURL(picFile);
-  }
-  if(bannerFile){
-    u.banner = await fileToDataURL(bannerFile);
-  }
-  saveUser(u);
-  user = u;
-  $('#editModal').style.display = 'none';
-  renderProfile();
-});
-
-/* cancel edit */
-$('#cancelEdit').addEventListener('click', ()=> $('#editModal').style.display = 'none');
-
-/* helper: file -> dataURL */
-function fileToDataURL(file){
-  return new Promise((res, rej)=>{
-    const reader = new FileReader();
-    reader.onload = ()=> res(reader.result);
-    reader.onerror = rej;
-    reader.readAsDataURL(file);
-  });
-}
-
-/* banner upload quick-change */
-$('#bannerInput').addEventListener('change', async (e)=>{
-  const f = e.target.files[0]; if(!f) return;
-  const data = await fileToDataURL(f);
-  user.banner = data; saveUser(user); renderProfile();
-});
-
-/* edit profile button */
-$('#editBtn').addEventListener('click', openEditModal);
-$('#editProfileBtn').addEventListener('click', openEditModal);
-
-/* quick change from aside */
-$('#changeBannerBtn').addEventListener('click', ()=> $('#bannerInput').click());
-
-/* skill add */
-$('#skillInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const v = e.target.value.trim(); if(!v) return; user.skills = user.skills || []; user.skills.push(v); saveUser(user); renderProfile(); e.target.value=''; } });
-
-/* view public (placeholder) */
-$('#viewPublicBtn').addEventListener('click', ()=> alert('Public profile view (placeholder)'));
-
-/* share profile */
-$('#shareBtn').addEventListener('click', ()=> {
-  const text = `MEET profile — ${user.name} (@${user.handle}) — ${user.bio}`;
-  navigator.clipboard?.writeText(text).then(()=> alert('Profile copied to clipboard'), ()=> alert('Could not copy'));
-});
-
-/* menu nav switching */
-$$('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    $$('.nav-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const tab = btn.getAttribute('data-tab');
-    // hide all sections
-    $('#profileSection').style.display = tab==='profile' ? '' : 'none';
-    $('#chatSection').style.display = tab==='chat' ? '' : 'none';
-    $('#feedSection').style.display = tab==='feed' ? '' : 'none';
-    $('#conferenceSection').style.display = tab==='conference' ? '' : 'none';
-    $('#marketSection').style.display = tab==='market' ? '' : 'none';
-    // extra actions
-    if(tab === 'profile') renderProfile();
-    if(tab === 'chat') renderChatList();
-  });
-});
-
-/* chat initial render */
-renderProfile();
-renderChatList();
-
-/* header search quick filter (search contacts or posts) */
-$('#globalSearch').addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if(!q) { renderChatList(); return; }
-  const list = $('#chatList'); list.innerHTML = '';
-  chats.filter(c => (c.name + ' ' + (c.messages[c.messages.length-1]?.text || '')).toLowerCase().includes(q)).forEach(c=>{
-    const el = document.createElement('div'); el.className = 'chat-item';
-    el.innerHTML = `<div class="c-avatar"><img src="${c.avatar}" style="width:100%;height:100%;border-radius:50%"></div>
-                    <div class="c-meta"><div class="name">${c.name}</div><div class="last muted">${c.messages.length? c.messages[c.messages.length-1].text.slice(0,40): 'No messages yet'}</div></div>`;
-    list.appendChild(el);
-  });
-});
-
-/* header quick: click profile picture to open edit */
-$('#profilePic').addEventListener('click', openEditModal);
-
-/* simple mock: clicking chat header call buttons show alert */
-$('#callBtn').addEventListener('click', ()=> alert('Call feature will be added later'));
-$('#videoBtn').addEventListener('click', ()=> alert('Video call feature will be added later'));
-
-/* small UI nicety: close edit modal on outside click */
-document.getElementById('editModal').addEventListener('click', (e)=>{ if(e.target === document.getElementById('editModal')) document.getElementById('editModal').style.display='none' });
-
-/* Save chats/posts on unload */
-window.addEventListener('beforeunload', ()=> { saveChats(chats); savePosts(posts) });
-
-/* expose for debugging */
-window.MEET = { user, chats, posts, renderProfile, renderChatList, openChat, saveUser };
-
-</script>
 </body>
 </html>
