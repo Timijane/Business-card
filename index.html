@@ -1,407 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPay Transaction Receipt</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .receipt-container {
-            width: 100%;
-            max-width: 400px;
-            perspective: 1000px;
-        }
-        
-        .receipt {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0, 120, 212, 0.15);
-            position: relative;
-            overflow: hidden;
-            transform-style: preserve-3d;
-            transition: transform 0.3s ease;
-        }
-        
-        .receipt:hover {
-            transform: translateY(-5px) rotateX(5deg);
-        }
-        
-        .receipt::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(to right, #00b14f, #0095da);
-        }
-        
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 80px;
-            font-weight: 900;
-            color: rgba(0, 177, 79, 0.05);
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #00b14f, #0095da);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 800;
-            font-size: 20px;
-            box-shadow: 0 4px 8px rgba(0, 177, 79, 0.3);
-        }
-        
-        .brand {
-            font-weight: 800;
-            font-size: 24px;
-            color: #00b14f;
-            letter-spacing: -0.5px;
-        }
-        
-        .receipt-id {
-            font-size: 12px;
-            color: #666;
-            text-align: right;
-        }
-        
-        .title {
-            text-align: center;
-            color: #444;
-            font-size: 16px;
-            margin-bottom: 24px;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .amount-section {
-            background: linear-gradient(135deg, #f8fffc, #f0f9ff);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-            border: 1px solid rgba(0, 177, 79, 0.1);
-            position: relative;
-            z-index: 1;
-        }
-        
-        .amount-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        
-        .amount {
-            font-size: 36px;
-            font-weight: 800;
-            color: #00b14f;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-        
-        .status {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(0, 177, 79, 0.1);
-            color: #00b14f;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .status i {
-            margin-right: 6px;
-            font-size: 12px;
-        }
-        
-        .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, #ddd, transparent);
-            margin: 20px 0;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .divider.dashed {
-            background: transparent;
-            border-top: 1px dashed #ddd;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 16px 0;
-            font-size: 15px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .label {
-            color: #666;
-            font-weight: 500;
-        }
-        
-        .value {
-            color: #333;
-            font-weight: 600;
-            text-align: right;
-            max-width: 60%;
-        }
-        
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #777;
-            margin-top: 24px;
-            line-height: 1.5;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .stamp {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(0, 177, 79, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: rotate(15deg);
-            opacity: 0.7;
-            z-index: 0;
-        }
-        
-        .stamp-text {
-            font-size: 12px;
-            font-weight: 800;
-            color: #00b14f;
-            text-align: center;
-            line-height: 1.2;
-        }
-        
-        .security-note {
-            font-size: 10px;
-            color: #999;
-            text-align: center;
-            margin-top: 8px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 12px;
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #00b14f, #0095da);
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #00b14f;
-            color: #00b14f;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 177, 79, 0.3);
-        }
-        
-        .receipt-footer {
-            display: flex;
-            justify-content: center;
-            margin-top: 16px;
-            gap: 20px;
-        }
-        
-        .footer-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #00b14f;
-            font-size: 12px;
-            gap: 4px;
-        }
-        
-        .footer-icon i {
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEET — Connect. Share. Earn.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0099cc;
+      --accent: #0077b6;
+      --hover: #00b4d8;
+      --text: #222;
+      --muted: #666;
+      --bg: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Navbar */
+    header {
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .logo span {
+      color: #fff;
+    }
+
+    .logo .m {
+      color: #f1f1f1;
+      background: linear-gradient(90deg, red, yellow, green, blue);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 24px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #e0f7ff;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Hero */
+    .hero {
+      margin-top: 80px;
+      text-align: center;
+      padding: 60px 20px;
+      background: #f8f9fa;
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+    }
+
+    .hero button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .hero button:hover {
+      background: var(--hover);
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 60px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .feature {
+      background: #fff;
+      border-radius: 10px;
+      padding: 30px 20px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .feature h3 {
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Monetization Section */
+    .monetization {
+      background: #e6f7ff;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .monetization h2 {
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .monetization p {
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .monetization button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .monetization button:hover {
+      background: var(--hover);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--accent);
+      color: #fff;
+      text-align: center;
+      padding: 24px 12px;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #e0f7ff;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    /* Responsive Navbar */
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+        flex-direction: column;
+        background: var(--primary);
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding: 10px 0;
+      }
+
+      nav ul.active {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="receipt-container">
-        <div class="receipt">
-            <div class="watermark">OPAY</div>
-            
-            <div class="header">
-                <div class="logo-container">
-                    <div class="logo">O</div>
-                    <div class="brand">OPay</div>
-                </div>
-                <div class="receipt-id">Receipt #PP2025071000123456789</div>
-            </div>
-            
-            <div class="title">Transaction Receipt</div>
-            
-            <div class="amount-section">
-                <div class="amount-label">Amount Transferred</div>
-                <div class="amount">₦500,000.00</div>
-                <div class="status">
-                    <i class="fas fa-check-circle"></i> Successful
-                </div>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div class="info-row">
-                <div class="label">Recipient:</div>
-                <div class="value">Joshua Similoluwa</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="label">Recipient Phone:</div>
-                <div class="value">0803-555-1234</div>
-            </div>
-            
-            <div class="divider dashed"></div>
-            
-            <div class="info-row">
-                <div class="label">Sender:</div>
-                <div class="value">Okewunmi Timileyin</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="label">Sender Phone:</div>
-                <div class="value">90***********</div>
-            </div>
-            
-            <div class="divider dashed"></div>
-            
-            <div class="info-row">
-                <div class="label">Transaction Date:</div>
-                <div class="value" id="current-date">July 10, 2024 14:45</div>
-            </div>
-            
-            <div class="info-row">
-                <div class="label">Transaction ID:</div>
-                <div class="value">PP2025071000123456789</div>
-            </div>
-            
-            <div class="stamp">
-                <div class="stamp-text">PAID<br>OPAY</div>
-            </div>
-            
-            <div class="footer">
-                <p>Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, instant loans, and good annual interest on your savings.</p>
-                <p class="security-note">OPay is licensed by the Central Bank of Nigeria and insured by the NDIC.</p>
-            </div>
-            
-            <div class="action-buttons">
-                <button class="btn btn-primary">
-                    <i class="fas fa-download"></i> Download
-                </button>
-                <button class="btn btn-outline">
-                    <i class="fas fa-share-alt"></i> Share
-                </button>
-            </div>
-            
-            <div class="receipt-footer">
-                <div class="footer-icon">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Secure</span>
-                </div>
-                <div class="footer-icon">
-                    <i class="fas fa-bolt"></i>
-                    <span>Instant</span>
-                </div>
-                <div class="footer-icon">
-                    <i class="fas fa-headset"></i>
-                    <span>24/7 Support</span>
-                </div>
-            </div>
-        </div>
-    </div>
+  <header>
+    <div class="logo"><span class="m">M</span>EET</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <nav>
+      <ul id="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Login</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <script>
-        // Update date and time to current
-        function updateDateTime() {
-            const now = new Date();
-            const options = { month: 'long', day: 'numeric', year: 'numeric' };
-            const dateString = now.toLocaleDateString('en-US', options);
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            document.getElementById('current-date').textContent = `${dateString} ${timeString}`;
-        }
-        
-        // Initialize with current date and time
-        updateDateTime();
-        
-        // Update time every minute
-        setInterval(updateDateTime, 60000);
-    </script>
+  <section class="hero">
+    <h1>Welcome to MEET</h1>
+    <p>Connect, share, and earn — all in one platform built for the world.</p>
+    <button>Join Now</button>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <h3>Connect</h3>
+      <p>Meet people globally and build meaningful relationships in real time.</p>
+    </div>
+    <div class="feature">
+      <h3>Share</h3>
+      <p>Post updates, photos, and videos to express yourself creatively.</p>
+    </div>
+    <div class="feature">
+      <h3>Monetize</h3>
+      <p>Earn rewards and grow your community with our monetization tools.</p>
+    </div>
+    <div class="feature">
+      <h3>Privacy</h3>
+      <p>Your data is secure and protected with advanced encryption technology.</p>
+    </div>
+  </section>
+
+  <section class="monetization">
+    <h2>Monetize Your Influence</h2>
+    <p>Turn your engagement into income. Join MEET’s creator monetization program today.</p>
+    <button>Start Earning</button>
+  </section>
+
+  <footer>
+    © 2025 MEET. All rights reserved.
+    <br />
+    <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#">Contact</a>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+  </script>
 </body>
 </html>
