@@ -3,132 +3,679 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Profile + Messenger (Hybrid)</title>
+<title>MEET — Profile</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --primary:#0061FF;
     --accent:#5AE4A8;
-    --bg:#f6f8fb;
+    --bg:#f7f9fb;
     --card:#fff;
-    --text:#0f1724;
+    --text:#111827;
     --muted:#6b7280;
     --radius:12px;
-    --shadow: 0 10px 30px rgba(16,24,40,0.06);
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
   }
-  body.dark{
-    --bg:#071026;
-    --card:#071a2a;
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
     --text:#e6eef8;
     --muted:#93a3bd;
-    --shadow: 0 10px 30px rgba(0,0,0,0.6);
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
-  a{color:inherit;text-decoration:none}
-
-  /* Header */
-  header{display:flex;align-items:center;gap:16px;padding:12px 18px;background:var(--card);box-shadow:var(--shadow);position:sticky;top:0;z-index:60}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo .icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;border-radius:8px}
-  .brand{font-weight:700;color:var(--primary)}
-  .search{flex:1;display:flex;align-items:center;background:#eef3ff;padding:8px;border-radius:10px}
-  body.dark .search{background:#0f2b40}
-  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
-  .hdr-actions{display:flex;align-items:center;gap:12px}
-  .hdr-actions button{background:transparent;border:0;font-size:18px;cursor:pointer}
-
-  /* Layout */
-  .app{display:flex;flex:1;overflow:hidden}
-  aside{width:220px;padding:18px;background:var(--card);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-  aside .nav-btn{background:transparent;border:0;padding:10px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer}
-  aside .nav-btn.active{background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));color:var(--primary)}
-  main{flex:1;overflow:auto;padding:18px}
-
-  /* Profile layout */
-  .profile-top{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
-  .banner{
-    height:260px; /* larger like Facebook */
-    background:linear-gradient(135deg,var(--primary),var(--accent));
-    position:relative;
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
     display:flex;
-    align-items:flex-end;
-    justify-content:flex-start;
-    padding:14px;
-    color:white;
+    flex-direction:column;
+    transition:background .35s,color .35s;
   }
-  .banner input{display:none}
-  .banner .change{position:absolute;right:12px;top:12px;background:rgba(255,255,255,0.16);padding:6px 8px;border-radius:8px;backdrop-filter: blur(3px);cursor:pointer}
-  .profile-head{display:flex;gap:18px;padding:16px;position:relative}
-  .profile-pic{
-    width:160px;height:160px;
-    border-radius:16px;
-    padding:6px;
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo-icon{
+    width:44px;height:44px;border-radius:8px;
     background:linear-gradient(135deg,var(--primary),var(--accent));
-    position:absolute;
-    top:-80px; /* overlaps banner nicely */
-    left:16px;
+    display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
   }
-  .profile-pic img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:4px solid #fff}
-  .profile-meta{margin-left:190px;margin-top:40px;flex:1}
-  .profile-meta h2{margin:0;font-size:22px}
-  .profile-meta .handle{color:var(--muted);margin-top:6px}
-  .profile-actions{display:flex;gap:8px;margin-top:12px}
-  .btn{padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;font-weight:700;cursor:pointer}
-  .btn-outline{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
+    max-width:600px;
+  }
+  body.dark .search{background:#0f2134}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
 
-  /* details grid */
-  .profile-body{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:60px}
-  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
-  .details-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .detail-item{padding:10px;border-radius:8px;background:linear-gradient(90deg,#fbfcff,#f6fffa)}
-  body.dark .detail-item{background:rgba(255,255,255,0.02)}
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
 
-  /* form fields */
-  .field{margin-bottom:10px}
-  .field label{display:block;font-weight:600;color:var(--muted);font-size:13px;margin-bottom:6px}
-  .field input, .field textarea, .field select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
-  body.dark .field input, body.dark .field textarea{background:#071a2a;color:#fff;border-color:rgba(255,255,255,0.04)}
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+    transition: width 0.3s ease;
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  aside button .menu-text {
+    transition: opacity 0.3s ease;
+  }
+  main{flex:1;padding:20px;overflow:auto}
 
-  /* skills */
-  .skills{display:flex;gap:8px;flex-wrap:wrap}
-  .skill-chip{background:linear-gradient(90deg,#f0f9ff,#f2fff6);padding:6px 8px;border-radius:8px;font-weight:700}
+  /* profile styles */
+  .profile-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
 
-  /* Chat messenger */
-  .chat-wrap{display:flex;gap:12px;height:68vh}
-  .chat-list{width:300px;background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);overflow:auto}
-  .chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;cursor:pointer}
-  .chat-item:hover{background:linear-gradient(90deg, rgba(0,97,255,0.03), rgba(90,228,168,0.02))}
-  .chat-item.active{background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03))}
-  .chat-item .c-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden}
-  .chat-item .c-meta{display:flex;flex-direction:column}
-  .chat-item .c-meta .name{font-weight:700}
-  .chat-item .c-meta .last{font-size:13px;color:var(--muted)}
+  .cover-photo {
+    height: 280px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: var(--radius);
+    position: relative;
+    margin-bottom: 100px;
+    overflow: hidden;
+  }
 
-  .chat-panel{flex:1;background:var(--card);border-radius:12px;padding:12px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
-  .chat-header{display:flex;align-items:center;gap:12px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.04)}
-  .chat-window{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-  .bubble{max-width:72%;padding:10px;border-radius:12px;line-height:1.4}
-  .bubble.me{align-self:flex-end;background:linear-gradient(90deg, rgba(0,97,255,0.12), rgba(90,228,168,0.08));font-weight:600}
-  .bubble.them{align-self:flex-start;background:#eef7ff}
-  body.dark .bubble.them{background:rgba(255,255,255,0.04)}
-  .chat-compose{display:flex;gap:8px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.04)}
-  .chat-compose input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06)}
-  body.dark .chat-compose input{background:#071a2a;color:#fff;border-color:rgba(255,255,255,0.04)}
+  .profile-picture {
+    position: absolute;
+    bottom: -70px;
+    left: 30px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 6px solid var(--card);
+    background: var(--card);
+    overflow: hidden;
+  }
 
+  .profile-picture img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .profile-info {
+    padding: 0 20px;
+  }
+
+  .profile-name {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .profile-title {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .profile-bio {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  .profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  @media (max-width: 768px) {
+    .profile-details {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .detail-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .edit-btn {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .info-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  body.dark .info-item {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .info-label {
+    font-weight: 600;
+    min-width: 120px;
+    color: var(--muted);
+  }
+
+  .info-value {
+    flex: 1;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--card);
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  body.dark input, body.dark textarea, body.dark select {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--bg);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0,97,255,0.08);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .save-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .experience-item, .education-item {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  body.dark .experience-item, body.dark .education-item {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .exp-title, .edu-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .exp-company, .edu-institution {
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .exp-dates, .edu-dates {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .exp-description, .edu-description {
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* responsive */
   @media (max-width:900px){
-    aside{display:none}
-    .profile-body{grid-template-columns:1fr}
-    .chat-list{display:none}
-    .profile-pic{width:120px;height:120px;top:-60px;}
+    aside {
+      width: 70px;
+    }
+    aside button {
+      justify-content: center;
+      padding: 12px 8px;
+    }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .search {
+      max-width: 400px;
+    }
+    .profile-picture {
+      left: 20px;
+      width: 120px;
+      height: 120px;
+      bottom: -60px;
+    }
+    .cover-photo {
+      height: 200px;
+      margin-bottom: 80px;
+    }
+  }
+  
+  @media (max-width:768px){
+    .search {
+      max-width: 300px;
+    }
+  }
+  
+  @media (max-width:640px){
+    .search {
+      max-width: 200px;
+    }
+    .profile-info {
+      padding: 0 10px;
+    }
+    .profile-name {
+      font-size: 24px;
+    }
+  }
+  
+  @media (max-width:480px){
+    .search {
+      max-width: 150px;
+    }
+    .brand {
+      display: none;
+    }
   }
 </style>
 </head>
-
 <body>
-<!-- same HTML structure as your version -->
-<!-- (I only edited styles + made banner larger) -->
-<!-- Form fields already exist and remain functional -->
-<!-- JS logic remains the same from your version -->
+
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search people, courses, jobs..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="location.href='feed.html'">
+      🏠 <span class="menu-text">Feed</span>
+    </button>
+    <button onclick="location.href='chat.html'">
+      💬 <span class="menu-text">Chat</span>
+    </button>
+    <button onclick="location.href='conference.html'">
+      🎥 <span class="menu-text">Conference</span>
+    </button>
+    <button onclick="location.href='marketplace.html'">
+      🛒 <span class="menu-text">Marketplace</span>
+    </button>
+    <button class="active" onclick="location.href='profile.html'">
+      👤 <span class="menu-text">Profile</span>
+    </button>
+    <button onclick="location.href='meetversity.html'">
+      🎓 <span class="menu-text">Meetversity</span>
+    </button>
+    <button onclick="location.href='organization.html'">
+      🏢 <span class="menu-text">Organization</span>
+    </button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
+      <span class="menu-text">Go Live</span>
+    </button>
+  </aside>
+
+  <main>
+    <div class="profile-container">
+      <!-- Cover Photo -->
+      <div class="cover-photo">
+        <div class="profile-picture">
+          <img src="https://i.pravatar.cc/300?img=5" alt="Profile Picture" id="profileImage">
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <h1 class="profile-name" id="profileName">Alex Johnson</h1>
+        <div class="profile-title" id="profileTitle">Senior UI/UX Designer & Educator</div>
+        <p class="profile-bio" id="profileBio">Passionate about creating beautiful, functional designs and teaching others. I believe in the power of design to solve real-world problems and make technology accessible to everyone.</p>
+
+        <div class="profile-details">
+          <!-- Personal Information -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Personal Information</h3>
+              <button class="edit-btn" onclick="toggleEdit('personalInfo')">Edit</button>
+            </div>
+            <div class="info-grid" id="personalInfo">
+              <div class="info-item">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value" id="dobDisplay">March 15, 1990</div>
+                <input type="date" id="dobInput" style="display:none" value="1990-03-15">
+              </div>
+              <div class="info-item">
+                <div class="info-label">Location</div>
+                <div class="info-value" id="locationDisplay">San Francisco, CA, USA</div>
+                <div style="display:none" id="locationInputs">
+                  <select id="countryInput">
+                    <option value="USA">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                  </select>
+                  <input type="text" id="stateInput" placeholder="State" value="CA" style="margin-top:8px">
+                  <input type="text" id="cityInput" placeholder="City" value="San Francisco" style="margin-top:8px">
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Languages</div>
+                <div class="info-value" id="languagesDisplay">English, Spanish, French</div>
+                <input type="text" id="languagesInput" style="display:none" value="English, Spanish, French">
+              </div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Education</h3>
+              <button class="edit-btn" onclick="toggleEdit('educationInfo')">Edit</button>
+            </div>
+            <div id="educationInfo">
+              <div class="education-item">
+                <div class="edu-title">Master of Fine Arts in Design</div>
+                <div class="edu-institution">Stanford University</div>
+                <div class="edu-dates">2012 - 2014</div>
+                <div class="edu-description">Focused on human-computer interaction and design thinking methodologies.</div>
+              </div>
+              <div class="education-item">
+                <div class="edu-title">Bachelor of Arts in Visual Arts</div>
+                <div class="edu-institution">University of California, Berkeley</div>
+                <div class="edu-dates">2008 - 2012</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Work Experience</h3>
+              <button class="edit-btn" onclick="toggleEdit('experienceInfo')">Edit</button>
+            </div>
+            <div id="experienceInfo">
+              <div class="experience-item">
+                <div class="exp-title">Senior UI/UX Designer</div>
+                <div class="exp-company">TechVision Inc.</div>
+                <div class="exp-dates">2019 - Present</div>
+                <div class="exp-description">Leading design for enterprise SaaS products, mentoring junior designers, and establishing design systems.</div>
+              </div>
+              <div class="experience-item">
+                <div class="exp-title">UX Designer</div>
+                <div class="exp-company">CreativeMinds Agency</div>
+                <div class="exp-dates">2015 - 2019</div>
+                <div class="exp-description">Designed user interfaces for web and mobile applications across various industries.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About & Contact -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">About & Contact</h3>
+              <button class="edit-btn" onclick="toggleEdit('aboutInfo')">Edit</button>
+            </div>
+            <div class="info-grid" id="aboutInfo">
+              <div class="info-item">
+                <div class="info-label">About Me</div>
+                <div class="info-value" id="aboutDisplay">I'm a passionate designer with 10+ years of experience creating digital products that users love. When I'm not designing, I teach UI/UX courses and mentor aspiring designers.</div>
+                <textarea id="aboutInput" style="display:none">I'm a passionate designer with 10+ years of experience creating digital products that users love. When I'm not designing, I teach UI/UX courses and mentor aspiring designers.</textarea>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Email</div>
+                <div class="info-value" id="emailDisplay">alex.johnson@example.com</div>
+                <input type="email" id="emailInput" style="display:none" value="alex.johnson@example.com">
+              </div>
+              <div class="info-item">
+                <div class="info-label">Phone</div>
+                <div class="info-value" id="phoneDisplay">+1 (555) 123-4567</div>
+                <input type="tel" id="phoneInput" style="display:none" value="+1 (555) 123-4567">
+              </div>
+            </div>
+            
+            <div class="social-links">
+              <a href="#" class="social-link">🌐 Portfolio</a>
+              <a href="#" class="social-link">🐦 Twitter</a>
+              <a href="#" class="social-link">💼 LinkedIn</a>
+              <a href="#" class="social-link">📷 Instagram</a>
+            </div>
+          </div>
+        </div>
+
+        <button class="save-btn" id="saveProfile" style="display:none">Save Profile</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Dark mode toggle
+const darkToggle = document.getElementById('darkToggle');
+(function initTheme(){
+  const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  if(t==='dark') document.body.classList.add('dark');
+  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+})();
+darkToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('meet_theme', now);
+  darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+});
+
+// Profile editing functionality
+let isEditing = false;
+
+function toggleEdit(section) {
+  const saveBtn = document.getElementById('saveProfile');
+  
+  if (!isEditing) {
+    // Enter edit mode
+    isEditing = true;
+    saveBtn.style.display = 'block';
+    
+    // Show inputs and hide display texts
+    if (section === 'personalInfo') {
+      document.getElementById('dobDisplay').style.display = 'none';
+      document.getElementById('dobInput').style.display = 'block';
+      
+      document.getElementById('locationDisplay').style.display = 'none';
+      document.getElementById('locationInputs').style.display = 'block';
+      
+      document.getElementById('languagesDisplay').style.display = 'none';
+      document.getElementById('languagesInput').style.display = 'block';
+    } else if (section === 'aboutInfo') {
+      document.getElementById('aboutDisplay').style.display = 'none';
+      document.getElementById('aboutInput').style.display = 'block';
+      
+      document.getElementById('emailDisplay').style.display = 'none';
+      document.getElementById('emailInput').style.display = 'block';
+      
+      document.getElementById('phoneDisplay').style.display = 'none';
+      document.getElementById('phoneInput').style.display = 'block';
+    }
+    
+    // Change all edit buttons to "Cancel"
+    const editButtons = document.querySelectorAll('.edit-btn');
+    editButtons.forEach(btn => {
+      btn.textContent = 'Cancel';
+      btn.onclick = cancelEdit;
+    });
+  }
+}
+
+function cancelEdit() {
+  const saveBtn = document.getElementById('saveProfile');
+  isEditing = false;
+  saveBtn.style.display = 'none';
+  
+  // Hide inputs and show display texts
+  document.getElementById('dobDisplay').style.display = 'block';
+  document.getElementById('dobInput').style.display = 'none';
+  
+  document.getElementById('locationDisplay').style.display = 'block';
+  document.getElementById('locationInputs').style.display = 'none';
+  
+  document.getElementById('languagesDisplay').style.display = 'block';
+  document.getElementById('languagesInput').style.display = 'none';
+  
+  document.getElementById('aboutDisplay').style.display = 'block';
+  document.getElementById('aboutInput').style.display = 'none';
+  
+  document.getElementById('emailDisplay').style.display = 'block';
+  document.getElementById('emailInput').style.display = 'none';
+  
+  document.getElementById('phoneDisplay').style.display = 'block';
+  document.getElementById('phoneInput').style.display = 'none';
+  
+  // Change all buttons back to "Edit"
+  const editButtons = document.querySelectorAll('.edit-btn');
+  editButtons.forEach(btn => {
+    btn.textContent = 'Edit';
+    btn.onclick = function() { toggleEdit(this.closest('.detail-card').querySelector('.info-grid, #educationInfo, #experienceInfo').id); };
+  });
+}
+
+// Save profile
+document.getElementById('saveProfile').addEventListener('click', function() {
+  // Update display values with input values
+  document.getElementById('dobDisplay').textContent = formatDate(document.getElementById('dobInput').value);
+  document.getElementById('locationDisplay').textContent = 
+    document.getElementById('cityInput').value + ', ' + 
+    document.getElementById('stateInput').value + ', ' + 
+    document.getElementById('countryInput').value;
+  document.getElementById('languagesDisplay').textContent = document.getElementById('languagesInput').value;
+  document.getElementById('aboutDisplay').textContent = document.getElementById('aboutInput').value;
+  document.getElementById('emailDisplay').textContent = document.getElementById('emailInput').value;
+  document.getElementById('phoneDisplay').textContent = document.getElementById('phoneInput').value;
+  
+  // Exit edit mode
+  cancelEdit();
+  
+  // Show success message (you can replace this with a toast notification)
+  alert('Profile updated successfully!');
+});
+
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Go Live button
+document.getElementById('goLive').addEventListener('click', function() {
+  alert('Going live feature would open here. This would start a live stream from your profile.');
+});
+</script>
 </body>
 </html>
