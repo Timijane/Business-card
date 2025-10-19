@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Dashboard</title>
+<title>MEET — Dashboard (Interactive Prototype)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
+  :root{
     --primary:#0061FF;
     --accent:#5AE4A8;
     --bg:#f7f9fb;
@@ -14,17 +14,18 @@
     --text:#111827;
     --muted:#6b7280;
     --radius:12px;
-    --shadow:0 6px 18px rgba(16,24,40,0.06);
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
   }
   body.dark {
     --bg:#081226;
     --card:#0b1726;
     --text:#e6eef8;
     --muted:#93a3bd;
-    --shadow:0 6px 18px rgba(0,0,0,0.6);
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body {
+  *{box-sizing:border-box}
+  body{
+    margin:0;
     font-family:Inter,system-ui,Segoe UI,Arial;
     background:var(--bg);
     color:var(--text);
@@ -35,8 +36,10 @@
   }
 
   /* header */
-  header {
-    display:flex;align-items:center;gap:16px;
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
     padding:12px 20px;
     background:var(--card);
     box-shadow:var(--shadow);
@@ -44,31 +47,121 @@
     top:0;
     z-index:50;
   }
-  .left {display:flex;align-items:center;gap:12px}
-  .logo-icon {
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo-icon{
     width:44px;height:44px;border-radius:8px;
     background:linear-gradient(135deg,var(--primary),var(--accent));
     display:flex;align-items:center;justify-content:center;
     -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
   }
-  .brand {font-weight:700;font-size:18px;color:var(--primary)}
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
   .search {
-    flex:1;display:flex;align-items:center;gap:10px;
-    background:#eef3ff;border-radius:10px;padding:8px 12px;
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
   }
   body.dark .search{background:#0f2134}
   .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
   .header-right{display:flex;align-items:center;gap:10px}
-  .status-dot {
-    width:10px;height:10px;border-radius:50%;background:#34D399;
-    border:2px solid var(--card);
-    box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
+
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  main{flex:1;padding:20px;overflow:auto}
+
+  /* create post */
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
+  .create-top{display:flex;gap:12px;align-items:center}
+  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
+  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;border:1px solid transparent;cursor:text}
+  body.dark .create-input{background:#071129}
+  .create-actions{display:flex;gap:8px;margin-top:10px;justify-content:space-between}
+  .actions-left{display:flex;gap:8px}
+  .action-btn{background:transparent;border:0;padding:8px 10px;border-radius:8px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px}
+  .action-btn:hover{color:var(--primary)}
+
+  /* feed posts */
+  .post{margin-bottom:16px}
+  .post .card{padding:14px}
+  .post-head{display:flex;gap:12px;align-items:center}
+  .post-head .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .p-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
+  .post-meta{display:flex;flex-direction:column}
+  .post-meta .name{font-weight:700}
+  .post-meta .time{font-size:12px;color:var(--muted)}
+  .post-body{margin-top:12px;font-size:15px;line-height:1.5}
+  .post-media{margin-top:12px;border-radius:12px;overflow:hidden}
+  .post-media img, .post-media video{width:100%;display:block}
+  .post-actions{display:flex;gap:12px;margin-top:12px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px}
+  .like-btn, .comment-btn {background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
+  .like-btn.liked{color:var(--primary)}
+
+  /* comments */
+  .comments{margin-top:10px}
+  .comment{display:flex;gap:8px;margin-top:8px}
+  .comment .c-meta{font-size:13px;color:var(--muted)}
+  .comment input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
+  body.dark .comment input{background:#07202f;color:#fff;border-color:rgba(255,255,255,0.04)}
+
+  /* modal */
+  .modal-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:80}
+  .modal{width:92%;max-width:640px;border-radius:12px;background:var(--card);padding:16px;box-shadow:var(--shadow)}
+  .modal textarea{width:100%;min-height:110px;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);resize:vertical;background:#f3f6fb}
+  body.dark .modal textarea{background:#08152a;color:#fff;border-color:rgba(255,255,255,0.04)}
+  .modal .row{display:flex;gap:10px;align-items:center;margin-top:10px}
+  .modal .media-preview{margin-top:10px;border-radius:8px;overflow:hidden}
+  .modal .btn-primary{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+
+  /* live modal */
+  .live-modal {display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:90}
+  .live-box{background:var(--card);padding:20px;border-radius:12px;max-width:600px;width:92%;box-shadow:var(--shadow)}
+
+  /* assistant widget */
+  .assistant {
+    position:fixed;right:18px;bottom:90px;width:320px;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);
+    transform:translateY(0);transition:transform .25s;
+  }
+  .assistant .head{background:linear-gradient(90deg,var(--primary),var(--accent));padding:10px;color:white;display:flex;justify-content:space-between;align-items:center}
+  .assistant .body{background:var(--card);padding:12px;height:320px;display:flex;flex-direction:column;gap:8px}
+  .assistant .msgs{flex:1;overflow:auto;padding-right:6px}
+  .assistant .msg{padding:8px;border-radius:8px;margin-bottom:8px;max-width:85%}
+  .assistant .msg.user{background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));align-self:flex-end}
+  .assistant .msg.bot{background:#eef3ff}
+  body.dark .assistant .msg.bot{background:rgba(255,255,255,0.06)}
+  .assistant .compose{display:flex;gap:8px}
+  .assist-toggle{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--primary),var(--accent));width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow);cursor:pointer}
+
+  /* notifications */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:130px;background:#111827;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:200}
+  .toast.show{display:block;animation:toastIn .5s}
+  @keyframes toastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+  /* responsive */
+  @media (max-width:900px){
+    aside{display:none}
+    .assistant{right:12px;bottom:110px;width:280px}
   }
 
   /* sidebar */
   #sidebar {
     position: fixed;
-    top: 70px;
+    top: 70px;       /* below your header */
     left: 0;
     height: calc(100vh - 70px);
     width: 80px;
@@ -101,12 +194,8 @@
   #sidebar:hover button span { opacity: 1; }
   #sidebar button.active,
   #sidebar button:hover { background: rgba(0,97,255,0.08); color: var(--primary); }
-
-  /* main layout */
   .layout main { margin-left: 80px; transition: margin-left 0.25s; }
   #sidebar:hover ~ .layout main { margin-left: 220px; }
-
-  /* mobile sidebar */
   @media (max-width: 900px) {
     #sidebar {
       flex-direction: row;
@@ -122,42 +211,11 @@
     #sidebar button span { display: none; }
     .layout main { margin-left: 0; padding-bottom: 70px; }
   }
-
-  /* cards and feed styling */
-  main{flex:1;padding:20px;overflow:auto}
-  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
-  .create-top{display:flex;gap:12px;align-items:center}
-  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
-  .avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
-  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;cursor:text}
-  body.dark .create-input{background:#071129}
-  .create-actions{display:flex;gap:8px;margin-top:10px;justify-content:space-between}
-  .action-btn{background:transparent;border:0;padding:8px 10px;border-radius:8px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px}
-  .action-btn:hover{color:var(--primary)}
-
-  /* post feed */
-  .post{margin-bottom:16px}
-  .post-head{display:flex;gap:12px;align-items:center}
-  .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
-  .p-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
-  .post-meta{display:flex;flex-direction:column}
-  .post-meta .name{font-weight:700}
-  .post-meta .time{font-size:12px;color:var(--muted)}
-  .post-body{margin-top:12px;font-size:15px;line-height:1.5}
-  .post-media{margin-top:12px;border-radius:12px;overflow:hidden}
-  .post-media img,.post-media video{width:100%;display:block}
-  .post-actions{display:flex;gap:12px;margin-top:12px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px}
-  .like-btn,.comment-btn{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
-  .like-btn.liked{color:var(--primary)}
-
-  /* modal */
-  .modal-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:80}
-  .modal{width:92%;max-width:640px;border-radius:12px;background:var(--card);padding:16px;box-shadow:var(--shadow)}
 </style>
 </head>
 <body>
 
-<!-- SVG mask -->
+<!-- SVG mask resource -->
 <svg style="position:absolute;width:0;height:0" aria-hidden>
   <defs>
     <mask id="m-mask" viewBox="0 0 100 100">
@@ -178,86 +236,327 @@
   <div class="header-right">
     <div style="display:flex;align-items:center;gap:8px">
       <div style="font-size:12px;color:var(--muted)">Online</div>
-      <div class="status-dot"></div>
+      <div class="status-dot" title="You are online"></div>
     </div>
-    <button id="darkToggle">🌙</button>
-    <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
   </div>
 </header>
 
-<!-- Sidebar -->
-<div id="sidebar">
-  <button data-tab="feed" class="active">🏠 <span>Feed</span></button>
-  <button data-tab="chat" onclick="location.href='chat.html'">💬 <span>Chat</span></button>
-  <button data-tab="conference" onclick="location.href='conference.html'">🎥 <span>Conference</span></button>
-  <button data-tab="market" onclick="location.href='marketplace.html'">🛒 <span>Marketplace</span></button>
-  <button data-tab="meetversity" onclick="location.href='meetversity.html'">🎓 <span>Meetversity</span></button>
-  <button data-tab="org" onclick="location.href='organization.html'">🏢 <span>Organization</span></button>
-  <button data-tab="profile" onclick="location.href='profile.html'">👤 <span>Profile</span></button>
-</div>
-
 <div class="layout">
+  <aside>
+    <button class="active" data-tab="feed">🏠 Feed</button>
+    <button data-tab="chat">💬 Chat</button>
+    <button data-tab="conference">🎥 Conference</button>
+    <button data-tab="market">🛒 Marketplace</button>
+    <button data-tab="profile">👤 Profile</button>
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700">Go Live</button>
+  </aside>
   <main>
-    <div class="card">
+    <!-- create post card -->
+    <div class="card create-card">
       <div class="create-top">
         <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
-        <div class="create-input" id="openPost" tabindex="0">What's on your mind?</div>
+        <div class="create-input" id="openPost" tabindex="0">What's on your mind, Alex?</div>
       </div>
       <div class="create-actions">
-        <button class="action-btn" id="quickPhoto">📸 Photo</button>
-        <button class="action-btn" id="quickVideo">🎥 Video</button>
-        <button class="action-btn" id="quickCourse">📚 Course</button>
+        <div class="actions-left">
+          <button class="action-btn" id="quickPhoto">📸 Photo</button>
+          <button class="action-btn" id="quickVideo">🎥 Video</button>
+          <button class="action-btn" id="quickCourse">📚 Course</button>
+        </div>
+        <div class="actions-right"><small style="color:var(--muted)">Share with your network</small></div>
       </div>
     </div>
+    <!-- feed container -->
     <div id="feed"></div>
   </main>
 </div>
 
 <!-- Post Modal -->
 <div class="modal-wrap" id="modalWrap">
-  <div class="modal">
-    <textarea id="postText" placeholder="Write something..."></textarea>
-    <input id="fileInput" type="file" accept="image/*,video/*">
-    <button id="submitPost">Post</button>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
+      <div style="font-weight:700">Alex</div>
+    </div>
+    <textarea id="postText" placeholder="Write something to your network..."></textarea>
+    <div class="row">
+      <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+        📷 <input id="fileInput" type="file" accept="image/*,video/*" style="display:none">
+        <span style="color:var(--muted)">Add photo or video</span>
+      </label>
+      <div style="flex:1"></div>
+      <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+        🔒 <select id="visibility" style="padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)">
+          <option value="public">Public</option>
+          <option value="connections">Connections</option>
+        </select>
+      </label>
+    </div>
+    <div id="mediaPreview" class="media-preview"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button id="cancelPost" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:transparent">Cancel</button>
+      <button class="btn-primary" id="submitPost">Post</button>
+    </div>
   </div>
 </div>
 
-<script>
-const MOCK = [
-  {id:'1',user:'Emily Chen',avatar:'https://i.pravatar.cc/100?img=14',time:Date.now()-20000,text:'Just published a free course!',likes:2},
-  {id:'2',user:'Marcus Lee',avatar:'https://i.pravatar.cc/100?img=22',time:Date.now()-60000,text:'We’re hiring UI designers 💼',likes:5}
-];
-let feed = JSON.parse(localStorage.getItem('feed')||'null')||MOCK;
-function renderFeed(){
-  const f=document.getElementById('feed');
-  f.innerHTML='';
-  feed.sort((a,b)=>b.time-a.time).forEach(p=>{
-    const d=document.createElement('div');
-    d.className='card';
-    d.innerHTML=`
-      <div class="post-head">
-        <div class="p-avatar"><img src="${p.avatar}"></div>
-        <div class="post-meta"><div class="name">${p.user}</div><div class="time">${new Date(p.time).toLocaleTimeString()}</div></div>
-      </div>
-      <div class="post-body">${p.text}</div>
-      <div class="post-actions"><button>❤ ${p.likes}</button></div>`;
-    f.appendChild(d);
-  });
-}
-renderFeed();
+<!-- Live Modal -->
+<div class="live-modal" id="liveModal">
+  <div class="live-box">
+    <h3>Go Live — Start a mock stream</h3>
+    <p style="color:var(--muted)">This is a prototype: starting a live session will add a "Live" post to the feed.</p>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input id="liveTitle" placeholder="Title (e.g., Live Workshop: React Basics)" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)">
+      <button id="startLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px 12px;border-radius:8px;font-weight:700">Start</button>
+      <button id="cancelLive" style="padding:10px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)">Cancel</button>
+    </div>
+  </div>
+</div>
 
-const openPost=document.getElementById('openPost');
-const modal=document.getElementById('modalWrap');
-const submit=document.getElementById('submitPost');
-const postText=document.getElementById('postText');
-openPost.onclick=()=>modal.style.display='flex';
-submit.onclick=()=>{
-  if(!postText.value.trim())return;
-  feed.unshift({id:Math.random().toString(36).slice(2),user:'You',avatar:document.getElementById('userPic').src,time:Date.now(),text:postText.value,likes:0});
-  localStorage.setItem('feed',JSON.stringify(feed));
+<!-- Assistant -->
+<div class="assistant" id="assistant" style="display:none">
+  <div class="head">
+    <div style="font-weight:700">MEET Assistant</div>
+    <div style="font-size:12px">Help • Tips</div>
+  </div>
+  <div class="body">
+    <div class="msgs" id="assistMsgs">
+      <div class="msg bot">Hi Alex 👋 — I can help you write posts, find courses, or create a job post. Try: "Help me write a course description."</div>
+    </div>
+    <div class="compose">
+      <input id="assistInput" placeholder="Ask the assistant..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)">
+      <button id="assistSend" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:8px 10px;border-radius:8px">Send</button>
+    </div>
+  </div>
+</div>
+<div class="assist-toggle" id="assistToggle">AI</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">Posted successfully</div>
+
+<script>
+  /* ===== Simple mock dataset ===== */
+  const MOCK = [
+    { id: genId(), user:'Emily Chen', avatar:'https://i.pravatar.cc/100?img=14', time: Date.now()-1000*60*60*2, text:'Just published a free course on digital marketing strategies. Join my MEET community to learn together!', media:null, likes:12, comments:[], live:false },
+    { id: genId(), user:'Marcus Lee', avatar:'https://i.pravatar.cc/100?img=22', time: Date.now()-1000*60*60*4, text:'We’re looking for UI/UX designers! Send your portfolio directly through MEET’s hiring feature 💼', media:null, likes:5, comments:[], live:false },
+    { id: genId(), user:'TechTalk Live', avatar:'https://i.pravatar.cc/100?img=31', time: Date.now()-1000*60*15, text:'Streaming — TechTalk: Modern JS Patterns', media:null, likes:102, comments:[], live:true }
+  ];
+
+  const STORAGE_KEY = 'meet_feed_v1';
+  const LIKES_KEY = 'meet_likes_v1';
+
+  /* ===== utilities ===== */
+  function genId(){return 'p_'+Math.random().toString(36).slice(2,9)}
+  function timeAgo(ts){
+    const s = Math.floor((Date.now()-ts)/1000);
+    if(s<60) return `${s}s`;
+    if(s<3600) return `${Math.floor(s/60)}m`;
+    if(s<86400) return `${Math.floor(s/3600)}h`;
+    const d = Math.floor(s/86400); return `${d}d`;
+  }
+
+  /* ===== state ===== */
+  let feed = loadFeed();
+  let likes = loadLikes();
+  const feedEl = document.getElementById('feed');
   renderFeed();
-  modal.style.display='none';postText.value='';
-}
+
+  /* ===== render helpers ===== */
+  function saveFeed(){localStorage.setItem(STORAGE_KEY,JSON.stringify(feed))}
+  function loadFeed(){const raw = localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); localStorage.setItem(STORAGE_KEY, JSON.stringify(MOCK)); return MOCK.slice();}
+  function saveLikes(){localStorage.setItem(LIKES_KEY, JSON.stringify(likes))}
+  function loadLikes(){ return JSON.parse(localStorage.getItem(LIKES_KEY) || '{}') }
+
+  function buildPost(post){
+    const wrap = document.createElement('div'); wrap.className='post';
+    const card = document.createElement('div'); card.className='card';
+    const h = document.createElement('div'); h.className='post-head';
+    const av = document.createElement('div'); av.className='p-avatar';
+    const avimg = document.createElement('img'); avimg.src=post.avatar; av.appendChild(avimg);
+    if(post.live) av.classList.add('live');
+    const meta = document.createElement('div'); meta.className='post-meta';
+    const name = document.createElement('div'); name.className='name'; name.textContent=post.user;
+    const time = document.createElement('div'); time.className='time'; time.textContent = timeAgo(post.time);
+    meta.appendChild(name); meta.appendChild(time);
+    h.appendChild(av); h.appendChild(meta);
+    card.appendChild(h);
+    const body = document.createElement('div'); body.className='post-body'; body.textContent = post.text || '';
+    card.appendChild(body);
+    if(post.media){
+      const mwrap = document.createElement('div'); mwrap.className='post-media';
+      if(post.media.type.startsWith('image')){ const img = document.createElement('img'); img.src=post.media.url; mwrap.appendChild(img);}
+      else if(post.media.type.startsWith('video')){ const v = document.createElement('video'); v.src=post.media.url; v.controls=true; mwrap.appendChild(v);}
+      card.appendChild(mwrap);
+    }
+    const actions = document.createElement('div'); actions.className='post-actions';
+    const likeBtn = document.createElement('button'); likeBtn.className='like-btn'; likeBtn.innerHTML = `❤ ${post.likes||0}`;
+    if(likes[post.id]) likeBtn.classList.add('liked');
+    const commentBtn = document.createElement('button'); commentBtn.className='comment-btn'; commentBtn.innerHTML = '💬 Comment';
+    actions.appendChild(likeBtn); actions.appendChild(commentBtn);
+    card.appendChild(actions);
+    const commentsWrap = document.createElement('div'); commentsWrap.className='comments';
+    const commentsList = document.createElement('div'); commentsList.className='comments-list';
+    (post.comments||[]).forEach(c=>{
+      const cdiv = document.createElement('div'); cdiv.className='comment';
+      cdiv.innerHTML = `<div style="width:34px;height:34px;border-radius:50%;background:#e6f7ff"></div><div><div style="font-weight:600">${c.user}</div><div class="c-meta">${c.text}</div></div>`;
+      commentsList.appendChild(cdiv);
+    });
+    commentsWrap.appendChild(commentsList);
+    const commentRow = document.createElement('div'); commentRow.className='comment';
+    const commentInput = document.createElement('input'); commentInput.placeholder='Write a comment...';
+    const commentSend = document.createElement('button'); commentSend.textContent='Send';
+    commentSend.style.padding='6px 8px'; commentSend.style.border='0'; commentSend.style.borderRadius='8px'; commentSend.style.cursor='pointer';
+    commentRow.appendChild(commentInput); commentRow.appendChild(commentSend);
+    commentsWrap.appendChild(commentRow);
+    card.appendChild(commentsWrap);
+    wrap.appendChild(card);
+
+    likeBtn.addEventListener('click', ()=>{
+      likes[post.id] = !likes[post.id];
+      if(likes[post.id]){ post.likes = (post.likes||0)+1 } else { post.likes = Math.max(0,(post.likes||0)-1) }
+      saveLikes(); saveFeed(); renderFeed();
+    });
+
+    commentSend.addEventListener('click', ()=>{
+      const txt = commentInput.value.trim(); if(!txt) return;
+      post.comments = post.comments || [];
+      post.comments.push({user:'You', text:txt, time:Date.now()});
+      commentInput.value='';
+      saveFeed(); renderFeed();
+    });
+
+    return wrap;
+  }
+
+  function renderFeed(){
+    feed = loadFeed();
+    feed.sort((a,b)=>b.time-a.time);
+    feedEl.innerHTML='';
+    feed.forEach(p=> feedEl.appendChild(buildPost(p)));
+  }
+
+  /* ===== controls: modal open/close & upload preview ===== */
+  const modalWrap = document.getElementById('modalWrap');
+  const openPost = document.getElementById('openPost');
+  const fileInput = document.getElementById('fileInput');
+  const mediaPreview = document.getElementById('mediaPreview');
+  const submitPost = document.getElementById('submitPost');
+  const cancelPost = document.getElementById('cancelPost');
+  const postText = document.getElementById('postText');
+
+  openPost.addEventListener('click', ()=>{ openModal() });
+  openPost.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal() });
+  function openModal(){ modalWrap.style.display='flex'; setTimeout(()=>{ modalWrap.classList.add('visible') },10);}
+  function closeModal(){ modalWrap.style.display='none'; mediaPreview.innerHTML=''; postText.value=''; fileInput.value=''; }
+
+  fileInput.addEventListener('change', handleFile);
+  document.getElementById('quickPhoto').addEventListener('click', ()=> fileInput.click());
+  document.getElementById('quickVideo').addEventListener('click', ()=> fileInput.click());
+  document.getElementById('quickCourse').addEventListener('click', ()=> { openModal(); postText.value='New course: '; });
+
+  function handleFile(e){
+    const f = e.target.files[0];
+    mediaPreview.innerHTML='';
+    if(!f) return;
+    const url = URL.createObjectURL(f);
+    const t = f.type;
+    if(t.startsWith('image')){ const img = document.createElement('img'); img.src=url; img.style.maxHeight='320px'; img.style.width='100%'; mediaPreview.appendChild(img); modalWrap._media = {url, type:t};}
+    else if(t.startsWith('video')){ const vid = document.createElement('video'); vid.src=url; vid.controls=true; vid.style.width='100%'; vid.style.maxHeight='360px'; mediaPreview.appendChild(vid); modalWrap._media = {url, type:t};}
+    else { mediaPreview.textContent='Unsupported file'; modalWrap._media = null; }
+  }
+
+  submitPost.addEventListener('click', ()=>{
+    const text = postText.value.trim();
+    const media = modalWrap._media || null;
+    if(!text && !media){ alert('Please add text or media'); return; }
+    const newPost = { id: genId(), user: 'Alex', avatar: document.getElementById('userPic').src, time: Date.now(), text, media, likes:0, comments:[], live:false };
+    feed.unshift(newPost);
+    saveFeed();
+    showToast('Posted successfully');
+    closeModal();
+    renderFeed();
+  });
+
+  cancelPost.addEventListener('click', closeModal);
+  modalWrap.addEventListener('click', (e)=>{ if(e.target===modalWrap) closeModal(); });
+
+  /* ===== dark mode toggle & persist ===== */
+  const darkToggle = document.getElementById('darkToggle');
+  (function initTheme(){
+    const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    if(t==='dark') document.body.classList.add('dark');
+    darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  })();
+  darkToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+    const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+    localStorage.setItem('meet_theme', now);
+    darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+  });
+
+  /* ===== Go Live behaviour (mock) ===== */
+  const goLiveBtn = document.getElementById('goLive');
+  const liveModal = document.getElementById('liveModal');
+  const cancelLive = document.getElementById('cancelLive');
+  const startLive = document.getElementById('startLive');
+  const liveTitle = document.getElementById('liveTitle');
+
+  goLiveBtn.addEventListener('click', ()=>{ liveModal.style.display='flex'; });
+  cancelLive.addEventListener('click', ()=>{ liveModal.style.display='none'; });
+  startLive.addEventListener('click', ()=>{
+    const title = liveTitle.value.trim() || 'Live session';
+    const livePost = { id: genId(), user:'Alex (Live)', avatar:document.getElementById('userPic').src, time: Date.now(), text: title, media:null, likes:0, comments:[], live:true };
+    feed.unshift(livePost); saveFeed(); renderFeed();
+    liveModal.style.display='none'; liveTitle.value=''; showToast('You are live — added to feed (mock).');
+  });
+
+  /* ===== notification helper ===== */
+  function showToast(text){
+    const t = document.getElementById('toast'); t.textContent=text; t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 3000);
+  }
+
+  /* ===== assistant widget (very simple canned replies) ===== */
+  const assistToggle = document.getElementById('assistToggle');
+  const assistant = document.getElementById('assistant');
+  const assistMsgs = document.getElementById('assistMsgs');
+  const assistSend = document.getElementById('assistSend');
+  const assistInput = document.getElementById('assistInput');
+
+  assistToggle.addEventListener('click', ()=> { if(assistant.style.display === 'none' || assistant.style.display==='') { assistant.style.display='block'; } else assistant.style.display='none'; });
+  assistSend.addEventListener('click', sendAssist);
+  assistInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendAssist(); });
+
+  function sendAssist(){
+    const q = assistInput.value.trim(); if(!q) return;
+    const userMsg = document.createElement('div'); userMsg.className='msg user'; userMsg.textContent=q; assistMsgs.appendChild(userMsg);
+    assistInput.value=''; assistMsgs.scrollTop = assistMsgs.scrollHeight;
+    setTimeout(()=>{
+      const bot = document.createElement('div'); bot.className='msg bot';
+      if(/help|write|post/i.test(q)){ bot.textContent = 'Try this post: "I just launched a short course on [topic]. Join me this week for a live Q&A!"';}
+      else if(/course|teach|lesson/i.test(q)){ bot.textContent = 'Suggestion: Split your course into 3-6 short modules, each 5-12 minutes. Add quizzes to increase retention.';}
+      else if(/jobs|hire/i.test(q)){ bot.textContent = 'Tip: Add a brief "requirements" and a "what you will build" section to attract applicants.';}
+      else{ bot.textContent = "Nice question! I can help draft posts, course outlines, or job descriptions — try asking 'Write a course outline for React basics'.";}
+      assistMsgs.appendChild(bot); assistMsgs.scrollTop = assistMsgs.scrollHeight;
+    },700);
+  }
+
+  /* ===== search (client-side filter) ===== */
+  const search = document.getElementById('search');
+  search.addEventListener('input', ()=> {
+    const q = search.value.trim().toLowerCase();
+    if(!q){ renderFeed(); return; }
+    const filtered = feed.filter(p => (p.user + ' ' + (p.text||'')).toLowerCase().includes(q));
+    feedEl.innerHTML=''; filtered.forEach(p => feedEl.appendChild(buildPost(p)));
+  });
+
+  /* keyboard shortcut: 'n' to open new post */
+  window.addEventListener('keydown', (e)=>{ if(e.key==='n' && !modalWrap.style.display) openModal(); });
+  window.MEET = { feed, renderFeed, saveFeed };
 </script>
-</body>
-</html>
