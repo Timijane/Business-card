@@ -799,12 +799,15 @@
     
     .conversations-sidebar.hidden {
       transform: translateX(-100%);
+      pointer-events: none;
     }
     
     .chat-area {
       width: 100%;
       transform: translateX(100%);
       transition: transform 0.3s ease;
+      position: relative;
+      z-index: 20;
     }
     
     .chat-area.active {
@@ -1329,6 +1332,18 @@ function loadConversation(conversationId) {
   
   // Update suggestions based on conversation
   updateSmartSuggestions(conversation);
+  
+  // Prevent the chat area from closing when clicking inside it (mobile only)
+  if (isMobile) {
+    const chatArea = document.getElementById('chatArea');
+    chatArea.style.pointerEvents = 'auto';
+    
+    // Make sure clicks don't bubble to parent elements
+    chatArea.onclick = (e) => {
+      e.stopPropagation();
+      return false;
+    };
+  }
 }
 
 // Render messages
@@ -1525,7 +1540,10 @@ function setupEventListeners() {
   });
   
   // Back button for mobile - only back button triggers return
-  document.getElementById('backButton').addEventListener('click', showConversationsView);
+  document.getElementById('backButton').addEventListener('click', (e) => {
+    e.stopPropagation();
+    showConversationsView();
+  });
   
   // Go Live button
   document.getElementById('goLive').addEventListener('click', goLive);
@@ -1537,11 +1555,8 @@ function setupEventListeners() {
   window.addEventListener('resize', checkMobileLayout);
   
   // Prevent accidental clicks on mobile from going back
-  document.getElementById('messagesContainer').addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-  
-  document.getElementById('messageInputContainer').addEventListener('click', (e) => {
+  // This is the key fix - prevent propagation on the entire chat area
+  document.getElementById('chatArea').addEventListener('click', (e) => {
     e.stopPropagation();
   });
 }
