@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET — Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0061FF;
+    --accent:#5AE4A8;
+    --bg:#f7f9fb;
+    --card:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --radius:12px;
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+  }
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
+    --text:#e6eef8;
+    --muted:#93a3bd;
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    transition:background .35s,color .35s;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo-icon{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
+  }
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
+    max-width:600px;
+  }
+  body.dark .search{background:#0f2134}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
+
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
+
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+    transition: width 0.3s ease;
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  aside button .menu-text {
+    transition: opacity 0.3s ease;
+  }
+  main{flex:1;padding:0;overflow:hidden;display:flex;}
+
+  /* Chat Layout */
+  .chat-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Conversations Sidebar */
+  .conversations-sidebar {
+    width: 350px;
+    background: var(--card);
+    border-right: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  body.dark .conversations-sidebar {
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .chat-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  body.dark .chat-header {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .chat-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .new-chat-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .chat-search {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  body.dark .chat-search {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .chat-search input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg);
+    font-size: 14px;
+  }
+
+  body.dark .chat-search input {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .conversations-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    transition: background 0.2s;
+  }
+
+  body.dark .conversation-item {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .conversation-item:hover, .conversation-item.active {
+    background: rgba(0,97,255,0.05);
+  }
+
+  .conversation-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+  }
+
+  .online-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #34D399;
+    border: 2px solid var(--card);
+  }
+
+  .conversation-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .conversation-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .conversation-preview {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .conversation-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .conversation-time {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .unread-badge {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  /* Chat Area */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .chat-area-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+  }
+
+  body.dark .chat-area-header {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .current-chat-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .current-chat-info {
+    flex: 1;
+  }
+
+  .current-chat-name {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .current-chat-status {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .chat-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .chat-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+  }
+
+  .messages-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--bg);
+  }
+
+  .message {
+    display: flex;
+    gap: 10px;
+    max-width: 70%;
+  }
+
+  .message.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    align-self: flex-end;
+  }
+
+  .message-bubble {
+    padding: 12px 16px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+  }
+
+  .received .message-bubble {
+    background: var(--card);
+    border-bottom-left-radius: 4px;
+  }
+
+  .sent .message-bubble {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .message-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .message-actions {
+    position: absolute;
+    top: -25px;
+    right: 0;
+    background: var(--card);
+    border-radius: 15px;
+    padding: 5px;
+    box-shadow: var(--shadow);
+    display: none;
+    gap: 5px;
+  }
+
+  .message:hover .message-actions {
+    display: flex;
+  }
+
+  .message-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+
+  .message-action:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  /* AI Assistant Message */
+  .message.ai-assistant .message-bubble {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+  }
+
+  .message.ai-assistant::before {
+    content: "🤖";
+    position: absolute;
+    left: -30px;
+    top: 0;
+    font-size: 16px;
+  }
+
+  /* Quick Reply Buttons */
+  .quick-replies {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .quick-reply {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .quick-reply:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
+  /* Message Input */
+  .message-input-container {
+    padding: 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    background: var(--card);
+  }
+
+  body.dark .message-input-container {
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .message-input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .message-input-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .input-action {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+  }
+
+  .message-input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg);
+    resize: none;
+    max-height: 120px;
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  body.dark .message-input {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .send-button {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  /* Smart Suggestions */
+  .smart-suggestions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .suggestion-chip {
+    background: rgba(0,97,255,0.1);
+    border: 1px solid rgba(0,97,255,0.2);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .suggestion-chip:hover {
+    background: rgba(0,97,255,0.2);
+  }
+
+  /* Connection Status */
+  .connection-status {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .status-online {
+    color: #34D399;
+  }
+
+  .status-typing {
+    color: var(--primary);
+  }
+
+  /* Mobile Go Live Button */
+  .mobile-go-live {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50px;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width:900px){
+    aside {
+      width: 70px;
+    }
+    aside button {
+      justify-content: center;
+      padding: 10px 6px;
+    }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .search {
+      max-width: 400px;
+    }
+    .conversations-sidebar {
+      width: 100%;
+      position: absolute;
+      z-index: 10;
+    }
+    .chat-area {
+      width: 100%;
+    }
+    .hide-on-mobile {
+      display: none;
+    }
+    .mobile-go-live {
+      display: block;
+    }
+    .message {
+      max-width: 85%;
+    }
+  }
+
+  @media (max-width:768px){
+    .search {
+      max-width: 300px;
+    }
+  }
+
+  @media (max-width:640px){
+    .search {
+      max-width: 200px;
+    }
+  }
+
+  @media (max-width:480px){
+    .search {
+      max-width: 150px;
+    }
+    .brand {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search people, courses, jobs..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="location.href='feed.html'">
+      🏠 <span class="menu-text">Feed</span>
+    </button>
+    <button class="active" onclick="location.href='chat.html'">
+      💬 <span class="menu-text">Chat</span>
+    </button>
+    <button onclick="location.href='conference.html'">
+      🎥 <span class="menu-text">Conference</span>
+    </button>
+    <button onclick="location.href='marketplace.html'">
+      🛒 <span class="menu-text">Marketplace</span>
+    </button>
+    <button onclick="location.href='profile.html'">
+      👤 <span class="menu-text">Profile</span>
+    </button>
+    <button onclick="location.href='meetversity.html'">
+      🎓 <span class="menu-text">Meetversity</span>
+    </button>
+    <button onclick="location.href='organization.html'">
+      🏢 <span class="menu-text">Organization</span>
+    </button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
+      <span class="menu-text">Go Live</span>
+    </button>
+  </aside>
+
+  <main>
+    <div class="chat-container">
+      <!-- Conversations Sidebar -->
+      <div class="conversations-sidebar" id="conversationsSidebar">
+        <div class="chat-header">
+          <div class="chat-title">Messages</div>
+          <button class="new-chat-btn" id="newChatBtn">+</button>
+        </div>
+        
+        <div class="chat-search">
+          <input type="text" placeholder="Search conversations..." id="chatSearch">
+        </div>
+        
+        <div class="conversations-list" id="conversationsList">
+          <!-- Conversations will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area" id="chatArea">
+        <div class="chat-area-header">
+          <img src="https://i.pravatar.cc/100?img=14" alt="Emily Chen" class="current-chat-avatar">
+          <div class="current-chat-info">
+            <div class="current-chat-name">Emily Chen</div>
+            <div class="current-chat-status">Online - Teaching UI/UX Design</div>
+          </div>
+          <div class="chat-actions">
+            <button class="chat-action-btn">📞</button>
+            <button class="chat-action-btn">🎥</button>
+            <button class="chat-action-btn">ℹ️</button>
+          </div>
+        </div>
+        
+        <div class="messages-container" id="messagesContainer">
+          <!-- Messages will be populated by JavaScript -->
+        </div>
+        
+        <div class="message-input-container">
+          <div class="smart-suggestions" id="smartSuggestions">
+            <div class="suggestion-chip" onclick="useSuggestion('Can we schedule a call?')">Schedule call</div>
+            <div class="suggestion-chip" onclick="useSuggestion('Thanks for the help!')">Say thanks</div>
+            <div class="suggestion-chip" onclick="useSuggestion('Let me check and get back to you')">Follow up later</div>
+          </div>
+          <div class="message-input-wrapper">
+            <div class="message-input-actions">
+              <button class="input-action">📎</button>
+              <button class="input-action">🎤</button>
+              <button class="input-action">😊</button>
+            </div>
+            <textarea class="message-input" placeholder="Type a message..." id="messageInput" rows="1"></textarea>
+            <button class="send-button" id="sendButton">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Go Live Button -->
+<button class="mobile-go-live" id="mobileGoLive">Go Live</button>
+
+<!-- Connection Status -->
+<div class="connection-status" id="connectionStatus">
+  <span class="status-online">●</span> Connected to MEET Network
+</div>
+
+<script>
+// Dark mode toggle
+const darkToggle = document.getElementById('darkToggle');
+(function initTheme(){
+  const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  if(t==='dark') document.body.classList.add('dark');
+  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+})();
+darkToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('meet_theme', now);
+  darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+});
+
+// Mock data for conversations and messages
+const mockConversations = [
+  {
+    id: 1,
+    name: "Emily Chen",
+    avatar: "https://i.pravatar.cc/100?img=14",
+    online: true,
+    lastMessage: "Thanks for joining my design course!",
+    time: "2 min ago",
+    unread: 0,
+    messages: [
+      { id: 1, text: "Hey Alex! Thanks for joining my UI/UX design course!", time: "10:30 AM", sent: false },
+      { id: 2, text: "I'm excited to have you in the class! The first module will be released tomorrow.", time: "10:31 AM", sent: false },
+      { id: 3, text: "Hi Emily! Thanks for having me. I'm really looking forward to learning from you.", time: "10:35 AM", sent: true },
+      { id: 4, text: "Do you have any recommended resources to prepare?", time: "10:35 AM", sent: true },
+      { id: 5, text: "I'll share a preparation guide in the course materials. Just focus on having Figma installed!", time: "10:40 AM", sent: false },
+      { id: 6, text: "Perfect! I already have Figma ready to go.", time: "10:42 AM", sent: true },
+      { id: 7, text: "Great! Looking forward to seeing your progress. Let me know if you have any questions!", time: "10:45 AM", sent: false }
+    ]
+  },
+  {
+    id: 2,
+    name: "Marcus Lee",
+    avatar: "https://i.pravatar.cc/100?img=22",
+    online: false,
+    lastMessage: "Let's discuss the project requirements",
+    time: "1 hour ago",
+    unread: 2,
+    messages: [
+      { id: 1, text: "Hi Alex, I saw your portfolio and I'm impressed with your work.", time: "Yesterday", sent: false },
+      { id: 2, text: "We have a project that might be a good fit for your skills.", time: "Yesterday", sent: false },
+      { id: 3, text: "Hi Marcus! Thanks for reaching out. I'd love to hear more about the project.", time: "Yesterday", sent: true }
+    ]
+  },
+  {
+    id: 3,
+    name: "Tech Community",
+    avatar: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
+    online: true,
+    lastMessage: "Sarah: Anyone available for a code review?",
+    time: "30 min ago",
+    unread: 5,
+    messages: [
+      { id: 1, text: "Welcome to the MEET Tech Community!", time: "2 days ago", sent: false, sender: "Community Bot" },
+      { id: 2, text: "This is a space for developers to collaborate and help each other.", time: "2 days ago", sent: false, sender: "Community Bot" },
+      { id: 3, text: "Hi everyone! I'm Alex, a UI/UX designer and developer.", time: "1 day ago", sent: true },
+      { id: 4, text: "Welcome Alex! 👋", time: "1 day ago", sent: false, sender: "Sarah" }
+    ]
+  },
+  {
+    id: 4,
+    name: "AI Assistant",
+    avatar: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
+    online: true,
+    lastMessage: "I can help you draft messages or find resources",
+    time: "Just now",
+    unread: 0,
+    messages: [
+      { id: 1, text: "Hello! I'm your MEET AI Assistant. I can help you with:\n• Drafting professional messages\n• Finding learning resources\n• Connecting with relevant people\n• Preparing for interviews\n\nHow can I assist you today?", time: "Just now", sent: false }
+    ]
+  }
+];
+
+let currentConversationId = 1;
+let messages = [];
+
+// Initialize chat
+function initChat() {
+  renderConversations();
+  loadConversation(currentConversationId);
+  setupEventListeners();
+}
+
+// Render conversations list
+function renderConversations() {
+  const conversationsList = document.getElementById('conversationsList');
+  conversationsList.innerHTML = '';
+  
+  mockConversations.forEach(conv => {
+    const convElement = document.createElement('div');
+    convElement.className = `conversation-item ${conv.id === currentConversationId ? 'active' : ''}`;
+    convElement.innerHTML = `
+      <div style="position:relative">
+        <img src="${conv.avatar}" alt="${conv.name}" class="conversation-avatar">
+        ${conv.online ? '<div class="online-indicator"></div>' : ''}
+      </div>
+      <div class="conversation-info">
+        <div class="conversation-name">${conv.name}</div>
+        <div class="conversation-preview">${conv.lastMessage}</div>
+      </div>
+      <div class="conversation-meta">
+        <div class="conversation-time">${conv.time}</div>
+        ${conv.unread > 0 ? `<div class="unread-badge">${conv.unread}</div>` : ''}
+      </div>
+    `;
+    
+    convElement.addEventListener('click', () => {
+      loadConversation(conv.id);
+      document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+      convElement.classList.add('active');
+    });
+    
+    conversationsList.appendChild(convElement);
+  });
+}
+
+// Load conversation
+function loadConversation(conversationId) {
+  currentConversationId = conversationId;
+  const conversation = mockConversations.find(c => c.id === conversationId);
+  
+  if (!conversation) return;
+  
+  // Update chat header
+  document.querySelector('.current-chat-name').textContent = conversation.name;
+  document.querySelector('.current-chat-avatar').src = conversation.avatar;
+  document.querySelector('.current-chat-status').textContent = 
+    conversation.online ? 'Online' : 'Last seen recently';
+  
+  // Render messages
+  renderMessages(conversation.messages);
+  
+  // Update suggestions based on conversation
+  updateSmartSuggestions(conversation);
+}
+
+// Render messages
+function renderMessages(messages) {
+  const messagesContainer = document.getElementById('messagesContainer');
+  messagesContainer.innerHTML = '';
+  
+  messages.forEach(msg => {
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${msg.sent ? 'sent' : 'received'} ${msg.sender === 'AI Assistant' ? 'ai-assistant' : ''}`;
+    
+    if (!msg.sent && msg.sender !== 'AI Assistant') {
+      messageElement.innerHTML = `
+        <img src="${mockConversations.find(c => c.id === currentConversationId).avatar}" class="message-avatar">
+        <div class="message-bubble">
+          <p class="message-text">${msg.text}</p>
+          <div class="message-time">${msg.time}</div>
+        </div>
+      `;
+    } else if (msg.sender === 'AI Assistant') {
+      messageElement.innerHTML = `
+        <div class="message-bubble">
+          <p class="message-text">${msg.text}</p>
+          <div class="quick-replies">
+            <div class="quick-reply" onclick="sendAIMessage('Help me draft a professional introduction')">Draft intro</div>
+            <div class="quick-reply" onclick="sendAIMessage('Find resources for UI/UX design')">Find resources</div>
+            <div class="quick-reply" onclick="sendAIMessage('Help me prepare for an interview')">Interview prep</div>
+          </div>
+          <div class="message-time">${msg.time}</div>
+        </div>
+      `;
+    } else {
+      messageElement.innerHTML = `
+        <div class="message-bubble">
+          <p class="message-text">${msg.text}</p>
+          <div class="message-time">${msg.time}</div>
+        </div>
+        <img src="https://i.pravatar.cc/100?img=5" class="message-avatar">
+      `;
+    }
+    
+    messagesContainer.appendChild(messageElement);
+  });
+  
+  // Scroll to bottom
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Update smart suggestions
+function updateSmartSuggestions(conversation) {
+  const suggestionsContainer = document.getElementById('smartSuggestions');
+  
+  if (conversation.name === "AI Assistant") {
+    suggestionsContainer.innerHTML = `
+      <div class="suggestion-chip" onclick="sendAIMessage('Help me draft a professional message')">Draft message</div>
+      <div class="suggestion-chip" onclick="sendAIMessage('Find learning resources')">Find resources</div>
+      <div class="suggestion-chip" onclick="sendAIMessage('Connect me with experts')">Find experts</div>
+    `;
+  } else if (conversation.name === "Emily Chen") {
+    suggestionsContainer.innerHTML = `
+      <div class="suggestion-chip" onclick="useSuggestion('Can we schedule a call?')">Schedule call</div>
+      <div class="suggestion-chip" onclick="useSuggestion('Thanks for the help!')">Say thanks</div>
+      <div class="suggestion-chip" onclick="useSuggestion('Let me check and get back to you')">Follow up later</div>
+    `;
+  } else {
+    suggestionsContainer.innerHTML = `
+      <div class="suggestion-chip" onclick="useSuggestion('Can you tell me more?')">Learn more</div>
+      <div class="suggestion-chip" onclick="useSuggestion('Let me think about it')">Think about it</div>
+      <div class="suggestion-chip" onclick="useSuggestion('Thanks for reaching out!')">Say thanks</div>
+    `;
+  }
+}
+
+// Use suggestion
+function useSuggestion(text) {
+  document.getElementById('messageInput').value = text;
+}
+
+// Send AI message
+function sendAIMessage(prompt) {
+  const messagesContainer = document.getElementById('messagesContainer');
+  const userMessage = document.createElement('div');
+  userMessage.className = 'message sent';
+  userMessage.innerHTML = `
+    <div class="message-bubble">
+      <p class="message-text">${prompt}</p>
+      <div class="message-time">Just now</div>
+    </div>
+    <img src="https://i.pravatar.cc/100?img=5" class="message-avatar">
+  `;
+  messagesContainer.appendChild(userMessage);
+  
+  // Simulate AI thinking
+  setTimeout(() => {
+    const aiResponse = document.createElement('div');
+    aiResponse.className = 'message received ai-assistant';
+    aiResponse.innerHTML = `
+      <div class="message-bubble">
+        <p class="message-text">${getAIResponse(prompt)}</p>
+        <div class="message-time">Just now</div>
+      </div>
+    `;
+    messagesContainer.appendChild(aiResponse);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }, 1000);
+}
+
+// Get AI response
+function getAIResponse(prompt) {
+  if (prompt.includes('draft')) {
+    return "Here's a professional introduction draft:\n\n'Hello! I'm Alex, a passionate UI/UX designer with expertise in creating user-centered digital experiences. I'd love to connect and explore potential collaborations.'\n\nWould you like me to customize this further?";
+  } else if (prompt.includes('resource')) {
+    return "Based on your interests, I recommend:\n• Figma's design community for UI inspiration\n• Nielsen Norman Group for UX research\n• MEET's 'Design Thinking' course\n• 'Don't Make Me Think' by Steve Krug\n\nWould you like specific resources on any particular topic?";
+  } else if (prompt.includes('interview')) {
+    return "For interview preparation, focus on:\n1. Portfolio presentation (3-5 best projects)\n2. Behavioral questions (use STAR method)\n3. Design challenges (practice whiteboarding)\n4. Technical questions (design systems, tools)\n\nI can help you practice - would you like a mock interview?";
+  } else if (prompt.includes('expert')) {
+    return "I found these experts in your network:\n• Emily Chen (UI/UX Design Mentor)\n• Marcus Lee (Product Management)\n• Sarah Johnson (Frontend Development)\n\nWould you like me to help you connect with any of them?";
+  } else {
+    return "I'm here to help! I can assist with message drafting, resource finding, interview preparation, or connecting you with the right people. What would you like help with today?";
+  }
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  const messageInput = document.getElementById('messageInput');
+  const sendButton = document.getElementById('sendButton');
+  
+  // Send message on button click
+  sendButton.addEventListener('click', sendMessage);
+  
+  // Send message on Enter key (but allow Shift+Enter for new line)
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+    
+    // Auto-resize textarea
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+  });
+  
+  // New chat button
+  document.getElementById('newChatBtn').addEventListener('click', () => {
+    alert('New chat feature would open a modal to start conversation with new contacts');
+  });
+  
+  // Go Live buttons
+  document.getElementById('goLive').addEventListener('click', goLive);
+  document.getElementById('mobileGoLive').addEventListener('click', goLive);
+}
+
+// Send message
+function sendMessage() {
+  const messageInput = document.getElementById('messageInput');
+  const text = messageInput.value.trim();
+  
+  if (!text) return;
+  
+  const messagesContainer = document.getElementById('messagesContainer');
+  const messageElement = document.createElement('div');
+  messageElement.className = 'message sent';
+  messageElement.innerHTML = `
+    <div class="message-bubble">
+      <p class="message-text">${text}</p>
+      <div class="message-time">Just now</div>
+    </div>
+    <img src="https://i.pravatar.cc/100?img=5" class="message-avatar">
+  `;
+  
+  messagesContainer.appendChild(messageElement);
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  
+  // Scroll to bottom
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+  // Simulate reply for AI Assistant
+  if (currentConversationId === 4) {
+    setTimeout(() => {
+      sendAIMessage('Respond to: ' + text);
+    }, 1000);
+  }
+}
+
+// Go Live function
+function goLive() {
+  alert('Going live feature would start a live stream or video call');
+}
+
+// Initialize chat when page loads
+document.addEventListener('DOMContentLoaded', initChat);
+</script>
+</body>
+</html>
