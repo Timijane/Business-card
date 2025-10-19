@@ -399,4 +399,496 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .media-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  /* responsive */
+  @media (max-width:900px){
+    aside {
+      width: 70px;
+    }
+    aside button {
+      justify-content: center;
+      padding: 12px 8px;
+    }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .search {
+      max-width: 400px;
+    }
+    .profile-picture-container {
+      left: 20px;
+      width: 120px;
+      height: 120px;
+      bottom: -50px;
+    }
+    .cover-photo {
+      height: 200px;
+      margin-bottom: 70px;
+    }
+    .media-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+  }
+  
+  @media (max-width:768px){
+    .search {
+      max-width: 300px;
+    }
+    .basic-info {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width:640px){
+    .search {
+      max-width: 200px;
+    }
+    .profile-info {
+      padding: 0 10px;
+    }
+    .profile-name {
+      font-size: 24px;
+    }
+    .media-grid {
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+  }
+  
+  @media (max-width:480px){
+    .search {
+      max-width: 150px;
+    }
+    .brand {
+      display: none;
+    }
+    .media-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search people, courses, jobs..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="location.href='feed.html'">
+      🏠 <span class="menu-text">Feed</span>
+    </button>
+    <button onclick="location.href='chat.html'">
+      💬 <span class="menu-text">Chat</span>
+    </button>
+    <button onclick="location.href='conference.html'">
+      🎥 <span class="menu-text">Conference</span>
+    </button>
+    <button onclick="location.href='marketplace.html'">
+      🛒 <span class="menu-text">Marketplace</span>
+    </button>
+    <button class="active" onclick="location.href='profile.html'">
+      👤 <span class="menu-text">Profile</span>
+    </button>
+    <button onclick="location.href='meetversity.html'">
+      🎓 <span class="menu-text">Meetversity</span>
+    </button>
+    <button onclick="location.href='organization.html'">
+      🏢 <span class="menu-text">Organization</span>
+    </button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
+      <span class="menu-text">Go Live</span>
+    </button>
+  </aside>
+
+  <main>
+    <div class="profile-container">
+      <!-- Cover Photo -->
+      <div class="cover-photo" id="coverPhoto" style="background-image: url('https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80')">
+        <button class="cover-upload" onclick="document.getElementById('coverInput').click()">Change Cover</button>
+        <input type="file" id="coverInput" accept="image/*" style="display:none">
+        
+        <div class="profile-picture-container">
+          <img src="https://i.pravatar.cc/300?img=5" alt="Profile Picture" class="profile-picture" id="profileImage">
+          <button class="profile-upload" onclick="document.getElementById('profileInput').click()">📷</button>
+          <input type="file" id="profileInput" accept="image/*" style="display:none">
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <h1 class="profile-name" id="profileName">Alex Johnson</h1>
+        <div class="profile-title" id="profileTitle">Senior UI/UX Designer & Educator</div>
+        <p class="profile-bio" id="profileBio">Passionate about creating beautiful, functional designs and teaching others. I believe in the power of design to solve real-world problems and make technology accessible to everyone.</p>
+
+        <!-- Basic Information -->
+        <div class="basic-info">
+          <div class="info-card">
+            <h3 class="card-title">Know Me</h3>
+            <div class="info-item">
+              <div class="info-label">About</div>
+              <div class="info-value">I'm a passionate designer with 10+ years of experience creating digital products that users love. When I'm not designing, I teach UI/UX courses and mentor aspiring designers.</div>
+            </div>
+          </div>
+          
+          <div class="info-card">
+            <h3 class="card-title">Contact</h3>
+            <div class="info-item">
+              <div class="info-label">Phone</div>
+              <div class="info-value">+1 (555) 123-4567</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value">alex.johnson@example.com</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Website</div>
+              <div class="info-value">www.alexjohnson.design</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View More Button -->
+        <button class="view-more-btn" id="viewMoreBtn">View Profile Information</button>
+
+        <!-- Hidden Detailed Information -->
+        <div class="profile-details" id="profileDetails">
+          <!-- Personal Information -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Personal Information</h3>
+              <button class="edit-btn" onclick="toggleEdit('personalInfo')">Edit</button>
+            </div>
+            <div class="info-grid" id="personalInfo">
+              <div class="info-item">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value" id="dobDisplay">March 15, 1990</div>
+                <input type="date" id="dobInput" style="display:none" value="1990-03-15">
+              </div>
+              <div class="info-item">
+                <div class="info-label">Location</div>
+                <div class="info-value" id="locationDisplay">San Francisco, CA, USA</div>
+                <div style="display:none" id="locationInputs">
+                  <select id="countryInput">
+                    <option value="USA">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                  </select>
+                  <input type="text" id="stateInput" placeholder="State" value="CA" style="margin-top:8px">
+                  <input type="text" id="cityInput" placeholder="City" value="San Francisco" style="margin-top:8px">
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Languages</div>
+                <div class="info-value" id="languagesDisplay">English, Spanish, French</div>
+                <input type="text" id="languagesInput" style="display:none" value="English, Spanish, French">
+              </div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Education</h3>
+              <button class="edit-btn" onclick="toggleEdit('educationInfo')">Edit</button>
+            </div>
+            <div id="educationInfo">
+              <div class="education-item">
+                <div class="edu-title">Master of Fine Arts in Design</div>
+                <div class="edu-institution">Stanford University</div>
+                <div class="edu-dates">2012 - 2014</div>
+                <div class="edu-description">Focused on human-computer interaction and design thinking methodologies.</div>
+              </div>
+              <div class="education-item">
+                <div class="edu-title">Bachelor of Arts in Visual Arts</div>
+                <div class="edu-institution">University of California, Berkeley</div>
+                <div class="edu-dates">2008 - 2012</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="detail-card">
+            <div class="card-header">
+              <h3 class="card-title">Work Experience</h3>
+              <button class="edit-btn" onclick="toggleEdit('experienceInfo')">Edit</button>
+            </div>
+            <div id="experienceInfo">
+              <div class="experience-item">
+                <div class="exp-title">Senior UI/UX Designer</div>
+                <div class="exp-company">TechVision Inc.</div>
+                <div class="exp-dates">2019 - Present</div>
+                <div class="exp-description">Leading design for enterprise SaaS products, mentoring junior designers, and establishing design systems.</div>
+              </div>
+              <div class="experience-item">
+                <div class="exp-title">UX Designer</div>
+                <div class="exp-company">CreativeMinds Agency</div>
+                <div class="exp-dates">2015 - 2019</div>
+                <div class="exp-description">Designed user interfaces for web and mobile applications across various industries.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="save-btn" id="saveProfile" style="display:none">Save Profile</button>
+
+        <!-- Media Grid - TikTok Style -->
+        <div class="media-section">
+          <h2 class="section-title">My Posts</h2>
+          <div class="media-grid" id="mediaGrid">
+            <!-- Media items will be generated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Dark mode toggle
+const darkToggle = document.getElementById('darkToggle');
+(function initTheme(){
+  const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  if(t==='dark') document.body.classList.add('dark');
+  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+})();
+darkToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('meet_theme', now);
+  darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+});
+
+// Profile editing functionality
+let isEditing = false;
+
+// View More Button
+document.getElementById('viewMoreBtn').addEventListener('click', function() {
+  const details = document.getElementById('profileDetails');
+  const button = document.getElementById('viewMoreBtn');
+  
+  if (details.style.display === 'grid') {
+    details.style.display = 'none';
+    button.textContent = 'View Profile Information';
+  } else {
+    details.style.display = 'grid';
+    button.textContent = 'Hide Profile Information';
+  }
+});
+
+// Image Upload Functionality
+document.getElementById('profileInput').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('profileImage').src = e.target.result;
+      // Save to localStorage
+      localStorage.setItem('meet_profile_image', e.target.result);
+    }
+    reader.readAsDataURL(e.target.files[0]);
+  }
+});
+
+document.getElementById('coverInput').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('coverPhoto').style.backgroundImage = `url(${e.target.result})`;
+      // Save to localStorage
+      localStorage.setItem('meet_cover_image', e.target.result);
+    }
+    reader.readAsDataURL(e.target.files[0]);
+  }
+});
+
+// Load saved images from localStorage
+window.addEventListener('load', function() {
+  const savedProfile = localStorage.getItem('meet_profile_image');
+  const savedCover = localStorage.getItem('meet_cover_image');
+  
+  if (savedProfile) {
+    document.getElementById('profileImage').src = savedProfile;
+  }
+  
+  if (savedCover) {
+    document.getElementById('coverPhoto').style.backgroundImage = `url(${savedCover})`;
+  }
+});
+
+// Profile editing functions
+function toggleEdit(section) {
+  const saveBtn = document.getElementById('saveProfile');
+  
+  if (!isEditing) {
+    // Enter edit mode
+    isEditing = true;
+    saveBtn.style.display = 'block';
+    
+    // Show inputs and hide display texts
+    if (section === 'personalInfo') {
+      document.getElementById('dobDisplay').style.display = 'none';
+      document.getElementById('dobInput').style.display = 'block';
+      
+      document.getElementById('locationDisplay').style.display = 'none';
+      document.getElementById('locationInputs').style.display = 'block';
+      
+      document.getElementById('languagesDisplay').style.display = 'none';
+      document.getElementById('languagesInput').style.display = 'block';
+    }
+    
+    // Change all edit buttons to "Cancel"
+    const editButtons = document.querySelectorAll('.edit-btn');
+    editButtons.forEach(btn => {
+      btn.textContent = 'Cancel';
+      btn.onclick = cancelEdit;
+    });
+  }
+}
+
+function cancelEdit() {
+  const saveBtn = document.getElementById('saveProfile');
+  isEditing = false;
+  saveBtn.style.display = 'none';
+  
+  // Hide inputs and show display texts
+  document.getElementById('dobDisplay').style.display = 'block';
+  document.getElementById('dobInput').style.display = 'none';
+  
+  document.getElementById('locationDisplay').style.display = 'block';
+  document.getElementById('locationInputs').style.display = 'none';
+  
+  document.getElementById('languagesDisplay').style.display = 'block';
+  document.getElementById('languagesInput').style.display = 'none';
+  
+  // Change all buttons back to "Edit"
+  const editButtons = document.querySelectorAll('.edit-btn');
+  editButtons.forEach(btn => {
+    btn.textContent = 'Edit';
+    btn.onclick = function() { toggleEdit(this.closest('.detail-card').querySelector('.info-grid, #educationInfo, #experienceInfo').id); };
+  });
+}
+
+// Save profile
+document.getElementById('saveProfile').addEventListener('click', function() {
+  // Update display values with input values
+  document.getElementById('dobDisplay').textContent = formatDate(document.getElementById('dobInput').value);
+  document.getElementById('locationDisplay').textContent = 
+    document.getElementById('cityInput').value + ', ' + 
+    document.getElementById('stateInput').value + ', ' + 
+    document.getElementById('countryInput').value;
+  document.getElementById('languagesDisplay').textContent = document.getElementById('languagesInput').value;
+  
+  // Exit edit mode
+  cancelEdit();
+  
+  // Show success message
+  alert('Profile updated successfully!');
+});
+
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Mock media data - TikTok style posts
+const mockMedia = [
+  { type: 'image', url: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', likes: 245, comments: 12 },
+  { type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4', likes: 189, comments: 8 },
+  { type: 'image', url: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', likes: 312, comments: 24 },
+  { type: 'image', url: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', likes: 156, comments: 5 },
+  { type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-going-down-a-curved-highway-through-a-mountain-34817-large.mp4', likes: 421, comments: 31 },
+  { type: 'image', url: 'https://images.unsplash.com/photo-1542744095-291d1f67b221?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', likes: 278, comments: 17 }
+];
+
+// Generate media grid
+function generateMediaGrid() {
+  const mediaGrid = document.getElementById('mediaGrid');
+  mediaGrid.innerHTML = '';
+  
+  mockMedia.forEach(media => {
+    const mediaItem = document.createElement('div');
+    mediaItem.className = 'media-item';
+    
+    if (media.type === 'image') {
+      mediaItem.innerHTML = `
+        <img src="${media.url}" alt="User post">
+        <div class="media-overlay">
+          <div class="media-stats">
+            <span>❤️ ${media.likes}</span>
+            <span>💬 ${media.comments}</span>
+          </div>
+        </div>
+      `;
+    } else {
+      mediaItem.innerHTML = `
+        <video muted>
+          <source src="${media.url}" type="video/mp4">
+        </video>
+        <div class="media-overlay">
+          <div class="media-stats">
+            <span>❤️ ${media.likes}</span>
+            <span>💬 ${media.comments}</span>
+          </div>
+        </div>
+      `;
+    }
+    
+    mediaGrid.appendChild(mediaItem);
+  });
+}
+
+// Initialize media grid
+generateMediaGrid();
+
+// Go Live button
+document.getElementById('goLive').addEventListener('click', function() {
+  alert('Going live feature would open here. This would start a live stream from your profile.');
+});
+</script>
+</body>
+</html>
