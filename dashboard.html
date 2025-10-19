@@ -6,7 +6,7 @@
 <title>MEET — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root {
     --primary:#0061FF;
     --accent:#5AE4A8;
     --bg:#f7f9fb;
@@ -23,9 +23,8 @@
     --muted:#93a3bd;
     --shadow:0 6px 18px rgba(0,0,0,0.6);
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
+  *{box-sizing:border-box;margin:0;padding:0}
+  body {
     font-family:Inter,system-ui,Segoe UI,Arial;
     background:var(--bg);
     color:var(--text);
@@ -35,11 +34,9 @@
     transition:background .35s,color .35s;
   }
 
-  /* Header */
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+  /* header */
+  header {
+    display:flex;align-items:center;gap:16px;
     padding:12px 20px;
     background:var(--card);
     box-shadow:var(--shadow);
@@ -47,89 +44,102 @@
     top:0;
     z-index:50;
   }
-  .left{display:flex;align-items:center;gap:12px}
-  .logo-icon{width:44px;height:44px;border-radius:8px;
+  .left {display:flex;align-items:center;gap:12px}
+  .logo-icon {
+    width:44px;height:44px;border-radius:8px;
     background:linear-gradient(135deg,var(--primary),var(--accent));
     display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
   }
-  .brand{font-weight:700;font-size:18px;color:var(--primary)}
-  .search{
-    flex:1;
-    display:flex;align-items:center;gap:10px;
+  .brand {font-weight:700;font-size:18px;color:var(--primary)}
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;
     background:#eef3ff;border-radius:10px;padding:8px 12px;
-    margin:0 20px;
   }
   body.dark .search{background:#0f2134}
   .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
   .header-right{display:flex;align-items:center;gap:10px}
-  .status-dot{width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card)}
+  .status-dot {
+    width:10px;height:10px;border-radius:50%;background:#34D399;
+    border:2px solid var(--card);
+    box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+  }
 
-  /* Layout */
-  .layout{display:flex;flex:1;overflow:hidden}
-  aside{
-    width:80px;
-    background:var(--card);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:12px 0;
-    box-shadow:var(--shadow);
-    transition:width .3s ease;
+  /* sidebar */
+  #sidebar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    height: calc(100vh - 70px);
+    width: 80px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    transition: width 0.25s ease;
+    z-index: 60;
   }
-  aside:hover{width:240px}
-  aside button{
-    width:90%;
-    border:0;
-    background:transparent;
-    padding:12px 14px;
-    border-radius:10px;
-    font-weight:600;
-    color:var(--muted);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    justify-content:flex-start;
-    position:relative;
+  #sidebar:hover { width: 220px; }
+  #sidebar button {
+    width: 90%;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 4px 0;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
   }
-  aside button span.label{opacity:0;white-space:nowrap;transition:opacity .3s}
-  aside:hover button span.label{opacity:1}
-  aside button.active{color:var(--primary);background:rgba(0,97,255,0.08)}
-  aside button:hover{background:rgba(0,97,255,0.05)}
-  aside button::after{
-    content:attr(title);
-    position:absolute;
-    left:70px;
-    background:var(--text);
-    color:#fff;
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:12px;
-    white-space:nowrap;
-    opacity:0;
-    transform:translateY(-50%);
-    pointer-events:none;
-    transition:opacity .2s;
+  #sidebar button span { opacity: 0; transition: opacity .2s; }
+  #sidebar:hover button span { opacity: 1; }
+  #sidebar button.active,
+  #sidebar button:hover { background: rgba(0,97,255,0.08); color: var(--primary); }
+
+  /* main layout */
+  .layout main { margin-left: 80px; transition: margin-left 0.25s; }
+  #sidebar:hover ~ .layout main { margin-left: 220px; }
+
+  /* mobile sidebar */
+  @media (max-width: 900px) {
+    #sidebar {
+      flex-direction: row;
+      justify-content: space-around;
+      width: 100%;
+      height: 60px;
+      top: auto;
+      bottom: 0;
+      left: 0;
+    }
+    #sidebar:hover { width: 100%; }
+    #sidebar button { flex-direction: column; gap: 2px; }
+    #sidebar button span { display: none; }
+    .layout main { margin-left: 0; padding-bottom: 70px; }
   }
-  aside button:hover::after{opacity:1}
+
+  /* cards and feed styling */
   main{flex:1;padding:20px;overflow:auto}
-
-  /* Feed cards, posts, modals, assistant, etc. — SAME as before */
   .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
   .create-top{display:flex;gap:12px;align-items:center}
-  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent))}
-  .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;border:1px solid transparent;cursor:text}
+  .avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
+  .create-input{flex:1;background:#f2f6fb;padding:10px;border-radius:24px;cursor:text}
   body.dark .create-input{background:#071129}
   .create-actions{display:flex;gap:8px;margin-top:10px;justify-content:space-between}
-  .actions-left{display:flex;gap:8px}
   .action-btn{background:transparent;border:0;padding:8px 10px;border-radius:8px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px}
   .action-btn:hover{color:var(--primary)}
+
+  /* post feed */
   .post{margin-bottom:16px}
-  .post .card{padding:14px}
   .post-head{display:flex;gap:12px;align-items:center}
-  .post-head .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent))}
-  .p-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+  .p-avatar{width:56px;height:56px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center}
+  .p-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid #fff;object-fit:cover}
   .post-meta{display:flex;flex-direction:column}
   .post-meta .name{font-weight:700}
   .post-meta .time{font-size:12px;color:var(--muted)}
@@ -139,37 +149,26 @@
   .post-actions{display:flex;gap:12px;margin-top:12px;border-top:1px solid rgba(0,0,0,0.03);padding-top:10px}
   .like-btn,.comment-btn{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600}
   .like-btn.liked{color:var(--primary)}
-  .comments{margin-top:10px}
-  .comment{display:flex;gap:8px;margin-top:8px}
-  .comment input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
-  body.dark .comment input{background:#07202f;color:#fff}
 
-  /* Responsive sidebar collapse */
-  @media(max-width:900px){
-    aside{
-      position:fixed;
-      left:0;
-      bottom:0;
-      width:100%;
-      height:auto;
-      flex-direction:row;
-      justify-content:space-around;
-      padding:10px 0;
-      box-shadow:0 -2px 8px rgba(0,0,0,0.1);
-      z-index:100;
-    }
-    aside:hover{width:100%}
-    aside button{flex-direction:column;gap:4px;justify-content:center}
-    aside button span.label{display:none}
-    main{padding-bottom:80px}
-  }
+  /* modal */
+  .modal-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:80}
+  .modal{width:92%;max-width:640px;border-radius:12px;background:var(--card);padding:16px;box-shadow:var(--shadow)}
 </style>
 </head>
 <body>
 
+<!-- SVG mask -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
 <header>
   <div class="left">
-    <div class="logo-icon"></div>
+    <div class="logo-icon" title="MEET"></div>
     <div class="brand">MEET</div>
   </div>
   <div class="search">
@@ -177,46 +176,88 @@
     <input id="search" placeholder="Search people, courses, jobs..." />
   </div>
   <div class="header-right">
-    <div style="font-size:12px;color:var(--muted)">Online</div>
-    <div class="status-dot"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot"></div>
+    </div>
     <button id="darkToggle">🌙</button>
-    <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%" />
+    <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
   </div>
 </header>
 
-<div class="layout">
-  <aside>
-    <button class="active" title="Feed" onclick="location.href='index.html'">🏠 <span class="label">Feed</span></button>
-    <button title="Chat" onclick="location.href='chat.html'">💬 <span class="label">Chat</span></button>
-    <button title="Conference" onclick="location.href='conference.html'">🎥 <span class="label">Conference</span></button>
-    <button title="Marketplace" onclick="location.href='marketplace.html'">🛒 <span class="label">Marketplace</span></button>
-    <button title="Meetversity" onclick="location.href='meetversity.html'">🎓 <span class="label">Meetversity</span></button>
-    <button title="Organization" onclick="location.href='organization.html'">🏢 <span class="label">Organization</span></button>
-    <button title="Profile" onclick="location.href='profile.html'">👤 <span class="label">Profile</span></button>
-  </aside>
+<!-- Sidebar -->
+<div id="sidebar">
+  <button data-tab="feed" class="active">🏠 <span>Feed</span></button>
+  <button data-tab="chat" onclick="location.href='chat.html'">💬 <span>Chat</span></button>
+  <button data-tab="conference" onclick="location.href='conference.html'">🎥 <span>Conference</span></button>
+  <button data-tab="market" onclick="location.href='marketplace.html'">🛒 <span>Marketplace</span></button>
+  <button data-tab="meetversity" onclick="location.href='meetversity.html'">🎓 <span>Meetversity</span></button>
+  <button data-tab="org" onclick="location.href='organization.html'">🏢 <span>Organization</span></button>
+  <button data-tab="profile" onclick="location.href='profile.html'">👤 <span>Profile</span></button>
+</div>
 
+<div class="layout">
   <main>
-    <!-- KEEP your existing create-post and feed content -->
-    <div class="card create-card">
+    <div class="card">
       <div class="create-top">
         <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
         <div class="create-input" id="openPost" tabindex="0">What's on your mind?</div>
       </div>
       <div class="create-actions">
-        <div class="actions-left">
-          <button class="action-btn" id="quickPhoto">📸 Photo</button>
-          <button class="action-btn" id="quickVideo">🎥 Video</button>
-          <button class="action-btn" id="quickCourse">📚 Course</button>
-        </div>
+        <button class="action-btn" id="quickPhoto">📸 Photo</button>
+        <button class="action-btn" id="quickVideo">🎥 Video</button>
+        <button class="action-btn" id="quickCourse">📚 Course</button>
       </div>
     </div>
     <div id="feed"></div>
   </main>
 </div>
 
-<!-- Keep all your scripts & logic (post creation, assistant, etc.) intact -->
+<!-- Post Modal -->
+<div class="modal-wrap" id="modalWrap">
+  <div class="modal">
+    <textarea id="postText" placeholder="Write something..."></textarea>
+    <input id="fileInput" type="file" accept="image/*,video/*">
+    <button id="submitPost">Post</button>
+  </div>
+</div>
+
 <script>
-/* All your previous JS for posts, likes, comments, modals, etc. goes here (no changes) */
+const MOCK = [
+  {id:'1',user:'Emily Chen',avatar:'https://i.pravatar.cc/100?img=14',time:Date.now()-20000,text:'Just published a free course!',likes:2},
+  {id:'2',user:'Marcus Lee',avatar:'https://i.pravatar.cc/100?img=22',time:Date.now()-60000,text:'We’re hiring UI designers 💼',likes:5}
+];
+let feed = JSON.parse(localStorage.getItem('feed')||'null')||MOCK;
+function renderFeed(){
+  const f=document.getElementById('feed');
+  f.innerHTML='';
+  feed.sort((a,b)=>b.time-a.time).forEach(p=>{
+    const d=document.createElement('div');
+    d.className='card';
+    d.innerHTML=`
+      <div class="post-head">
+        <div class="p-avatar"><img src="${p.avatar}"></div>
+        <div class="post-meta"><div class="name">${p.user}</div><div class="time">${new Date(p.time).toLocaleTimeString()}</div></div>
+      </div>
+      <div class="post-body">${p.text}</div>
+      <div class="post-actions"><button>❤ ${p.likes}</button></div>`;
+    f.appendChild(d);
+  });
+}
+renderFeed();
+
+const openPost=document.getElementById('openPost');
+const modal=document.getElementById('modalWrap');
+const submit=document.getElementById('submitPost');
+const postText=document.getElementById('postText');
+openPost.onclick=()=>modal.style.display='flex';
+submit.onclick=()=>{
+  if(!postText.value.trim())return;
+  feed.unshift({id:Math.random().toString(36).slice(2),user:'You',avatar:document.getElementById('userPic').src,time:Date.now(),text:postText.value,likes:0});
+  localStorage.setItem('feed',JSON.stringify(feed));
+  renderFeed();
+  modal.style.display='none';postText.value='';
+}
 </script>
 </body>
 </html>
