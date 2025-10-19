@@ -156,9 +156,43 @@
 
   /* responsive */
   @media (max-width:900px){
-    aside{display:none} /* hide sidebar on phones */
-    .search{display:none} /* hide search bar on phones */
+    aside{display:none}
     .assistant{right:12px;bottom:110px;width:280px}
+
+    /* Mobile menu toggle */
+    #mobileMenuToggle { display:block; }
+    
+    aside.mobile-show {
+      display:flex;
+      position:fixed;
+      top:0;
+      left:0;
+      height:100%;
+      width:240px;
+      z-index:99;
+      transform:translateX(0);
+      flex-direction:column;
+      gap:8px;
+      padding:18px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+      border-right:1px solid rgba(0,0,0,0.03);
+      transition:transform 0.3s ease;
+    }
+
+    aside { 
+      transform:translateX(-100%);
+      transition:transform 0.3s ease;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:18px;
+    }
+
+    main.overlay-active {
+      filter:brightness(0.85);
+      pointer-events:none;
+    }
   }
 </style>
 </head>
@@ -192,48 +226,229 @@
     <button id="darkToggle" title="Toggle dark mode">🌙</button>
     <div style="display:flex;align-items:center;gap:8px">
       <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
-      <div style="font-weight:700">Alex</div>
+      <div style="font-weight:600;font-size:14px;">You</div>
     </div>
   </div>
 </header>
 
+<!-- Mobile Menu Toggle Button -->
+<button id="mobileMenuToggle" style="
+  position:fixed;top:16px;left:16px;
+  z-index:100;background:linear-gradient(90deg,var(--primary),var(--accent));
+  border:none;color:white;padding:10px 12px;border-radius:8px;font-size:20px;cursor:pointer;display:none;">
+  ☰
+</button>
+
 <div class="layout">
   <aside>
-    <button class="active" data-tab="feed">🏠 Feed</button>
+    <button data-tab="feed" class="active">🏠 Feed</button>
     <button data-tab="chat">💬 Chat</button>
     <button data-tab="conference">🎥 Conference</button>
-    <button data-tab="market">🛒 Marketplace</button>
-    <button data-tab="profile">👤 Profile</button>
-
-    <div style="flex:1"></div>
-    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700">Go Live</button>
+    <button data-tab="courses">📚 Courses</button>
+    <button data-tab="jobs">💼 Jobs</button>
+    <button data-tab="settings">⚙️ Settings</button>
   </aside>
 
   <main>
-    <!-- create post card -->
-    <div class="card create-card">
+    <div class="card">
       <div class="create-top">
-        <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt=""></div>
-        <div class="create-input" id="openPost" tabindex="0">What's on your mind, Alex?</div>
+        <div class="avatar">
+          <img src="https://i.pravatar.cc/100?img=5" alt="You">
+        </div>
+        <div id="openModal" class="create-input">What's new with you?</div>
       </div>
       <div class="create-actions">
         <div class="actions-left">
-          <button class="action-btn" id="quickPhoto">📸 Photo</button>
-          <button class="action-btn" id="quickVideo">🎥 Video</button>
-          <button class="action-btn" id="quickCourse">📚 Course</button>
+          <button id="goLiveBtn" class="action-btn">📺 Go Live</button>
+          <button id="uploadMedia" class="action-btn">🖼️ Media</button>
         </div>
-        <div class="actions-right"><small style="color:var(--muted)">Share with your network</small></div>
+        <button id="postBtn" class="btn-primary" style="background:linear-gradient(90deg,var(--primary),var(--accent));border:none;color:white;padding:8px 14px;border-radius:8px;">Post</button>
       </div>
     </div>
 
-    <!-- feed container -->
     <div id="feed"></div>
   </main>
 </div>
 
-<!-- The rest of your modals, assistant, toast, and scripts remain unchanged -->
+<!-- Post Modal -->
+<div class="modal-wrap" id="postModal">
+  <div class="modal">
+    <h3>Create Post</h3>
+    <textarea id="postText" placeholder="Share something..."></textarea>
+    <div class="row">
+      <input type="file" id="postMedia" accept="image/*,video/*">
+      <button id="submitPost" class="btn-primary">Post</button>
+    </div>
+    <div class="media-preview" id="mediaPreview"></div>
+  </div>
+</div>
+
+<!-- Live Modal -->
+<div class="live-modal" id="liveModal">
+  <div class="live-box">
+    <h3>Start a Live Session</h3>
+    <p>Feature coming soon! You’ll be able to host live rooms here.</p>
+    <button id="closeLive" class="btn-primary">Close</button>
+  </div>
+</div>
+
+<!-- AI Assistant -->
+<div class="assistant" id="assistant" style="display:none;">
+  <div class="head">
+    <div>AI Assistant 🤖</div>
+    <button id="assistClose" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;">✕</button>
+  </div>
+  <div class="body">
+    <div class="msgs" id="assistMsgs"></div>
+    <div class="compose">
+      <input id="assistInput" placeholder="Ask MEET Assistant..." />
+      <button id="assistSend" class="btn-primary">Send</button>
+    </div>
+  </div>
+</div>
+<div class="assist-toggle" id="assistToggle">💬</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-/* Your existing JS code remains exactly the same */
+/* ====== Dark Mode Toggle ====== */
+const darkToggle = document.getElementById('darkToggle');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+/* ====== Modal for Post ====== */
+const openModal = document.getElementById('openModal');
+const postModal = document.getElementById('postModal');
+const submitPost = document.getElementById('submitPost');
+const postText = document.getElementById('postText');
+const postMedia = document.getElementById('postMedia');
+const mediaPreview = document.getElementById('mediaPreview');
+const feedEl = document.getElementById('feed');
+const toast = document.getElementById('toast');
+const posts = [];
+
+openModal.addEventListener('click', () => postModal.style.display = 'flex');
+postModal.addEventListener('click', e => { if(e.target === postModal) postModal.style.display = 'none'; });
+postMedia.addEventListener('change', e => {
+  mediaPreview.innerHTML = '';
+  const file = e.target.files[0];
+  if(file){
+    const url = URL.createObjectURL(file);
+    const tag = file.type.startsWith('video') ? 'video' : 'img';
+    mediaPreview.innerHTML = `<${tag} src="${url}" ${tag === 'video' ? 'controls' : ''} style="width:100%;border-radius:8px;">`;
+  }
+});
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2000);
+}
+
+submitPost.addEventListener('click', () => {
+  const text = postText.value.trim();
+  if(!text){ showToast("Write something before posting!"); return; }
+
+  const media = mediaPreview.innerHTML;
+  const newPost = { user:"You", time:"Just now", text, media, likes:0, liked:false };
+  posts.unshift(newPost);
+  renderFeed();
+  postModal.style.display = 'none';
+  postText.value = '';
+  mediaPreview.innerHTML = '';
+  postMedia.value = '';
+  showToast("Post added!");
+});
+
+function renderFeed(){
+  feedEl.innerHTML = '';
+  posts.forEach((p,i)=>{
+    const el = document.createElement('div');
+    el.className = 'post';
+    el.innerHTML = `
+      <div class="card">
+        <div class="post-head">
+          <div class="p-avatar"><img src="https://i.pravatar.cc/100?img=5"></div>
+          <div class="post-meta">
+            <div class="name">${p.user}</div>
+            <div class="time">${p.time}</div>
+          </div>
+        </div>
+        <div class="post-body">${p.text}</div>
+        ${p.media ? `<div class="post-media">${p.media}</div>` : ''}
+        <div class="post-actions">
+          <button class="like-btn ${p.liked?'liked':''}" data-i="${i}">❤️ ${p.likes}</button>
+        </div>
+      </div>`;
+    feedEl.appendChild(el);
+  });
+
+  document.querySelectorAll('.like-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i = btn.dataset.i;
+      posts[i].liked = !posts[i].liked;
+      posts[i].likes += posts[i].liked ? 1 : -1;
+      renderFeed();
+    });
+  });
+}
+
+/* ====== Live Modal ====== */
+const goLiveBtn = document.getElementById('goLiveBtn');
+const liveModal = document.getElementById('liveModal');
+const closeLive = document.getElementById('closeLive');
+goLiveBtn.addEventListener('click',()=>liveModal.style.display='flex');
+closeLive.addEventListener('click',()=>liveModal.style.display='none');
+
+/* ====== Assistant ====== */
+const assistToggle = document.getElementById('assistToggle');
+const assistant = document.getElementById('assistant');
+const assistClose = document.getElementById('assistClose');
+const assistMsgs = document.getElementById('assistMsgs');
+const assistSend = document.getElementById('assistSend');
+const assistInput = document.getElementById('assistInput');
+
+assistToggle.addEventListener('click', () => {
+  assistant.style.display = (assistant.style.display==='block') ? 'none' : 'block';
+});
+assistClose.addEventListener('click', () => assistant.style.display = 'none');
+assistSend.addEventListener('click', sendAssist);
+assistInput.addEventListener('keydown', e => { if(e.key==='Enter') sendAssist(); });
+
+function sendAssist(){
+  const q = assistInput.value.trim(); if(!q) return;
+  const userMsg = document.createElement('div');
+  userMsg.className='msg user';
+  userMsg.textContent=q;
+  assistMsgs.appendChild(userMsg);
+  assistInput.value='';
+  assistMsgs.scrollTop = assistMsgs.scrollHeight;
+  setTimeout(()=>{
+    const bot = document.createElement('div');
+    bot.className='msg bot';
+    bot.textContent = 'I’m still learning. Try saying "help me write a post" or "create a course outline".';
+    assistMsgs.appendChild(bot);
+    assistMsgs.scrollTop = assistMsgs.scrollHeight;
+  },700);
+}
+
+/* ====== Mobile Sidebar Toggle ====== */
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const asideEl = document.querySelector('aside');
+const mainEl = document.querySelector('main');
+
+mobileMenuToggle.addEventListener('click', () => {
+  asideEl.classList.toggle('mobile-show');
+  mainEl.classList.toggle('overlay-active');
+});
+
+mainEl.addEventListener('click', () => {
+  if(window.innerWidth <= 900 && asideEl.classList.contains('mobile-show')){
+    asideEl.classList.remove('mobile-show');
+    mainEl.classList.remove('overlay-active');
+  }
+});
 </script>
 </body>
 </html>
