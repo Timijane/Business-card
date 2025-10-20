@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET — Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0061FF;
+    --accent:#5AE4A8;
+    --bg:#f7f9fb;
+    --card:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --radius:12px;
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+  }
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
+    --text:#e6eef8;
+    --muted:#93a3bd;
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    transition:background .35s,color .35s;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo-icon{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
+  }
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
+    max-width:600px;
+  }
+  body.dark .search{background:#0f2134}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
+
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
+
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+    transition: width 0.3s ease;
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  aside button .menu-text {
+    transition: opacity 0.3s ease;
+  }
+  main{flex:1;padding:20px;overflow:auto}
+
+  /* Marketplace Styles */
+  .marketplace-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .marketplace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .marketplace-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .marketplace-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .filter-btn, .sort-btn {
+    background: var(--card);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  body.dark .filter-btn, body.dark .sort-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .filter-btn:hover, .sort-btn:hover {
+    background: rgba(0,97,255,0.05);
+  }
+
+  .post-item-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+  }
+
+  .post-item-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Marketplace Filters */
+  .marketplace-filters {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .filters-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .filter-select, .filter-input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  body.dark .filter-select, body.dark .filter-input {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+  }
+
+  .price-range {
+    display: flex;
+    gap: 10px;
+  }
+
+  .price-input {
+    flex: 1;
+  }
+
+  .apply-filters-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  /* Item Grid */
+  .marketplace-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .item-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(16,24,40,0.1);
+  }
+
+  body.dark .item-card:hover {
+    box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  }
+
+  .item-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .item-details {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .item-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .item-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .item-description {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 15px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .item-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 15px;
+  }
+
+  .item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .item-seller {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .seller-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .seller-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  body.dark .action-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .action-btn:hover {
+    background: rgba(0,97,255,0.05);
+    color: var(--primary);
+  }
+
+  .like-btn.liked {
+    color: #ff4757;
+    border-color: rgba(255,71,87,0.2);
+  }
+
+  /* Post Item Modal */
+  .modal-wrap {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2,6,23,0.5);
+    z-index: 80;
+  }
+
+  .modal {
+    width: 92%;
+    max-width: 600px;
+    border-radius: 12px;
+    background: var(--card);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .close-modal {
+    background: transparent;
+    border: 0;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-modal:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark .close-modal:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border 0.2s;
+  }
+
+  body.dark .form-input, body.dark .form-textarea, body.dark .form-select {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+  }
+
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .image-upload {
+    border: 2px dashed rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border 0.2s;
+  }
+
+  body.dark .image-upload {
+    border: 2px dashed rgba(255,255,255,0.1);
+  }
+
+  .image-upload:hover {
+    border-color: var(--primary);
+  }
+
+  .image-upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: var(--muted);
+  }
+
+  .image-upload-text {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .image-preview {
+    display: none;
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .image-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .cancel-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  body.dark .cancel-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cancel-btn:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark .cancel-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .submit-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .empty-description {
+    font-size: 14px;
+    max-width: 400px;
+    margin: 0 auto 20px;
+  }
+
+  /* responsive */
+  @media (max-width:900px){
+    aside {
+      width: 70px;
+    }
+    aside button {
+      justify-content: center;
+      padding: 10px 6px;
+    }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .search {
+      max-width: 400px;
+    }
+    .marketplace-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    .marketplace-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  @media (max-width:768px){
+    .search {
+      max-width: 300px;
+    }
+    .marketplace-items {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+  
+  @media (max-width:640px){
+    .search {
+      max-width: 200px;
+    }
+    .marketplace-items {
+      grid-template-columns: 1fr;
+    }
+    .filters-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width:480px){
+    .search {
+      max-width: 150px;
+    }
+    .brand {
+      display: none;
+    }
+    .marketplace-actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .post-item-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search items, services, skills..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="location.href='feed.html'">
+      🏠 <span class="menu-text">Feed</span>
+    </button>
+    <button onclick="location.href='chat.html'">
+      💬 <span class="menu-text">Chat</span>
+    </button>
+    <button onclick="location.href='conference.html'">
+      🎥 <span class="menu-text">Conference</span>
+    </button>
+    <button class="active" onclick="location.href='marketplace.html'">
+      🛒 <span class="menu-text">Marketplace</span>
+    </button>
+    <button onclick="location.href='profile.html'">
+      👤 <span class="menu-text">Profile</span>
+    </button>
+    <button onclick="location.href='meetversity.html'">
+      🎓 <span class="menu-text">Meetversity</span>
+    </button>
+    <button onclick="location.href='organization.html'">
+      🏢 <span class="menu-text">Organization</span>
+    </button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
+      <span class="menu-text">Go Live</span>
+    </button>
+  </aside>
+
+  <main>
+    <div class="marketplace-container">
+      <!-- Marketplace Header -->
+      <div class="marketplace-header">
+        <h1 class="marketplace-title">Marketplace</h1>
+        <div class="marketplace-actions">
+          <button class="filter-btn" id="filterBtn">
+            <span>🔍</span> Filters
+          </button>
+          <button class="sort-btn" id="sortBtn">
+            <span>↕️</span> Sort
+          </button>
+          <button class="post-item-btn" id="postItemBtn">
+            <span>+</span> Post Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="marketplace-filters" id="marketplaceFilters">
+        <div class="filters-header">
+          <h3 class="filters-title">Filter Items</h3>
+          <button class="close-modal" id="closeFilters">✕</button>
+        </div>
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label">Category</label>
+            <select class="filter-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              <option value="electronics">Electronics</option>
+              <option value="furniture">Furniture</option>
+              <option value="clothing">Clothing</option>
+              <option value="services">Services</option>
+              <option value="skills">Skills</option>
+              <option value="courses">Courses</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Location</label>
+            <input type="text" class="filter-input" id="locationFilter" placeholder="City or region">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Price Range</label>
+            <div class="price-range">
+              <input type="number" class="filter-input price-input" id="minPrice" placeholder="Min">
+              <input type="number" class="filter-input price-input" id="maxPrice" placeholder="Max">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Condition</label>
+            <select class="filter-select" id="conditionFilter">
+              <option value="">Any Condition</option>
+              <option value="new">New</option>
+              <option value="like-new">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+            </select>
+          </div>
+        </div>
+        <button class="apply-filters-btn" id="applyFilters">Apply Filters</button>
+      </div>
+
+      <!-- Items Grid -->
+      <div class="marketplace-items" id="marketplaceItems">
+        <!-- Items will be populated by JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">🛒</div>
+        <h3 class="empty-title">No items found</h3>
+        <p class="empty-description">Try adjusting your filters or be the first to post an item in the marketplace!</p>
+        <button class="post-item-btn" onclick="openPostItemModal()">Post an Item</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Post Item Modal -->
+<div class="modal-wrap" id="postItemModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 class="modal-title">Post a New Item</h2>
+      <button class="close-modal" id="closePostItemModal">✕</button>
+    </div>
+    
+    <form id="postItemForm">
+      <div class="form-group">
+        <label class="form-label" for="itemTitle">Item Title</label>
+        <input type="text" class="form-input" id="itemTitle" placeholder="What are you selling or offering?" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="itemPrice">Price ($)</label>
+        <input type="number" class="form-input" id="itemPrice" placeholder="0.00" min="0" step="0.01" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="itemLocation">Location</label>
+        <input type="text" class="form-input" id="itemLocation" placeholder="City, State" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="itemCategory">Category</label>
+        <select class="form-select" id="itemCategory" required>
+          <option value="">Select a category</option>
+          <option value="electronics">Electronics</option>
+          <option value="furniture">Furniture</option>
+          <option value="clothing">Clothing</option>
+          <option value="services">Services</option>
+          <option value="skills">Skills</option>
+          <option value="courses">Courses</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="itemCondition">Condition</label>
+        <select class="form-select" id="itemCondition">
+          <option value="new">New</option>
+          <option value="like-new">Like New</option>
+          <option value="good">Good</option>
+          <option value="fair">Fair</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="itemDescription">Description</label>
+        <textarea class="form-textarea" id="itemDescription" placeholder="Describe your item, service, or skill..." required></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Item Image</label>
+        <div class="image-upload" id="imageUpload">
+          <div class="image-upload-icon">📷</div>
+          <div class="image-upload-text">Click to upload an image</div>
+          <input type="file" id="itemImage" accept="image/*" style="display: none">
+        </div>
+        <div class="image-preview" id="imagePreview">
+          <img id="previewImage" src="" alt="Preview">
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" id="cancelPostItem">Cancel</button>
+        <button type="submit" class="submit-btn">Post Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Mock data for marketplace items
+const mockItems = [
+  {
+    id: 'item1',
+    title: 'MacBook Pro 2021',
+    price: 1200,
+    location: 'San Francisco, CA',
+    description: 'M1 Chip, 16GB RAM, 512GB SSD. Excellent condition, used for light work only.',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'electronics',
+    condition: 'like-new',
+    seller: {
+      name: 'Sarah Johnson',
+      avatar: 'https://i.pravatar.cc/100?img=14'
+    },
+    likes: 12,
+    isLiked: false
+  },
+  {
+    id: 'item2',
+    title: 'UI/UX Design Consultation',
+    price: 75,
+    location: 'Remote',
+    description: 'One-hour consultation to review your designs and provide feedback. Perfect for startups and individual designers.',
+    image: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'services',
+    condition: 'new',
+    seller: {
+      name: 'Marcus Lee',
+      avatar: 'https://i.pravatar.cc/100?img=22'
+    },
+    likes: 8,
+    isLiked: true
+  },
+  {
+    id: 'item3',
+    title: 'React Development Course',
+    price: 49,
+    location: 'Online',
+    description: 'Complete React course with hooks, context API, and real projects. Lifetime access included.',
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'courses',
+    condition: 'new',
+    seller: {
+      name: 'Emily Chen',
+      avatar: 'https://i.pravatar.cc/100?img=14'
+    },
+    likes: 23,
+    isLiked: false
+  },
+  {
+    id: 'item4',
+    title: 'Office Desk - Modern Design',
+    price: 180,
+    location: 'Oakland, CA',
+    description: 'Solid wood desk with two drawers. Perfect for home office. Minor scratches on one side.',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'furniture',
+    condition: 'good',
+    seller: {
+      name: 'David Wilson',
+      avatar: 'https://i.pravatar.cc/100?img=32'
+    },
+    likes: 5,
+    isLiked: false
+  },
+  {
+    id: 'item5',
+    title: 'JavaScript Mentorship',
+    price: 40,
+    location: 'Remote',
+    description: 'Weekly JavaScript mentorship sessions. Perfect for beginners or those looking to advance their skills.',
+    image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'skills',
+    condition: 'new',
+    seller: {
+      name: 'Alex Taylor',
+      avatar: 'https://i.pravatar.cc/100?img=5'
+    },
+    likes: 15,
+    isLiked: false
+  },
+  {
+    id: 'item6',
+    title: 'Professional Camera Lens',
+    price: 350,
+    location: 'San Jose, CA',
+    description: 'Canon 50mm f/1.8 lens. Perfect condition, comes with original box and accessories.',
+    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category: 'electronics',
+    condition: 'like-new',
+    seller: {
+      name: 'Jessica Park',
+      avatar: 'https://i.pravatar.cc/100?img=45'
+    },
+    likes: 9,
+    isLiked: false
+  }
+];
+
+// State
+let items = [...mockItems];
+let filteredItems = [...mockItems];
+let likedItems = JSON.parse(localStorage.getItem('meet_liked_items') || '{}');
+
+// DOM Elements
+const marketplaceItems = document.getElementById('marketplaceItems');
+const emptyState = document.getElementById('emptyState');
+const filterBtn = document.getElementById('filterBtn');
+const marketplaceFilters = document.getElementById('marketplaceFilters');
+const closeFilters = document.getElementById('closeFilters');
+const applyFilters = document.getElementById('applyFilters');
+const postItemBtn = document.getElementById('postItemBtn');
+const postItemModal = document.getElementById('postItemModal');
+const closePostItemModal = document.getElementById('closePostItemModal');
+const cancelPostItem = document.getElementById('cancelPostItem');
+const postItemForm = document.getElementById('postItemForm');
+const imageUpload = document.getElementById('imageUpload');
+const itemImage = document.getElementById('itemImage');
+const imagePreview = document.getElementById('imagePreview');
+const previewImage = document.getElementById('previewImage');
+const searchInput = document.getElementById('search');
+
+// Initialize
+function initMarketplace() {
+  renderItems();
+  setupEventListeners();
+}
+
+// Render items
+function renderItems() {
+  if (filteredItems.length === 0) {
+    marketplaceItems.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  marketplaceItems.style.display = 'grid';
+  emptyState.style.display = 'none';
+  
+  marketplaceItems.innerHTML = '';
+  
+  filteredItems.forEach(item => {
+    const itemCard = document.createElement('div');
+    itemCard.className = 'item-card';
+    
+    itemCard.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" class="item-image">
+      <div class="item-details">
+        <div class="item-header">
+          <h3 class="item-title">${item.title}</h3>
+          <div class="item-price">$${item.price}</div>
+        </div>
+        <p class="item-description">${item.description}</p>
+        <div class="item-location">
+          <span>📍</span> ${item.location}
+        </div>
+        <div class="item-footer">
+          <div class="item-seller">
+            <img src="${item.seller.avatar}" alt="${item.seller.name}" class="seller-avatar">
+            <span class="seller-name">${item.seller.name}</span>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn like-btn ${item.isLiked ? 'liked' : ''}" data-id="${item.id}">
+              ${item.isLiked ? '❤️' : '🤍'}
+            </button>
+            <button class="action-btn message-btn" data-id="${item.id}">
+              💬
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    marketplaceItems.appendChild(itemCard);
+  });
+  
+  // Add event listeners for like buttons
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      toggleLike(itemId);
+    });
+  });
+  
+  // Add event listeners for message buttons
+  document.querySelectorAll('.message-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      messageSeller(itemId);
+    });
+  });
+}
+
+// Toggle like
+function toggleLike(itemId) {
+  const item = items.find(i => i.id === itemId);
+  if (!item) return;
+  
+  if (item.isLiked) {
+    item.likes--;
+    item.isLiked = false;
+    delete likedItems[itemId];
+  } else {
+    item.likes++;
+    item.isLiked = true;
+    likedItems[itemId] = true;
+  }
+  
+  localStorage.setItem('meet_liked_items', JSON.stringify(likedItems));
+  renderItems();
+}
+
+// Message seller
+function messageSeller(itemId) {
+  const item = items.find(i => i.id === itemId);
+  if (!item) return;
+  
+  alert(`Messaging feature would open a chat with ${item.seller.name} about "${item.title}"`);
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  // Dark mode toggle
+  const darkToggle = document.getElementById('darkToggle');
+  (function initTheme(){
+    const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    if(t==='dark') document.body.classList.add('dark');
+    darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  })();
+  darkToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+    const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+    localStorage.setItem('meet_theme', now);
+    darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+  });
+
+  // Filter button
+  filterBtn.addEventListener('click', () => {
+    marketplaceFilters.style.display = 'block';
+  });
+
+  // Close filters
+  closeFilters.addEventListener('click', () => {
+    marketplaceFilters.style.display = 'none';
+  });
+
+  // Apply filters
+  applyFilters.addEventListener('click', applyFiltersHandler);
+
+  // Post item button
+  postItemBtn.addEventListener('click', openPostItemModal);
+
+  // Close post item modal
+  closePostItemModal.addEventListener('click', closePostItemModalHandler);
+  cancelPostItem.addEventListener('click', closePostItemModalHandler);
+  postItemModal.addEventListener('click', (e) => {
+    if (e.target === postItemModal) {
+      closePostItemModalHandler();
+    }
+  });
+
+  // Post item form
+  postItemForm.addEventListener('submit', submitItemForm);
+
+  // Image upload
+  imageUpload.addEventListener('click', () => {
+    itemImage.click();
+  });
+  itemImage.addEventListener('change', handleImageUpload);
+
+  // Search
+  searchInput.addEventListener('input', handleSearch);
+}
+
+// Apply filters
+function applyFiltersHandler() {
+  const category = document.getElementById('categoryFilter').value;
+  const location = document.getElementById('locationFilter').value.toLowerCase();
+  const minPrice = document.getElementById('minPrice').value;
+  const maxPrice = document.getElementById('maxPrice').value;
+  const condition = document.getElementById('conditionFilter').value;
+  
+  filteredItems = items.filter(item => {
+    // Category filter
+    if (category && item.category !== category) return false;
+    
+    // Location filter
+    if (location && !item.location.toLowerCase().includes(location)) return false;
+    
+    // Price filter
+    if (minPrice && item.price < parseFloat(minPrice)) return false;
+    if (maxPrice && item.price > parseFloat(maxPrice)) return false;
+    
+    // Condition filter
+    if (condition && item.condition !== condition) return false;
+    
+    return true;
+  });
+  
+  renderItems();
+  marketplaceFilters.style.display = 'none';
+}
+
+// Open post item modal
+function openPostItemModal() {
+  postItemModal.style.display = 'flex';
+}
+
+// Close post item modal
+function closePostItemModalHandler() {
+  postItemModal.style.display = 'none';
+  postItemForm.reset();
+  imagePreview.style.display = 'none';
+}
+
+// Handle image upload
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    previewImage.src = e.target.result;
+    imagePreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Submit item form
+function submitItemForm(e) {
+  e.preventDefault();
+  
+  const title = document.getElementById('itemTitle').value;
+  const price = parseFloat(document.getElementById('itemPrice').value);
+  const location = document.getElementById('itemLocation').value;
+  const category = document.getElementById('itemCategory').value;
+  const condition = document.getElementById('itemCondition').value;
+  const description = document.getElementById('itemDescription').value;
+  
+  // Create new item
+  const newItem = {
+    id: 'item_' + Date.now(),
+    title,
+    price,
+    location,
+    description,
+    image: previewImage.src || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    category,
+    condition,
+    seller: {
+      name: 'Alex',
+      avatar: document.getElementById('userPic').src
+    },
+    likes: 0,
+    isLiked: false
+  };
+  
+  // Add to items array
+  items.unshift(newItem);
+  filteredItems.unshift(newItem);
+  
+  // Render items
+  renderItems();
+  
+  // Close modal and reset form
+  closePostItemModalHandler();
+  
+  // Show success message
+  alert('Item posted successfully!');
+}
+
+// Handle search
+function handleSearch() {
+  const query = searchInput.value.toLowerCase().trim();
+  
+  if (!query) {
+    filteredItems = [...items];
+  } else {
+    filteredItems = items.filter(item => 
+      item.title.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      item.location.toLowerCase().includes(query) ||
+      item.seller.name.toLowerCase().includes(query)
+    );
+  }
+  
+  renderItems();
+}
+
+// Initialize marketplace when page loads
+document.addEventListener('DOMContentLoaded', initMarketplace);
+</script>
+</body>
+</html>
