@@ -1126,7 +1126,7 @@
 </div>
 
 <script>
-// Navigation function
+// Navigation function - FIXED: Make sure profile goes to profile
 function navigateTo(page) {
   // Only navigate if we're not already on that page
   if (window.location.href.indexOf(page) === -1) {
@@ -1538,7 +1538,7 @@ function getAIResponse(prompt) {
   return "Thank you for your message. I appreciate you reaching out and will respond to your query as soon as possible. In the meantime, please feel free to share any additional details or questions you might have.";
 }
 
-// Setup event listeners
+// Setup event listeners - FIXED: Proper event handling for message input
 function setupEventListeners() {
   const messageInput = document.getElementById('messageInput');
   const sendButton = document.getElementById('sendButton');
@@ -1556,6 +1556,18 @@ function setupEventListeners() {
     // Auto-resize textarea
     messageInput.style.height = 'auto';
     messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
+  });
+  
+  // FIXED: Message input click handler - prevent navigation and open keyboard
+  messageInput.addEventListener('click', (e) => {
+    e.stopPropagation();
+    messageInput.focus();
+  });
+  
+  // FIXED: Message input container click handler - prevent navigation
+  document.getElementById('messageInputContainer').addEventListener('click', (e) => {
+    e.stopPropagation();
+    messageInput.focus();
   });
   
   // New chat button
@@ -1578,29 +1590,25 @@ function setupEventListeners() {
   // Window resize handler
   window.addEventListener('resize', checkMobileLayout);
   
-  // FIX: Prevent chat area from closing when clicking on message input or messages
-  document.getElementById('messageInput').addEventListener('click', (e) => {
+  // FIXED: Ensure profile button goes to profile
+  const profileButton = document.querySelector('aside button[onclick*="profile.html"]');
+  profileButton.onclick = function() {
+    navigateTo('profile.html');
+  };
+  
+  // FIXED: Ensure chat button goes to chat
+  const chatButton = document.querySelector('aside button[onclick*="chat.html"]');
+  chatButton.onclick = function() {
+    navigateTo('chat.html');
+  };
+  
+  // FIXED: Prevent chat area from closing when clicking inside
+  document.getElementById('chatArea').addEventListener('click', (e) => {
     e.stopPropagation();
-    // Focus the input to open keyboard
-    document.getElementById('messageInput').focus();
   });
   
   document.getElementById('messagesContainer').addEventListener('click', (e) => {
     e.stopPropagation();
-  });
-  
-  document.getElementById('messageInputContainer').addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-  
-  // FIX: Ensure profile button goes to profile
-  document.querySelector('aside button[onclick*="profile.html"]').addEventListener('click', (e) => {
-    navigateTo('profile.html');
-  });
-  
-  // FIX: Ensure chat button goes to chat
-  document.querySelector('aside button[onclick*="chat.html"]').addEventListener('click', (e) => {
-    navigateTo('chat.html');
   });
 }
 
