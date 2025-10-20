@@ -6,7 +6,6 @@
 <title>MEET — Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ALL YOUR ORIGINAL CSS CODE - NO CHANGES */
   :root{
     --primary:#0061FF;
     --accent:#5AE4A8;
@@ -1188,7 +1187,7 @@ const mockConversations = [
   {
     id: 3,
     name: "Tech Community",
-    avatar: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=100?img=3",
+    avatar: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
     online: true,
     profession: "Group Chat",
     lastMessage: "Sarah: Anyone available for a code review?",
@@ -1204,7 +1203,7 @@ const mockConversations = [
   {
     id: 4,
     name: "MEET AI Assistant",
-    avatar: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-1.2.1&auto=format&fit=crop&w=100?img=4",
+    avatar: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
     online: true,
     profession: "AI Assistant",
     lastMessage: "I can help you draft messages or find resources",
@@ -1539,7 +1538,7 @@ function getAIResponse(prompt) {
   return "Thank you for your message. I appreciate you reaching out and will respond to your query as soon as possible. In the meantime, please feel free to share any additional details or questions you might have.";
 }
 
-// Setup event listeners - ONLY MODIFIED FUNCTION
+// Setup event listeners
 function setupEventListeners() {
   const messageInput = document.getElementById('messageInput');
   const sendButton = document.getElementById('sendButton');
@@ -1579,106 +1578,275 @@ function setupEventListeners() {
   // Window resize handler
   window.addEventListener('resize', checkMobileLayout);
   
-  // === FIX: Enhanced click protection for entire chat interface ===
-  // Prevent any clicks in the chat area from causing redirection
-  
-  // Protect the entire chat area
-  const chatArea = document.getElementById('chatArea');
-  if (chatArea) {
-    chatArea.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // Protect messages container and all its children
-  const messagesContainer = document.getElementById('messagesContainer');
-  if (messagesContainer) {
-    messagesContainer.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // Protect message input container and all its children
-  const messageInputContainer = document.getElementById('messageInputContainer');
-  if (messageInputContainer) {
-    messageInputContainer.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // Protect chat header (except back button)
-  const chatHeader = document.getElementById('chatHeader');
-  if (chatHeader) {
-    chatHeader.addEventListener('click', (e) => {
-      // Allow back button to work, stop all other clicks
-      if (!e.target.closest('#backButton')) {
-        e.stopPropagation();
-      }
-    });
-  }
-  
-  // Protect individual interactive elements
-  const messageInput = document.getElementById('messageInput');
-  if (messageInput) {
-    messageInput.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // Protect send button
-  if (sendButton) {
-    sendButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // Protect all chat action buttons
-  const chatActionButtons = document.querySelectorAll('.chat-action-btn');
-  chatActionButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
+  // FIX: Prevent chat area from closing when clicking on message input or messages
+  document.getElementById('messageInput').addEventListener('click', (e) => {
+    e.stopPropagation();
   });
   
-  // Protect all input action buttons
-  const inputActionButtons = document.querySelectorAll('.input-action');
-  inputActionButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
+  document.getElementById('messagesContainer').addEventListener('click', (e) => {
+    e.stopPropagation();
   });
   
-  // Protect smart suggestions
-  const smartSuggestions = document.getElementById('smartSuggestions');
-  if (smartSuggestions) {
-    smartSuggestions.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
+  document.getElementById('messageInputContainer').addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
   
-  // Protect AI mode toggle
-  const aiModeToggle = document.getElementById('aiModeToggle');
-  if (aiModeToggle) {
-    aiModeToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-  
-  // === END OF FIX ===
-  
-  // Your existing navigation fixes
+  // FIX: Ensure profile button goes to profile
   document.querySelector('aside button[onclick*="profile.html"]').addEventListener('click', (e) => {
     navigateTo('profile.html');
   });
   
+  // FIX: Ensure chat button goes to chat
   document.querySelector('aside button[onclick*="chat.html"]').addEventListener('click', (e) => {
     navigateTo('chat.html');
   });
 }
 
-// ALL OTHER FUNCTIONS REMAIN EXACTLY THE SAME AS YOUR ORIGINAL CODE
-// Toggle AI mode, sendMessage, simulateAIResponse, media functions, call functions, etc.
-// ... (all your existing functions remain unchanged)
+// Toggle AI mode
+function toggleAIMode() {
+  const toggleSwitch = document.querySelector('.ai-toggle-switch');
+  aiAutoReplyEnabled = !aiAutoReplyEnabled;
+  toggleSwitch.classList.toggle('active', aiAutoReplyEnabled);
+  
+  if (aiAutoReplyEnabled) {
+    showToast('AI Auto-Reply enabled');
+  } else {
+    showToast('Manual Reply mode enabled');
+  }
+}
+
+// Send message
+function sendMessage() {
+  const messageInput = document.getElementById('messageInput');
+  const text = messageInput.value.trim();
+  
+  if (!text || !currentConversationId) return;
+  
+  const conversation = mockConversations.find(c => c.id === currentConversationId);
+  const newMessage = {
+    id: conversation.messages.length + 1,
+    text: text,
+    time: 'Just now',
+    sent: true
+  };
+  
+  conversation.messages.push(newMessage);
+  renderMessages(conversation.messages);
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  
+  // Update conversation preview
+  conversation.lastMessage = text;
+  conversation.time = 'Just now';
+  renderConversations();
+  
+  // Simulate AI auto-reply for regular conversations (not AI Assistant) if enabled
+  if (currentConversationId !== 4 && aiAutoReplyEnabled) {
+    simulateAIResponse(text, conversation);
+  }
+}
+
+// Simulate AI response for regular conversations
+function simulateAIResponse(userMessage, conversation) {
+  // Show typing indicator
+  showTypingIndicator(`${conversation.name} is typing...`);
+  
+  // Generate response after delay
+  setTimeout(() => {
+    hideTypingIndicator();
+    
+    let responseText = getAIResponse(userMessage);
+    
+    // Add AI auto-reply indicator if user is offline
+    if (!conversation.online) {
+      responseText += '\n\n[AI Auto-Reply • User is offline]';
+    }
+    
+    const aiReply = {
+      id: conversation.messages.length + 1,
+      text: responseText,
+      time: 'Just now',
+      sent: false
+    };
+    
+    conversation.messages.push(aiReply);
+    renderMessages(conversation.messages);
+    
+    // Update conversation in sidebar
+    conversation.lastMessage = responseText.substring(0, 30) + '...';
+    conversation.time = 'Just now';
+    renderConversations();
+  }, 2000);
+}
+
+// Media attachment functions
+function openMediaModal() {
+  document.getElementById('mediaModal').style.display = 'flex';
+}
+
+function closeMediaModal() {
+  document.getElementById('mediaModal').style.display = 'none';
+}
+
+function sendFile() {
+  showToast('File attachment feature would open file picker');
+  closeMediaModal();
+}
+
+function sendPhoto() {
+  showToast('Photo attachment feature would open camera or gallery');
+  closeMediaModal();
+}
+
+function sendVideo() {
+  showToast('Video attachment feature would open camera or gallery');
+  closeMediaModal();
+}
+
+function sendMusic() {
+  showToast('Music attachment feature would open music library');
+  closeMediaModal();
+}
+
+function sendLocation() {
+  showToast('Location sharing feature would open map');
+  closeMediaModal();
+}
+
+function sendContact() {
+  showToast('Contact sharing feature would open contacts');
+  closeMediaModal();
+}
+
+function openStickers() {
+  showToast('Sticker picker would open here');
+}
+
+function sendVoiceMessage() {
+  showToast('Voice message recording would start here');
+}
+
+// Toast notification
+function showToast(message) {
+  // Create toast element if it doesn't exist
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      font-size: 14px;
+      display: none;
+    `;
+    document.body.appendChild(toast);
+  }
+  
+  toast.textContent = message;
+  toast.style.display = 'block';
+  
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 3000);
+}
+
+// Call functions
+function startVoiceCall() {
+  showToast('Voice call would start here. Connecting to Emily Chen...');
+}
+
+function startVideoCall() {
+  document.getElementById('videoCallModal').style.display = 'flex';
+  startCallTimer();
+}
+
+function endCall() {
+  document.getElementById('videoCallModal').style.display = 'none';
+  stopCallTimer();
+  showToast('Call ended');
+}
+
+function toggleMute() {
+  showToast('Microphone toggled');
+}
+
+function toggleVideo() {
+  showToast('Video toggled');
+}
+
+function toggleChat() {
+  const chat = document.getElementById('videoCallChat');
+  chat.style.display = chat.style.display === 'none' ? 'flex' : 'none';
+}
+
+function toggleSpeaker() {
+  showToast('Speaker toggled');
+}
+
+function startCallTimer() {
+  callSeconds = 0;
+  callTimer = setInterval(() => {
+    callSeconds++;
+    const minutes = Math.floor(callSeconds / 60);
+    const seconds = callSeconds % 60;
+    document.getElementById('callTimer').textContent = 
+      `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }, 1000);
+}
+
+function stopCallTimer() {
+  if (callTimer) {
+    clearInterval(callTimer);
+    callTimer = null;
+  }
+}
+
+function sendCallMessage() {
+  const input = document.getElementById('callMessageInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const messagesContainer = document.getElementById('callMessagesContainer');
+  const messageElement = document.createElement('div');
+  messageElement.className = 'message sent';
+  messageElement.innerHTML = `
+    <div class="message-bubble">
+      <p class="message-text">${text}</p>
+      <div class="message-time">Just now</div>
+    </div>
+  `;
+  
+  messagesContainer.appendChild(messageElement);
+  input.value = '';
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function viewProfile() {
+  const conversation = mockConversations.find(c => c.id === currentConversationId);
+  if (conversation) {
+    showToast(`Viewing ${conversation.name}'s profile`);
+  }
+}
+
+function viewFullProfile() {
+  const conversation = mockConversations.find(c => c.id === currentConversationId);
+  if (conversation) {
+    alert(`Full Profile: ${conversation.name}\n\nProfession: ${conversation.profession}\nStatus: ${conversation.online ? 'Online' : 'Offline'}\n\nBio: Passionate professional with expertise in their field. Available for collaborations and networking opportunities.`);
+  }
+}
+
+// Go Live function
+function goLive() {
+  showToast('Going live feature would start a live stream');
+}
 
 // Initialize chat when page loads
 document.addEventListener('DOMContentLoaded', initChat);
