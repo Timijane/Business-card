@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET — Meetversity</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0061FF;
+    --accent:#5AE4A8;
+    --bg:#f7f9fb;
+    --card:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --radius:12px;
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --edu-gradient: linear-gradient(135deg, #0061FF 0%, #5AE4A8 100%);
+  }
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
+    --text:#e6eef8;
+    --muted:#93a3bd;
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    transition:background .35s,color .35s;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .logo-icon{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
+  }
+  .brand {
+    font-weight:700;font-size:18px;color:var(--primary);
+  }
+  .search {
+    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
+    max-width:600px;
+  }
+  body.dark .search{background:#0f2134}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
+
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
+    display:inline-block;margin-left:6px;
+  }
+
+  /* layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{
+    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
+    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
+    transition: width 0.3s ease;
+  }
+  aside button{
+    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  aside button .menu-text {
+    transition: opacity 0.3s ease;
+  }
+  main{flex:1;padding:20px;overflow:auto}
+
+  /* Meetversity Styles */
+  .meetversity-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .meetversity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .meetversity-title {
+    font-size: 28px;
+    font-weight: 700;
+    background: var(--edu-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+  }
+
+  .meetversity-actions {
+    display: flex;
+    gap: 15px;
+  }
+
+  .create-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+  }
+
+  .create-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Content Types */
+  .content-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .content-type-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 25px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .content-type-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+  }
+
+  .content-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  .content-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .content-description {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Featured Courses */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .view-all {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .course-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+  }
+
+  .course-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .course-thumbnail {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+
+  .course-details {
+    padding: 15px;
+  }
+
+  .course-category {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .course-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .course-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .course-instructor {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .instructor-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .instructor-name {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .course-duration {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .course-price {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .certificate-badge {
+    background: rgba(90,228,168,0.1);
+    color: #10b981;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* Quick Videos */
+  .quick-videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 40px;
+  }
+
+  .quick-video-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+  }
+
+  .quick-video-card:hover {
+    transform: scale(1.03);
+  }
+
+  .quick-video-thumbnail {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+  }
+
+  .quick-video-details {
+    padding: 10px;
+  }
+
+  .quick-video-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .quick-video-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Documents */
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .document-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 15px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .document-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .document-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(0,97,255,0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .document-details {
+    flex: 1;
+  }
+
+  .document-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .document-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Create Content Modal */
+  .modal-wrap {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2,6,23,0.5);
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 12px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  body.dark .modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .close-modal {
+    background: transparent;
+    border: 0;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-modal:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark .close-modal:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .content-type-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding-bottom: 15px;
+  }
+
+  body.dark .content-type-tabs {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .content-type-tab {
+    background: transparent;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .content-type-tab.active {
+    background: rgba(0,97,255,0.1);
+    color: var(--primary);
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border 0.2s;
+  }
+
+  body.dark .form-input, body.dark .form-textarea, body.dark .form-select {
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+  }
+
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .radio-option input {
+    margin: 0;
+  }
+
+  .file-upload {
+    border: 2px dashed rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border 0.2s;
+  }
+
+  body.dark .file-upload {
+    border: 2px dashed rgba(255,255,255,0.1);
+  }
+
+  .file-upload:hover {
+    border-color: var(--primary);
+  }
+
+  .file-upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: var(--muted);
+  }
+
+  .file-upload-text {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .file-preview {
+    display: none;
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .file-preview img, .file-preview video {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .checkbox-group input {
+    margin: 0;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+
+  body.dark .modal-footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .cancel-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  body.dark .cancel-btn {
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cancel-btn:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark .cancel-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .submit-btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: white;
+    border: 0;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Learning Paths */
+  .learning-paths {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .path-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .path-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .path-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--edu-gradient);
+  }
+
+  .path-icon {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: var(--primary);
+  }
+
+  .path-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .path-description {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+
+  .path-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    background: var(--edu-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width:900px){
+    aside {
+      width: 70px;
+    }
+    aside button {
+      justify-content: center;
+      padding: 10px 6px;
+    }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .search {
+      max-width: 400px;
+    }
+    .content-types {
+      grid-template-columns: 1fr;
+    }
+    .courses-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width:768px){
+    .search {
+      max-width: 300px;
+    }
+    .meetversity-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    .meetversity-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .learning-paths {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width:640px){
+    .search {
+      max-width: 200px;
+    }
+    .courses-grid {
+      grid-template-columns: 1fr;
+    }
+    .quick-videos {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .documents-grid {
+      grid-template-columns: 1fr;
+    }
+    .content-type-tabs {
+      flex-direction: column;
+    }
+  }
+  
+  @media (max-width:480px){
+    .search {
+      max-width: 150px;
+    }
+    .brand {
+      display: none;
+    }
+    .meetversity-actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .create-btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG mask resource -->
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs>
+    <mask id="m-mask" viewBox="0 0 100 100">
+      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
+    </mask>
+  </defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+
+  <div class="search">
+    <span>🔍</span>
+    <input id="search" placeholder="Search courses, videos, documents..." />
+  </div>
+
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--muted)">Online</div>
+      <div class="status-dot" title="You are online"></div>
+    </div>
+    <button id="darkToggle" title="Toggle dark mode">🌙</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
+      <div style="font-weight:700">Alex</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="location.href='feed.html'">
+      🏠 <span class="menu-text">Feed</span>
+    </button>
+    <button onclick="location.href='chat.html'">
+      💬 <span class="menu-text">Chat</span>
+    </button>
+    <button onclick="location.href='conference.html'">
+      🎥 <span class="menu-text">Conference</span>
+    </button>
+    <button onclick="location.href='marketplace.html'">
+      🛒 <span class="menu-text">Marketplace</span>
+    </button>
+    <button onclick="location.href='profile.html'">
+      👤 <span class="menu-text">Profile</span>
+    </button>
+    <button class="active" onclick="location.href='meetversity.html'">
+      🎓 <span class="menu-text">Meetversity</span>
+    </button>
+    <button onclick="location.href='organization.html'">
+      🏢 <span class="menu-text">Organization</span>
+    </button>
+
+    <div style="flex:1"></div>
+    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
+      <span class="menu-text">Go Live</span>
+    </button>
+  </aside>
+
+  <main>
+    <div class="meetversity-container">
+      <!-- Meetversity Header -->
+      <div class="meetversity-header">
+        <h1 class="meetversity-title">MEETVERSITY</h1>
+        <div class="meetversity-actions">
+          <button class="create-btn" id="createContentBtn">
+            <span>+</span> Create Content
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">1,247</div>
+          <div class="stat-label">Courses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">5,892</div>
+          <div class="stat-label">Quick Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3,145</div>
+          <div class="stat-label">Documents</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">28,451</div>
+          <div class="stat-label">Learners</div>
+        </div>
+      </div>
+
+      <!-- Content Types -->
+      <div class="content-types">
+        <div class="content-type-card" data-type="long-video">
+          <span class="content-icon">🎬</span>
+          <h3 class="content-title">Long Video Course</h3>
+          <p class="content-description">Create in-depth educational courses with multiple video lessons, quizzes, and assignments.</p>
+        </div>
+        <div class="content-type-card" data-type="quick-video">
+          <span class="content-icon">⚡</span>
+          <h3 class="content-title">Quick Video</h3>
+          <p class="content-description">Share short educational videos (1-2 minutes) to teach specific skills or concepts quickly.</p>
+        </div>
+        <div class="content-type-card" data-type="document">
+          <span class="content-icon">📄</span>
+          <h3 class="content-title">Document</h3>
+          <p class="content-description">Upload PDFs, presentations, or study guides to share knowledge in written format.</p>
+        </div>
+      </div>
+
+      <!-- Learning Paths -->
+      <div class="section-header">
+        <h2 class="section-title">Learning Paths</h2>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="learning-paths">
+        <div class="path-card">
+          <div class="path-icon">💻</div>
+          <h3 class="path-title">Web Development</h3>
+          <p class="path-description">Master HTML, CSS, JavaScript and modern frameworks to build responsive websites.</p>
+          <div class="path-meta">
+            <span>12 Courses</span>
+            <span>45h 20m</span>
+          </div>
+        </div>
+        <div class="path-card">
+          <div class="path-icon">🎨</div>
+          <h3 class="path-title">UI/UX Design</h3>
+          <p class="path-description">Learn user-centered design principles, prototyping, and design tools.</p>
+          <div class="path-meta">
+            <span>8 Courses</span>
+            <span>32h 15m</span>
+          </div>
+        </div>
+        <div class="path-card">
+          <div class="path-icon">📱</div>
+          <h3 class="path-title">Mobile Development</h3>
+          <p class="path-description">Build native and cross-platform mobile applications for iOS and Android.</p>
+          <div class="path-meta">
+            <span>10 Courses</span>
+            <span>38h 40m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Courses -->
+      <div class="section-header">
+        <h2 class="section-title">Featured Courses</h2>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="courses-grid" id="coursesGrid">
+        <!-- Courses will be populated by JavaScript -->
+      </div>
+
+      <!-- Quick Videos -->
+      <div class="section-header">
+        <h2 class="section-title">Quick Videos</h2>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="quick-videos" id="quickVideosGrid">
+        <!-- Quick videos will be populated by JavaScript -->
+      </div>
+
+      <!-- Documents -->
+      <div class="section-header">
+        <h2 class="section-title">Study Documents</h2>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="documents-grid" id="documentsGrid">
+        <!-- Documents will be populated by JavaScript -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Create Content Modal -->
+<div class="modal-wrap" id="createContentModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 class="modal-title">Create Educational Content</h2>
+      <button class="close-modal" id="closeCreateModal">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="content-type-tabs">
+        <button class="content-type-tab active" data-type="long-video">Long Video Course</button>
+        <button class="content-type-tab" data-type="quick-video">Quick Video</button>
+        <button class="content-type-tab" data-type="document">Document</button>
+      </div>
+      
+      <form id="createContentForm">
+        <div class="form-group">
+          <label class="form-label" for="contentTitle">Name of the Course/Content</label>
+          <input type="text" class="form-input" id="contentTitle" placeholder="e.g., Advanced JavaScript Patterns" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="contentCategory">Course Categories</label>
+          <select class="form-select" id="contentCategory" required>
+            <option value="">Select a category</option>
+            <option value="technology">Technology</option>
+            <option value="design">Design</option>
+            <option value="business">Business</option>
+            <option value="marketing">Marketing</option>
+            <option value="languages">Languages</option>
+            <option value="science">Science</option>
+            <option value="arts">Arts & Creativity</option>
+            <option value="personal-development">Personal Development</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Course Type</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="courseType" value="one-time" checked>
+              One-time Course
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="courseType" value="long-term">
+              Long-term Course
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="courseOutlineGroup">
+          <label class="form-label" for="courseOutline">Course Outline</label>
+          <textarea class="form-textarea" id="courseOutline" placeholder="Describe the course structure, modules, and learning objectives..."></textarea>
+          <div class="file-upload" id="outlineUpload">
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text">Or upload course outline as PDF</div>
+            <input type="file" id="outlineFile" accept=".pdf" style="display: none">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="contentDuration">Duration to Complete</label>
+          <input type="text" class="form-input" id="contentDuration" placeholder="e.g., 4 weeks, 12 hours" required>
+        </div>
+        
+        <div class="form-group" id="mediaUploadGroup">
+          <label class="form-label">Upload Content</label>
+          <div class="file-upload" id="mediaUpload">
+            <div class="file-upload-icon" id="mediaIcon">🎬</div>
+            <div class="file-upload-text" id="mediaText">Click to upload your video file</div>
+            <input type="file" id="mediaFile" style="display: none">
+          </div>
+          <div class="file-preview" id="mediaPreview">
+            <video id="previewVideo" controls></video>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="offerCertificate">
+            <label for="offerCertificate">Offer MEET Certificate to learners upon completion</label>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="cancel-btn" id="cancelCreate">Cancel</button>
+      <button type="button" class="submit-btn" id="submitContent">Create Content</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Mock data for courses, quick videos, and documents
+const mockCourses = [
+  {
+    id: 'course1',
+    title: 'Advanced React Patterns',
+    category: 'Technology',
+    instructor: {
+      name: 'Sarah Johnson',
+      avatar: 'https://i.pravatar.cc/100?img=14'
+    },
+    duration: '12h 30m',
+    price: '$49.99',
+    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    hasCertificate: true
+  },
+  {
+    id: 'course2',
+    title: 'UI/UX Design Fundamentals',
+    category: 'Design',
+    instructor: {
+      name: 'Marcus Lee',
+      avatar: 'https://i.pravatar.cc/100?img=22'
+    },
+    duration: '8h 15m',
+    price: '$39.99',
+    thumbnail: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    hasCertificate: true
+  },
+  {
+    id: 'course3',
+    title: 'Digital Marketing Strategy',
+    category: 'Marketing',
+    instructor: {
+      name: 'Emily Chen',
+      avatar: 'https://i.pravatar.cc/100?img=14'
+    },
+    duration: '6h 45m',
+    price: '$29.99',
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    hasCertificate: false
+  }
+];
+
+const mockQuickVideos = [
+  {
+    id: 'video1',
+    title: '5 CSS Tricks Every Developer Should Know',
+    duration: '1:45',
+    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '12.4K'
+  },
+  {
+    id: 'video2',
+    title: 'How to Create a Color Palette for Your UI',
+    duration: '2:10',
+    thumbnail: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '8.7K'
+  },
+  {
+    id: 'video3',
+    title: 'JavaScript Array Methods in 90 Seconds',
+    duration: '1:30',
+    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '15.2K'
+  },
+  {
+    id: 'video4',
+    title: 'Figma Auto Layout Explained',
+    duration: '2:05',
+    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '9.8K'
+  },
+  {
+    id: 'video5',
+    title: 'Build a React Component from Scratch',
+    duration: '1:55',
+    thumbnail: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '11.3K'
+  },
+  {
+    id: 'video6',
+    title: 'Typography Principles for Developers',
+    duration: '2:15',
+    thumbnail: 'https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    views: '7.6K'
+  }
+];
+
+const mockDocuments = [
+  {
+    id: 'doc1',
+    title: 'Complete JavaScript Cheat Sheet',
+    type: 'PDF',
+    pages: 12,
+    downloads: '4.2K'
+  },
+  {
+    id: 'doc2',
+    title: 'UI Design Principles Handbook',
+    type: 'PDF',
+    pages: 24,
+    downloads: '3.7K'
+  },
+  {
+    id: 'doc3',
+    title: 'React Hooks Reference Guide',
+    type: 'PDF',
+    pages: 8,
+    downloads: '5.1K'
+  },
+  {
+    id: 'doc4',
+    title: 'Digital Marketing Strategy Template',
+    type: 'Presentation',
+    pages: 15,
+    downloads: '2.8K'
+  }
+];
+
+// State
+let currentContentType = 'long-video';
+
+// DOM Elements
+const createContentBtn = document.getElementById('createContentBtn');
+const createContentModal = document.getElementById('createContentModal');
+const closeCreateModal = document.getElementById('closeCreateModal');
+const cancelCreate = document.getElementById('cancelCreate');
+const contentTypeTabs = document.querySelectorAll('.content-type-tab');
+const contentTypeCards = document.querySelectorAll('.content-type-card');
+const coursesGrid = document.getElementById('coursesGrid');
+const quickVideosGrid = document.getElementById('quickVideosGrid');
+const documentsGrid = document.getElementById('documentsGrid');
+const createContentForm = document.getElementById('createContentForm');
+const submitContent = document.getElementById('submitContent');
+const mediaUpload = document.getElementById('mediaUpload');
+const mediaFile = document.getElementById('mediaFile');
+const mediaPreview = document.getElementById('mediaPreview');
+const previewVideo = document.getElementById('previewVideo');
+const outlineUpload = document.getElementById('outlineUpload');
+const outlineFile = document.getElementById('outlineFile');
+const mediaIcon = document.getElementById('mediaIcon');
+const mediaText = document.getElementById('mediaText');
+const courseOutlineGroup = document.getElementById('courseOutlineGroup');
+const mediaUploadGroup = document.getElementById('mediaUploadGroup');
+
+// Initialize
+function initMeetversity() {
+  renderCourses();
+  renderQuickVideos();
+  renderDocuments();
+  setupEventListeners();
+}
+
+// Render courses
+function renderCourses() {
+  coursesGrid.innerHTML = '';
+  
+  mockCourses.forEach(course => {
+    const courseCard = document.createElement('div');
+    courseCard.className = 'course-card';
+    
+    courseCard.innerHTML = `
+      <img src="${course.thumbnail}" alt="${course.title}" class="course-thumbnail">
+      <div class="course-details">
+        <div class="course-category">${course.category}</div>
+        <h3 class="course-title">${course.title}</h3>
+        <div class="course-meta">
+          <div class="course-instructor">
+            <img src="${course.instructor.avatar}" alt="${course.instructor.name}" class="instructor-avatar">
+            <span class="instructor-name">${course.instructor.name}</span>
+          </div>
+          <div class="course-duration">
+            <span>⏱️</span> ${course.duration}
+          </div>
+        </div>
+        <div class="course-footer">
+          <div class="course-price">${course.price}</div>
+          ${course.hasCertificate ? '<div class="certificate-badge">Certificate</div>' : ''}
+        </div>
+      </div>
+    `;
+    
+    coursesGrid.appendChild(courseCard);
+  });
+}
+
+// Render quick videos
+function renderQuickVideos() {
+  quickVideosGrid.innerHTML = '';
+  
+  mockQuickVideos.forEach(video => {
+    const videoCard = document.createElement('div');
+    videoCard.className = 'quick-video-card';
+    
+    videoCard.innerHTML = `
+      <img src="${video.thumbnail}" alt="${video.title}" class="quick-video-thumbnail">
+      <div class="quick-video-details">
+        <h3 class="quick-video-title">${video.title}</h3>
+        <div class="quick-video-meta">
+          <span>${video.duration}</span>
+          <span>${video.views} views</span>
+        </div>
+      </div>
+    `;
+    
+    quickVideosGrid.appendChild(videoCard);
+  });
+}
+
+// Render documents
+function renderDocuments() {
+  documentsGrid.innerHTML = '';
+  
+  mockDocuments.forEach(doc => {
+    const docCard = document.createElement('div');
+    docCard.className = 'document-card';
+    
+    docCard.innerHTML = `
+      <div class="document-icon">📄</div>
+      <div class="document-details">
+        <h3 class="document-title">${doc.title}</h3>
+        <div class="document-meta">
+          <span>${doc.type}</span>
+          <span>${doc.pages} pages</span>
+          <span>${doc.downloads} downloads</span>
+        </div>
+      </div>
+    `;
+    
+    documentsGrid.appendChild(docCard);
+  });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  // Dark mode toggle
+  const darkToggle = document.getElementById('darkToggle');
+  (function initTheme(){
+    const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    if(t==='dark') document.body.classList.add('dark');
+    darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  })();
+  darkToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+    const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+    localStorage.setItem('meet_theme', now);
+    darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+  });
+
+  // Create content button
+  createContentBtn.addEventListener('click', () => {
+    createContentModal.style.display = 'flex';
+  });
+
+  // Close modal
+  closeCreateModal.addEventListener('click', closeCreateModalHandler);
+  cancelCreate.addEventListener('click', closeCreateModalHandler);
+  createContentModal.addEventListener('click', (e) => {
+    if (e.target === createContentModal) {
+      closeCreateModalHandler();
+    }
+  });
+
+  // Content type tabs
+  contentTypeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const type = tab.getAttribute('data-type');
+      setContentType(type);
+      
+      // Update active tab
+      contentTypeTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Content type cards
+  contentTypeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const type = card.getAttribute('data-type');
+      setContentType(type);
+      createContentModal.style.display = 'flex';
+      
+      // Update active tab in modal
+      contentTypeTabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.getAttribute('data-type') === type) {
+          tab.classList.add('active');
+        }
+      });
+    });
+  });
+
+  // Media upload
+  mediaUpload.addEventListener('click', () => {
+    mediaFile.click();
+  });
+  mediaFile.addEventListener('change', handleMediaUpload);
+
+  // Outline upload
+  outlineUpload.addEventListener('click', () => {
+    outlineFile.click();
+  });
+
+  // Submit content
+  submitContent.addEventListener('click', submitContentHandler);
+}
+
+// Set content type
+function setContentType(type) {
+  currentContentType = type;
+  
+  // Update form based on content type
+  if (type === 'long-video') {
+    mediaIcon.textContent = '🎬';
+    mediaText.textContent = 'Click to upload your video file';
+    mediaFile.accept = 'video/*';
+    courseOutlineGroup.style.display = 'block';
+    mediaUploadGroup.style.display = 'block';
+  } else if (type === 'quick-video') {
+    mediaIcon.textContent = '⚡';
+    mediaText.textContent = 'Click to upload your quick video (1-2 min)';
+    mediaFile.accept = 'video/*';
+    courseOutlineGroup.style.display = 'none';
+    mediaUploadGroup.style.display = 'block';
+  } else if (type === 'document') {
+    mediaIcon.textContent = '📄';
+    mediaText.textContent = 'Click to upload your document (PDF, PPT, etc.)';
+    mediaFile.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+    courseOutlineGroup.style.display = 'none';
+    mediaUploadGroup.style.display = 'block';
+  }
+}
+
+// Handle media upload
+function handleMediaUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  // Reset preview
+  mediaPreview.style.display = 'none';
+  previewVideo.style.display = 'none';
+  
+  if (file.type.startsWith('video/')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewVideo.src = e.target.result;
+      previewVideo.style.display = 'block';
+      mediaPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else if (file.type === 'application/pdf') {
+    // For PDFs, we would typically show a thumbnail or preview
+    // For this demo, we'll just show a success message
+    mediaPreview.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--muted)">PDF uploaded: ${file.name}</div>`;
+    mediaPreview.style.display = 'block';
+  } else {
+    // For other document types
+    mediaPreview.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--muted)">Document uploaded: ${file.name}</div>`;
+    mediaPreview.style.display = 'block';
+  }
+}
+
+// Close modal handler
+function closeCreateModalHandler() {
+  createContentModal.style.display = 'none';
+  createContentForm.reset();
+  mediaPreview.style.display = 'none';
+}
+
+// Submit content handler
+function submitContentHandler() {
+  const title = document.getElementById('contentTitle').value;
+  const category = document.getElementById('contentCategory').value;
+  const courseType = document.querySelector('input[name="courseType"]:checked').value;
+  const outline = document.getElementById('courseOutline').value;
+  const duration = document.getElementById('contentDuration').value;
+  const offerCertificate = document.getElementById('offerCertificate').checked;
+  
+  if (!title || !category || !duration) {
+    alert('Please fill in all required fields');
+    return;
+  }
+  
+  // In a real app, we would send this data to a server
+  console.log({
+    type: currentContentType,
+    title,
+    category,
+    courseType,
+    outline,
+    duration,
+    offerCertificate
+  });
+  
+  // Show success message
+  alert(`${currentContentType === 'long-video' ? 'Course' : currentContentType === 'quick-video' ? 'Quick video' : 'Document'} created successfully!`);
+  
+  // Close modal
+  closeCreateModalHandler();
+  
+  // In a real app, we would refresh the content lists
+}
+
+// Initialize meetversity when page loads
+document.addEventListener('DOMContentLoaded', initMeetversity);
+</script>
+</body>
+</html>
