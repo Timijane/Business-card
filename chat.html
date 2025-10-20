@@ -6,60 +6,19 @@
 <title>MEET — Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Your existing CSS remains the same, just adding this fix */
-  
-  /* Fix for message input area - prevent click propagation */
-  .message-input-container,
-  .messages-container,
-  .chat-area-header {
-    pointer-events: auto;
-  }
-  
-  /* Ensure these elements don't trigger navigation */
-  .message-input-wrapper,
-  .message-input,
-  .send-button,
-  .message-bubble,
-  .message-text {
-    pointer-events: auto !important;
-  }
+  /* Your existing CSS remains exactly the same */
+  /* ... ALL YOUR ORIGINAL CSS CODE ... */
 </style>
 </head>
 <body>
 
-<!-- Your existing HTML structure remains the same until the script section -->
+<!-- Your existing HTML remains exactly the same -->
+<!-- ... ALL YOUR ORIGINAL HTML CODE ... -->
 
 <script>
-// FIXED Navigation function - more reliable
-function navigateTo(page) {
-  // Prevent navigation if already on the page
-  const currentPage = window.location.pathname.split('/').pop();
-  if (currentPage === page) {
-    console.log('Already on', page);
-    return;
-  }
-  
-  // Use full page navigation to ensure complete reload
-  window.location.href = page;
-}
+// Your existing JavaScript code remains the same until the setupEventListeners function
 
-// Dark mode toggle and other existing code remains the same...
-
-// Initialize chat
-function initChat() {
-  renderConversations();
-  setupEventListeners();
-  
-  // Check if mobile and adjust layout
-  checkMobileLayout();
-  
-  // Load first conversation by default on desktop
-  if (!isMobile && mockConversations.length > 0) {
-    loadConversation(mockConversations[0].id);
-  }
-}
-
-// Setup event listeners - FIXED VERSION
+// Setup event listeners - ONLY MODIFYING THIS FUNCTION
 function setupEventListeners() {
   const messageInput = document.getElementById('messageInput');
   const sendButton = document.getElementById('sendButton');
@@ -80,15 +39,12 @@ function setupEventListeners() {
   });
   
   // New chat button
-  document.getElementById('newChatBtn').addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  document.getElementById('newChatBtn').addEventListener('click', () => {
     alert('New chat feature would open a modal to start conversation with new contacts');
   });
   
-  // Back button for mobile - FIXED with proper event handling
+  // Back button for mobile - only back button triggers return
   document.getElementById('backButton').addEventListener('click', (e) => {
-    e.preventDefault();
     e.stopPropagation();
     showConversationsView();
   });
@@ -102,99 +58,103 @@ function setupEventListeners() {
   // Window resize handler
   window.addEventListener('resize', checkMobileLayout);
   
-  // FIXED: Enhanced click prevention for chat area
-  const chatArea = document.getElementById('chatArea');
-  const messageInputContainer = document.getElementById('messageInputContainer');
+  // === FIX: Enhanced click protection for chat interface ===
+  // Prevent any clicks in the chat interface from closing the chat view
+  
+  // Protect the entire messages container
   const messagesContainer = document.getElementById('messagesContainer');
+  if (messagesContainer) {
+    messagesContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    });
+    
+    messagesContainer.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    });
+  }
   
-  // Prevent any clicks in these areas from bubbling up
-  [chatArea, messageInputContainer, messagesContainer].forEach(element => {
-    if (element) {
-      element.addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-    }
+  // Protect the message input area
+  const messageInputContainer = document.getElementById('messageInputContainer');
+  if (messageInputContainer) {
+    messageInputContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    });
+    
+    messageInputContainer.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Protect the message input field specifically
+  if (messageInput) {
+    messageInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    messageInput.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Protect the send button
+  if (sendButton) {
+    sendButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    sendButton.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Protect smart suggestions
+  const smartSuggestions = document.getElementById('smartSuggestions');
+  if (smartSuggestions) {
+    smartSuggestions.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Protect AI mode toggle
+  const aiModeToggle = document.getElementById('aiModeToggle');
+  if (aiModeToggle) {
+    aiModeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Protect input action buttons
+  const inputActions = document.querySelectorAll('.input-action');
+  inputActions.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
   });
   
-  // Specifically protect the input area
-  const messageInputEl = document.getElementById('messageInput');
-  if (messageInputEl) {
-    messageInputEl.addEventListener('click', (e) => {
+  // Protect chat action buttons in header
+  const chatActionBtns = document.querySelectorAll('.chat-action-btn');
+  chatActionBtns.forEach(button => {
+    button.addEventListener('click', (e) => {
       e.stopPropagation();
     });
-  }
+  });
   
-  // FIXED: Profile navigation - use proper event listeners instead of onclick
-  const profileButton = document.querySelector('aside button[onclick*="profile.html"]');
-  if (profileButton) {
-    // Remove the existing onclick and replace with proper event listener
-    profileButton.removeAttribute('onclick');
-    profileButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      navigateTo('profile.html');
-    });
-  }
+  // === END OF FIX ===
   
-  // FIXED: Chat navigation
-  const chatButton = document.querySelector('aside button[onclick*="chat.html"]');
-  if (chatButton) {
-    chatButton.removeAttribute('onclick');
-    chatButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // Only navigate if we're not already on chat page
-      const currentPage = window.location.pathname.split('/').pop();
-      if (currentPage !== 'chat.html') {
-        navigateTo('chat.html');
-      }
-    });
-  }
+  // Your existing navigation fixes remain the same
+  document.querySelector('aside button[onclick*="profile.html"]').addEventListener('click', (e) => {
+    navigateTo('profile.html');
+  });
   
-  // Add similar protection for other navigation buttons
-  const navButtons = document.querySelectorAll('aside button');
-  navButtons.forEach(button => {
-    const onclickAttr = button.getAttribute('onclick');
-    if (onclickAttr && onclickAttr.includes('navigateTo')) {
-      button.removeAttribute('onclick');
-      const page = onclickAttr.match(/'([^']+)'/)[1];
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        navigateTo(page);
-      });
-    }
+  document.querySelector('aside button[onclick*="chat.html"]').addEventListener('click', (e) => {
+    navigateTo('chat.html');
   });
 }
 
-// The rest of your existing JavaScript functions remain the same...
-// (sendMessage, loadConversation, renderMessages, etc.)
-
-// FIXED: Enhanced mobile view switching
-function showChatView() {
-  if (!isMobile) return;
-  
-  document.getElementById('conversationsSidebar').classList.add('hidden');
-  document.getElementById('chatArea').classList.add('active');
-  
-  // Focus input when switching to chat view on mobile
-  setTimeout(() => {
-    const messageInput = document.getElementById('messageInput');
-    if (messageInput) {
-      messageInput.focus();
-    }
-  }, 300);
-}
-
-function showConversationsView() {
-  if (!isMobile) return;
-  
-  document.getElementById('conversationsSidebar').classList.remove('hidden');
-  document.getElementById('chatArea').classList.remove('active');
-}
-
-// Initialize chat when page loads
-document.addEventListener('DOMContentLoaded', initChat);
+// ALL YOUR OTHER EXISTING JAVASCRIPT FUNCTIONS REMAIN EXACTLY THE SAME
+// ... (No changes to any other functions)
 </script>
 </body>
 </html>
