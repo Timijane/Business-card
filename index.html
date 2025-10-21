@@ -100,6 +100,7 @@ body {
 .form-input {
   width: 100%;
   padding: 0.8rem;
+  padding-right: 40px; /* Space for toggle button */
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
@@ -122,6 +123,7 @@ body {
   cursor: pointer;
   font-size: 1rem;
   color: #6B7280;
+  z-index: 2;
 }
 
 select.form-input {
@@ -250,8 +252,8 @@ button:disabled {
   <!-- Login Form -->
   <form id="loginForm">
     <div class="form-group">
-      <label class="form-label" for="loginEmail">Email or Username</label>
-      <input type="text" id="loginEmail" class="form-input" placeholder="Enter your email or username" required>
+      <label class="form-label" for="loginEmail">Email Address</label>
+      <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
     </div>
     
     <div class="form-group">
@@ -332,206 +334,252 @@ button:disabled {
   </form>
 </div>
 
-<script>
-// DOM elements
-const loginForm = document.getElementById('loginForm');
-const signupForm = document.getElementById('signupForm');
-const formTitle = document.getElementById('formTitle');
-const showSignup = document.getElementById('showSignup');
-const showLogin = document.getElementById('showLogin');
-const messageContainer = document.getElementById('messageContainer');
+<!-- Firebase SDK -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { 
+    getFirestore, 
+    doc, 
+    setDoc 
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Password toggle functionality
-function setupPasswordToggle(passwordInputId, toggleButtonId) {
-  const passwordInput = document.getElementById(passwordInputId);
-  const toggleButton = document.getElementById(toggleButtonId);
-  
-  toggleButton.addEventListener('click', function() {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-    toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
-  });
-}
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeqS5LqeuAyI4Ml4tYmZq53fhsFQOqGNo",
+    authDomain: "meet-49292.firebaseapp.com",
+    projectId: "meet-49292",
+    storageBucket: "meet-49292.firebasestorage.app",
+    messagingSenderId: "29739437855",
+    appId: "1:29739437855:web:8e16eac922f6d58dd36a2a",
+    measurementId: "G-8KH35BFLXR"
+  };
 
-// Set up all password toggles
-setupPasswordToggle('loginPassword', 'loginPasswordToggle');
-setupPasswordToggle('signupPassword', 'signupPasswordToggle');
-setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-// Show message function
-function showMessage(message, type = 'error') {
-  messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
-}
+  // DOM elements
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const formTitle = document.getElementById('formTitle');
+  const showSignup = document.getElementById('showSignup');
+  const showLogin = document.getElementById('showLogin');
+  const messageContainer = document.getElementById('messageContainer');
 
-// Clear message function
-function clearMessage() {
-  messageContainer.innerHTML = '';
-}
-
-// Toggle loading state
-function setLoading(buttonId, isLoading) {
-  const button = document.getElementById(buttonId);
-  const text = button.querySelector('span:first-child');
-  const spinner = button.querySelector('.spinner');
-  
-  if (isLoading) {
-    button.disabled = true;
-    text.style.display = 'none';
-    spinner.style.display = 'inline-block';
-  } else {
-    button.disabled = false;
-    text.style.display = 'inline-block';
-    spinner.style.display = 'none';
-  }
-}
-
-// Switch to signup form
-showSignup.addEventListener('click', function(e) {
-  e.preventDefault();
-  loginForm.style.display = 'none';
-  signupForm.style.display = 'block';
-  formTitle.textContent = 'Join MEET';
-  clearMessage();
-});
-
-// Switch to login form
-showLogin.addEventListener('click', function(e) {
-  e.preventDefault();
-  signupForm.style.display = 'none';
-  loginForm.style.display = 'block';
-  formTitle.textContent = 'Login to MEET';
-  clearMessage();
-});
-
-// Login form submission
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  
-  if (!email || !password) {
-    showMessage('Please fill in all fields');
-    return;
-  }
-  
-  setLoading('loginBtn', true);
-  clearMessage();
-  
-  try {
-    // Simulate login process
-    await new Promise(resolve => setTimeout(resolve, 1500));
+  // Password toggle functionality
+  function setupPasswordToggle(passwordInputId, toggleButtonId) {
+    const passwordInput = document.getElementById(passwordInputId);
+    const toggleButton = document.getElementById(toggleButtonId);
     
-    // In a real app, you would make an API call here
-    // For demo purposes, we'll just check if fields are filled
-    if (email && password) {
-      showMessage('Login successful! Redirecting...', 'success');
+    toggleButton.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
+    });
+  }
+
+  // Set up all password toggles
+  setupPasswordToggle('loginPassword', 'loginPasswordToggle');
+  setupPasswordToggle('signupPassword', 'signupPasswordToggle');
+  setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
+
+  // Show message function
+  function showMessage(message, type = 'error') {
+    messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+  }
+
+  // Clear message function
+  function clearMessage() {
+    messageContainer.innerHTML = '';
+  }
+
+  // Toggle loading state
+  function setLoading(buttonId, isLoading) {
+    const button = document.getElementById(buttonId);
+    const text = button.querySelector('span:first-child');
+    const spinner = button.querySelector('.spinner');
+    
+    if (isLoading) {
+      button.disabled = true;
+      text.style.display = 'none';
+      spinner.style.display = 'inline-block';
+    } else {
+      button.disabled = false;
+      text.style.display = 'inline-block';
+      spinner.style.display = 'none';
+    }
+  }
+
+  // Switch to signup form
+  showSignup.addEventListener('click', function(e) {
+    e.preventDefault();
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'block';
+    formTitle.textContent = 'Join MEET';
+    clearMessage();
+  });
+
+  // Switch to login form
+  showLogin.addEventListener('click', function(e) {
+    e.preventDefault();
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    formTitle.textContent = 'Login to MEET';
+    clearMessage();
+  });
+
+  // Login form submission
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+      showMessage('Please fill in all fields');
+      return;
+    }
+    
+    setLoading('loginBtn', true);
+    clearMessage();
+    
+    try {
+      // Firebase login
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
-      // Store user data (in a real app, you'd use secure tokens)
-      localStorage.setItem('user', JSON.stringify({
-        email: email,
-        loggedIn: true
-      }));
+      showMessage('Login successful! Redirecting...', 'success');
       
       // Redirect to feed page
       setTimeout(() => {
         window.location.href = 'feed.html';
       }, 1500);
-    } else {
-      showMessage('Invalid credentials. Please try again.');
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      let errorMessage = 'Login failed. Please try again.';
+      
+      // More specific error messages
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password. Please try again.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      
+      showMessage(errorMessage);
+    } finally {
+      setLoading('loginBtn', false);
+    }
+  });
+
+  // Signup form submission
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fullName = document.getElementById('signupFullName').value.trim();
+    const username = document.getElementById('signupUsername').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    const gender = document.getElementById('signupGender').value;
+    
+    // Validation
+    if (!fullName || !username || !email || !phone || !password || !confirmPassword || !gender) {
+      showMessage('Please fill in all fields');
+      return;
     }
     
-  } catch (error) {
-    console.error('Login error:', error);
-    showMessage('Login failed. Please try again.');
-  } finally {
-    setLoading('loginBtn', false);
-  }
-});
+    if (password !== confirmPassword) {
+      showMessage('Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 6) {
+      showMessage('Password must be at least 6 characters long');
+      return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showMessage('Please enter a valid email address');
+      return;
+    }
+    
+    // Basic phone validation
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+      showMessage('Please enter a valid phone number');
+      return;
+    }
+    
+    setLoading('signupBtn', true);
+    clearMessage();
+    
+    try {
+      // Firebase signup
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Update profile with display name
+      await updateProfile(user, {
+        displayName: fullName
+      });
+      
+      // Save additional user data to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        fullName,
+        username,
+        email,
+        phone,
+        gender,
+        createdAt: new Date(),
+      });
+      
+      showMessage('Account created successfully! Redirecting...', 'success');
+      
+      // Redirect to feed page
+      setTimeout(() => {
+        window.location.href = 'feed.html';
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Signup error:', error);
+      let errorMessage = 'Signup failed. Please try again.';
+      
+      // More specific error messages
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please use a stronger password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      
+      showMessage(errorMessage);
+    } finally {
+      setLoading('signupBtn', false);
+    }
+  });
 
-// Signup form submission
-signupForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const fullName = document.getElementById('signupFullName').value.trim();
-  const username = document.getElementById('signupUsername').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-  const phone = document.getElementById('signupPhone').value.trim();
-  const password = document.getElementById('signupPassword').value;
-  const confirmPassword = document.getElementById('signupConfirmPassword').value;
-  const gender = document.getElementById('signupGender').value;
-  
-  // Validation
-  if (!fullName || !username || !email || !phone || !password || !confirmPassword || !gender) {
-    showMessage('Please fill in all fields');
-    return;
-  }
-  
-  if (password !== confirmPassword) {
-    showMessage('Passwords do not match');
-    return;
-  }
-  
-  if (password.length < 6) {
-    showMessage('Password must be at least 6 characters long');
-    return;
-  }
-  
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    showMessage('Please enter a valid email address');
-    return;
-  }
-  
-  // Basic phone validation
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-  if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
-    showMessage('Please enter a valid phone number');
-    return;
-  }
-  
-  setLoading('signupBtn', true);
-  clearMessage();
-  
-  try {
-    // Simulate signup process with SMS verification
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // In a real app, you would make an API call here
-    // For demo purposes, we'll just simulate success
-    showMessage('Account created successfully! Redirecting...', 'success');
-    
-    // Store user data (in a real app, you'd use secure tokens)
-    localStorage.setItem('user', JSON.stringify({
-      fullName: fullName,
-      username: username,
-      email: email,
-      phone: phone,
-      gender: gender,
-      loggedIn: true
-    }));
-    
-    // Redirect to feed page
-    setTimeout(() => {
+  // Check if user is already logged in
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      // User is signed in, redirect to feed
       window.location.href = 'feed.html';
-    }, 1500);
-    
-  } catch (error) {
-    console.error('Signup error:', error);
-    showMessage('Signup failed. Please try again.');
-  } finally {
-    setLoading('signupBtn', false);
-  }
-});
-
-// Check if user is already logged in
-window.addEventListener('DOMContentLoaded', () => {
-  const user = localStorage.getItem('user');
-  if (user && JSON.parse(user).loggedIn) {
-    window.location.href = 'feed.html';
-  }
-});
+    }
+  });
 </script>
 </body>
 </html>
