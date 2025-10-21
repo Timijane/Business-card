@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MEET | Feed</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #0061FF;
+  --accent: #5AE4A8;
+  --text-dark: #111827;
+  --surface: #ffffff;
+}
+
+/* === BASE LAYOUT === */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* === LOGO AREA === */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  animation: moveUp 2s ease forwards;
+}
+
+.logo-icon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #fff, #e5fdf3);
+  -webkit-mask: url('#m-shape') no-repeat center;
+  mask: url('#m-shape') no-repeat center;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.logo-text {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-top: 10px;
+}
+
+.tagline {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+/* === FEED CARD === */
+.feed-card {
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 2.5rem;
+  animation: fadeUp 1.2s ease;
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.feed-header h2 {
+  margin: 0;
+  color: var(--text-dark);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* === POST CREATION === */
+.post-creator {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.post-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  resize: none;
+  min-height: 80px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.post-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attachment-options {
+  display: flex;
+  gap: 10px;
+}
+
+.attach-btn {
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.attach-btn:hover {
+  color: var(--primary);
+}
+
+.post-btn {
+  padding: 0.5rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.post-btn:hover {
+  background: #0050d4;
+}
+
+.post-btn:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
+}
+
+/* === FEED CONTENT === */
+.feed-content {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.feed-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feed-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.feed-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.feed-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* === POSTS === */
+.post {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.post-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-right: 10px;
+}
+
+.post-user {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.post-time {
+  font-size: 0.8rem;
+  color: #6B7280;
+  margin-left: auto;
+}
+
+.post-text {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.post-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.action-btn:hover {
+  color: var(--primary);
+}
+
+.action-btn.liked {
+  color: #EF4444;
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+@keyframes fadeUp {
+  from {transform: translateY(40px); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
+}
+@keyframes moveUp {
+  0% {transform: translateY(50px); opacity: 0;}
+  100% {transform: translateY(0); opacity: 1;}
+}
+@keyframes pulse {
+  0%,100% {transform: scale(1); opacity: 1;}
+  50% {transform: scale(1.05); opacity: 0.9;}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG for logo mask -->
+<svg width="0" height="0">
+  <defs>
+    <mask id="m-shape" viewBox="0 0 100 100">
+      <path fill="white"
+        d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z" />
+    </mask>
+  </defs>
+</svg>
+
+<!-- LOGO HERO -->
+<div class="logo-container">
+  <div class="logo-icon"></div>
+  <div class="logo-text">MEET</div>
+  <div class="tagline">Where People and Opportunity Connect</div>
+</div>
+
+<!-- FEED CARD -->
+<div class="feed-card">
+  <div class="feed-header">
+    <h2>Your Feed</h2>
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">U</div>
+      <span id="userName">User</span>
+    </div>
+  </div>
+  
+  <!-- POST CREATOR -->
+  <div class="post-creator">
+    <textarea class="post-input" id="postInput" placeholder="What's on your mind?"></textarea>
+    <div class="post-actions">
+      <div class="attachment-options">
+        <button class="attach-btn" title="Add image">🖼️</button>
+        <button class="attach-btn" title="Add event">📅</button>
+        <button class="attach-btn" title="Add location">📍</button>
+      </div>
+      <button class="post-btn" id="postBtn" disabled>Post</button>
+    </div>
+  </div>
+  
+  <!-- FEED CONTENT -->
+  <div class="feed-content" id="feedContent">
+    <!-- Posts will be dynamically added here -->
+  </div>
+</div>
+
+<script>
+// DOM elements
+const postInput = document.getElementById('postInput');
+const postBtn = document.getElementById('postBtn');
+const feedContent = document.getElementById('feedContent');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+
+// Sample posts data
+const samplePosts = [
+  {
+    id: 1,
+    user: 'Alex Johnson',
+    text: 'Just launched my new startup! Looking for talented developers to join our team. DM me if you\'re interested in changing the world together!',
+    time: '2 hours ago',
+    likes: 24,
+    comments: 8,
+    liked: false
+  },
+  {
+    id: 2,
+    user: 'Sarah Williams',
+    text: 'Amazing networking event today! Met so many inspiring entrepreneurs. The future is bright!',
+    time: '5 hours ago',
+    likes: 42,
+    comments: 12,
+    liked: true
+  },
+  {
+    id: 3,
+    user: 'Michael Chen',
+    text: 'Just published my latest article on AI in healthcare. Check it out and let me know your thoughts!',
+    time: '1 day ago',
+    likes: 18,
+    comments: 5,
+    liked: false
+  }
+];
+
+// Get user data from localStorage
+const user = JSON.parse(localStorage.getItem('user') || '{"fullName": "User", "username": "user"}');
+
+// Set user info in the header
+if (user.fullName) {
+  userName.textContent = user.fullName;
+  userAvatar.textContent = user.fullName.charAt(0).toUpperCase();
+}
+
+// Enable/disable post button based on input
+postInput.addEventListener('input', () => {
+  postBtn.disabled = postInput.value.trim() === '';
+});
+
+// Create a post element
+function createPostElement(post) {
+  const postEl = document.createElement('div');
+  postEl.className = 'post';
+  postEl.innerHTML = `
+    <div class="post-header">
+      <div class="post-avatar">${post.user.charAt(0).toUpperCase()}</div>
+      <div class="post-user">${post.user}</div>
+      <div class="post-time">${post.time}</div>
+    </div>
+    <div class="post-text">${post.text}</div>
+    <div class="post-actions">
+      <button class="action-btn ${post.liked ? 'liked' : ''}" data-id="${post.id}">
+        ${post.liked ? '❤️' : '🤍'} ${post.likes}
+      </button>
+      <button class="action-btn" data-id="${post.id}">
+        💬 ${post.comments}
+      </button>
+      <button class="action-btn" data-id="${post.id}">
+        🔄 Share
+      </button>
+    </div>
+  `;
+  return postEl;
+}
+
+// Render sample posts
+function renderPosts() {
+  feedContent.innerHTML = '';
+  samplePosts.forEach(post => {
+    const postEl = createPostElement(post);
+    feedContent.appendChild(postEl);
+  });
+}
+
+// Handle post creation
+postBtn.addEventListener('click', () => {
+  const text = postInput.value.trim();
+  if (text) {
+    const newPost = {
+      id: Date.now(),
+      user: user.fullName || 'You',
+      text: text,
+      time: 'Just now',
+      likes: 0,
+      comments: 0,
+      liked: false
+    };
+    
+    const postEl = createPostElement(newPost);
+    feedContent.insertBefore(postEl, feedContent.firstChild);
+    postInput.value = '';
+    postBtn.disabled = true;
+    
+    // Show success message
+    alert('Post published successfully!');
+  }
+});
+
+// Handle like button clicks
+feedContent.addEventListener('click', (e) => {
+  if (e.target.closest('.action-btn')) {
+    const btn = e.target.closest('.action-btn');
+    const postId = parseInt(btn.dataset.id);
+    
+    // Toggle like state
+    if (!btn.classList.contains('liked')) {
+      btn.classList.add('liked');
+      const currentLikes = parseInt(btn.textContent.match(/\d+/)[0]);
+      btn.innerHTML = `❤️ ${currentLikes + 1}`;
+    } else {
+      btn.classList.remove('liked');
+      const currentLikes = parseInt(btn.textContent.match(/\d+/)[0]);
+      btn.innerHTML = `🤍 ${currentLikes - 1}`;
+    }
+  }
+});
+
+// Initialize the feed
+renderPosts();
+</script>
+</body>
+</html>
