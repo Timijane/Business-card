@@ -347,7 +347,8 @@ button:disabled {
   import { 
     getFirestore, 
     doc, 
-    setDoc 
+    setDoc,
+    serverTimestamp
   } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
   // Firebase configuration
@@ -482,10 +483,11 @@ button:disabled {
     }
   });
 
-  // Signup form submission
+  // NEW SIGNUP LISTENER - REPLACED VERSION
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
+    // Get form values
     const fullName = document.getElementById('signupFullName').value.trim();
     const username = document.getElementById('signupUsername').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
@@ -493,81 +495,79 @@ button:disabled {
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
     const gender = document.getElementById('signupGender').value;
-    
+
     // Validation
     if (!fullName || !username || !email || !phone || !password || !confirmPassword || !gender) {
       showMessage('Please fill in all fields');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       showMessage('Passwords do not match');
       return;
     }
-    
+
     if (password.length < 6) {
       showMessage('Password must be at least 6 characters long');
       return;
     }
-    
-    // Basic email validation
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showMessage('Please enter a valid email address');
       return;
     }
-    
-    // Basic phone validation
+
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
     if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
       showMessage('Please enter a valid phone number');
       return;
     }
-    
+
     setLoading('signupBtn', true);
     clearMessage();
-    
+
     try {
-      // Firebase signup
+      // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Update profile with display name
-      await updateProfile(user, {
-        displayName: fullName
-      });
-      
-      // Save additional user data to Firestore
+
+      // Update display name in Auth profile
+      await updateProfile(user, { displayName: fullName });
+
+      // Save additional user info to Firestore
       await setDoc(doc(db, "users", user.uid), {
         fullName,
         username,
         email,
         phone,
         gender,
-        createdAt: new Date(),
+        createdAt: serverTimestamp() // use Firestore server time
       });
-      
+
       showMessage('Account created successfully! Redirecting...', 'success');
-      
-      // Redirect to feed page
+
+      // Redirect to feed page after 1.5s
       setTimeout(() => {
         window.location.href = 'feed.html';
       }, 1500);
-      
+
     } catch (error) {
       console.error('Signup error:', error);
-      let errorMessage = 'Signup failed. Please try again.';
-      
-      // More specific error messages
+
+      // Show exact error to user
+      let errorMessage = error.message;
+
+      // More user-friendly messages for common Firebase Auth errors
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'An account with this email already exists.';
       } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Please use a stronger password.';
+        errorMessage = 'Password is too weak. Use at least 6 characters.';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address.';
       }
-      
-      showMessage(errorMessage);
+
+      showMessage(errorMessage, 'error');
     } finally {
       setLoading('signupBtn', false);
     }
