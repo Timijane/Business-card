@@ -6,6 +6,7 @@
 <title>MEET — Dashboard (Interactive Prototype)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Your existing CSS remains exactly the same */
   :root{
     --primary:#0061FF;
     --accent:#5AE4A8;
@@ -203,6 +204,13 @@
       max-width: 150px;
     }
   }
+
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+  }
 </style>
 </head>
 <body>
@@ -286,7 +294,9 @@
     </div>
 
     <!-- feed container -->
-    <div id="feed"></div>
+    <div id="feed">
+      <div class="loading">Loading posts...</div>
+    </div>
   </main>
 </div>
 
@@ -357,299 +367,556 @@
 <!-- Toast -->
 <div class="toast" id="toast">Posted successfully</div>
 
-<script>
-/* ===== Simple mock dataset ===== */
-const MOCK = [
-  {
-    id: genId(), user:'Emily Chen', avatar:'https://i.pravatar.cc/100?img=14',
-    time: Date.now()-1000*60*60*2, text:'Just published a free course on digital marketing strategies. Join my MEET community to learn together!',
-    media:null, likes:12, comments:[], live:false
-  },
-  {
-    id: genId(), user:'Marcus Lee', avatar:'https://i.pravatar.cc/100?img=22',
-    time: Date.now()-1000*60*60*4, text:'We’re looking for UI/UX designers! Send your portfolio directly through MEET’s hiring feature 💼', media:null, likes:5, comments:[], live:false
-  },
-  {
-    id: genId(), user:'TechTalk Live', avatar:'https://i.pravatar.cc/100?img=31',
-    time: Date.now()-1000*60*15, text:'Streaming — TechTalk: Modern JS Patterns', media:null, likes:102, comments:[], live:true
-  }
-];
+<!-- Firebase Integration -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, 
+    doc, setDoc, getDoc, updateDoc, increment, arrayUnion, arrayRemove,
+    serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { 
+    getStorage, ref, uploadBytes, getDownloadURL 
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-const STORAGE_KEY = 'meet_feed_v1';
-const LIKES_KEY = 'meet_likes_v1';
-
-/* ===== utilities ===== */
-function genId(){return 'p_'+Math.random().toString(36).slice(2,9)}
-function timeAgo(ts){
-  const s = Math.floor((Date.now()-ts)/1000);
-  if(s<60) return `${s}s`;
-  if(s<3600) return `${Math.floor(s/60)}m`;
-  if(s<86400) return `${Math.floor(s/3600)}h`;
-  const d = Math.floor(s/86400); return `${d}d`;
-}
-
-/* ===== state ===== */
-let feed = loadFeed();
-let likes = loadLikes();
-const feedEl = document.getElementById('feed');
-
-/* initialize */
-renderFeed();
-
-/* ===== render helpers ===== */
-function saveFeed(){localStorage.setItem(STORAGE_KEY,JSON.stringify(feed))}
-function loadFeed(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(raw) return JSON.parse(raw);
-  // first-time: seed with MOCK
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(MOCK));
-  return MOCK.slice();
-}
-function saveLikes(){localStorage.setItem(LIKES_KEY, JSON.stringify(likes))}
-function loadLikes(){ return JSON.parse(localStorage.getItem(LIKES_KEY) || '{}') }
-
-/* build a post DOM */
-function buildPost(post){
-  const wrap = document.createElement('div'); wrap.className='post';
-  const card = document.createElement('div'); card.className='card';
-  // header
-  const h = document.createElement('div'); h.className='post-head';
-  const av = document.createElement('div'); av.className='p-avatar';
-  const avimg = document.createElement('img'); avimg.src=post.avatar; av.appendChild(avimg);
-  if(post.live) av.classList.add('live'); // live ring (CSS uses .live on profile container)
-  const meta = document.createElement('div'); meta.className='post-meta';
-  const name = document.createElement('div'); name.className='name'; name.textContent=post.user;
-  const time = document.createElement('div'); time.className='time'; time.textContent = timeAgo(post.time);
-  meta.appendChild(name); meta.appendChild(time);
-  h.appendChild(av); h.appendChild(meta);
-  card.appendChild(h);
-
-  // body
-  const body = document.createElement('div'); body.className='post-body'; body.textContent = post.text || '';
-  card.appendChild(body);
-
-  // media
-  if(post.media){
-    const mwrap = document.createElement('div'); mwrap.className='post-media';
-    if(post.media.type.startsWith('image')){
-      const img = document.createElement('img'); img.src = post.media.url; mwrap.appendChild(img);
-    } else if(post.media.type.startsWith('video')){
-      const v = document.createElement('video'); v.src = post.media.url; v.controls = true; mwrap.appendChild(v);
-    }
-    card.appendChild(mwrap);
-  }
-
-  // actions
-  const actions = document.createElement('div'); actions.className='post-actions';
-  const likeBtn = document.createElement('button'); likeBtn.className='like-btn'; likeBtn.innerHTML = `❤ ${post.likes||0}`;
-  if(likes[post.id]) likeBtn.classList.add('liked');
-  const commentBtn = document.createElement('button'); commentBtn.className='comment-btn'; commentBtn.innerHTML = '💬 Comment';
-  actions.appendChild(likeBtn); actions.appendChild(commentBtn);
-  card.appendChild(actions);
-
-  // comments area
-  const commentsWrap = document.createElement('div'); commentsWrap.className='comments';
-  // existing comments
-  const commentsList = document.createElement('div'); commentsList.className='comments-list';
-  (post.comments||[]).forEach(c=>{
-    const cdiv = document.createElement('div'); cdiv.className='comment';
-    cdiv.innerHTML = `<div style="width:34px;height:34px;border-radius:50%;background:#e6f7ff"></div><div><div style="font-weight:600">${c.user}</div><div class="c-meta">${c.text}</div></div>`;
-    commentsList.appendChild(cdiv);
-  });
-  commentsWrap.appendChild(commentsList);
-  // quick comment input
-  const commentRow = document.createElement('div'); commentRow.className='comment';
-  const commentInput = document.createElement('input'); commentInput.placeholder='Write a comment...';
-  const commentSend = document.createElement('button'); commentSend.textContent='Send';
-  commentSend.style.padding='6px 8px'; commentSend.style.border='0'; commentSend.style.borderRadius='8px'; commentSend.style.cursor='pointer';
-  commentRow.appendChild(commentInput); commentRow.appendChild(commentSend);
-  commentsWrap.appendChild(commentRow);
-
-  card.appendChild(commentsWrap);
-  wrap.appendChild(card);
-
-  // events
-  likeBtn.addEventListener('click', ()=>{
-    likes[post.id] = !likes[post.id];
-    if(likes[post.id]){ post.likes = (post.likes||0)+1 } else { post.likes = Math.max(0,(post.likes||0)-1) }
-    saveLikes(); saveFeed();
-    renderFeed(); // re-render for simplicity
-  });
-
-  commentSend.addEventListener('click', ()=>{
-    const txt = commentInput.value.trim(); if(!txt) return;
-    post.comments = post.comments || [];
-    post.comments.push({user:'You', text:txt, time:Date.now()});
-    commentInput.value='';
-    saveFeed(); renderFeed();
-  });
-
-  return wrap;
-}
-
-/* render entire feed */
-function renderFeed(){
-  feed = loadFeed();
-  // sort by time desc
-  feed.sort((a,b)=>b.time-a.time);
-  feedEl.innerHTML='';
-  feed.forEach(p=>{
-    feedEl.appendChild(buildPost(p));
-  });
-}
-
-/* ===== controls: modal open/close & upload preview ===== */
-const modalWrap = document.getElementById('modalWrap');
-const openPost = document.getElementById('openPost');
-const fileInput = document.getElementById('fileInput');
-const mediaPreview = document.getElementById('mediaPreview');
-const submitPost = document.getElementById('submitPost');
-const cancelPost = document.getElementById('cancelPost');
-const postText = document.getElementById('postText');
-
-openPost.addEventListener('click', ()=>{ openModal() });
-openPost.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal() });
-
-function openModal(){
-  modalWrap.style.display='flex';
-  setTimeout(()=>{ modalWrap.classList.add('visible') },10);
-}
-function closeModal(){ modalWrap.style.display='none'; mediaPreview.innerHTML=''; postText.value=''; fileInput.value=''; }
-
-fileInput.addEventListener('change', handleFile);
-document.getElementById('quickPhoto').addEventListener('click', ()=> fileInput.click());
-document.getElementById('quickVideo').addEventListener('click', ()=> fileInput.click());
-document.getElementById('quickCourse').addEventListener('click', ()=> { openModal(); postText.value='New course: '; });
-
-function handleFile(e){
-  const f = e.target.files[0];
-  mediaPreview.innerHTML='';
-  if(!f) return;
-  const url = URL.createObjectURL(f);
-  const t = f.type;
-  if(t.startsWith('image')){
-    const img = document.createElement('img'); img.src=url; img.style.maxHeight='320px'; img.style.width='100%'; mediaPreview.appendChild(img);
-    modalWrap._media = {url, type:t};
-  } else if(t.startsWith('video')){
-    const vid = document.createElement('video'); vid.src=url; vid.controls=true; vid.style.width='100%'; vid.style.maxHeight='360px'; mediaPreview.appendChild(vid);
-    modalWrap._media = {url, type:t};
-  } else {
-    mediaPreview.textContent='Unsupported file';
-    modalWrap._media = null;
-  }
-}
-
-/* submit post */
-submitPost.addEventListener('click', ()=>{
-  const text = postText.value.trim();
-  const media = modalWrap._media || null;
-  if(!text && !media){ alert('Please add text or media'); return; }
-
-  const newPost = {
-    id: genId(), user: 'Alex', avatar: document.getElementById('userPic').src,
-    time: Date.now(), text, media, likes:0, comments:[], live:false
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeqS5LqeuAyI4Ml4tYmZq53fhsFQOqGNo",
+    authDomain: "meet-49292.firebaseapp.com",
+    projectId: "meet-49292",
+    storageBucket: "meet-49292.firebasestorage.app",
+    messagingSenderId: "29739437855",
+    appId: "1:29739437855:web:8e16eac922f6d58dd36a2a",
+    measurementId: "G-8KH35BFLXR"
   };
-  feed.unshift(newPost);
-  saveFeed();
-  showToast('Posted successfully');
-  closeModal();
-  renderFeed();
-});
 
-/* cancel */
-cancelPost.addEventListener('click', closeModal);
-modalWrap.addEventListener('click', (e)=>{ if(e.target===modalWrap) closeModal(); });
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const auth = getAuth(app);
 
-/* ===== dark mode toggle & persist ===== */
-const darkToggle = document.getElementById('darkToggle');
-(function initTheme(){
-  const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-  if(t==='dark') document.body.classList.add('dark');
-  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-})();
-darkToggle.addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
-  localStorage.setItem('meet_theme', now);
-  darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
-});
-
-/* ===== Go Live behaviour (mock) ===== */
-const goLiveBtn = document.getElementById('goLive');
-const liveModal = document.getElementById('liveModal');
-const cancelLive = document.getElementById('cancelLive');
-const startLive = document.getElementById('startLive');
-const liveTitle = document.getElementById('liveTitle');
-
-goLiveBtn.addEventListener('click', ()=>{ liveModal.style.display='flex'; });
-cancelLive.addEventListener('click', ()=>{ liveModal.style.display='none'; });
-startLive.addEventListener('click', ()=>{
-  const title = liveTitle.value.trim() || 'Live session';
-  const livePost = {
-    id: genId(), user:'Alex (Live)', avatar:document.getElementById('userPic').src,
-    time: Date.now(), text: title, media:null, likes:0, comments:[], live:true
+  // Current user state
+  let currentUser = {
+    uid: 'demo-user-alex',
+    displayName: 'Alex',
+    photoURL: 'https://i.pravatar.cc/100?img=5'
   };
-  feed.unshift(livePost); saveFeed(); renderFeed();
-  liveModal.style.display='none'; liveTitle.value=''; showToast('You are live — added to feed (mock).');
-});
 
-/* ===== notification helper ===== */
-function showToast(text){
-  const t = document.getElementById('toast'); t.textContent=text; t.classList.add('show');
-  setTimeout(()=> t.classList.remove('show'), 3000);
-}
+  /* ========== UTILITY FUNCTIONS ========== */
+  function timeAgo(ts) {
+    if (!ts) return 'Just now';
+    const s = Math.floor((Date.now() - ts.toDate ? ts.toDate().getTime() : ts) / 1000);
+    if (s < 60) return `${s}s`;
+    if (s < 3600) return `${Math.floor(s / 60)}m`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h`;
+    const d = Math.floor(s / 86400); 
+    return `${d}d`;
+  }
 
-/* ===== assistant widget (very simple canned replies) ===== */
-const assistToggle = document.getElementById('assistToggle');
-const assistant = document.getElementById('assistant');
-const assistMsgs = document.getElementById('assistMsgs');
-const assistSend = document.getElementById('assistSend');
-const assistInput = document.getElementById('assistInput');
+  function showToast(text) {
+    const t = document.getElementById('toast'); 
+    t.textContent = text; 
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
 
-assistToggle.addEventListener('click', ()=> {
-  if(assistant.style.display === 'none' || assistant.style.display==='') {
-    assistant.style.display='block';
-  } else assistant.style.display='none';
-});
+  /* ========== POST MANAGEMENT ========== */
+  async function createPost(text, media = null, isLive = false) {
+    try {
+      const postData = {
+        userId: currentUser.uid,
+        user: currentUser.displayName,
+        avatar: currentUser.photoURL,
+        text: text,
+        media: media,
+        likes: 0,
+        comments: [],
+        shares: 0,
+        privacy: document.getElementById('visibility').value,
+        live: isLive,
+        timestamp: serverTimestamp(),
+        createdAt: new Date().toISOString()
+      };
 
-assistSend.addEventListener('click', sendAssist);
-assistInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendAssist(); });
-
-function sendAssist(){
-  const q = assistInput.value.trim(); if(!q) return;
-  const userMsg = document.createElement('div'); userMsg.className='msg user'; userMsg.textContent=q; assistMsgs.appendChild(userMsg);
-  assistInput.value=''; assistMsgs.scrollTop = assistMsgs.scrollHeight;
-  // simple canned "AI" responses
-  setTimeout(()=>{
-    const bot = document.createElement('div'); bot.className='msg bot';
-    if(/help|write|post/i.test(q)){
-      bot.textContent = 'Try this post: "I just launched a short course on [topic]. Join me this week for a live Q&A!"';
-    } else if(/course|teach|lesson/i.test(q)){
-      bot.textContent = 'Suggestion: Split your course into 3-6 short modules, each 5-12 minutes. Add quizzes to increase retention.';
-    } else if(/jobs|hire/i.test(q)){
-      bot.textContent = 'Tip: Add a brief "requirements" and a "what you will build" section to attract applicants.';
-    } else {
-      bot.textContent = "Nice question! I can help draft posts, course outlines, or job descriptions — try asking 'Write a course outline for React basics'.";
+      await addDoc(collection(db, "posts"), postData);
+      showToast('Posted successfully!');
+      return true;
+    } catch (error) {
+      console.error('Error creating post:', error);
+      showToast('Error posting. Please try again.');
+      return false;
     }
-    assistMsgs.appendChild(bot); assistMsgs.scrollTop = assistMsgs.scrollHeight;
-  },700);
-}
+  }
 
-/* ===== search (client-side filter) ===== */
-const search = document.getElementById('search');
-search.addEventListener('input', ()=> {
-  const q = search.value.trim().toLowerCase();
-  if(!q){ renderFeed(); return; }
-  const filtered = feed.filter(p => (p.user + ' ' + (p.text||'')).toLowerCase().includes(q));
-  feedEl.innerHTML=''; filtered.forEach(p => feedEl.appendChild(buildPost(p)));
-});
+  async function handleLike(postId, currentLikes) {
+    try {
+      const likeRef = doc(db, "posts", postId, "likes", currentUser.uid);
+      const postRef = doc(db, "posts", postId);
+      
+      const likeSnap = await getDoc(likeRef);
+      
+      if (likeSnap.exists()) {
+        // Unlike
+        await setDoc(likeRef, {}, { merge: false });
+        await updateDoc(postRef, { 
+          likes: increment(-1) 
+        });
+      } else {
+        // Like
+        await setDoc(likeRef, { 
+          userId: currentUser.uid, 
+          timestamp: serverTimestamp() 
+        });
+        await updateDoc(postRef, { 
+          likes: increment(1) 
+        });
+      }
+    } catch (error) {
+      console.error('Error handling like:', error);
+    }
+  }
 
-/* keyboard shortcut: 'n' to open new post */
-window.addEventListener('keydown', (e)=>{ if(e.key==='n' && !modalWrap.style.display) openModal(); });
+  async function addComment(postId, commentText) {
+    try {
+      const commentData = {
+        id: 'c_' + Math.random().toString(36).slice(2, 9),
+        userId: currentUser.uid,
+        user: currentUser.displayName,
+        text: commentText,
+        timestamp: serverTimestamp(),
+        likes: 0
+      };
 
-/* expose for debugging in console */
-window.MEET = { feed, renderFeed, saveFeed };
+      const postRef = doc(db, "posts", postId);
+      await updateDoc(postRef, {
+        comments: arrayUnion(commentData)
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      return false;
+    }
+  }
 
+  /* ========== MEDIA UPLOAD ========== */
+  async function uploadMedia(file) {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `posts/${currentUser.uid}/${Date.now()}.${fileExt}`;
+      const storageRef = ref(storage, fileName);
+      
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      return {
+        url: downloadURL,
+        type: file.type,
+        fileName: fileName
+      };
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw error;
+    }
+  }
+
+  /* ========== RENDER FUNCTIONS ========== */
+  function renderFeed(posts) {
+    const feedEl = document.getElementById('feed');
+    
+    if (posts.length === 0) {
+      feedEl.innerHTML = `
+        <div class="card" style="text-align: center; padding: 40px;">
+          <h3 style="color: var(--muted); margin-bottom: 10px;">No posts yet</h3>
+          <p style="color: var(--muted);">Be the first to share something with your network!</p>
+        </div>
+      `;
+      return;
+    }
+
+    feedEl.innerHTML = '';
+    posts.forEach(post => {
+      feedEl.appendChild(buildPostElement(post));
+    });
+  }
+
+  function buildPostElement(post) {
+    const wrap = document.createElement('div');
+    wrap.className = 'post';
+    wrap.dataset.postId = post.id;
+
+    const isLiked = post.userLikes && post.userLikes[currentUser.uid];
+    
+    wrap.innerHTML = `
+      <div class="card">
+        <div class="post-head">
+          <div class="p-avatar ${post.live ? 'live' : ''}">
+            <img src="${post.avatar}" alt="${post.user}" />
+          </div>
+          <div class="post-meta">
+            <div class="name">${post.user} ${post.live ? '🔴 Live' : ''}</div>
+            <div class="time">${timeAgo(post.timestamp)}</div>
+          </div>
+        </div>
+        
+        <div class="post-body">${post.text || ''}</div>
+        
+        ${post.media ? `
+          <div class="post-media">
+            ${post.media.type.startsWith('image') 
+              ? `<img src="${post.media.url}" alt="Post media" />` 
+              : `<video controls src="${post.media.url}"></video>`}
+          </div>
+        ` : ''}
+        
+        <div class="post-actions">
+          <button class="like-btn ${isLiked ? 'liked' : ''}" data-post-id="${post.id}">
+            ❤ ${post.likes || 0}
+          </button>
+          <button class="comment-btn" data-post-id="${post.id}">
+            💬 Comment
+          </button>
+        </div>
+        
+        <div class="comments" id="comments-${post.id}">
+          ${renderComments(post.comments)}
+          <div class="comment">
+            <input type="text" placeholder="Write a comment..." class="comment-input" data-post-id="${post.id}" />
+            <button class="comment-send" data-post-id="${post.id}">Send</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Attach event listeners
+    setTimeout(() => {
+      const likeBtn = wrap.querySelector('.like-btn');
+      const commentSend = wrap.querySelector('.comment-send');
+      const commentInput = wrap.querySelector('.comment-input');
+
+      likeBtn.addEventListener('click', () => handleLike(post.id, post.likes || 0));
+      
+      commentSend.addEventListener('click', async () => {
+        const commentText = commentInput.value.trim();
+        if (commentText) {
+          const success = await addComment(post.id, commentText);
+          if (success) {
+            commentInput.value = '';
+            showToast('Comment added!');
+          }
+        }
+      });
+
+      commentInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+          const commentText = commentInput.value.trim();
+          if (commentText) {
+            const success = await addComment(post.id, commentText);
+            if (success) {
+              commentInput.value = '';
+              showToast('Comment added!');
+            }
+          }
+        }
+      });
+    }, 0);
+
+    return wrap;
+  }
+
+  function renderComments(comments) {
+    if (!comments || comments.length === 0) return '';
+    
+    return comments.map(comment => `
+      <div class="comment">
+        <div style="width:34px;height:34px;border-radius:50%;background:#e6f7ff"></div>
+        <div>
+          <div style="font-weight:600">${comment.user}</div>
+          <div class="c-meta">${comment.text}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ========== REAL-TIME LISTENERS ========== */
+  function setupRealtimeFeed() {
+    const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+    
+    return onSnapshot(q, async (snapshot) => {
+      const posts = await Promise.all(
+        snapshot.docs.map(async (docSnap) => {
+          const post = { id: docSnap.id, ...docSnap.data() };
+          
+          // Check if current user liked this post
+          const likeRef = doc(db, "posts", post.id, "likes", currentUser.uid);
+          const likeSnap = await getDoc(likeRef);
+          post.userLikes = { [currentUser.uid]: likeSnap.exists() };
+          
+          return post;
+        })
+      );
+      
+      renderFeed(posts);
+    });
+  }
+
+  /* ========== MODAL MANAGEMENT ========== */
+  function setupModalHandlers() {
+    const modalWrap = document.getElementById('modalWrap');
+    const openPost = document.getElementById('openPost');
+    const fileInput = document.getElementById('fileInput');
+    const mediaPreview = document.getElementById('mediaPreview');
+    const submitPost = document.getElementById('submitPost');
+    const cancelPost = document.getElementById('cancelPost');
+    const postText = document.getElementById('postText');
+
+    let currentMedia = null;
+
+    // Open modal
+    openPost.addEventListener('click', openModal);
+    openPost.addEventListener('keydown', (e) => { 
+      if (e.key === 'Enter') openModal(); 
+    });
+
+    function openModal() {
+      modalWrap.style.display = 'flex';
+      setTimeout(() => { modalWrap.classList.add('visible') }, 10);
+    }
+
+    function closeModal() { 
+      modalWrap.style.display = 'none'; 
+      mediaPreview.innerHTML = ''; 
+      postText.value = ''; 
+      fileInput.value = ''; 
+      currentMedia = null;
+    }
+
+    // File handling
+    fileInput.addEventListener('change', handleFile);
+    document.getElementById('quickPhoto').addEventListener('click', () => fileInput.click());
+    document.getElementById('quickVideo').addEventListener('click', () => fileInput.click());
+    document.getElementById('quickCourse').addEventListener('click', () => { 
+      openModal(); 
+      postText.value = 'New course: '; 
+    });
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+      mediaPreview.innerHTML = '';
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
+      const type = file.type;
+
+      if (type.startsWith('image')) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.maxHeight = '320px';
+        img.style.width = '100%';
+        img.style.objectFit = 'cover';
+        mediaPreview.appendChild(img);
+      } else if (type.startsWith('video')) {
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.style.width = '100%';
+        vid.style.maxHeight = '360px';
+        mediaPreview.appendChild(vid);
+      } else {
+        mediaPreview.textContent = 'Unsupported file type';
+        return;
+      }
+
+      currentMedia = { file, url, type };
+    }
+
+    // Submit post
+    submitPost.addEventListener('click', async () => {
+      const text = postText.value.trim();
+      if (!text && !currentMedia) {
+        alert('Please add text or media');
+        return;
+      }
+
+      submitPost.disabled = true;
+      submitPost.textContent = 'Posting...';
+
+      try {
+        let mediaData = null;
+        if (currentMedia) {
+          mediaData = await uploadMedia(currentMedia.file);
+        }
+
+        const success = await createPost(text, mediaData);
+        if (success) {
+          closeModal();
+        }
+      } catch (error) {
+        console.error('Error submitting post:', error);
+        showToast('Error posting. Please try again.');
+      } finally {
+        submitPost.disabled = false;
+        submitPost.textContent = 'Post';
+      }
+    });
+
+    // Cancel post
+    cancelPost.addEventListener('click', closeModal);
+    modalWrap.addEventListener('click', (e) => { 
+      if (e.target === modalWrap) closeModal(); 
+    });
+  }
+
+  /* ========== LIVE STREAM HANDLING ========== */
+  function setupLiveHandlers() {
+    const goLiveBtn = document.getElementById('goLive');
+    const liveModal = document.getElementById('liveModal');
+    const cancelLive = document.getElementById('cancelLive');
+    const startLive = document.getElementById('startLive');
+    const liveTitle = document.getElementById('liveTitle');
+
+    goLiveBtn.addEventListener('click', () => { 
+      liveModal.style.display = 'flex'; 
+    });
+
+    cancelLive.addEventListener('click', () => { 
+      liveModal.style.display = 'none'; 
+      liveTitle.value = '';
+    });
+
+    startLive.addEventListener('click', async () => {
+      const title = liveTitle.value.trim() || 'Live session';
+      
+      startLive.disabled = true;
+      startLive.textContent = 'Starting...';
+
+      try {
+        const success = await createPost(title, null, true);
+        if (success) {
+          liveModal.style.display = 'none';
+          liveTitle.value = '';
+          showToast('Live session started!');
+        }
+      } catch (error) {
+        console.error('Error starting live:', error);
+        showToast('Error starting live session.');
+      } finally {
+        startLive.disabled = false;
+        startLive.textContent = 'Start';
+      }
+    });
+  }
+
+  /* ========== INITIALIZATION ========== */
+  async function initializeApp() {
+    try {
+      // Setup modal handlers
+      setupModalHandlers();
+      
+      // Setup live handlers
+      setupLiveHandlers();
+      
+      // Setup real-time feed listener
+      const unsubscribe = setupRealtimeFeed();
+      
+      // Setup other existing functionality
+      setupExistingFunctionality();
+      
+      console.log('MEET app initialized successfully');
+      
+    } catch (error) {
+      console.error('Error initializing app:', error);
+      showToast('Error loading feed. Please refresh.');
+    }
+  }
+
+  /* ========== EXISTING FUNCTIONALITY ========== */
+  function setupExistingFunctionality() {
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    (function initTheme() {
+      const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+      if (t === 'dark') document.body.classList.add('dark');
+      darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    })();
+    
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+      localStorage.setItem('meet_theme', now);
+      darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+    });
+
+    // Assistant widget
+    const assistToggle = document.getElementById('assistToggle');
+    const assistant = document.getElementById('assistant');
+    const assistMsgs = document.getElementById('assistMsgs');
+    const assistSend = document.getElementById('assistSend');
+    const assistInput = document.getElementById('assistInput');
+
+    assistToggle.addEventListener('click', () => {
+      if (assistant.style.display === 'none' || assistant.style.display === '') {
+        assistant.style.display = 'block';
+      } else {
+        assistant.style.display = 'none';
+      }
+    });
+
+    assistSend.addEventListener('click', sendAssist);
+    assistInput.addEventListener('keydown', (e) => { 
+      if (e.key === 'Enter') sendAssist(); 
+    });
+
+    function sendAssist() {
+      const q = assistInput.value.trim(); 
+      if (!q) return;
+      
+      const userMsg = document.createElement('div'); 
+      userMsg.className = 'msg user'; 
+      userMsg.textContent = q; 
+      assistMsgs.appendChild(userMsg);
+      
+      assistInput.value = ''; 
+      assistMsgs.scrollTop = assistMsgs.scrollHeight;
+      
+      setTimeout(() => {
+        const bot = document.createElement('div'); 
+        bot.className = 'msg bot';
+        if (/help|write|post/i.test(q)) {
+          bot.textContent = 'Try this post: "I just launched a short course on [topic]. Join me this week for a live Q&A!"';
+        } else if (/course|teach|lesson/i.test(q)) {
+          bot.textContent = 'Suggestion: Split your course into 3-6 short modules, each 5-12 minutes. Add quizzes to increase retention.';
+        } else if (/jobs|hire/i.test(q)) {
+          bot.textContent = 'Tip: Add a brief "requirements" and a "what you will build" section to attract applicants.';
+        } else {
+          bot.textContent = "Nice question! I can help draft posts, course outlines, or job descriptions — try asking 'Write a course outline for React basics'.";
+        }
+        assistMsgs.appendChild(bot); 
+        assistMsgs.scrollTop = assistMsgs.scrollHeight;
+      }, 700);
+    }
+
+    // Search functionality
+    const search = document.getElementById('search');
+    search.addEventListener('input', () => {
+      // Search will be implemented with Firestore queries later
+      console.log('Search:', search.value);
+    });
+
+    // Keyboard shortcut
+    window.addEventListener('keydown', (e) => { 
+      if (e.key === 'n' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        document.getElementById('openPost').click();
+      }
+    });
+  }
+
+  // Start the app
+  initializeApp();
 </script>
 </body>
-</html>
+  </html>
