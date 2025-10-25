@@ -58,6 +58,7 @@
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
     transition: all 0.3s ease;
+    z-index: 100;
   }
 
   .sidebar-header {
@@ -119,11 +120,33 @@
     align-items: center;
   }
 
+  .user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--bg-color);
+    cursor: pointer;
+  }
+
+  .user-profile-nav img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .user-profile-nav span {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
   .btn {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
@@ -131,6 +154,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 14px;
   }
 
   .btn:hover {
@@ -205,6 +229,31 @@
 
   .action-btn:hover {
     background: var(--bg-color);
+  }
+
+  /* AI Button */
+  .ai-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 99;
+    transition: all 0.3s ease;
+  }
+
+  .ai-button:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
   }
 
   /* Modal Styles */
@@ -520,7 +569,10 @@
 
   @media (max-width: 768px) {
     .sidebar {
-      display: none;
+      width: 100%;
+      height: auto;
+      position: relative;
+      padding: 10px;
     }
     .main-content {
       margin-left: 0;
@@ -528,6 +580,27 @@
     }
     .navbar {
       padding: 12px;
+    }
+    .user-profile-nav span {
+      display: none;
+    }
+    .sidebar-menu {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+    }
+    .sidebar-menu li {
+      margin-bottom: 0;
+    }
+    .sidebar-menu a {
+      flex-direction: column;
+      padding: 8px;
+      font-size: 12px;
+    }
+    .sidebar-menu i {
+      margin-right: 0;
+      margin-bottom: 4px;
+      font-size: 16px;
     }
   }
 </style>
@@ -541,12 +614,12 @@
       <h2 style="color: var(--primary);">MEET</h2>
     </div>
     <ul class="sidebar-menu">
-      <li><a href="#"><i class="fas fa-home"></i> <span>Home</span></a></li>
+      <li><a href="#"><i class="fas fa-home"></i> <span>Feed</span></a></li>
       <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="#"><i class="fas fa-users"></i> <span>Friends</span></a></li>
-      <li><a href="#"><i class="fas fa-comment"></i> <span>Messages</span></a></li>
-      <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
-      <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+      <li><a href="#"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
+      <li><a href="#"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
+      <li><a href="#"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
+      <li><a href="#"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
     </ul>
   </div>
 
@@ -556,6 +629,10 @@
     <div class="navbar">
       <h2 style="color: var(--primary);">MEET Feed</h2>
       <div class="nav-controls">
+        <div class="user-profile-nav">
+          <div class="user-avatar" id="currentUserAvatar">U</div>
+          <span id="userName">User</span>
+        </div>
         <button class="btn" id="nightToggleBtn">
           <i class="fas fa-moon"></i> <span>Night Mode</span>
         </button>
@@ -570,7 +647,7 @@
       <div class="composer-header">
         <div class="user-avatar" id="currentUserAvatar">U</div>
         <div class="composer-input" id="openComposer">
-          What's on your mind?
+          Surprise the world now
         </div>
       </div>
       <div class="composer-divider"></div>
@@ -588,6 +665,11 @@
           <span>Feeling/Activity</span>
         </div>
       </div>
+    </div>
+
+    <!-- AI Button -->
+    <div class="ai-button">
+      <i class="fas fa-robot"></i>
     </div>
 
     <!-- Messages -->
@@ -620,7 +702,7 @@
             </select>
           </div>
         </div>
-        <textarea class="post-textarea" id="postText" placeholder="What's on your mind?"></textarea>
+        <textarea class="post-textarea" id="postText" placeholder="Surprise the world now"></textarea>
         <div class="media-preview" id="mediaPreview"></div>
         <div class="post-options">
           <div style="color: var(--secondary-text);">Add to your post</div>
@@ -692,6 +774,7 @@
   const currentUserAvatar = document.getElementById('currentUserAvatar');
   const modalUserAvatar = document.getElementById('modalUserAvatar');
   const modalUserName = document.getElementById('modalUserName');
+  const userName = document.getElementById('userName');
 
   // Global variables
   let lastVisible = null;
@@ -742,12 +825,13 @@
     } else {
       currentUser = user;
       // Update user info in UI
-      const userName = user.displayName || 'User';
-      const userInitial = userName.charAt(0).toUpperCase();
+      const userNameText = user.displayName || 'User';
+      const userInitial = userNameText.charAt(0).toUpperCase();
       
       currentUserAvatar.textContent = userInitial;
       modalUserAvatar.textContent = userInitial;
-      modalUserName.textContent = userName;
+      modalUserName.textContent = userNameText;
+      userName.textContent = userNameText;
       
       loadPosts();
       setupRealTimeListener();
