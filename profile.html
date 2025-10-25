@@ -1,546 +1,656 @@
-// ------------------ Profile Editing ------------------
-let isEditingSection = null;
-
-// Format date function (was missing)
-function formatDate(dateString) {
-    if (!dateString) return 'Not specified';
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    } catch (error) {
-        return dateString; // Return as-is if invalid date
-    }
-}
-
-// Escape HTML to prevent XSS
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Toggle Edit Mode for any section
-function toggleEdit(sectionId) {
-    const saveBtn = document.getElementById('saveProfile');
-    if (!saveBtn) {
-        console.error('Save button not found');
-        return;
-    }
-
-    // Exit previous edit if any
-    if (isEditingSection && isEditingSection !== sectionId) {
-        cancelEdit();
-    }
-
-    isEditingSection = sectionId;
-    saveBtn.style.display = 'block';
-
-    // Convert display elements into input fields
-    if (sectionId === 'personalInfo') {
-        togglePersonalInfoInputs(true);
-    } else if (sectionId === 'educationInfo') {
-        toggleEducationInputs(true);
-    } else if (sectionId === 'experienceInfo') {
-        toggleExperienceInputs(true);
-    }
-
-    // Change all edit buttons to "Cancel"
-    const editButtons = document.querySelectorAll('.edit-btn');
-    editButtons.forEach(btn => {
-        btn.textContent = 'Cancel';
-        btn.onclick = cancelEdit;
-    });
-}
-
-// Cancel Editing
-function cancelEdit() {
-    const saveBtn = document.getElementById('saveProfile');
-    if (!saveBtn) return;
-
-    isEditingSection = null;
-    saveBtn.style.display = 'none';
-
-    togglePersonalInfoInputs(false);
-    toggleEducationInputs(false);
-    toggleExperienceInputs(false);
-
-    // Restore edit buttons
-    const editButtons = document.querySelectorAll('.edit-btn');
-    editButtons.forEach(btn => {
-        btn.textContent = 'Edit';
-        btn.onclick = function() {
-            const card = this.closest('.detail-card');
-            if (!card) return;
-            
-            const section = card.querySelector('.info-grid, #educationInfo, #experienceInfo');
-            if (section) {
-                toggleEdit(section.id);
-            }
-        };
-    });
-}
-
-// Toggle Personal Info Inputs
-function togglePersonalInfoInputs(show) {
-    const dobDisplay = document.getElementById('dobDisplay');
-    const dobInput = document.getElementById('dobInput');
-    const locationDisplay = document.getElementById('locationDisplay');
-    const locationInputs = document.getElementById('locationInputs');
-    const languagesDisplay = document.getElementById('languagesDisplay');
-    const languagesInput = document.getElementById('languagesInput');
-
-    if (!dobDisplay || !dobInput || !locationDisplay || !locationInputs || !languagesDisplay || !languagesInput) {
-        console.error('Personal info elements not found');
-        return;
-    }
-
-    if (show) {
-        // Switch to input mode
-        dobDisplay.style.display = 'none';
-        dobInput.style.display = 'block';
-        
-        locationDisplay.style.display = 'none';
-        locationInputs.style.display = 'block';
-        
-        languagesDisplay.style.display = 'none';
-        languagesInput.style.display = 'block';
-    } else {
-        // Switch to display mode
-        dobDisplay.style.display = 'block';
-        dobInput.style.display = 'none';
-        
-        locationDisplay.style.display = 'block';
-        locationInputs.style.display = 'none';
-        
-        languagesDisplay.style.display = 'block';
-        languagesInput.style.display = 'none';
-    }
-}
-
-// Toggle Education Inputs
-function toggleEducationInputs(show) {
-    const eduContainer = document.getElementById('educationInfo');
-    if (!eduContainer) return;
-
-    // Show/hide add button
-    const addEducationBtn = document.getElementById('addEducationBtn');
-    if (addEducationBtn) {
-        addEducationBtn.style.display = show ? 'block' : 'none';
-    }
-
-    const eduItems = document.querySelectorAll('#educationInfo .education-item');
-    
-    if (show && eduItems.length === 0) {
-        // If no items exist, create one empty input
-        addEducationItem();
-        return;
-    }
-    
-    eduItems.forEach(item => {
-        if (show) {
-            // Switch to input mode - get raw values (not escaped)
-            const title = item.querySelector('.edu-title')?.textContent || '';
-            const institution = item.querySelector('.edu-institution')?.textContent || '';
-            const dates = item.querySelector('.edu-dates')?.textContent || '';
-            const desc = item.querySelector('.edu-description')?.textContent || '';
-
-            // Use raw values, not escaped (they're already safe from previous escape)
-            item.innerHTML = `
-                <input class="edu-title-input" value="${title}" placeholder="Degree/Title">
-                <input class="edu-institution-input" value="${institution}" placeholder="Institution">
-                <input class="edu-dates-input" value="${dates}" placeholder="Dates (e.g., 2020-2024)">
-                <textarea class="edu-description-input" placeholder="Description">${desc}</textarea>
-                <button type="button" class="remove-btn" onclick="removeEducationItem(this)">Remove</button>
-            `;
-        } else {
-            // Switch to display mode
-            const titleInput = item.querySelector('.edu-title-input');
-            const institutionInput = item.querySelector('.edu-institution-input');
-            const datesInput = item.querySelector('.edu-dates-input');
-            const descInput = item.querySelector('.edu-description-input');
-
-            if (titleInput && institutionInput && datesInput) {
-                const title = titleInput.value.trim();
-                const institution = institutionInput.value.trim();
-                const dates = datesInput.value.trim();
-                const desc = descInput ? descInput.value.trim() : '';
-
-                // Only escape when displaying to prevent double-escaping
-                item.innerHTML = `
-                    <div class="edu-title">${escapeHtml(title) || 'No title'}</div>
-                    <div class="edu-institution">${escapeHtml(institution) || 'No institution'}</div>
-                    <div class="edu-dates">${escapeHtml(dates) || 'No dates'}</div>
-                    ${desc ? `<div class="edu-description">${escapeHtml(desc)}</div>` : ''}
-                `;
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEET | Profile</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
         }
-    });
-}
-
-// Toggle Experience Inputs
-function toggleExperienceInputs(show) {
-    const expContainer = document.getElementById('experienceInfo');
-    if (!expContainer) return;
-
-    // Show/hide add button
-    const addExperienceBtn = document.getElementById('addExperienceBtn');
-    if (addExperienceBtn) {
-        addExperienceBtn.style.display = show ? 'block' : 'none';
-    }
-
-    const expItems = document.querySelectorAll('#experienceInfo .experience-item');
-    
-    if (show && expItems.length === 0) {
-        // If no items exist, create one empty input
-        addExperienceItem();
-        return;
-    }
-    
-    expItems.forEach(item => {
-        if (show) {
-            // Switch to input mode - get raw values (not escaped)
-            const title = item.querySelector('.exp-title')?.textContent || '';
-            const company = item.querySelector('.exp-company')?.textContent || '';
-            const dates = item.querySelector('.exp-dates')?.textContent || '';
-            const desc = item.querySelector('.exp-description')?.textContent || '';
-
-            item.innerHTML = `
-                <input class="exp-title-input" value="${title}" placeholder="Job Title">
-                <input class="exp-company-input" value="${company}" placeholder="Company">
-                <input class="exp-dates-input" value="${dates}" placeholder="Dates (e.g., Jan 2022 - Present)">
-                <textarea class="exp-description-input" placeholder="Description">${desc}</textarea>
-                <button type="button" class="remove-btn" onclick="removeExperienceItem(this)">Remove</button>
-            `;
-        } else {
-            // Switch to display mode
-            const titleInput = item.querySelector('.exp-title-input');
-            const companyInput = item.querySelector('.exp-company-input');
-            const datesInput = item.querySelector('.exp-dates-input');
-            const descInput = item.querySelector('.exp-description-input');
-
-            if (titleInput && companyInput && datesInput) {
-                const title = titleInput.value.trim();
-                const company = companyInput.value.trim();
-                const dates = datesInput.value.trim();
-                const desc = descInput ? descInput.value.trim() : '';
-
-                item.innerHTML = `
-                    <div class="exp-title">${escapeHtml(title) || 'No title'}</div>
-                    <div class="exp-company">${escapeHtml(company) || 'No company'}</div>
-                    <div class="exp-dates">${escapeHtml(dates) || 'No dates'}</div>
-                    ${desc ? `<div class="exp-description">${escapeHtml(desc)}</div>` : ''}
-                `;
-            }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-    });
-}
-
-// Add new education item
-function addEducationItem() {
-    const eduContainer = document.getElementById('educationInfo');
-    if (!eduContainer) return;
-
-    const newItem = document.createElement('div');
-    newItem.className = 'education-item';
-    newItem.innerHTML = `
-        <input class="edu-title-input" placeholder="Degree/Title">
-        <input class="edu-institution-input" placeholder="Institution">
-        <input class="edu-dates-input" placeholder="Dates (e.g., 2020-2024)">
-        <textarea class="edu-description-input" placeholder="Description"></textarea>
-        <button type="button" class="remove-btn" onclick="removeEducationItem(this)">Remove</button>
-    `;
-    
-    eduContainer.appendChild(newItem);
-}
-
-// Add new experience item
-function addExperienceItem() {
-    const expContainer = document.getElementById('experienceInfo');
-    if (!expContainer) return;
-
-    const newItem = document.createElement('div');
-    newItem.className = 'experience-item';
-    newItem.innerHTML = `
-        <input class="exp-title-input" placeholder="Job Title">
-        <input class="exp-company-input" placeholder="Company">
-        <input class="exp-dates-input" placeholder="Dates (e.g., Jan 2022 - Present)">
-        <textarea class="exp-description-input" placeholder="Description"></textarea>
-        <button type="button" class="remove-btn" onclick="removeExperienceItem(this)">Remove</button>
-    `;
-    
-    expContainer.appendChild(newItem);
-}
-
-// Remove education item
-function removeEducationItem(button) {
-    if (confirm('Are you sure you want to remove this education entry?')) {
-        const item = button.closest('.education-item');
-        if (item) {
-            item.remove();
-            
-            // If no items left and we're in edit mode, add an empty one
-            const eduContainer = document.getElementById('educationInfo');
-            if (isEditingSection === 'educationInfo' && eduContainer.querySelectorAll('.education-item').length === 0) {
-                addEducationItem();
-            }
+        .detail-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
-    }
-}
-
-// Remove experience item
-function removeExperienceItem(button) {
-    if (confirm('Are you sure you want to remove this experience entry?')) {
-        const item = button.closest('.experience-item');
-        if (item) {
-            item.remove();
-            
-            // If no items left and we're in edit mode, add an empty one
-            const expContainer = document.getElementById('experienceInfo');
-            if (isEditingSection === 'experienceInfo' && expContainer.querySelectorAll('.experience-item').length === 0) {
-                addExperienceItem();
-            }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
-    }
-}
-
-// Save Profile
-function setupSaveProfile() {
-    const saveBtn = document.getElementById('saveProfile');
-    if (!saveBtn) {
-        console.error('Save button not found');
-        return;
-    }
-
-    saveBtn.addEventListener('click', function() {
-        try {
-            // Update Personal Info from inputs
-            const dobInput = document.getElementById('dobInput');
-            const cityInput = document.getElementById('cityInput');
-            const stateInput = document.getElementById('stateInput');
-            const countryInput = document.getElementById('countryInput');
-            const languagesInput = document.getElementById('languagesInput');
-
-            if (dobInput) {
-                document.getElementById('dobDisplay').textContent = formatDate(dobInput.value);
-            }
-            
-            if (cityInput && stateInput && countryInput) {
-                const locationText = [cityInput.value, stateInput.value, countryInput.value]
-                    .filter(part => part.trim())
-                    .join(', ');
-                document.getElementById('locationDisplay').textContent = locationText || 'Not specified';
-            }
-            
-            if (languagesInput) {
-                document.getElementById('languagesDisplay').textContent = languagesInput.value || 'Not specified';
-            }
-
-            // Save Education data from INPUTS (not display elements)
-            const educationData = [];
-            document.querySelectorAll('#educationInfo .education-item').forEach(item => {
-                const titleInput = item.querySelector('.edu-title-input');
-                const institutionInput = item.querySelector('.edu-institution-input');
-                const datesInput = item.querySelector('.edu-dates-input');
-                const descriptionInput = item.querySelector('.edu-description-input');
-
-                if (titleInput && institutionInput && datesInput) {
-                    const title = titleInput.value.trim();
-                    const institution = institutionInput.value.trim();
-                    const dates = datesInput.value.trim();
-                    const description = descriptionInput ? descriptionInput.value.trim() : '';
-
-                    // Only save if at least one field has content
-                    if (title || institution || dates || description) {
-                        educationData.push({
-                            title: title,
-                            institution: institution,
-                            dates: dates,
-                            description: description
-                        });
-                    }
-                }
-            });
-            localStorage.setItem('meet_education', JSON.stringify(educationData));
-
-            // Save Experience data from INPUTS (not display elements)
-            const experienceData = [];
-            document.querySelectorAll('#experienceInfo .experience-item').forEach(item => {
-                const titleInput = item.querySelector('.exp-title-input');
-                const companyInput = item.querySelector('.exp-company-input');
-                const datesInput = item.querySelector('.exp-dates-input');
-                const descriptionInput = item.querySelector('.exp-description-input');
-
-                if (titleInput && companyInput && datesInput) {
-                    const title = titleInput.value.trim();
-                    const company = companyInput.value.trim();
-                    const dates = datesInput.value.trim();
-                    const description = descriptionInput ? descriptionInput.value.trim() : '';
-
-                    // Only save if at least one field has content
-                    if (title || company || dates || description) {
-                        experienceData.push({
-                            title: title,
-                            company: company,
-                            dates: dates,
-                            description: description
-                        });
-                    }
-                }
-            });
-            localStorage.setItem('meet_experience', JSON.stringify(experienceData));
-
-            // Save personal info to localStorage
-            const personalInfo = {
-                dob: dobInput ? dobInput.value : '',
-                city: cityInput ? cityInput.value : '',
-                state: stateInput ? stateInput.value : '',
-                country: countryInput ? countryInput.value : '',
-                languages: languagesInput ? languagesInput.value : ''
-            };
-            localStorage.setItem('meet_personalInfo', JSON.stringify(personalInfo));
-
-            cancelEdit();
-            
-            // Use a more modern notification instead of alert
-            showNotification('Profile updated successfully!', 'success');
-            
-        } catch (error) {
-            console.error('Error saving profile:', error);
-            showNotification('Error saving profile. Please try again.', 'error');
+        .edit-btn {
+            background: #0061FF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
         }
-    });
-}
-
-// Show notification (modern alternative to alert)
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existingNotification = document.querySelector('.profile-notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    const notification = document.createElement('div');
-    notification.className = `profile-notification ${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 4px;
-        color: white;
-        font-weight: 500;
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-        ${type === 'success' ? 'background: #10B981;' : 'background: #EF4444;'}
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// Load saved data
-function loadSavedData() {
-    try {
-        // Load personal info
-        const savedPersonal = JSON.parse(localStorage.getItem('meet_personalInfo') || '{}');
-        if (savedPersonal.dob) {
-            document.getElementById('dobDisplay').textContent = formatDate(savedPersonal.dob);
-            document.getElementById('dobInput').value = savedPersonal.dob;
+        #saveProfile {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
         }
-        if (savedPersonal.city || savedPersonal.state || savedPersonal.country) {
-            const locationText = [savedPersonal.city, savedPersonal.state, savedPersonal.country]
-                .filter(part => part)
-                .join(', ');
-            document.getElementById('locationDisplay').textContent = locationText || 'Not specified';
-            document.getElementById('cityInput').value = savedPersonal.city || '';
-            document.getElementById('stateInput').value = savedPersonal.state || '';
-            document.getElementById('countryInput').value = savedPersonal.country || '';
+        .education-item, .experience-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #0061FF;
         }
-        if (savedPersonal.languages) {
-            document.getElementById('languagesDisplay').textContent = savedPersonal.languages;
-            document.getElementById('languagesInput').value = savedPersonal.languages;
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-
-        // Load education
-        const savedEdu = JSON.parse(localStorage.getItem('meet_education') || '[]');
-        const eduContainer = document.getElementById('educationInfo');
-        if (eduContainer) {
-            eduContainer.innerHTML = '';
-            if (savedEdu.length) {
-                savedEdu.forEach(ed => {
-                    const eduItem = document.createElement('div');
-                    eduItem.className = 'education-item';
-                    eduItem.innerHTML = `
-                        <div class="edu-title">${escapeHtml(ed.title)}</div>
-                        <div class="edu-institution">${escapeHtml(ed.institution)}</div>
-                        <div class="edu-dates">${escapeHtml(ed.dates)}</div>
-                        ${ed.description ? `<div class="edu-description">${escapeHtml(ed.description)}</div>` : ''}
-                    `;
-                    eduContainer.appendChild(eduItem);
-                });
-            } else {
-                // Add empty state
-                eduContainer.innerHTML = '<div class="empty-state">No education added yet</div>';
-            }
+        .remove-btn {
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
         }
-
-        // Load experience
-        const savedExp = JSON.parse(localStorage.getItem('meet_experience') || '[]');
-        const expContainer = document.getElementById('experienceInfo');
-        if (expContainer) {
-            expContainer.innerHTML = '';
-            if (savedExp.length) {
-                savedExp.forEach(ex => {
-                    const expItem = document.createElement('div');
-                    expItem.className = 'experience-item';
-                    expItem.innerHTML = `
-                        <div class="exp-title">${escapeHtml(ex.title)}</div>
-                        <div class="exp-company">${escapeHtml(ex.company)}</div>
-                        <div class="exp-dates">${escapeHtml(ex.dates)}</div>
-                        ${ex.description ? `<div class="exp-description">${escapeHtml(ex.description)}</div>` : ''}
-                    `;
-                    expContainer.appendChild(expItem);
-                });
-            } else {
-                // Add empty state
-                expContainer.innerHTML = '<div class="empty-state">No experience added yet</div>';
-            }
-        }
-    } catch (error) {
-        console.error('Error loading saved data:', error);
-    }
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    setupSaveProfile();
-    loadSavedData();
-    
-    // Add CSS for empty state
-    const style = document.createElement('style');
-    style.textContent = `
         .empty-state {
             color: #6B7280;
             font-style: italic;
             text-align: center;
             padding: 20px;
         }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>My Profile</h1>
+        
+        <!-- Personal Information Section -->
+        <div class="detail-card">
+            <h2>Personal Information <button class="edit-btn" onclick="toggleEdit('personalInfo')">Edit</button></h2>
+            <div class="info-grid" id="personalInfo">
+                <div>
+                    <label>Date of Birth:</label>
+                    <div id="dobDisplay">Not specified</div>
+                    <input type="date" id="dobInput" style="display: none;">
+                </div>
+                <div>
+                    <label>Location:</label>
+                    <div id="locationDisplay">Not specified</div>
+                    <div id="locationInputs" style="display: none;">
+                        <input type="text" id="cityInput" placeholder="City">
+                        <input type="text" id="stateInput" placeholder="State">
+                        <input type="text" id="countryInput" placeholder="Country">
+                    </div>
+                </div>
+                <div>
+                    <label>Languages:</label>
+                    <div id="languagesDisplay">Not specified</div>
+                    <input type="text" id="languagesInput" placeholder="Languages (comma separated)" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="detail-card">
+            <h2>Education 
+                <button class="edit-btn" onclick="toggleEdit('educationInfo')">Edit</button>
+                <button id="addEducationBtn" style="display: none;" onclick="addEducationItem()">+ Add Education</button>
+            </h2>
+            <div id="educationInfo">
+                <div class="empty-state">No education added yet</div>
+            </div>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="detail-card">
+            <h2>Experience 
+                <button class="edit-btn" onclick="toggleEdit('experienceInfo')">Edit</button>
+                <button id="addExperienceBtn" style="display: none;" onclick="addExperienceItem()">+ Add Experience</button>
+            </h2>
+            <div id="experienceInfo">
+                <div class="empty-state">No experience added yet</div>
+            </div>
+        </div>
+
+        <button id="saveProfile">Save Profile</button>
+    </div>
+
+    <script>
+        // ------------------ Profile Editing ------------------
+        let isEditingSection = null;
+
+        // Format date function
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return dateString;
+            }
         }
-    `;
-    document.head.appendChild(style);
-});
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Toggle Edit Mode for any section
+        function toggleEdit(sectionId) {
+            const saveBtn = document.getElementById('saveProfile');
+            if (!saveBtn) {
+                console.error('Save button not found');
+                return;
+            }
+
+            if (isEditingSection && isEditingSection !== sectionId) {
+                cancelEdit();
+            }
+
+            isEditingSection = sectionId;
+            saveBtn.style.display = 'block';
+
+            if (sectionId === 'personalInfo') {
+                togglePersonalInfoInputs(true);
+            } else if (sectionId === 'educationInfo') {
+                toggleEducationInputs(true);
+            } else if (sectionId === 'experienceInfo') {
+                toggleExperienceInputs(true);
+            }
+
+            const editButtons = document.querySelectorAll('.edit-btn');
+            editButtons.forEach(btn => {
+                btn.textContent = 'Cancel';
+                btn.onclick = cancelEdit;
+            });
+        }
+
+        // Cancel Editing
+        function cancelEdit() {
+            const saveBtn = document.getElementById('saveProfile');
+            if (!saveBtn) return;
+
+            isEditingSection = null;
+            saveBtn.style.display = 'none';
+
+            togglePersonalInfoInputs(false);
+            toggleEducationInputs(false);
+            toggleExperienceInputs(false);
+
+            const editButtons = document.querySelectorAll('.edit-btn');
+            editButtons.forEach(btn => {
+                btn.textContent = 'Edit';
+                btn.onclick = function() {
+                    const card = this.closest('.detail-card');
+                    if (!card) return;
+                    
+                    const section = card.querySelector('.info-grid, #educationInfo, #experienceInfo');
+                    if (section) {
+                        toggleEdit(section.id);
+                    }
+                };
+            });
+        }
+
+        // Toggle Personal Info Inputs
+        function togglePersonalInfoInputs(show) {
+            const dobDisplay = document.getElementById('dobDisplay');
+            const dobInput = document.getElementById('dobInput');
+            const locationDisplay = document.getElementById('locationDisplay');
+            const locationInputs = document.getElementById('locationInputs');
+            const languagesDisplay = document.getElementById('languagesDisplay');
+            const languagesInput = document.getElementById('languagesInput');
+
+            if (!dobDisplay || !dobInput || !locationDisplay || !locationInputs || !languagesDisplay || !languagesInput) {
+                console.error('Personal info elements not found');
+                return;
+            }
+
+            if (show) {
+                dobDisplay.style.display = 'none';
+                dobInput.style.display = 'block';
+                locationDisplay.style.display = 'none';
+                locationInputs.style.display = 'block';
+                languagesDisplay.style.display = 'none';
+                languagesInput.style.display = 'block';
+            } else {
+                dobDisplay.style.display = 'block';
+                dobInput.style.display = 'none';
+                locationDisplay.style.display = 'block';
+                locationInputs.style.display = 'none';
+                languagesDisplay.style.display = 'block';
+                languagesInput.style.display = 'none';
+            }
+        }
+
+        // Toggle Education Inputs
+        function toggleEducationInputs(show) {
+            const eduContainer = document.getElementById('educationInfo');
+            if (!eduContainer) return;
+
+            const addEducationBtn = document.getElementById('addEducationBtn');
+            if (addEducationBtn) {
+                addEducationBtn.style.display = show ? 'inline-block' : 'none';
+            }
+
+            const eduItems = document.querySelectorAll('#educationInfo .education-item');
+            
+            if (show && eduItems.length === 0) {
+                addEducationItem();
+                return;
+            }
+            
+            eduItems.forEach(item => {
+                if (show) {
+                    const title = item.querySelector('.edu-title')?.textContent || '';
+                    const institution = item.querySelector('.edu-institution')?.textContent || '';
+                    const dates = item.querySelector('.edu-dates')?.textContent || '';
+                    const desc = item.querySelector('.edu-description')?.textContent || '';
+
+                    item.innerHTML = `
+                        <input class="edu-title-input" value="${title}" placeholder="Degree/Title">
+                        <input class="edu-institution-input" value="${institution}" placeholder="Institution">
+                        <input class="edu-dates-input" value="${dates}" placeholder="Dates (e.g., 2020-2024)">
+                        <textarea class="edu-description-input" placeholder="Description">${desc}</textarea>
+                        <button type="button" class="remove-btn" onclick="removeEducationItem(this)">Remove</button>
+                    `;
+                } else {
+                    const titleInput = item.querySelector('.edu-title-input');
+                    const institutionInput = item.querySelector('.edu-institution-input');
+                    const datesInput = item.querySelector('.edu-dates-input');
+                    const descInput = item.querySelector('.edu-description-input');
+
+                    if (titleInput && institutionInput && datesInput) {
+                        const title = titleInput.value.trim();
+                        const institution = institutionInput.value.trim();
+                        const dates = datesInput.value.trim();
+                        const desc = descInput ? descInput.value.trim() : '';
+
+                        item.innerHTML = `
+                            <div class="edu-title">${escapeHtml(title) || 'No title'}</div>
+                            <div class="edu-institution">${escapeHtml(institution) || 'No institution'}</div>
+                            <div class="edu-dates">${escapeHtml(dates) || 'No dates'}</div>
+                            ${desc ? `<div class="edu-description">${escapeHtml(desc)}</div>` : ''}
+                        `;
+                    }
+                }
+            });
+        }
+
+        // Toggle Experience Inputs
+        function toggleExperienceInputs(show) {
+            const expContainer = document.getElementById('experienceInfo');
+            if (!expContainer) return;
+
+            const addExperienceBtn = document.getElementById('addExperienceBtn');
+            if (addExperienceBtn) {
+                addExperienceBtn.style.display = show ? 'inline-block' : 'none';
+            }
+
+            const expItems = document.querySelectorAll('#experienceInfo .experience-item');
+            
+            if (show && expItems.length === 0) {
+                addExperienceItem();
+                return;
+            }
+            
+            expItems.forEach(item => {
+                if (show) {
+                    const title = item.querySelector('.exp-title')?.textContent || '';
+                    const company = item.querySelector('.exp-company')?.textContent || '';
+                    const dates = item.querySelector('.exp-dates')?.textContent || '';
+                    const desc = item.querySelector('.exp-description')?.textContent || '';
+
+                    item.innerHTML = `
+                        <input class="exp-title-input" value="${title}" placeholder="Job Title">
+                        <input class="exp-company-input" value="${company}" placeholder="Company">
+                        <input class="exp-dates-input" value="${dates}" placeholder="Dates (e.g., Jan 2022 - Present)">
+                        <textarea class="exp-description-input" placeholder="Description">${desc}</textarea>
+                        <button type="button" class="remove-btn" onclick="removeExperienceItem(this)">Remove</button>
+                    `;
+                } else {
+                    const titleInput = item.querySelector('.exp-title-input');
+                    const companyInput = item.querySelector('.exp-company-input');
+                    const datesInput = item.querySelector('.exp-dates-input');
+                    const descInput = item.querySelector('.exp-description-input');
+
+                    if (titleInput && companyInput && datesInput) {
+                        const title = titleInput.value.trim();
+                        const company = companyInput.value.trim();
+                        const dates = datesInput.value.trim();
+                        const desc = descInput ? descInput.value.trim() : '';
+
+                        item.innerHTML = `
+                            <div class="exp-title">${escapeHtml(title) || 'No title'}</div>
+                            <div class="exp-company">${escapeHtml(company) || 'No company'}</div>
+                            <div class="exp-dates">${escapeHtml(dates) || 'No dates'}</div>
+                            ${desc ? `<div class="exp-description">${escapeHtml(desc)}</div>` : ''}
+                        `;
+                    }
+                }
+            });
+        }
+
+        // Add new education item
+        function addEducationItem() {
+            const eduContainer = document.getElementById('educationInfo');
+            if (!eduContainer) return;
+
+            // Remove empty state if it exists
+            const emptyState = eduContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const newItem = document.createElement('div');
+            newItem.className = 'education-item';
+            newItem.innerHTML = `
+                <input class="edu-title-input" placeholder="Degree/Title">
+                <input class="edu-institution-input" placeholder="Institution">
+                <input class="edu-dates-input" placeholder="Dates (e.g., 2020-2024)">
+                <textarea class="edu-description-input" placeholder="Description"></textarea>
+                <button type="button" class="remove-btn" onclick="removeEducationItem(this)">Remove</button>
+            `;
+            
+            eduContainer.appendChild(newItem);
+        }
+
+        // Add new experience item
+        function addExperienceItem() {
+            const expContainer = document.getElementById('experienceInfo');
+            if (!expContainer) return;
+
+            // Remove empty state if it exists
+            const emptyState = expContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const newItem = document.createElement('div');
+            newItem.className = 'experience-item';
+            newItem.innerHTML = `
+                <input class="exp-title-input" placeholder="Job Title">
+                <input class="exp-company-input" placeholder="Company">
+                <input class="exp-dates-input" placeholder="Dates (e.g., Jan 2022 - Present)">
+                <textarea class="exp-description-input" placeholder="Description"></textarea>
+                <button type="button" class="remove-btn" onclick="removeExperienceItem(this)">Remove</button>
+            `;
+            
+            expContainer.appendChild(newItem);
+        }
+
+        // Remove education item
+        function removeEducationItem(button) {
+            if (confirm('Are you sure you want to remove this education entry?')) {
+                const item = button.closest('.education-item');
+                if (item) {
+                    item.remove();
+                    
+                    const eduContainer = document.getElementById('educationInfo');
+                    if (isEditingSection === 'educationInfo' && eduContainer.querySelectorAll('.education-item').length === 0) {
+                        addEducationItem();
+                    } else if (eduContainer.querySelectorAll('.education-item').length === 0) {
+                        eduContainer.innerHTML = '<div class="empty-state">No education added yet</div>';
+                    }
+                }
+            }
+        }
+
+        // Remove experience item
+        function removeExperienceItem(button) {
+            if (confirm('Are you sure you want to remove this experience entry?')) {
+                const item = button.closest('.experience-item');
+                if (item) {
+                    item.remove();
+                    
+                    const expContainer = document.getElementById('experienceInfo');
+                    if (isEditingSection === 'experienceInfo' && expContainer.querySelectorAll('.experience-item').length === 0) {
+                        addExperienceItem();
+                    } else if (expContainer.querySelectorAll('.experience-item').length === 0) {
+                        expContainer.innerHTML = '<div class="empty-state">No experience added yet</div>';
+                    }
+                }
+            }
+        }
+
+        // Save Profile
+        function setupSaveProfile() {
+            const saveBtn = document.getElementById('saveProfile');
+            if (!saveBtn) {
+                console.error('Save button not found');
+                return;
+            }
+
+            saveBtn.addEventListener('click', function() {
+                try {
+                    // Update Personal Info from inputs
+                    const dobInput = document.getElementById('dobInput');
+                    const cityInput = document.getElementById('cityInput');
+                    const stateInput = document.getElementById('stateInput');
+                    const countryInput = document.getElementById('countryInput');
+                    const languagesInput = document.getElementById('languagesInput');
+
+                    if (dobInput) {
+                        document.getElementById('dobDisplay').textContent = formatDate(dobInput.value);
+                    }
+                    
+                    if (cityInput && stateInput && countryInput) {
+                        const locationText = [cityInput.value, stateInput.value, countryInput.value]
+                            .filter(part => part.trim())
+                            .join(', ');
+                        document.getElementById('locationDisplay').textContent = locationText || 'Not specified';
+                    }
+                    
+                    if (languagesInput) {
+                        document.getElementById('languagesDisplay').textContent = languagesInput.value || 'Not specified';
+                    }
+
+                    // Save Education data
+                    const educationData = [];
+                    document.querySelectorAll('#educationInfo .education-item').forEach(item => {
+                        const titleInput = item.querySelector('.edu-title-input');
+                        const institutionInput = item.querySelector('.edu-institution-input');
+                        const datesInput = item.querySelector('.edu-dates-input');
+                        const descriptionInput = item.querySelector('.edu-description-input');
+
+                        if (titleInput && institutionInput && datesInput) {
+                            const title = titleInput.value.trim();
+                            const institution = institutionInput.value.trim();
+                            const dates = datesInput.value.trim();
+                            const description = descriptionInput ? descriptionInput.value.trim() : '';
+
+                            if (title || institution || dates || description) {
+                                educationData.push({
+                                    title: title,
+                                    institution: institution,
+                                    dates: dates,
+                                    description: description
+                                });
+                            }
+                        }
+                    });
+                    localStorage.setItem('meet_education', JSON.stringify(educationData));
+
+                    // Save Experience data
+                    const experienceData = [];
+                    document.querySelectorAll('#experienceInfo .experience-item').forEach(item => {
+                        const titleInput = item.querySelector('.exp-title-input');
+                        const companyInput = item.querySelector('.exp-company-input');
+                        const datesInput = item.querySelector('.exp-dates-input');
+                        const descriptionInput = item.querySelector('.exp-description-input');
+
+                        if (titleInput && companyInput && datesInput) {
+                            const title = titleInput.value.trim();
+                            const company = companyInput.value.trim();
+                            const dates = datesInput.value.trim();
+                            const description = descriptionInput ? descriptionInput.value.trim() : '';
+
+                            if (title || company || dates || description) {
+                                experienceData.push({
+                                    title: title,
+                                    company: company,
+                                    dates: dates,
+                                    description: description
+                                });
+                            }
+                        }
+                    });
+                    localStorage.setItem('meet_experience', JSON.stringify(experienceData));
+
+                    // Save personal info
+                    const personalInfo = {
+                        dob: dobInput ? dobInput.value : '',
+                        city: cityInput ? cityInput.value : '',
+                        state: stateInput ? stateInput.value : '',
+                        country: countryInput ? countryInput.value : '',
+                        languages: languagesInput ? languagesInput.value : ''
+                    };
+                    localStorage.setItem('meet_personalInfo', JSON.stringify(personalInfo));
+
+                    cancelEdit();
+                    showNotification('Profile updated successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    showNotification('Error saving profile. Please try again.', 'error');
+                }
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const existingNotification = document.querySelector('.profile-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `profile-notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 4px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                ${type === 'success' ? 'background: #10B981;' : 'background: #EF4444;'}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            try {
+                // Load personal info
+                const savedPersonal = JSON.parse(localStorage.getItem('meet_personalInfo') || '{}');
+                if (savedPersonal.dob) {
+                    document.getElementById('dobDisplay').textContent = formatDate(savedPersonal.dob);
+                    document.getElementById('dobInput').value = savedPersonal.dob;
+                }
+                if (savedPersonal.city || savedPersonal.state || savedPersonal.country) {
+                    const locationText = [savedPersonal.city, savedPersonal.state, savedPersonal.country]
+                        .filter(part => part)
+                        .join(', ');
+                    document.getElementById('locationDisplay').textContent = locationText || 'Not specified';
+                    document.getElementById('cityInput').value = savedPersonal.city || '';
+                    document.getElementById('stateInput').value = savedPersonal.state || '';
+                    document.getElementById('countryInput').value = savedPersonal.country || '';
+                }
+                if (savedPersonal.languages) {
+                    document.getElementById('languagesDisplay').textContent = savedPersonal.languages;
+                    document.getElementById('languagesInput').value = savedPersonal.languages;
+                }
+
+                // Load education
+                const savedEdu = JSON.parse(localStorage.getItem('meet_education') || '[]');
+                const eduContainer = document.getElementById('educationInfo');
+                if (eduContainer) {
+                    if (savedEdu.length) {
+                        eduContainer.innerHTML = '';
+                        savedEdu.forEach(ed => {
+                            const eduItem = document.createElement('div');
+                            eduItem.className = 'education-item';
+                            eduItem.innerHTML = `
+                                <div class="edu-title">${escapeHtml(ed.title)}</div>
+                                <div class="edu-institution">${escapeHtml(ed.institution)}</div>
+                                <div class="edu-dates">${escapeHtml(ed.dates)}</div>
+                                ${ed.description ? `<div class="edu-description">${escapeHtml(ed.description)}</div>` : ''}
+                            `;
+                            eduContainer.appendChild(eduItem);
+                        });
+                    }
+                }
+
+                // Load experience
+                const savedExp = JSON.parse(localStorage.getItem('meet_experience') || '[]');
+                const expContainer = document.getElementById('experienceInfo');
+                if (expContainer) {
+                    if (savedExp.length) {
+                        expContainer.innerHTML = '';
+                        savedExp.forEach(ex => {
+                            const expItem = document.createElement('div');
+                            expItem.className = 'experience-item';
+                            expItem.innerHTML = `
+                                <div class="exp-title">${escapeHtml(ex.title)}</div>
+                                <div class="exp-company">${escapeHtml(ex.company)}</div>
+                                <div class="exp-dates">${escapeHtml(ex.dates)}</div>
+                                ${ex.description ? `<div class="exp-description">${escapeHtml(ex.description)}</div>` : ''}
+                            `;
+                            expContainer.appendChild(expItem);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading saved data:', error);
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSaveProfile();
+            loadSavedData();
+        });
+    </script>
+</body>
+</html>
