@@ -6,44 +6,221 @@
 <title>MEET | Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f2f2f2; }
-  .feed-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-  .post-form { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-  .post-form textarea { width: 100%; height: 80px; border-radius: 5px; border: 1px solid #ccc; padding: 10px; }
-  .post-form button { margin-top: 10px; padding: 10px 20px; border: none; background: #0061FF; color: #fff; border-radius: 5px; cursor: pointer; }
-  .posts { display: flex; flex-direction: column; gap: 20px; }
-  .post { background: #fff; padding: 15px; border-radius: 8px; }
-  .post img, .post video { max-width: 100%; border-radius: 5px; margin-top: 10px; }
-  .post-actions { display: flex; gap: 15px; margin-top: 10px; }
-  .post-actions span { cursor: pointer; color: #0061FF; }
+  :root {
+    --primary: #0061FF;
+    --primary-dark: #0050d4;
+    --error: #EF4444;
+    --success: #10B981;
+  }
+  
+  body { 
+    font-family: 'Poppins', sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background: #f2f2f2; 
+  }
+  
+  .navbar {
+    background: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .nav-content {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logout-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .feed-container { 
+    max-width: 600px; 
+    margin: 0 auto; 
+    padding: 20px; 
+  }
+  
+  .post-form { 
+    background: #fff; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .post-form textarea { 
+    width: 100%; 
+    height: 80px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    font-family: inherit;
+    resize: vertical;
+  }
+  
+  .post-form button { 
+    margin-top: 10px; 
+    padding: 10px 20px; 
+    border: none; 
+    background: var(--primary); 
+    color: #fff; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-weight: 600;
+  }
+  
+  .post-form button:disabled {
+    background: #9CA3AF;
+    cursor: not-allowed;
+  }
+  
+  .post-form button:hover:not(:disabled) {
+    background: var(--primary-dark);
+  }
+  
+  .form-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+  }
+  
+  .posts { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+  }
+  
+  .post { 
+    background: #fff; 
+    padding: 15px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .post img, .post video { 
+    max-width: 100%; 
+    border-radius: 5px; 
+    margin-top: 10px; 
+  }
+  
+  .post-actions { 
+    display: flex; 
+    gap: 15px; 
+    margin-top: 10px; 
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  }
+  
+  .post-actions span { 
+    cursor: pointer; 
+    color: var(--primary);
+    font-weight: 600;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  
+  .error-message {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+  }
+  
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 </style>
 </head>
 <body>
 
-<div class="feed-container">
-  <div class="post-form">
-    <textarea id="postText" placeholder="What's on your mind?"></textarea>
-    <input type="file" id="postMedia" accept="image/*,video/*">
-    <select id="privacy">
-      <option value="friends">Friends</option>
-      <option value="public">Public</option>
-      <option value="private">Only Me</option>
-    </select>
-    <button id="postBtn">Post</button>
-  </div>
-
-  <div class="posts" id="postsContainer">
-    <!-- Posts will load here -->
+<!-- Navigation Bar -->
+<div class="navbar">
+  <div class="nav-content">
+    <h2 style="margin: 0; color: var(--primary);">MEET Feed</h2>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
 </div>
 
+<div class="feed-container">
+  <div class="post-form">
+    <textarea id="postText" placeholder="What's on your mind?"></textarea>
+    <div class="form-controls">
+      <input type="file" id="postMedia" accept="image/*,video/*">
+      <select id="privacy">
+        <option value="public">Public</option>
+        <option value="friends">Friends</option>
+        <option value="private">Only Me</option>
+      </select>
+      <button id="postBtn">
+        <span id="postBtnText">Post</span>
+        <span id="postBtnSpinner" class="spinner" style="display: none;"></span>
+      </button>
+    </div>
+  </div>
+
+  <div id="messageContainer"></div>
+
+  <div class="posts" id="postsContainer">
+    <div class="loading">Loading posts...</div>
+  </div>
+</div>
+
+<!-- Use Firebase v9 compat to match your login page -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
 
 <script>
-  // Firebase config
+  // Firebase config - same as login page
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -55,21 +232,52 @@
     measurementId: "G-9BFPPVMMRF"
   };
 
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
   const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dcwof2ngn/upload';
-  const CLOUDINARY_UPLOAD_PRESET = 'ml_default'; // create an unsigned preset in Cloudinary dashboard
+  const CLOUDINARY_UPLOAD_PRESET = 'ml_default';
 
+  // DOM elements
   const postsContainer = document.getElementById('postsContainer');
   const postBtn = document.getElementById('postBtn');
   const postText = document.getElementById('postText');
   const postMedia = document.getElementById('postMedia');
   const privacySelect = document.getElementById('privacy');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const messageContainer = document.getElementById('messageContainer');
 
   let lastVisible = null;
   const PAGE_SIZE = 5;
+  let isLoading = false;
+  let hasMore = true;
+
+  // Show message function
+  function showMessage(message, type = 'error') {
+    messageContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    setTimeout(() => {
+      messageContainer.innerHTML = '';
+    }, 5000);
+  }
+
+  // Set loading state
+  function setLoading(buttonId, isLoading) {
+    const button = document.getElementById(buttonId);
+    const text = button.querySelector('span:first-child');
+    const spinner = button.querySelector('.spinner');
+    
+    if (isLoading) {
+      button.disabled = true;
+      text.style.display = 'none';
+      spinner.style.display = 'inline-block';
+    } else {
+      button.disabled = false;
+      text.style.display = 'inline-block';
+      spinner.style.display = 'none';
+    }
+  }
 
   // Check user login
   auth.onAuthStateChanged(user => {
@@ -77,6 +285,18 @@
       window.location.href = 'login.html';
     } else {
       loadPosts();
+      setupRealTimeListener();
+    }
+  });
+
+  // Logout functionality
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await auth.signOut();
+      window.location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout error:', error);
+      showMessage('Failed to logout. Please try again.');
     }
   });
 
@@ -87,111 +307,300 @@
     const privacy = privacySelect.value;
 
     if (!text && !mediaFile) {
-      alert('Post something!');
+      showMessage('Please add some text or media to your post!');
       return;
     }
 
-    let mediaUrl = '';
-    if (mediaFile) {
-      const formData = new FormData();
-      formData.append('file', mediaFile);
-      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-      const res = await axios.post(CLOUDINARY_URL, formData);
-      mediaUrl = res.data.secure_url;
+    if (text.length > 500) {
+      showMessage('Post text is too long. Maximum 500 characters.');
+      return;
     }
 
-    const user = auth.currentUser;
+    setLoading('postBtn', true);
 
-    await db.collection('posts').add({
-      userId: user.uid,
-      userName: user.displayName || 'Anonymous',
-      avatar: user.photoURL || '',
-      text,
-      media: mediaUrl,
-      likes: 0,
-      comments: [],
-      shares: 0,
-      privacy,
-      live: true,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    try {
+      let mediaUrl = '';
+      if (mediaFile) {
+        // Validate file size (max 10MB)
+        if (mediaFile.size > 10 * 1024 * 1024) {
+          throw new Error('File size too large. Maximum 10MB.');
+        }
 
-    postText.value = '';
-    postMedia.value = '';
+        const formData = new FormData();
+        formData.append('file', mediaFile);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+        const res = await axios.post(CLOUDINARY_URL, formData, {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`Upload progress: ${percent}%`);
+          }
+        });
+        mediaUrl = res.data.secure_url;
+      }
+
+      const user = auth.currentUser;
+      const userName = user.displayName || 'Anonymous';
+      const userInitial = userName.charAt(0).toUpperCase();
+
+      await db.collection('posts').add({
+        userId: user.uid,
+        userName: userName,
+        userInitial: userInitial,
+        text: text,
+        media: mediaUrl,
+        likes: 0,
+        likedBy: [], // Track who liked the post
+        comments: [],
+        shares: 0,
+        privacy: privacy,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      postText.value = '';
+      postMedia.value = '';
+      showMessage('Post published successfully!', 'success');
+      
+      // Refresh posts
+      postsContainer.innerHTML = '<div class="loading">Loading posts...</div>';
+      lastVisible = null;
+      hasMore = true;
+      loadPosts();
+      
+    } catch (error) {
+      console.error('Post upload error:', error);
+      if (error.message.includes('File size too large')) {
+        showMessage('File size too large. Maximum 10MB.');
+      } else {
+        showMessage('Failed to create post. Please try again.');
+      }
+    } finally {
+      setLoading('postBtn', false);
+    }
   });
 
   // Load posts with infinite scroll
   const loadPosts = async () => {
-    let query = db.collection('posts').orderBy('timestamp', 'desc').limit(PAGE_SIZE);
+    if (isLoading || !hasMore) return;
+    
+    isLoading = true;
+    
+    try {
+      let query = db.collection('posts')
+        .orderBy('timestamp', 'desc')
+        .limit(PAGE_SIZE);
 
-    if (lastVisible) {
-      query = query.startAfter(lastVisible);
-    }
-
-    const snapshot = await query.get();
-    if (snapshot.docs.length > 0) {
-      lastVisible = snapshot.docs[snapshot.docs.length - 1];
-    }
-
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      if (canViewPost(data)) {
-        renderPost(doc.id, data);
+      if (lastVisible) {
+        query = query.startAfter(lastVisible);
       }
-    });
+
+      const snapshot = await query.get();
+      
+      if (snapshot.empty && lastVisible === null) {
+        postsContainer.innerHTML = '<div class="loading">No posts yet. Be the first to post!</div>';
+        return;
+      }
+
+      if (snapshot.docs.length > 0) {
+        lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      } else {
+        hasMore = false;
+        return;
+      }
+
+      // Remove loading indicator on first load
+      if (lastVisible === null || postsContainer.querySelector('.loading')) {
+        postsContainer.innerHTML = '';
+      }
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (canViewPost(data)) {
+          renderPost(doc.id, data);
+        }
+      });
+
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      showMessage('Failed to load posts. Please refresh the page.');
+    } finally {
+      isLoading = false;
+    }
+  };
+
+  // Setup real-time listener for new posts
+  const setupRealTimeListener = () => {
+    db.collection('posts')
+      .orderBy('timestamp', 'desc')
+      .limit(10)
+      .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added' && !lastVisible) {
+            // Only handle new posts, not initial load
+            const data = change.doc.data();
+            if (canViewPost(data)) {
+              // Check if post already exists
+              const existingPost = document.querySelector(`[data-post-id="${change.doc.id}"]`);
+              if (!existingPost) {
+                renderPost(change.doc.id, data, true);
+              }
+            }
+          }
+        });
+      }, error => {
+        console.error('Real-time listener error:', error);
+      });
   };
 
   // Check post privacy
   const canViewPost = (post) => {
     const user = auth.currentUser;
+    if (!user) return false;
+    
     if (post.privacy === 'public') return true;
-    if (post.privacy === 'friends') return true; // implement actual friends logic later
+    if (post.privacy === 'friends') {
+      // Implement actual friends logic here
+      return true; 
+    }
     if (post.privacy === 'private' && post.userId === user.uid) return true;
     return false;
   };
 
   // Render post
-  const renderPost = (id, data) => {
+  const renderPost = (id, data, prepend = false) => {
     const postEl = document.createElement('div');
     postEl.classList.add('post');
+    postEl.setAttribute('data-post-id', id);
+    
+    const user = auth.currentUser;
+    const isLiked = data.likedBy && data.likedBy.includes(user.uid);
+    
     postEl.innerHTML = `
-      <div><strong>${data.userName}</strong></div>
-      <div>${data.text}</div>
-      ${data.media ? (data.media.endsWith('.mp4') ? `<video controls src="${data.media}"></video>` : `<img src="${data.media}">`) : ''}
+      <div class="post-header">
+        <div class="user-avatar">${data.userInitial || 'U'}</div>
+        <div>
+          <strong>${data.userName || 'Anonymous'}</strong>
+          <div style="font-size: 0.8rem; color: #666;">
+            ${formatTimestamp(data.timestamp)}
+            • ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Private'}
+          </div>
+        </div>
+      </div>
+      <div>${escapeHtml(data.text || '')}</div>
+      ${data.media ? (
+        data.media.match(/\.(mp4|mov|avi|webm)$/i) ? 
+          `<video controls src="${data.media}" style="max-width: 100%; border-radius: 5px; margin-top: 10px;"></video>` : 
+          `<img src="${data.media}" style="max-width: 100%; border-radius: 5px; margin-top: 10px;" loading="lazy">`
+      ) : ''}
       <div class="post-actions">
-        <span onclick="likePost('${id}', ${data.likes})">Like (${data.likes})</span>
-        <span onclick="sharePost('${id}', ${data.shares})">Share (${data.shares})</span>
+        <span onclick="likePost('${id}')" style="color: ${isLiked ? '#E74C3C' : 'var(--primary)'}">
+          ${isLiked ? '❤️' : '🤍'} Like (${data.likes || 0})
+        </span>
+        <span onclick="sharePost('${id}')">🔄 Share (${data.shares || 0})</span>
       </div>
     `;
-    postsContainer.appendChild(postEl);
+    
+    if (prepend) {
+      postsContainer.prepend(postEl);
+    } else {
+      postsContainer.appendChild(postEl);
+    }
   };
 
-  // Real-time listeners for likes and shares
-  db.collection('posts').onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === 'modified') {
-        postsContainer.innerHTML = '';
-        loadPosts();
-      }
-    });
-  });
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Format timestamp
+  function formatTimestamp(timestamp) {
+    if (!timestamp) return 'Just now';
+    
+    const date = timestamp.toDate();
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString();
+  }
 
   // Like post
-  window.likePost = async (id, currentLikes) => {
-    await db.collection('posts').doc(id).update({ likes: currentLikes + 1 });
+  window.likePost = async (id) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+      const postRef = db.collection('posts').doc(id);
+      const postDoc = await postRef.get();
+      const postData = postDoc.data();
+      
+      const likedBy = postData.likedBy || [];
+      const isCurrentlyLiked = likedBy.includes(user.uid);
+      
+      if (isCurrentlyLiked) {
+        // Unlike
+        await postRef.update({
+          likes: firebase.firestore.FieldValue.increment(-1),
+          likedBy: firebase.firestore.FieldValue.arrayRemove(user.uid)
+        });
+      } else {
+        // Like
+        await postRef.update({
+          likes: firebase.firestore.FieldValue.increment(1),
+          likedBy: firebase.firestore.FieldValue.arrayUnion(user.uid)
+        });
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+      showMessage('Failed to like post. Please try again.');
+    }
   };
 
   // Share post
-  window.sharePost = async (id, currentShares) => {
-    await db.collection('posts').doc(id).update({ shares: currentShares + 1 });
+  window.sharePost = async (id) => {
+    try {
+      await db.collection('posts').doc(id).update({
+        shares: firebase.firestore.FieldValue.increment(1)
+      });
+      
+      // In a real app, you'd implement actual sharing functionality
+      if (navigator.share) {
+        navigator.share({
+          title: 'Check out this post on MEET',
+          text: 'I found this interesting post on MEET',
+          url: window.location.href
+        });
+      } else {
+        showMessage('Post shared!', 'success');
+      }
+    } catch (error) {
+      console.error('Error sharing post:', error);
+      showMessage('Failed to share post. Please try again.');
+    }
   };
 
-  // Infinite scroll
+  // Infinite scroll with debouncing
+  let scrollTimeout;
   window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-      loadPosts();
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
     }
+    
+    scrollTimeout = setTimeout(() => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+        loadPosts();
+      }
+    }, 100);
   });
 </script>
 
