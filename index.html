@@ -8,11 +8,15 @@
 <style>
 :root {
   --primary: #0061FF;
+  --primary-dark: #0050d4;
   --accent: #5AE4A8;
   --text-dark: #111827;
+  --text-light: #6B7280;
   --surface: #ffffff;
   --error: #EF4444;
   --success: #10B981;
+  --warning: #F59E0B;
+  --border: #d1d5db;
 }
 
 /* === BASE LAYOUT === */
@@ -42,13 +46,23 @@ body {
 .logo-icon {
   width: 120px;
   height: 120px;
-  background: linear-gradient(135deg, #fff, #e5fdf3);
-  -webkit-mask: url('#m-shape') no-repeat center;
-  mask: url('#m-shape') no-repeat center;
-  mask-size: contain;
-  -webkit-mask-size: contain;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   animation: pulse 3s infinite ease-in-out;
 }
+
+.logo-stroke {
+  width: 25px;
+  height: 100%;
+  margin: 0 2px;
+  border-radius: 4px;
+}
+
+.logo-black { background: black; }
+.logo-white { background: white; }
+.logo-yellow { background: yellow; }
+.logo-brown { background: brown; }
 
 .logo-text {
   font-size: 2.2rem;
@@ -101,16 +115,21 @@ body {
   width: 100%;
   padding: 0.8rem;
   padding-right: 40px; /* Space for toggle button */
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
 }
 
 .form-input:focus {
-  outline: none;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
   border-color: var(--primary);
+}
+
+.form-input.error {
+  border-color: var(--error);
 }
 
 .password-toggle {
@@ -122,7 +141,7 @@ body {
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  color: #6B7280;
+  color: var(--text-light);
   z-index: 2;
 }
 
@@ -149,7 +168,7 @@ button {
 }
 
 button:hover {
-  background: #0050d4;
+  background: var(--primary-dark);
 }
 
 button:disabled {
@@ -159,7 +178,7 @@ button:disabled {
 
 .toggle {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-light);
   margin-top: 0.8rem;
 }
 .toggle a {
@@ -167,6 +186,17 @@ button:disabled {
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.forgot-password a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
 }
 
 /* === LOADING SPINNER === */
@@ -205,6 +235,27 @@ button:disabled {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+.message.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* === VALIDATION INDICATORS === */
+.validation-hint {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  color: var(--text-light);
+}
+
+.validation-hint.error {
+  color: var(--error);
+}
+
+.validation-hint.success {
+  color: var(--success);
+}
+
 /* === ANIMATIONS === */
 @keyframes fadeIn {
   from {opacity: 0;}
@@ -222,23 +273,24 @@ button:disabled {
   0%,100% {transform: scale(1); opacity: 1;}
   50% {transform: scale(1.05); opacity: 0.9;}
 }
+
+/* === LOADING STATE === */
+.form-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
 
-<!-- SVG for logo mask -->
-<svg width="0" height="0">
-  <defs>
-    <mask id="m-shape" viewBox="0 0 100 100">
-      <path fill="white"
-        d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z" />
-    </mask>
-  </defs>
-</svg>
-
 <!-- LOGO HERO -->
 <div class="logo-container">
-  <div class="logo-icon"></div>
+  <div class="logo-icon">
+    <div class="logo-stroke logo-black"></div>
+    <div class="logo-stroke logo-white"></div>
+    <div class="logo-stroke logo-yellow"></div>
+    <div class="logo-stroke logo-brown"></div>
+  </div>
   <div class="logo-text">MEET</div>
   <div class="tagline">Where People and Opportunity Connect</div>
 </div>
@@ -246,29 +298,28 @@ button:disabled {
 <!-- AUTH CARD -->
 <div class="form-card">
   <h2 id="formTitle">Login to MEET</h2>
-  
   <div id="messageContainer"></div>
-  
+
   <!-- Login Form -->
   <form id="loginForm">
     <div class="form-group">
       <label class="form-label" for="loginEmail">Email Address</label>
       <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="loginPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
         <button type="button" class="password-toggle" id="loginPasswordToggle">👁️</button>
       </div>
+      <div class="forgot-password">
+        <a id="forgotPasswordLink">Forgot Password?</a>
+      </div>
     </div>
-    
     <button type="submit" id="loginBtn">
       <span id="loginText">Login</span>
       <span id="loginSpinner" class="spinner" style="display: none;"></span>
     </button>
-    
     <div class="toggle">
       Don't have an account? <a id="showSignup">Sign up</a>
     </div>
@@ -279,39 +330,39 @@ button:disabled {
     <div class="form-group">
       <label class="form-label" for="signupFullName">Full Name</label>
       <input type="text" id="signupFullName" class="form-input" placeholder="Enter your full name" required>
+      <div id="fullNameHint" class="validation-hint"></div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupUsername">Username</label>
-      <input type="text" id="signupUsername" class="form-input" placeholder="Choose a username" required>
+      <input type="text" id="signupUsername" class="form-input" placeholder="Choose a username (3-20 characters)" required>
+      <div id="usernameHint" class="validation-hint"></div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupEmail">Email Address</label>
       <input type="email" id="signupEmail" class="form-input" placeholder="Enter your email" required>
+      <div id="emailHint" class="validation-hint"></div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupPhone">Phone Number</label>
       <input type="tel" id="signupPhone" class="form-input" placeholder="Enter your phone number" required>
+      <div id="phoneHint" class="validation-hint"></div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupPassword">Password</label>
       <div class="input-wrapper">
-        <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 6 characters)" required minlength="6">
+        <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 8 characters)" required>
         <button type="button" class="password-toggle" id="signupPasswordToggle">👁️</button>
       </div>
+      <div id="passwordHint" class="validation-hint">Must be at least 8 characters with uppercase, lowercase, and number</div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm your password" required>
         <button type="button" class="password-toggle" id="signupConfirmPasswordToggle">👁️</button>
       </div>
+      <div id="confirmPasswordHint" class="validation-hint"></div>
     </div>
-    
     <div class="form-group">
       <label class="form-label" for="signupGender">Gender</label>
       <select id="signupGender" class="form-input" required>
@@ -322,264 +373,536 @@ button:disabled {
         <option value="prefer-not-to-say">Prefer not to say</option>
       </select>
     </div>
-    
+    <div class="form-group">
+      <label class="form-label">
+        <input type="checkbox" id="termsCheckbox" required>
+        I agree to the <a href="#" id="termsLink">Terms of Service</a> and <a href="#" id="privacyLink">Privacy Policy</a>
+      </label>
+    </div>
     <button type="submit" id="signupBtn">
       <span id="signupText">Create Account</span>
       <span id="signupSpinner" class="spinner" style="display: none;"></span>
     </button>
-    
     <div class="toggle">
       Already have an account? <a id="showLogin">Login</a>
     </div>
   </form>
+
+  <!-- Forgot Password Form -->
+  <form id="forgotPasswordForm" style="display: none;">
+    <div class="form-group">
+      <label class="form-label" for="forgotPasswordEmail">Email Address</label>
+      <input type="email" id="forgotPasswordEmail" class="form-input" placeholder="Enter your email" required>
+    </div>
+    <button type="submit" id="resetPasswordBtn">
+      <span id="resetPasswordText">Reset Password</span>
+      <span id="resetPasswordSpinner" class="spinner" style="display: none;"></span>
+    </button>
+    <div class="toggle">
+      Remember your password? <a id="showLoginFromForgot">Back to Login</a>
+    </div>
+  </form>
 </div>
 
-<!-- Firebase SDK -->
+<!-- Firebase SDK & Logic -->
 <script type="module">
-  // Import Firebase modules
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword,
-    updateProfile
-  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-  import { 
-    getFirestore, 
-    doc, 
-    setDoc,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  updateProfile, 
+  onAuthStateChanged, 
+  signOut,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { 
+  getDatabase, 
+  ref, 
+  set, 
+  onDisconnect 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "text",
-  authDomain: "meet-f657d.firebaseapp.com",
-  projectId: "meet-f657d",
-  storageBucket: "meet-f657d.firebasestorage.app",
-  messagingSenderId: "974870011083",
-  appId: "1:974870011083:web:d290094ec7812743340f4e",
-  measurementId: "G-B6KZ7GY4Q2"
+  apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+  authDomain: "meet-6e159.firebaseapp.com",
+  projectId: "meet-6e159",
+  storageBucket: "meet-6e159.firebasestorage.app",
+  messagingSenderId: "252353608421",
+  appId: "1:252353608421:web:6706056048e9a8f12db20c",
+  measurementId: "G-9BFPPVMMRF",
+  databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com/"
 };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const rtdb = getDatabase(app);
 
-  // DOM elements
-  const loginForm = document.getElementById('loginForm');
-  const signupForm = document.getElementById('signupForm');
-  const formTitle = document.getElementById('formTitle');
-  const showSignup = document.getElementById('showSignup');
-  const showLogin = document.getElementById('showLogin');
-  const messageContainer = document.getElementById('messageContainer');
+// DOM elements
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+const formTitle = document.getElementById('formTitle');
+const showSignup = document.getElementById('showSignup');
+const showLogin = document.getElementById('showLogin');
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const showLoginFromForgot = document.getElementById('showLoginFromForgot');
+const messageContainer = document.getElementById('messageContainer');
 
-  // Password toggle functionality
-  function setupPasswordToggle(passwordInputId, toggleButtonId) {
-    const passwordInput = document.getElementById(passwordInputId);
-    const toggleButton = document.getElementById(toggleButtonId);
-    
-    toggleButton.addEventListener('click', function() {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
-    });
+// Rate limiting variables
+let loginAttempts = 0;
+const MAX_LOGIN_ATTEMPTS = 5;
+const RATE_LIMIT_TIME = 30000; // 30 seconds
+
+// Validation functions
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function isStrongPassword(password) {
+  return password.length >= 8 && 
+         /[A-Z]/.test(password) && 
+         /[a-z]/.test(password) && 
+         /[0-9]/.test(password);
+}
+
+function isValidPhone(phone) {
+  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+  return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+}
+
+function isValidUsername(username) {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+  return usernameRegex.test(username);
+}
+
+function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML;
+}
+
+// Input sanitization
+function sanitizeFormInputs() {
+  const inputs = document.querySelectorAll('input, textarea');
+  inputs.forEach(input => {
+    input.value = sanitizeInput(input.value);
+  });
+}
+
+// Password toggle
+function setupPasswordToggle(passwordInputId, toggleButtonId) {
+  const passwordInput = document.getElementById(passwordInputId);
+  const toggleButton = document.getElementById(toggleButtonId);
+  toggleButton.addEventListener('click', () => {
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+    toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
+  });
+}
+
+// Setup all password toggles
+setupPasswordToggle('loginPassword', 'loginPasswordToggle');
+setupPasswordToggle('signupPassword', 'signupPasswordToggle');
+setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
+
+// Show messages
+function showMessage(message, type = 'error') {
+  messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+}
+
+function clearMessage() { 
+  messageContainer.innerHTML = ''; 
+}
+
+function setLoading(buttonId, isLoading) {
+  const button = document.getElementById(buttonId);
+  const text = button.querySelector('span:first-child');
+  const spinner = button.querySelector('.spinner');
+  
+  if (isLoading) { 
+    button.disabled = true;
+    text.style.display = 'none';
+    spinner.style.display = 'inline-block';
+    document.querySelector('.form-card').classList.add('form-loading');
+  } else { 
+    button.disabled = false;
+    text.style.display = 'inline-block';
+    spinner.style.display = 'none';
+    document.querySelector('.form-card').classList.remove('form-loading');
   }
+}
 
-  // Set up all password toggles
-  setupPasswordToggle('loginPassword', 'loginPasswordToggle');
-  setupPasswordToggle('signupPassword', 'signupPasswordToggle');
-  setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
-
-  // Show message function
-  function showMessage(message, type = 'error') {
-    messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+// Check rate limiting
+function checkRateLimit() {
+  if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+    showMessage('Too many login attempts. Please try again in 30 seconds.', 'error');
+    setTimeout(() => {
+      loginAttempts = 0;
+    }, RATE_LIMIT_TIME);
+    return false;
   }
+  return true;
+}
 
-  // Clear message function
-  function clearMessage() {
-    messageContainer.innerHTML = '';
-  }
-
-  // Toggle loading state
-  function setLoading(buttonId, isLoading) {
-    const button = document.getElementById(buttonId);
-    const text = button.querySelector('span:first-child');
-    const spinner = button.querySelector('.spinner');
-    
-    if (isLoading) {
-      button.disabled = true;
-      text.style.display = 'none';
-      spinner.style.display = 'inline-block';
+// Real-time validation for signup form
+function setupRealTimeValidation() {
+  const signupPassword = document.getElementById('signupPassword');
+  const signupConfirmPassword = document.getElementById('signupConfirmPassword');
+  const signupEmail = document.getElementById('signupEmail');
+  const signupUsername = document.getElementById('signupUsername');
+  const signupPhone = document.getElementById('signupPhone');
+  const signupFullName = document.getElementById('signupFullName');
+  
+  // Password validation
+  signupPassword.addEventListener('input', () => {
+    const hint = document.getElementById('passwordHint');
+    if (signupPassword.value.length === 0) {
+      hint.textContent = 'Must be at least 8 characters with uppercase, lowercase, and number';
+      hint.className = 'validation-hint';
+    } else if (isStrongPassword(signupPassword.value)) {
+      hint.textContent = 'Password strength: Strong';
+      hint.className = 'validation-hint success';
     } else {
-      button.disabled = false;
-      text.style.display = 'inline-block';
-      spinner.style.display = 'none';
+      hint.textContent = 'Password must be at least 8 characters with uppercase, lowercase, and number';
+      hint.className = 'validation-hint error';
     }
-  }
-
-  // Switch to signup form
-  showSignup.addEventListener('click', function(e) {
-    e.preventDefault();
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
-    formTitle.textContent = 'Join MEET';
-    clearMessage();
   });
+  
+  // Confirm password validation
+  signupConfirmPassword.addEventListener('input', () => {
+    const hint = document.getElementById('confirmPasswordHint');
+    if (signupConfirmPassword.value === signupPassword.value) {
+      hint.textContent = 'Passwords match';
+      hint.className = 'validation-hint success';
+    } else {
+      hint.textContent = 'Passwords do not match';
+      hint.className = 'validation-hint error';
+    }
+  });
+  
+  // Email validation
+  signupEmail.addEventListener('input', () => {
+    const hint = document.getElementById('emailHint');
+    if (isValidEmail(signupEmail.value)) {
+      hint.textContent = 'Valid email address';
+      hint.className = 'validation-hint success';
+    } else {
+      hint.textContent = 'Please enter a valid email address';
+      hint.className = 'validation-hint error';
+    }
+  });
+  
+  // Username validation
+  signupUsername.addEventListener('input', () => {
+    const hint = document.getElementById('usernameHint');
+    if (isValidUsername(signupUsername.value)) {
+      hint.textContent = 'Valid username';
+      hint.className = 'validation-hint success';
+    } else {
+      hint.textContent = 'Username must be 3-20 characters and contain only letters, numbers, and underscores';
+      hint.className = 'validation-hint error';
+    }
+  });
+  
+  // Phone validation
+  signupPhone.addEventListener('input', () => {
+    const hint = document.getElementById('phoneHint');
+    if (isValidPhone(signupPhone.value)) {
+      hint.textContent = 'Valid phone number';
+      hint.className = 'validation-hint success';
+    } else {
+      hint.textContent = 'Please enter a valid phone number';
+      hint.className = 'validation-hint error';
+    }
+  });
+  
+  // Full name validation
+  signupFullName.addEventListener('input', () => {
+    const hint = document.getElementById('fullNameHint');
+    if (signupFullName.value.trim().length >= 2) {
+      hint.textContent = '';
+      hint.className = 'validation-hint';
+    } else {
+      hint.textContent = 'Please enter your full name';
+      hint.className = 'validation-hint error';
+    }
+  });
+}
 
-  // Switch to login form
-  showLogin.addEventListener('click', function(e) {
-    e.preventDefault();
-    signupForm.style.display = 'none';
-    loginForm.style.display = 'block';
+// Toggle forms
+function showForm(formToShow) {
+  loginForm.style.display = 'none';
+  signupForm.style.display = 'none';
+  forgotPasswordForm.style.display = 'none';
+  
+  formToShow.style.display = 'block';
+  
+  if (formToShow === loginForm) {
     formTitle.textContent = 'Login to MEET';
-    clearMessage();
-  });
+  } else if (formToShow === signupForm) {
+    formTitle.textContent = 'Join MEET';
+  } else if (formToShow === forgotPasswordForm) {
+    formTitle.textContent = 'Reset Password';
+  }
+  
+  clearMessage();
+}
 
-  // Login form submission
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+showSignup.addEventListener('click', e => {
+  e.preventDefault();
+  showForm(signupForm);
+});
+
+showLogin.addEventListener('click', e => {
+  e.preventDefault();
+  showForm(loginForm);
+});
+
+forgotPasswordLink.addEventListener('click', e => {
+  e.preventDefault();
+  showForm(forgotPasswordForm);
+});
+
+showLoginFromForgot.addEventListener('click', e => {
+  e.preventDefault();
+  showForm(loginForm);
+});
+
+// Signup
+signupForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  // Sanitize inputs
+  sanitizeFormInputs();
+  
+  const fullName = document.getElementById('signupFullName').value.trim();
+  const username = document.getElementById('signupUsername').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const phone = document.getElementById('signupPhone').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const confirmPassword = document.getElementById('signupConfirmPassword').value;
+  const gender = document.getElementById('signupGender').value;
+  const termsAccepted = document.getElementById('termsCheckbox').checked;
+  
+  // Validation
+  if (!fullName || !username || !email || !phone || !password || !confirmPassword || !gender) {
+    showMessage('Please fill in all fields');
+    return;
+  }
+  
+  if (!termsAccepted) {
+    showMessage('Please agree to the Terms of Service and Privacy Policy');
+    return;
+  }
+  
+  if (!isValidEmail(email)) {
+    showMessage('Please enter a valid email address');
+    return;
+  }
+  
+  if (!isValidUsername(username)) {
+    showMessage('Username must be 3-20 characters and contain only letters, numbers, and underscores');
+    return;
+  }
+  
+  if (!isValidPhone(phone)) {
+    showMessage('Please enter a valid phone number');
+    return;
+  }
+  
+  if (!isStrongPassword(password)) {
+    showMessage('Password must be at least 8 characters with uppercase, lowercase, and number');
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    showMessage('Passwords do not match');
+    return;
+  }
+  
+  setLoading('signupBtn', true);
+  clearMessage();
+  
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
     
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
+    await updateProfile(user, { displayName: fullName });
     
-    if (!email || !password) {
-      showMessage('Please fill in all fields');
-      return;
-    }
-    
-    setLoading('loginBtn', true);
-    clearMessage();
-    
-    try {
-      // Firebase login
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      showMessage('Login successful! Redirecting...', 'success');
-      
-      // Redirect to feed page
-      setTimeout(() => {
-        window.location.href = 'feed.html';
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Login error:', error);
-      let errorMessage = 'Login failed. Please try again.';
-      
-      // More specific error messages
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email.';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password. Please try again.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.';
-      }
-      
-      showMessage(errorMessage);
-    } finally {
-      setLoading('loginBtn', false);
-    }
-  });
+    await setDoc(doc(db, "users", user.uid), {
+      fullName,
+      username,
+      email,
+      phone,
+      gender,
+      createdAt: serverTimestamp()
+    });
 
-  // NEW SIGNUP LISTENER - REPLACED VERSION
-  signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // Set online status in Realtime Database
+    const statusRef = ref(rtdb, 'status/' + user.uid);
+    await set(statusRef, 'online');
+    onDisconnect(statusRef).set('offline');
 
-    // Get form values
-    const fullName = document.getElementById('signupFullName').value.trim();
-    const username = document.getElementById('signupUsername').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const phone = document.getElementById('signupPhone').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('signupConfirmPassword').value;
-    const gender = document.getElementById('signupGender').value;
-
-    // Validation
-    if (!fullName || !username || !email || !phone || !password || !confirmPassword || !gender) {
-      showMessage('Please fill in all fields');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showMessage('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage('Password must be at least 6 characters long');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showMessage('Please enter a valid email address');
-      return;
-    }
-
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
-      showMessage('Please enter a valid phone number');
-      return;
-    }
-
-    setLoading('signupBtn', true);
-    clearMessage();
-
-    try {
-      // Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Update display name in Auth profile
-      await updateProfile(user, { displayName: fullName });
-
-      // Save additional user info to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        fullName,
-        username,
-        email,
-        phone,
-        gender,
-        createdAt: serverTimestamp() // use Firestore server time
-      });
-
-      showMessage('Account created successfully! Redirecting...', 'success');
-
-      // Redirect to feed page after 1.5s
-      setTimeout(() => {
-        window.location.href = 'feed.html';
-      }, 1500);
-
-    } catch (error) {
-      console.error('Signup error:', error);
-
-      // Show exact error to user
-      let errorMessage = error.message;
-
-      // More user-friendly messages for common Firebase Auth errors
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'An account with this email already exists.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Use at least 6 characters.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.';
-      }
-
-      showMessage(errorMessage, 'error');
-    } finally {
-      setLoading('signupBtn', false);
-    }
-  });
-
-  // Check if user is already logged in
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      // User is signed in, redirect to feed
+    showMessage('Account created successfully! Redirecting...', 'success');
+    setTimeout(() => {
       window.location.href = 'feed.html';
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+    let errorMessage = error.message;
+    
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'An account with this email already exists.';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'Password too weak.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      errorMessage = 'Email/password accounts are not enabled. Please contact support.';
     }
-  });
+    
+    showMessage(errorMessage, 'error');
+  } finally {
+    setLoading('signupBtn', false);
+  }
+});
+
+// Login
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  // Sanitize inputs
+  sanitizeFormInputs();
+  
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  
+  if (!email || !password) {
+    showMessage('Please fill in all fields');
+    return;
+  }
+  
+  if (!isValidEmail(email)) {
+    showMessage('Please enter a valid email address');
+    return;
+  }
+  
+  // Check rate limiting
+  if (!checkRateLimit()) {
+    return;
+  }
+  
+  setLoading('loginBtn', true);
+  clearMessage();
+  
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Reset login attempts on successful login
+    loginAttempts = 0;
+
+    // Set online status in Realtime Database
+    const statusRef = ref(rtdb, 'status/' + user.uid);
+    await set(statusRef, 'online');
+    onDisconnect(statusRef).set('offline');
+
+    showMessage('Login successful! Redirecting...', 'success');
+    setTimeout(() => {
+      window.location.href = 'feed.html';
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+    
+    // Increment login attempts
+    loginAttempts++;
+    
+    let errorMessage = 'Login failed. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    } else if (error.code === 'auth/user-disabled') {
+      errorMessage = 'This account has been disabled.';
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMessage = 'Too many failed login attempts. Please try again later.';
+    }
+    
+    showMessage(errorMessage, 'error');
+  } finally {
+    setLoading('loginBtn', false);
+  }
+});
+
+// Forgot Password
+forgotPasswordForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const email = document.getElementById('forgotPasswordEmail').value.trim();
+  
+  if (!email) {
+    showMessage('Please enter your email address');
+    return;
+  }
+  
+  if (!isValidEmail(email)) {
+    showMessage('Please enter a valid email address');
+    return;
+  }
+  
+  setLoading('resetPasswordBtn', true);
+  clearMessage();
+  
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showMessage('Password reset email sent! Check your inbox.', 'success');
+    
+    // Return to login after a delay
+    setTimeout(() => {
+      showForm(loginForm);
+    }, 3000);
+  } catch (error) {
+    console.error(error);
+    let errorMessage = 'Failed to send reset email. Please try again.';
+    
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    }
+    
+    showMessage(errorMessage, 'error');
+  } finally {
+    setLoading('resetPasswordBtn', false);
+  }
+});
+
+// Check if user is already logged in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Set online status in Realtime Database
+    const statusRef = ref(rtdb, 'status/' + user.uid);
+    set(statusRef, 'online');
+    onDisconnect(statusRef).set('offline');
+
+    // Redirect to feed
+    window.location.href = 'feed.html';
+  }
+});
+
+// Initialize real-time validation
+setupRealTimeValidation();
 </script>
 </body>
 </html>
