@@ -849,11 +849,11 @@
       </div>
       <div class="composer-divider"></div>
       <div class="composer-actions">
-        <div class="action-btn">
+        <div class="action-btn" onclick="openMediaUpload('video')">
           <i class="fas fa-video" style="color: #f02849;"></i>
           <span>Live Video</span>
         </div>
-        <div class="action-btn">
+        <div class="action-btn" onclick="openMediaUpload('image')">
           <i class="fas fa-images" style="color: #45bd62;"></i>
           <span>Photo/Video</span>
         </div>
@@ -984,6 +984,7 @@
   // Global variables
   let currentUser = null;
   let postListeners = {};
+  let currentMediaType = 'image'; // Default media type
 
   // Theme management
   function initTheme() {
@@ -1020,71 +1021,67 @@
     }
   }
 
-  // UPLOAD MEDIA USING PIPEDREAM SIGNED UPLOAD
-  async function uploadMedia(file) {
+  // UPLOAD TO CLOUDINARY USING PIPEDREAM SIGNED UPLOAD
+  async function uploadToCloudinary(file, type = "image") {
+    if (!file) throw new Error("No file selected");
+
     try {
-      // Optional: Check file size
-      if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`File size too large. Maximum ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
-      }
-
-      showMessage('Preparing upload...', 'success');
-
-      // Step 1: Get signature from Pipedream
-      const sigResponse = await fetch(PIPEDREAM_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          folder: "meet_videos",
-          filename: file.name,
-        }),
+      // 1️⃣ Get signed parameters from Pipedream
+      showMessage('Getting upload signature...', 'success');
+      const signatureResponse = await fetch(PIPEDREAM_ENDPOINT, { 
+        method: "GET" 
       });
-
-      if (!sigResponse.ok) {
+      
+      if (!signatureResponse.ok) {
         throw new Error('Failed to get upload signature');
       }
+      
+      const signatureData = await signatureResponse.json();
 
-      const { signature, timestamp, api_key, cloud_name } = await sigResponse.json();
+      const { cloud_name, api_key, upload_preset, timestamp, signature } = signatureData;
 
-      // Step 2: Upload directly to Cloudinary with signature
+      // 2️⃣ Prepare FormData for Cloudinary
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", api_key);
       formData.append("timestamp", timestamp);
+      formData.append("upload_preset", upload_preset);
       formData.append("signature", signature);
-      formData.append("folder", "meet_videos");
 
-      // Determine resource type based on file type
-      const isVideo = file.type.startsWith('video/');
-      const resourceType = isVideo ? 'video' : 'image';
+      // 3️⃣ Upload file to Cloudinary
+      showMessage('Uploading to Cloudinary...', 'success');
+      const cloudinaryURL = `https://api.cloudinary.com/v1_1/${cloud_name}/${type}/upload`;
+      const uploadResponse = await fetch(cloudinaryURL, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await uploadResponse.json();
+      if (!result.secure_url) throw new Error("Upload failed");
+
+      console.log("Upload successful:", result.secure_url);
+      showMessage('Upload completed!', 'success');
+
+      // 4️⃣ Save the file URL to Firestore
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not signed in");
+
+      // Determine which collection to save to based on type
+      const collectionName = type === "video" ? "posts" : "images";
       
-      showMessage('Uploading media...', 'success');
+      await addDoc(collection(db, collectionName), {
+        userId: user.uid,
+        url: result.secure_url,
+        timestamp: new Date(),
+        fileType: type,
+        userName: user.displayName || "Anonymous",
+        userInitial: user.displayName?.charAt(0).toUpperCase() || "U"
+      });
 
-      const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloud_name}/${resourceType}/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!cloudRes.ok) {
-        const errorData = await cloudRes.json();
-        throw new Error(errorData.error?.message || 'Upload failed');
-      }
-
-      const data = await cloudRes.json();
-      
-      if (data.secure_url) {
-        console.log("✅ Uploaded successfully:", data.secure_url);
-        showMessage('Upload completed!', 'success');
-        return data.secure_url;
-      } else {
-        throw new Error('Upload failed: No secure URL returned');
-      }
+      return result.secure_url;
     } catch (error) {
       console.error("Upload error:", error);
-      throw new Error(`Upload failed: ${error.message}`);
+      throw error;
     }
   }
 
@@ -1095,18 +1092,84 @@
 
     let mediaUrl = "";
     if (file) {
-      mediaUrl = await uploadMedia(file);
+      // Determine file type
+      const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+      mediaUrl = await uploadToCloudinary(file, fileType);
     }
 
-    await addDoc(collection(db, "posts"), {
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      text: text,
-      media: mediaUrl,
-      privacy: privacy,
-      timestamp: serverTimestamp(),
-    });
+    // If there's text content, save it as a post
+    if (text.trim()) {
+      await addDoc(collection(db, "posts"), {
+        userId: user.uid,
+        userName: user.displayName || "Anonymous",
+        userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
+        text: text,
+        media: mediaUrl,
+        privacy: privacy,
+        timestamp: serverTimestamp(),
+      });
+    }
+  }
+
+  // QUICK UPLOAD (for direct media uploads from action buttons)
+  async function quickUploadMedia(file, type = "image") {
+    try {
+      const mediaUrl = await uploadToCloudinary(file, type);
+      
+      // Show success message
+      showMessage(`${type === 'video' ? 'Video' : 'Image'} uploaded successfully!`, 'success');
+      
+      // Optionally open the post modal with the uploaded media
+      postModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      // Set the media preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        mediaPreview.innerHTML = `
+          ${type === 'video' ? 
+            `<video controls><source src="${e.target.result}" type="${file.type}"></video>` : 
+            `<img src="${e.target.result}" alt="Preview">`
+          }
+          <button class="remove-media" onclick="removeMedia()">&times;</button>
+        `;
+      };
+      reader.readAsDataURL(file);
+      
+      return mediaUrl;
+    } catch (error) {
+      console.error('Quick upload error:', error);
+      throw error;
+    }
+  }
+
+  // OPEN MEDIA UPLOAD (for action buttons)
+  function openMediaUpload(type) {
+    currentMediaType = type;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = type === 'video' ? 'video/*' : 'image/*';
+    
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      if (file.size > MAX_FILE_SIZE) {
+        showMessage(`File size too large. Maximum ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+        return;
+      }
+      
+      setLoading('postBtn', true);
+      try {
+        await quickUploadMedia(file, type);
+      } catch (error) {
+        showMessage(error.message || 'Upload failed. Please try again.');
+      } finally {
+        setLoading('postBtn', false);
+      }
+    };
+    
+    input.click();
   }
 
   // TOGGLE LIKE - USING SUBCOLLECTION APPROACH
