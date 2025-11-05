@@ -1,593 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET | Feed</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEET Feed</title>
 <style>
-  /* (Use your preferred CSS -- this keeps the look you provided) */
-  :root {
-    --primary: #0061FF;
-    --primary-dark: #0050d4;
-    --error: #EF4444;
-    --success: #10B981;
-    --bg-color: #f0f2f5;
-    --card-bg: #fff;
-    --text-color: #111;
-    --secondary-text: #65676b;
-    --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
-  }
-  body.dark-mode { --bg-color:#18191a; --card-bg:#242526; --text-color:#e4e6eb; --secondary-text:#b0b3b8; --border-color:#3e4042; }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#e0f7ff 0%,#b3e0ff 100%);min-height:100vh;color:var(--text-color)}
-  .app-container{display:flex;min-height:100vh}
-  .sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:linear-gradient(180deg,#0061FF 0%,#4d94ff 100%);padding:20px;color:#fff;z-index:100}
-  .sidebar h2{margin-bottom:18px}
-  .sidebar-menu{list-style:none}
-  .sidebar-menu a{display:flex;align-items:center;padding:12px;color:white;text-decoration:none;border-radius:8px;margin-bottom:8px}
-  .main-content{flex:1;margin-left:280px;padding:20px}
-  .navbar{background:linear-gradient(135deg,#0061FF 0%,#4d94ff 100%);padding:15px;border-radius:12px;margin-bottom:20px;color:white;display:flex;justify-content:space-between;align-items:center}
-  .post-composer{background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-  .composer-header{display:flex;gap:12px;align-items:center}
-  .user-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .composer-input{flex:1;background:var(--bg-color);padding:12px 16px;border-radius:25px;cursor:pointer}
-  .posts{display:flex;flex-direction:column;gap:16px}
-  .post{background:var(--card-bg);padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-  .post-media img,.post-media video{width:100%;max-height:500px;object-fit:contain;border-radius:8px}
-  .post-interactions{display:flex;gap:12px;margin-top:8px}
-  .interaction-btn{cursor:pointer;padding:8px 12px;border-radius:6px;color:var(--secondary-text);font-weight:600}
-  .interaction-btn.active{color:var(--primary)}
-  .comment-input{display:flex;gap:8px;align-items:center}
-  .comment-input input{flex:1;padding:8px 12px;border-radius:18px;border:1px solid var(--border-color)}
-  .send-comment-btn{background:var(--primary);color:#fff;border:0;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .loading{text-align:center;padding:20px;color:var(--secondary-text)}
-  @media (max-width:768px){.sidebar{width:70px}.main-content{margin-left:70px;padding:10px}}
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+  #feed { max-width: 600px; margin: auto; }
+  .post { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+  video, img { max-width: 100%; border-radius: 8px; }
+  textarea { width: 100%; padding: 8px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-  <div class="app-container">
-    <div class="sidebar">
-      <h2>MEET</h2>
-      <ul class="sidebar-menu">
-        <li><a href="#"><i class="fas fa-home"></i>&nbsp; Feed</a></li>
-        <li><a href="profile.html"><i class="fas fa-user"></i>&nbsp; Profile</a></li>
-        <li><a href="#"><i class="fas fa-comment"></i>&nbsp; Chat</a></li>
-        <li><a href="#"><i class="fas fa-chart-line"></i>&nbsp; Meetrader</a></li>
-        <li><a href="#"><i class="fas fa-graduation-cap"></i>&nbsp; Meetversity</a></li>
-        <li><a href="#"><i class="fas fa-sitemap"></i>&nbsp; Organization</a></li>
-        <li><a href="#"><i class="fas fa-cog"></i>&nbsp; Settings</a></li>
-      </ul>
-    </div>
 
-    <div class="main-content">
-      <div class="navbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <h3 style="margin:0;color:white">MEET Feed</h3>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="display:flex;align-items:center;background:rgba(255,255,255,.12);padding:8px 12px;border-radius:20px">
-            <i class="fas fa-search" style="color:white;margin-right:8px"></i>
-            <input placeholder="Search..." style="border:none;background:transparent;color:white;outline:none" />
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="user-avatar small" id="currentUserAvatarNav">U</div>
-            <div id="userName" style="color:white;font-weight:700">User</div>
-            <button class="btn" id="logoutBtn" style="background:rgba(255,255,255,.15);color:white;border:0;padding:8px 12px;border-radius:8px;cursor:pointer">
-              <i class="fas fa-sign-out-alt"></i>&nbsp; Logout
-            </button>
-          </div>
-        </div>
-      </div>
+<h1>MEET Feed</h1>
+<div>
+  <textarea id="postText" placeholder="What's on your mind?"></textarea>
+  <input type="file" id="mediaFile" accept="image/*,video/*">
+  <button id="postBtn">Post</button>
+</div>
 
-      <div class="post-composer">
-        <div class="composer-header">
-          <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-          <div class="composer-input" id="openComposer">Surprise the world now</div>
-        </div>
-        <div style="height:12px"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="openComposerBtn" style="background:linear-gradient(135deg,#0061FF,#4d94ff);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer">Create Post</button>
-        </div>
-      </div>
+<div id="feed"></div>
 
-      <div id="messageContainer"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-      <div class="posts" id="postsContainer">
-        <div class="loading">Loading posts...</div>
-      </div>
-    </div>
-  </div>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.appspot.com",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c",
+    measurementId: "G-9BFPPVMMRF"
+  };
 
-  <!-- Modal create post -->
-  <div class="modal" id="postModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999">
-    <div style="background:var(--card-bg);width:600px;max-width:95%;border-radius:12px;padding:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <h3 style="margin:0">Create Post</h3>
-        <button id="closeModal" style="background:none;border:0;font-size:22px;cursor:pointer">&times;</button>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">
-        <div class="user-avatar" id="modalUserAvatar">U</div>
-        <div style="flex:1">
-          <div id="modalUserName" style="font-weight:700">User</div>
-          <select id="privacy" style="margin-top:8px;padding:6px;border-radius:6px;border:1px solid var(--border-color)">
-            <option value="public">🌍 Public</option>
-            <option value="friends">👥 Friends</option>
-            <option value="private">🔒 Only Me</option>
-          </select>
-        </div>
-      </div>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-      <textarea id="postText" placeholder="Write something..." style="width:100%;min-height:120px;border:1px solid var(--border-color);padding:10px;border-radius:8px"></textarea>
-
-      <div id="mediaPreview" style="margin-top:12px"></div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="file" id="postMedia" accept="image/*,video/*" style="display:none" />
-          <button class="btn" onclick="document.getElementById('postMedia').click()" style="background:rgba(0,0,0,.06);border:0;padding:8px 12px;border-radius:8px;cursor:pointer">
-            <i class="fas fa-images"></i>&nbsp; Add media
-          </button>
-          <div style="color:var(--secondary-text)">Max 10MB</div>
-        </div>
-        <button id="postBtn" style="background:linear-gradient(135deg,#0061FF,#4d94ff);color:white;border:0;padding:10px 16px;border-radius:8px;cursor:pointer">
-          <span id="postBtnText">Post</span>
-          <span id="postBtnSpinner" class="spinner" style="display:none;margin-left:8px"></span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase + App logic -->
-  <script type="module">
-    // ---------- CONFIG - replace if needed ----------
-    // Put your PIPEDREAM signature endpoint here (the one that returns JSON with signature/timestamp)
-    const SIGNATURE_ENDPOINT = "https://eo3myb8usavbg0l.m.pipedream.net/"; // <- your Pipedream URL
-    // ------------------------------------------------
-
-    // Firebase v10 modular imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, doc, setDoc, deleteDoc, getDoc,
-      onSnapshot, serverTimestamp, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-
-    // Firebase config (your existing)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-      authDomain: "meet-6e159.firebaseapp.com",
-      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-      projectId: "meet-6e159",
-      storageBucket: "meet-6e159.firebasestorage.app",
-      messagingSenderId: "252353608421",
-      appId: "1:252353608421:web:6706056048e9a8f12db20c",
-      measurementId: "G-9BFPPVMMRF"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // Cloudinary upload preset will be provided by signature endpoint, but fallback:
-    const DEFAULT_UPLOAD_PRESET = "Meet_video";
-
-    // DOM
-    const postsContainer = document.getElementById('postsContainer');
-    const postModal = document.getElementById('postModal');
-    const openComposerBtn = document.getElementById('openComposerBtn');
-    const openComposer = document.getElementById('openComposer');
-    const closeModal = document.getElementById('closeModal');
-    const postMedia = document.getElementById('postMedia');
-    const mediaPreview = document.getElementById('mediaPreview');
-    const postBtn = document.getElementById('postBtn');
-    const postText = document.getElementById('postText');
-    const privacySelect = document.getElementById('privacy');
-    const messageContainer = document.getElementById('messageContainer');
-    const currentUserAvatarNav = document.getElementById('currentUserAvatarNav');
-    const currentUserAvatarComposer = document.getElementById('currentUserAvatarComposer');
-    const modalUserAvatar = document.getElementById('modalUserAvatar');
-    const modalUserName = document.getElementById('modalUserName');
-    const userNameEl = document.getElementById('userName');
-    const postBtnText = document.getElementById('postBtnText');
-    const postBtnSpinner = document.getElementById('postBtnSpinner');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    // Global
-    let currentUser = null;
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-    // Simple toast
-    function showMessage(msg, type='error'){
-      messageContainer.innerHTML = `<div class="${type==='success'?'success-message':'error-message'}" style="margin-bottom:12px">${msg}</div>`;
-      setTimeout(()=>messageContainer.innerHTML='',5000);
-    }
-
-    function setLoading(isLoading){
-      if(isLoading){
-        postBtn.disabled = true;
-        postBtnText.style.display = 'none';
-        postBtnSpinner.style.display = 'inline-block';
-      } else {
-        postBtn.disabled = false;
-        postBtnText.style.display = 'inline-block';
-        postBtnSpinner.style.display = 'none';
-      }
-    }
-
-    // Helper: detect if file is video
-    function isVideoFile(file){
-      return file && file.type && file.type.startsWith('video/');
-    }
-
-    // Upload helper: requests signature from SIGNATURE_ENDPOINT, then posts to Cloudinary
-    async function uploadToCloudinary(file){
-      // Fetch signature info from your backend (Pipedream)
-      let sigResp;
-      try {
-        const r = await fetch(SIGNATURE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'get_signature' }) });
-        sigResp = await r.json();
-      } catch (err) {
-        console.error('Signature endpoint error:', err);
-        throw new Error('Signature endpoint did not return JSON. Check Pipedream.');
-      }
-
-      // Validate required keys
-      const cloudName = sigResp.cloud_name;
-      const apiKey = sigResp.api_key;
-      const uploadPreset = sigResp.upload_preset || DEFAULT_UPLOAD_PRESET;
-      const timestamp = sigResp.timestamp;
-      const signature = sigResp.signature;
-      if(!cloudName || !apiKey || !timestamp || !signature){
-        console.error('Bad signature response', sigResp);
-        throw new Error('Signature endpoint returned incomplete data.');
-      }
-
-      // Prepare form
-      const form = new FormData();
-      form.append('file', file);
-      form.append('api_key', apiKey);
-      form.append('timestamp', timestamp);
-      form.append('signature', signature);
-      form.append('upload_preset', uploadPreset);
-
-      // Choose resource endpoint for video vs image
-      const resourcePath = isVideoFile(file) ? 'video' : 'image';
-      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourcePath}/upload`;
-
-      const res = await fetch(uploadUrl, { method: 'POST', body: form });
-      if(!res.ok){
-        const txt = await res.text();
-        console.error('Cloudinary upload failed:', res.status, txt);
-        let json;
-        try { json = JSON.parse(txt); } catch(e){ throw new Error('Upload failed: ' + txt); }
-        throw new Error(json.error && json.error.message ? json.error.message : 'Upload failed');
-      }
-      const data = await res.json();
-      return data.secure_url;
-    }
-
-    // Create a post doc (top-level posts collection)
-    async function createPostDoc({ text, mediaUrl='', privacy='public' }){
-      const user = auth.currentUser;
-      if(!user) throw new Error('Not authenticated');
-      await addDoc(collection(db, 'posts'), {
-        userId: user.uid,
-        userName: user.displayName || 'Anonymous',
-        userInitial: (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'),
-        text: text,
-        media: mediaUrl || '',
-        privacy: privacy,
-        timestamp: serverTimestamp()
-      });
-    }
-
-    // Like/unlike using subcollection posts/{postId}/likes/{uid}
-    async function toggleLike(postId){
-      const user = auth.currentUser;
-      if(!user) return;
-      const likeRef = doc(db, 'posts', postId, 'likes', user.uid);
-      const likeSnap = await getDoc(likeRef);
-      if(likeSnap.exists()){
-        // delete like
-        await deleteDoc(likeRef);
-      } else {
-        await setDoc(likeRef, { userId: user.uid, timestamp: serverTimestamp() });
-      }
-    }
-
-    // Add comment to subcollection
-    async function addComment(postId, text){
-      const user = auth.currentUser;
-      if(!user) throw new Error('Not authenticated');
-      if(!text || !text.trim()) return;
-      await addDoc(collection(db, 'posts', postId, 'comments'), {
-        userId: user.uid,
-        userName: user.displayName || 'Anonymous',
-        userInitial: (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'),
-        text: text,
-        timestamp: serverTimestamp()
-      });
-    }
-
-    // Listen for posts and render them. For each post we attach listeners for likes and comments counts.
-    function setupRealTimePosts(){
-      const postsQuery = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
-      onSnapshot(postsQuery, (snapshot) => {
-        postsContainer.innerHTML = '';
-        if(snapshot.empty){
-          postsContainer.innerHTML = '<div class="loading">No posts yet. Be the first to post!</div>';
-          return;
-        }
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          renderPost(docSnap.id, data);
-        });
-      }, (err) => {
-        console.error('posts snapshot error', err);
-        postsContainer.innerHTML = '<div class="error-message">Failed to load posts. Please refresh.</div>';
-      });
-    }
-
-    // Render single post with live likes/comments listeners
-    function renderPost(postId, postData){
-      const container = document.createElement('div');
-      container.className = 'post';
-      container.setAttribute('data-post-id', postId);
-
-      // initial HTML
-      container.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div style="display:flex;gap:12px;cursor:pointer">
-            <div class="user-avatar" style="width:44px;height:44px">${postData.userInitial || 'U'}</div>
-            <div>
-              <div style="font-weight:700">${escapeHtml(postData.userName || 'Anonymous')}</div>
-              <div style="color:var(--secondary-text);font-size:13px">${formatTimestamp(postData.timestamp)} • ${postData.privacy === 'public' ? '🌍 Public' : postData.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}</div>
-            </div>
-          </div>
-          <div style="text-align:right">
-            ${ (auth.currentUser && auth.currentUser.uid === postData.userId) ? `<div style="cursor:pointer;color:var(--secondary-text)">Owner</div>` : '' }
-          </div>
-        </div>
-        <div style="margin-top:12px">${escapeHtml(postData.text || '')}</div>
-        ${postData.media ? `<div class="post-media" style="margin-top:12px">${ (postData.media.match(/\\.(mp4|mov|avi|webm)$/i) || postData.media.includes('/video/')) ? `<video controls src="${postData.media}"></video>` : `<img src="${postData.media}" loading="lazy" />` }</div>` : ''}
-        <div class="post-stats" style="margin-top:8px;color:var(--secondary-text)"> <span class="likes-count">0 likes</span> • <span class="comments-count">0 comments</span> </div>
-        <div class="post-interactions" style="margin-top:8px">
-          <div class="interaction-btn like-btn"><i class="fas fa-thumbs-up"></i>&nbsp;<span class="like-text">Like</span></div>
-          <div class="interaction-btn comment-btn"><i class="fas fa-comment"></i>&nbsp;Comment</div>
-          <div class="interaction-btn share-btn"><i class="fas fa-share"></i>&nbsp;Share</div>
-        </div>
-        <div class="comments-section" style="margin-top:12px">
-          <div class="comments-list"></div>
-          <div class="comment-input" style="margin-top:8px">
-            <input type="text" placeholder="Write a comment..." class="comment-input-field" />
-            <button class="send-comment-btn" title="Send comment"><i class="fas fa-paper-plane" style="color:white"></i></button>
-          </div>
-        </div>
-      `;
-
-      // append then attach live listeners
-      postsContainer.appendChild(container);
-
-      const likesCountEl = container.querySelector('.likes-count');
-      const commentsCountEl = container.querySelector('.comments-count');
-      const likeBtn = container.querySelector('.like-btn');
-      const likeText = container.querySelector('.like-text');
-      const commentBtn = container.querySelector('.comment-btn');
-      const commentsList = container.querySelector('.comments-list');
-      const commentInputField = container.querySelector('.comment-input-field');
-      const sendCommentBtn = container.querySelector('.send-comment-btn');
-
-      // Toggle focus on comment input when clicking comment button
-      commentBtn.addEventListener('click', () => commentInputField.focus());
-
-      // Send comment button
-      sendCommentBtn.addEventListener('click', async () => {
-        const txt = commentInputField.value.trim();
-        if(!txt) return;
-        try {
-          await addComment(postId, txt);
-          commentInputField.value = '';
-        } catch (err) {
-          console.error('add comment error', err);
-          showMessage('Failed to add comment', 'error');
-        }
-      });
-
-      // Enter to send
-      commentInputField.addEventListener('keypress', async (e) => {
-        if(e.key === 'Enter'){
-          e.preventDefault();
-          sendCommentBtn.click();
-        }
-      });
-
-      // Likes snapshot
-      const likesCol = collection(db, 'posts', postId, 'likes');
-      const commentsCol = collection(db, 'posts', postId, 'comments');
-
-      // track subscription references so they remain active
-      const unsubLikes = onSnapshot(likesCol, (likesSnap) => {
-        const count = likesSnap.size;
-        likesCountEl.textContent = `${count} ${count===1?'like':'likes'}`;
-        // set like button active when current user liked
-        let userLiked = false;
-        if(currentUser){
-          likesSnap.docs.forEach(d => {
-            if(d.id === currentUser.uid) userLiked = true;
-          });
-        }
-        if(userLiked){
-          likeBtn.classList.add('active');
-          likeText.textContent = 'Liked';
-        } else {
-          likeBtn.classList.remove('active');
-          likeText.textContent = 'Like';
-        }
-      }, err => console.error('likes onSnapshot error', err));
-
-      // comments snapshot (render last 10)
-      const unsubComments = onSnapshot(commentsCol, (commentsSnap) => {
-        const count = commentsSnap.size;
-        commentsCountEl.textContent = `${count} ${count===1?'comment':'comments'}`;
-        // render comments (most recent last)
-        const commentsHtml = commentsSnap.docs
-          .sort((a,b)=> a.data().timestamp && b.data().timestamp ? a.data().timestamp.seconds - b.data().timestamp.seconds : 0)
-          .map(cd => {
-            const c = cd.data();
-            return `<div style="display:flex;gap:8px;margin-bottom:8px">
-              <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${escapeHtml(c.userInitial || 'U')}</div>
-              <div style="background:var(--bg-color);padding:8px;border-radius:12px">
-                <div style="font-weight:700">${escapeHtml(c.userName || 'User')}</div>
-                <div>${escapeHtml(c.text || '')}</div>
-              </div>
-            </div>`;
-          }).join('');
-        commentsList.innerHTML = commentsHtml;
-      }, err => console.error('comments onSnapshot error', err));
-
-      // like button click: toggle like doc with id = uid
-      likeBtn.addEventListener('click', async () => {
-        try {
-          await toggleLike(postId);
-        } catch(err){
-          console.error('toggle like error', err);
-          showMessage('Failed to toggle like', 'error');
-        }
-      });
-
-      // share button - naive
-      container.querySelector('.share-btn').addEventListener('click', async () => {
-        try{
-          if(navigator.share){
-            await navigator.share({ title: 'Check this post', text: postData.text || '', url: window.location.href });
-          } else {
-            showMessage('Post shared (copy link)', 'success');
-          }
-        }catch(e){
-          console.error('share error', e);
-        }
-      });
-
-      // cleanup if needed - optional: return unsub functions
-      return { unsubLikes, unsubComments };
-    }
-
-    // Utils
-    function escapeHtml(text){
-      if(!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    function formatTimestamp(timestamp){
-      if(!timestamp) return 'Just now';
-      try {
-        const date = timestamp.toDate();
-        const now = new Date();
-        const diff = now - date;
-        const mins = Math.floor(diff/60000);
-        const hrs = Math.floor(diff/3600000);
-        const days = Math.floor(diff/86400000);
-        if(mins < 1) return 'Just now';
-        if(mins < 60) return `${mins}m ago`;
-        if(hrs < 24) return `${hrs}h ago`;
-        if(days < 7) return `${days}d ago`;
-        return date.toLocaleDateString();
-      } catch(e){
-        return 'Just now';
-      }
-    }
-
-    // Auth listener
-    onAuthStateChanged(auth, (user) => {
-      if(!user){
-        // redirect to login
-        window.location.href = 'login.html';
-        return;
-      }
+  let currentUser = null;
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      alert("Please log in first!");
+      // redirect to login if needed
+    } else {
       currentUser = user;
-      const nm = user.displayName || 'User';
-      const initial = nm.charAt(0).toUpperCase();
-      currentUserAvatarNav.textContent = initial;
-      currentUserAvatarComposer.textContent = initial;
-      modalUserAvatar.textContent = initial;
-      modalUserName.textContent = nm;
-      userNameEl.textContent = nm;
-      // start listening posts
-      setupRealTimePosts();
-    });
+    }
+  });
 
-    // Logout
-    logoutBtn.addEventListener('click', async () => {
-      try{
-        await signOut(auth);
-        window.location.href = 'login.html';
-      } catch(e){
-        console.error('logout error', e); showMessage('Logout failed', 'error');
-      }
-    });
+  const postBtn = document.getElementById("postBtn");
+  const postText = document.getElementById("postText");
+  const mediaFile = document.getElementById("mediaFile");
 
-    // Modal open/close & media preview
-    openComposerBtn.addEventListener('click', ()=> postModal.style.display = 'flex');
-    openComposer.addEventListener('click', ()=> postModal.style.display = 'flex');
-    closeModal.addEventListener('click', ()=> { postModal.style.display='none'; resetPostForm(); });
+  postBtn.addEventListener("click", async () => {
+    if (!currentUser) return alert("You must be logged in to post!");
 
-    postMedia.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if(!file) return;
-      if(file.size > MAX_FILE_SIZE){ showMessage('File too large (max 10MB)'); postMedia.value=''; return;}
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if(isVideoFile(file)){
-          mediaPreview.innerHTML = `<video controls src="${ev.target.result}" style="width:100%;max-height:300px;border-radius:8px"></video><button onclick="removeMedia()" style="margin-top:8px">Remove</button>`;
-        } else {
-          mediaPreview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;max-height:300px;border-radius:8px"/><button onclick="removeMedia()" style="margin-top:8px">Remove</button>`;
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    const file = mediaFile.files[0];
+    const text = postText.value.trim();
+    if (!file && !text) return alert("Add text or media!");
 
-    // Expose removeMedia globally used by inline button
-    window.removeMedia = () => { mediaPreview.innerHTML = ''; postMedia.value = ''; };
+    let mediaUrl = null;
 
-    // Create post flow
-    postBtn.addEventListener('click', async () => {
-      const text = postText.value.trim();
-      const file = postMedia.files[0];
-      const privacy = privacySelect.value;
-      if(!text && !file){ showMessage('Add text or media'); return; }
-      setLoading(true);
-      try {
-        let mediaUrl = '';
-        if(file){
-          mediaUrl = await uploadToCloudinary(file);
-        }
-        await createPostDoc({ text, mediaUrl, privacy });
-        resetPostForm();
-        postModal.style.display = 'none';
-        showMessage('Post created', 'success');
-      } catch(err){
-        console.error('create post error', err);
-        showMessage(err.message || 'Failed to create post', 'error');
-      } finally {
-        setLoading(false);
-      }
-    });
+    if (file) {
+      // 1️⃣ Get signature from Pipedream
+      const sigRes = await fetch("https://eo3myb8usavbg0l.m.pipedream.net");
+      const sigData = await sigRes.json();
 
-    function resetPostForm(){
-      postText.value = '';
-      postMedia.value = '';
-      mediaPreview.innerHTML = '';
-      privacySelect.value = 'public';
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", sigData.api_key);
+      formData.append("timestamp", sigData.timestamp);
+      formData.append("upload_preset", sigData.upload_preset);
+      formData.append("signature", sigData.signature);
+
+      // 2️⃣ Upload to Cloudinary
+      const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloud_name}/auto/upload`;
+      const uploadRes = await fetch(cloudUrl, { method: "POST", body: formData });
+      const uploadData = await uploadRes.json();
+      mediaUrl = uploadData.secure_url;
     }
 
-    // For debug: expose SIGNATURE_ENDPOINT
-    console.log('SIGNATURE_ENDPOINT ->', SIGNATURE_ENDPOINT);
+    // 3️⃣ Save post to Firestore
+    await addDoc(collection(db, "posts"), {
+      userId: currentUser.uid,
+      text: text || "",
+      mediaUrl: mediaUrl || "",
+      createdAt: serverTimestamp()
+    });
 
-  </script>
+    postText.value = "";
+    mediaFile.value = "";
+  });
+
+  // 4️⃣ Display feed
+  const feedDiv = document.getElementById("feed");
+  const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  onSnapshot(postsQuery, snapshot => {
+    feedDiv.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const postDiv = document.createElement("div");
+      postDiv.className = "post";
+      let mediaHtml = "";
+      if (data.mediaUrl) {
+        if (data.mediaUrl.includes(".mp4") || data.mediaUrl.includes("video")) {
+          mediaHtml = `<video controls src="${data.mediaUrl}"></video>`;
+        } else {
+          mediaHtml = `<img src="${data.mediaUrl}" />`;
+        }
+      }
+      postDiv.innerHTML = `<p>${data.text}</p>${mediaHtml}`;
+      feedDiv.appendChild(postDiv);
+    });
+  });
+</script>
+
 </body>
 </html>
