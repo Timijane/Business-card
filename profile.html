@@ -63,6 +63,11 @@
       width: 100%;
       border-radius: 12px;
     }
+    .post-time {
+      color: #888;
+      font-size: 0.85em;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
@@ -80,8 +85,10 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, addDoc, query, orderBy, onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // ✅ Your Firebase Config
     const firebaseConfig = {
@@ -100,16 +107,16 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ✅ Check Auth State
+    // ✅ Your Pipedream URL
+    const pipedreamURL = "https://eo2hozna5eusqvx.m.pipedream.net/";
+
+    // ✅ Check if user is signed in
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         alert("Session expired. Please log in again.");
         window.location.href = "index.html";
       }
     });
-
-    // ✅ Your Pipedream URL
-    const pipedreamURL = "https://eo2hozna5eusqvx.m.pipedream.net/";
 
     // ✅ Upload Function
     async function uploadToCloudinary() {
@@ -140,54 +147,51 @@
       if (data.secure_url) {
         alert("✅ Upload successful!");
         await savePost(data.secure_url, file.type);
-        addToFeed(data.secure_url, file.type);
       } else {
         alert("❌ Upload failed!");
         console.error(data);
       }
     }
 
-    // ✅ Save Post to Firestore
+    // ✅ Save post to Firestore
     async function savePost(url, type) {
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
-        await addDoc(collection(db, "posts"), {
-          userId: user.uid,
-          mediaUrl: url,
-          mediaType: type.startsWith("video") ? "video" : "image",
-          createdAt: Date.now()
-        });
-      } catch (error) {
-        console.error("Error saving post:", error);
-      }
+      const user = auth.currentUser;
+      if (!user) return;
+
+      await addDoc(collection(db, "posts"), {
+        userId: user.uid,
+        mediaUrl: url,
+        mediaType: type.startsWith("video") ? "video" : "image",
+        createdAt: Date.now()
+      });
     }
 
-    // ✅ Display Post on Feed
-    function addToFeed(url, type) {
+    // ✅ Add post to feed
+    function addToFeed(url, type, createdAt) {
       const feed = document.getElementById("feed");
       const post = document.createElement("div");
       post.classList.add("post");
 
-      if (type.startsWith("video")) {
-        post.innerHTML = `<video controls src="${url}"></video>`;
+      const date = new Date(createdAt).toLocaleString();
+
+      if (type === "video") {
+        post.innerHTML = `<video controls src="${url}"></video><div class="post-time">${date}</div>`;
       } else {
-        post.innerHTML = `<img src="${url}" alt="User post" />`;
+        post.innerHTML = `<img src="${url}" alt="User post" /><div class="post-time">${date}</div>`;
       }
       feed.prepend(post);
     }
 
-    // ✅ Load all posts
-    async function loadFeed() {
-      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-      const snapshot = await getDocs(q);
+    // ✅ Real-time feed listener
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const feed = document.getElementById("feed");
+      feed.innerHTML = ""; // clear old posts
       snapshot.forEach((doc) => {
         const data = doc.data();
-        addToFeed(data.mediaUrl, data.mediaType);
+        addToFeed(data.mediaUrl, data.mediaType, data.createdAt);
       });
-    }
-
-    loadFeed();
+    });
   </script>
 </body>
 </html>
