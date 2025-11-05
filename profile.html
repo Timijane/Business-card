@@ -3,90 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MEET | Feed</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>MEET Feed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: "Poppins", sans-serif;
+      background: #f5f6fa;
       margin: 0;
-      background: #f0f2f5;
+      padding: 0;
     }
     header {
       background: #0061ff;
-      color: white;
-      padding: 15px;
+      color: #fff;
+      padding: 10px 20px;
       text-align: center;
-      font-size: 1.4em;
       font-weight: 600;
+      font-size: 20px;
     }
-    #postBox {
-      background: white;
-      width: 90%;
-      max-width: 500px;
-      margin: 20px auto;
-      padding: 15px;
+    .feed-container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
     }
-    #postBox textarea {
+    textarea {
       width: 100%;
-      border: none;
-      outline: none;
+      height: 80px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 14px;
       resize: none;
-      font-size: 1em;
-      margin-bottom: 10px;
     }
-    #postBox input[type="file"] {
-      margin-bottom: 10px;
+    input[type="file"] {
+      margin-top: 10px;
+      display: block;
     }
-    #postBox button {
+    button {
+      margin-top: 10px;
       background: #0061ff;
       color: white;
       border: none;
       padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
+      border-radius: 8px;
       font-weight: 600;
+      cursor: pointer;
     }
-    #feed {
-      width: 90%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .post {
-      background: white;
-      margin-bottom: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .post p {
-      margin: 10px 0;
-    }
-    .post img, .post video {
-      width: 100%;
-      border-radius: 10px;
-      margin-top: 10px;
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <header>MEET Feed</header>
 
-  <div id="postBox">
-    <textarea id="postText" placeholder="What's on your mind?" rows="3"></textarea>
-    <input type="file" id="mediaFile" accept="image/*,video/*">
+  <div class="feed-container">
+    <textarea id="postText" placeholder="What's on your mind?"></textarea>
+    <input type="file" id="fileInput" accept="image/*,video/*" />
     <button id="postBtn">Post</button>
   </div>
 
-  <div id="feed"></div>
-
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
-    // 🔥 Your Firebase Config
+  <script>
+    // ✅ Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -99,85 +85,73 @@
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 
-    const postBtn = document.getElementById('postBtn');
-    const postText = document.getElementById('postText');
-    const mediaFile = document.getElementById('mediaFile');
-    const feed = document.getElementById('feed');
+  <script>
+    document.getElementById("postBtn").addEventListener("click", async () => {
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+      const text = document.getElementById("postText").value.trim();
 
-    // 🔄 Load posts
-    async function loadFeed() {
-      feed.innerHTML = '';
-      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        const post = doc.data();
-        const div = document.createElement('div');
-        div.classList.add('post');
-        div.innerHTML = `<p>${post.text}</p>`;
-        if (post.mediaUrl) {
-          if (post.mediaType.startsWith('video')) {
-            div.innerHTML += `<video controls src="${post.mediaUrl}"></video>`;
-          } else {
-            div.innerHTML += `<img src="${post.mediaUrl}" alt="post">`;
-          }
-        }
-        feed.appendChild(div);
-      });
-    }
-
-    loadFeed();
-
-    // 🧭 Post Button Click
-    postBtn.addEventListener('click', async () => {
-      const text = postText.value.trim();
-      const file = mediaFile.files[0];
-
-      if (!text && !file) {
-        alert('Write something or upload a file');
+      if (!file && !text) {
+        alert("Please write something or pick a file first.");
         return;
       }
 
+      const postBtn = document.getElementById("postBtn");
       postBtn.disabled = true;
-      postBtn.textContent = 'Posting...';
-
-      let mediaUrl = null;
-      let mediaType = null;
+      postBtn.innerText = "Posting...";
 
       try {
+        let mediaUrl = "";
+
         if (file) {
-          // Upload via Pipedream → Cloudinary
+          alert("Uploading media to Cloudinary...");
+          console.log("Uploading to Pipedream:", file.name);
+
           const formData = new FormData();
           formData.append("file", file);
-          const uploadRes = await fetch("https://eo2hozna5eusqvx.m.pipedream.net", {
+
+          // ✅ Your real Pipedream endpoint
+          const res = await fetch("https://eo2hozna5eusqvx.m.pipedream.net", {
             method: "POST",
-            body: formData
+            body: formData,
           });
-          const result = await uploadRes.json();
+
+          const result = await res.json();
+          console.log("Pipedream result:", result);
+
+          if (!result.secure_url) {
+            throw new Error("No secure_url returned from Pipedream");
+          }
+
           mediaUrl = result.secure_url;
-          mediaType = file.type;
+          alert("Upload successful!");
         }
 
-        // Save post to Firestore
-        await addDoc(collection(db, "posts"), {
-          text: text,
-          mediaUrl: mediaUrl,
-          mediaType: mediaType,
-          timestamp: Date.now()
+        // ✅ Save to Firestore
+        const user = auth.currentUser;
+        if (!user) throw new Error("No user logged in");
+
+        await db.collection("posts").add({
+          userId: user.uid,
+          text,
+          mediaUrl,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
-        postText.value = '';
-        mediaFile.value = '';
+        alert("Posted successfully!");
+        document.getElementById("postText").value = "";
+        fileInput.value = "";
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Error posting, try again: " + err.message);
+      } finally {
         postBtn.disabled = false;
-        postBtn.textContent = 'Post';
-        loadFeed();
-      } catch (error) {
-        console.error('Error posting:', error);
-        alert('Error posting. Try again.');
-        postBtn.disabled = false;
-        postBtn.textContent = 'Post';
+        postBtn.innerText = "Post";
       }
     });
   </script>
