@@ -1,220 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Feed</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* ---- your existing CSS pasted here ---- */
-/* (Use exactly what you sent; I’ve kept it out for brevity) */
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEET | Feed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1877f2;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      background-color: #1877f2;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #145dbf;
+    }
+    .feed {
+      margin-top: 30px;
+    }
+    .post {
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .post img, .post video {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
+  <header>MEET Feed</header>
 
-<div class="app-container">
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h2>MEET</h2>
-    </div>
-    <ul class="sidebar-menu">
-      <li><a href="#"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="#"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="#"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="#"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="#"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-    </ul>
+  <div class="container">
+    <h3>Create a Post</h3>
+    <textarea id="caption" placeholder="What's on your mind?" rows="3"></textarea>
+    <input type="file" id="mediaInput" accept="image/*,video/*">
+    <button id="postBtn">Post</button>
+
+    <div class="feed" id="feed"></div>
   </div>
 
-  <div class="main-content">
-    <div class="navbar">
-      <h2>MEET Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search...">
-        </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName">User</span>
-          </div>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span>Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
-    <div class="post-composer">
-      <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-        <div class="composer-input" id="openComposer">Surprise the world now</div>
-      </div>
-    </div>
+  <script>
+    // ✅ Your Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+      projectId: "meet-6e159",
+      storageBucket: "meet-6e159.firebasestorage.app",
+      messagingSenderId: "252353608421",
+      appId: "1:252353608421:web:6706056048e9a8f12db20c",
+      measurementId: "G-9BFPPVMMRF"
+    };
 
-    <div class="ai-button"><i class="fas fa-robot"></i></div>
-    <div id="messageContainer"></div>
-    <div class="posts" id="postsContainer">
-      <div class="loading">Loading posts...</div>
-    </div>
-  </div>
-</div>
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-<!-- Post Modal -->
-<div class="modal" id="postModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Post</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="post-form">
-        <div class="post-user-info">
-          <div class="user-avatar" id="modalUserAvatar">U</div>
-          <div><div class="user-name" id="modalUserName">User Name</div></div>
-        </div>
-        <textarea id="postText" class="post-textarea" placeholder="What's on your mind?"></textarea>
-        <input type="file" id="mediaInput" accept="image/*,video/*">
-        <div class="media-preview" id="mediaPreview"></div>
-        <button class="btn" id="submitPostBtn">Post</button>
-      </div>
-    </div>
-  </div>
-</div>
+    const postBtn = document.getElementById('postBtn');
+    const caption = document.getElementById('caption');
+    const mediaInput = document.getElementById('mediaInput');
+    const feed = document.getElementById('feed');
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    // ✅ Load existing posts
+    async function loadFeed() {
+      feed.innerHTML = "";
+      const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.classList.add("post");
+        div.innerHTML = `
+          <p>${data.caption || ""}</p>
+          ${data.mediaUrl ? (
+            data.mediaType === "video" 
+              ? `<video controls src="${data.mediaUrl}"></video>`
+              : `<img src="${data.mediaUrl}" alt="Post media">`
+          ) : ""}
+        `;
+        feed.appendChild(div);
+      });
+    }
 
-<script>
-// ================= FIREBASE CONFIG ==================
-const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_FIREBASE_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+    loadFeed();
 
-// ================= CLOUDINARY CONFIG ==================
-const CLOUDINARY_URL = "YOUR_CLOUDINARY_UPLOAD_URL";
-const CLOUDINARY_UPLOAD_PRESET = "YOUR_CLOUDINARY_UPLOAD_PRESET";
+    // ✅ Handle Post
+    postBtn.addEventListener('click', async () => {
+      const file = mediaInput.files[0];
+      const text = caption.value.trim();
 
-// ================= USER AUTH CHECK ==================
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "index.html";
-  } else {
-    document.getElementById("userName").innerText = user.displayName || user.email;
-    document.getElementById("modalUserName").innerText = user.displayName || user.email;
-  }
-});
+      if (!text && !file) {
+        alert("Please add text or media before posting.");
+        return;
+      }
 
-// ================= DARK MODE ==================
-const nightToggleBtn = document.getElementById("nightToggleBtn");
-nightToggleBtn.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-});
+      postBtn.disabled = true;
+      postBtn.textContent = "Posting...";
 
-// ================= LOGOUT ==================
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  await auth.signOut();
-  window.location.href = "index.html";
-});
+      let mediaUrl = "";
+      let mediaType = "";
 
-// ================= POST MODAL ==================
-const postModal = document.getElementById("postModal");
-document.getElementById("openComposer").addEventListener("click", () => postModal.style.display = "flex");
-document.getElementById("closeModal").addEventListener("click", () => postModal.style.display = "none");
-window.addEventListener("click", e => { if (e.target === postModal) postModal.style.display = "none"; });
+      try {
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", "ml_default");
 
-// ================= MEDIA UPLOAD PREVIEW ==================
-const mediaInput = document.getElementById("mediaInput");
-const mediaPreview = document.getElementById("mediaPreview");
-let mediaFile = null;
+          // ✅ Upload through your Pipedream endpoint
+          const response = await fetch("https://eo2hozna5eusqvx.m.pipedream.net", {
+            method: "POST",
+            body: formData
+          });
+          const result = await response.json();
 
-mediaInput.addEventListener("change", e => {
-  mediaFile = e.target.files[0];
-  if (!mediaFile) return;
-  const reader = new FileReader();
-  reader.onload = evt => {
-    const isVideo = mediaFile.type.startsWith("video");
-    mediaPreview.innerHTML = isVideo
-      ? `<video controls src="${evt.target.result}"></video>`
-      : `<img src="${evt.target.result}">`;
-  };
-  reader.readAsDataURL(mediaFile);
-});
+          if (!result.secure_url) throw new Error("Upload failed");
 
-// ================= POST CREATION ==================
-const submitPostBtn = document.getElementById("submitPostBtn");
-submitPostBtn.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("Please log in first.");
-  const text = document.getElementById("postText").value.trim();
-  if (!text && !mediaFile) return alert("Write something or add media.");
+          mediaUrl = result.secure_url;
+          mediaType = file.type.startsWith("video") ? "video" : "image";
+        }
 
-  submitPostBtn.innerHTML = '<div class="spinner"></div>';
+        // ✅ Save post to Firestore
+        await db.collection("posts").add({
+          caption: text,
+          mediaUrl,
+          mediaType,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-  let mediaUrl = null;
-  if (mediaFile) {
-    const formData = new FormData();
-    formData.append("file", mediaFile);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-    const data = await res.json();
-    mediaUrl = data.secure_url;
-  }
+        caption.value = "";
+        mediaInput.value = "";
+        postBtn.disabled = false;
+        postBtn.textContent = "Post";
 
-  await db.collection("posts").add({
-    text,
-    mediaUrl,
-    userId: user.uid,
-    userName: user.displayName || user.email,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  });
-
-  document.getElementById("postText").value = "";
-  mediaPreview.innerHTML = "";
-  postModal.style.display = "none";
-  submitPostBtn.innerHTML = "Post";
-  loadPosts();
-});
-
-// ================= LOAD POSTS ==================
-async function loadPosts() {
-  const postsContainer = document.getElementById("postsContainer");
-  postsContainer.innerHTML = "";
-  const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
-  snapshot.forEach(doc => {
-    const post = doc.data();
-    const media = post.mediaUrl
-      ? (post.mediaUrl.includes("video") ? `<video controls src="${post.mediaUrl}"></video>` : `<img src="${post.mediaUrl}">`)
-      : "";
-    postsContainer.innerHTML += `
-      <div class="post">
-        <div class="post-header">
-          <div class="user-name">${post.userName}</div>
-        </div>
-        <div class="post-content">${post.text}</div>
-        <div class="post-media">${media}</div>
-      </div>`;
-  });
-}
-
-loadPosts();
-</script>
-
+        loadFeed();
+      } catch (err) {
+        console.error(err);
+        alert("Error posting, try again.");
+        postBtn.disabled = false;
+        postBtn.textContent = "Post";
+      }
+    });
+  </script>
 </body>
 </html>
