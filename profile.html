@@ -1,55 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Upload to Cloudinary</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEET Video Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<h2>Upload to Cloudinary</h2>
-<input type="file" id="fileInput" />
-<button id="uploadBtn">Upload</button>
+  <h1>Upload Video to Cloudinary</h1>
+  <input type="file" id="videoInput" accept="video/*">
+  <br>
+  <button id="uploadBtn">Upload</button>
+  <div id="status"></div>
 
-<script>
-const backendUrl = "https://super-robot-4jwqjpv5j76pc479-5000.app.github.dev"; // your Codespace backend
+  <script>
+    const backendUrl = "https://super-robot-4jwqjpv5j76pc479-5000.app.github.dev"; // Codespace backend URL
 
-document.getElementById("uploadBtn").addEventListener("click", async () => {
-  const fileInput = document.getElementById("fileInput");
-  if (!fileInput.files.length) {
-    alert("Select a file first!");
-    return;
-  }
+    const uploadBtn = document.getElementById('uploadBtn');
+    const videoInput = document.getElementById('videoInput');
+    const status = document.getElementById('status');
 
-  const file = fileInput.files[0];
+    uploadBtn.addEventListener('click', async () => {
+      const file = videoInput.files[0];
+      if (!file) {
+        alert("Please select a video first!");
+        return;
+      }
 
-  try {
-    // 1. Get signature from backend
-    const sigRes = await fetch(`${backendUrl}/signature`);
-    const sigData = await sigRes.json();
-    const timestamp = sigData.timestamp;
-    const signature = sigData.signature;
+      status.textContent = "Generating signature...";
 
-    // 2. Prepare FormData for Cloudinary
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("api_key", "767477973776429"); // your Cloudinary API Key
-    formData.append("timestamp", timestamp);
-    formData.append("signature", signature);
+      try {
+        // Step 1: Get Cloudinary signature from backend
+        const sigRes = await fetch(`${backendUrl}/signature`);
+        const sigData = await sigRes.json();
 
-    // 3. Send file to Cloudinary
-    const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dcwof2ngn/video/upload"; // video upload endpoint
-    const uploadRes = await fetch(cloudinaryUrl, {
-      method: "POST",
-      body: formData
+        // Step 2: Prepare FormData for Cloudinary upload
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("api_key", sigData.apiKey);
+        formData.append("timestamp", sigData.timestamp);
+        formData.append("signature", sigData.signature);
+
+        // Step 3: Upload to Cloudinary
+        status.textContent = "Uploading video...";
+        const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/video/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const cloudData = await cloudRes.json();
+
+        if (cloudData.secure_url) {
+          status.innerHTML = `Upload successful!<br>Video URL: <a href="${cloudData.secure_url}" target="_blank">${cloudData.secure_url}</a>`;
+        } else {
+          console.error(cloudData);
+          status.textContent = "Error uploading video. Check console for details.";
+        }
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Error uploading video. Check console for details.";
+      }
     });
-
-    const result = await uploadRes.json();
-    console.log("Upload result:", result);
-    alert("Upload successful! Check console.");
-  } catch (err) {
-    console.error("Upload error:", err);
-    alert("Error uploading file.");
-  }
-});
-</script>
+  </script>
 </body>
 </html>
