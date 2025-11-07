@@ -1,92 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cloudinary Upload Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudinary Upload</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    input, button {
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
-    }
-    #preview {
-      margin-top: 20px;
-      max-width: 300px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { margin: 5px 0; }
+    video { max-width: 400px; margin-top: 10px; display: block; }
   </style>
 </head>
 <body>
-  <h1>Upload to Cloudinary</h1>
+  <h1>Upload Video to Cloudinary</h1>
 
-  <input type="file" id="fileInput" accept="image/*,video/*">
+  <input type="file" id="fileInput" accept="video/*,image/*" />
   <button id="uploadBtn">Upload</button>
 
-  <p id="status"></p>
-  <img id="preview" />
-  <video id="videoPreview" controls style="max-width:300px; display:none;"></video>
+  <h3>Preview:</h3>
+  <video id="preview" controls></video>
+
+  <h3>Uploaded URL:</h3>
+  <a id="uploadedUrl" href="#" target="_blank"></a>
 
   <script>
-    const uploadBtn = document.getElementById("uploadBtn");
     const fileInput = document.getElementById("fileInput");
-    const status = document.getElementById("status");
+    const uploadBtn = document.getElementById("uploadBtn");
     const preview = document.getElementById("preview");
-    const videoPreview = document.getElementById("videoPreview");
+    const uploadedUrl = document.getElementById("uploadedUrl");
+
+    let file;
+
+    // Show file preview
+    fileInput.addEventListener("change", (e) => {
+      file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+    });
 
     uploadBtn.addEventListener("click", async () => {
-      const file = fileInput.files[0];
-      if (!file) return alert("Please select a file first.");
+      if (!file) {
+        alert("Please select a file first!");
+        return;
+      }
 
-      status.textContent = "Generating signature...";
-      
-      // 1️⃣ Get signature + timestamp from backend
-      const sigRes = await fetch("http://localhost:5000/signature");
-      const { signature, timestamp } = await sigRes.json();
+      try {
+        // Step 1: Get signature from your backend
+        const sigRes = await fetch("https://super-robot-4jwqjpv5j76pc479-5000.app.github.dev/signature");
+        const sigData = await sigRes.json();
 
-      // 2️⃣ Prepare Cloudinary upload form
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("api_key", "767477973776429"); // your Cloudinary API key
-      formData.append("timestamp", timestamp);
-      formData.append("signature", signature);
-      formData.append("upload_preset", "ml_default"); // or your preset name
+        // Step 2: Prepare form data for Cloudinary
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("api_key", "767477973776429"); // your Cloudinary API key
+        formData.append("timestamp", sigData.timestamp);
+        formData.append("signature", sigData.signature);
 
-      status.textContent = "Uploading to Cloudinary...";
+        // Step 3: Upload to Cloudinary
+        const cloudName = "dcwof2ngn";
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+          method: "POST",
+          body: formData
+        });
 
-      // 3️⃣ Upload to Cloudinary
-      const cloudName = "dcwof2ngn"; // your Cloudinary cloud name
-      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
-        method: "POST",
-        body: formData
-      });
+        const uploadData = await uploadRes.json();
 
-      const data = await uploadRes.json();
-      console.log(data);
-
-      if (data.secure_url) {
-        status.textContent = "✅ Upload successful!";
-        if (file.type.startsWith("video")) {
-          preview.style.display = "none";
-          videoPreview.style.display = "block";
-          videoPreview.src = data.secure_url;
+        if (uploadData.secure_url) {
+          uploadedUrl.href = uploadData.secure_url;
+          uploadedUrl.textContent = uploadData.secure_url;
+          alert("Upload successful!");
         } else {
-          preview.style.display = "block";
-          videoPreview.style.display = "none";
-          preview.src = data.secure_url;
+          console.error(uploadData);
+          alert("Upload failed. Check console.");
         }
-      } else {
-        status.textContent = "❌ Upload failed: " + (data.error?.message || "Unknown error");
+      } catch (err) {
+        console.error(err);
+        alert("Error uploading file.");
       }
     });
   </script>
