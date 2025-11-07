@@ -3,66 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloudinary Video Upload</title>
+  <title>Video Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { margin: 10px 0; }
+    #status { margin-top: 20px; color: green; }
+    #error { margin-top: 20px; color: red; }
+  </style>
 </head>
 <body>
-  <h1>Upload a Video to Cloudinary</h1>
-
-  <input type="file" id="fileInput" accept="video/*" />
+  <h1>Upload Video to Cloudinary</h1>
+  <input type="file" id="videoFile" accept="video/*" />
   <button id="uploadBtn">Upload</button>
-
-  <p id="status"></p>
-  <video id="videoPreview" controls width="400" style="display:none;"></video>
+  <div id="status"></div>
+  <div id="error"></div>
 
   <script>
-    const fileInput = document.getElementById("fileInput");
     const uploadBtn = document.getElementById("uploadBtn");
-    const statusText = document.getElementById("status");
-    const videoPreview = document.getElementById("videoPreview");
+    const videoFile = document.getElementById("videoFile");
+    const status = document.getElementById("status");
+    const error = document.getElementById("error");
 
     uploadBtn.addEventListener("click", async () => {
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Please select a video first!");
+      error.textContent = "";
+      status.textContent = "";
+
+      if (!videoFile.files.length) {
+        error.textContent = "Please select a video file.";
         return;
       }
 
-      statusText.textContent = "Generating signature...";
+      const file = videoFile.files[0];
 
       try {
-        // 1️⃣ Get signature from backend
-        const sigRes = await fetch("https://super-robot-4jwqjpv5j76pc479-5000.app.github.dev/signature");
-        const sigData = await sigRes.json();
+        status.textContent = "Generating signature...";
 
+        // 1️⃣ Get signature from your backend
+        const signatureRes = await fetch("https://super-robot-4jwqjpv5j76pc479-5000.app.github.dev/signature");
+        const data = await signatureRes.json();
+
+        const { cloudName, apiKey, timestamp, signature } = data;
+
+        // 2️⃣ Prepare FormData for Cloudinary
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("api_key", sigData.apiKey);
-        formData.append("timestamp", sigData.timestamp);
-        formData.append("signature", sigData.signature);
-        formData.append("upload_preset", ""); // optional if using unsigned preset
+        formData.append("api_key", apiKey);
+        formData.append("timestamp", timestamp);
+        formData.append("signature", signature);
+        formData.append("upload_preset", "unsigned_preset"); // optional if you use unsigned
 
-        statusText.textContent = "Uploading video...";
+        status.textContent = "Uploading video...";
 
-        // 2️⃣ Upload to Cloudinary
-        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/video/upload`;
-        const uploadRes = await fetch(cloudinaryUrl, {
+        // 3️⃣ Upload to Cloudinary
+        const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
           method: "POST",
           body: formData
         });
 
-        const uploadData = await uploadRes.json();
+        const result = await cloudinaryRes.json();
 
-        if (uploadData.secure_url) {
-          statusText.textContent = "Upload successful!";
-          videoPreview.src = uploadData.secure_url;
-          videoPreview.style.display = "block";
+        if (result.secure_url) {
+          status.textContent = `Upload successful! Video URL: ${result.secure_url}`;
         } else {
-          statusText.textContent = "Error uploading video.";
-          console.error("Cloudinary upload error:", uploadData);
+          console.error(result);
+          error.textContent = "Error uploading video. Check console for details.";
         }
+
       } catch (err) {
-        statusText.textContent = "Error uploading video. Check console.";
         console.error(err);
+        error.textContent = "Error uploading video. Check console for details.";
       }
     });
   </script>
