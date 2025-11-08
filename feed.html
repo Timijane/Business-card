@@ -5,80 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Profile</title>
   <style>
-    /* Your existing styles remain the same */
     body {
       font-family: Poppins, sans-serif;
       text-align: center;
-      background-color: #f7f7f7;
+      background: #f8f9fa;
       margin: 0;
       padding: 0;
+    }
+    .profile-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
     #background {
       width: 100%;
       height: 200px;
       object-fit: cover;
-      border-radius: 0 0 10px 10px;
+      border-radius: 0;
+      position: relative;
     }
     #profile-pic {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       margin-top: -60px;
-      border: 4px solid white;
+      border: 3px solid white;
       object-fit: cover;
-      background-color: #eee;
-      cursor: pointer;
     }
     h2 {
       margin-top: 10px;
       color: #333;
     }
-    .profile-container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      position: relative;
-    }
-    .edit-overlay {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .upload-section {
-      margin: 20px;
-      padding: 10px;
-      border: 1px dashed #ccc;
-      border-radius: 8px;
-    }
-    .btn {
-      background: #0080FF;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    .btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .status-message {
+    button {
       margin: 10px;
-      padding: 8px;
-      border-radius: 4px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .success { background: #d4edda; color: #155724; }
-    .error { background: #f8d7da; color: #721c24; }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #logoutBtn {
+      background-color: #dc3545;
+    }
+    #logoutBtn:hover {
+      background-color: #b02a37;
+    }
   </style>
 
   <!-- Firebase SDK -->
@@ -86,43 +65,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
-
 <body>
   <div class="profile-container">
-    <img id="background" src="default-bg.jpg" alt="Background Image">
-    <div class="edit-overlay" onclick="openImageUpload('background')">Edit Cover</div>
-    
-    <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture" onclick="openImageUpload('profile')">
-    <div style="margin-top: -20px;">
-      <small style="color: #666; cursor: pointer;" onclick="openImageUpload('profile')">Change Photo</small>
+    <div>
+      <img id="background" src="default-bg.jpg" alt="Background Image">
+      <br>
+      <button id="change-bg">Change Background</button>
     </div>
-    
-    <h2 id="user-email">Loading...</h2>
-    
-    <!-- Upload Section -->
-    <div class="upload-section" id="uploadSection" style="display: none;">
-      <h3>Upload New <span id="uploadType"></span></h3>
-      <input type="file" id="imageInput" accept="image/*">
-      <button class="btn" onclick="uploadImage()" id="uploadBtn">Upload</button>
-      <button class="btn" onclick="closeUploadSection()">Cancel</button>
-      <div id="uploadStatus"></div>
+    <div>
+      <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture">
+      <br>
+      <button id="change-pic">Change Profile Picture</button>
     </div>
-
-    <!-- Profile Data Display -->
-    <div style="padding: 20px; text-align: left;">
-      <h3>Profile Information</h3>
-      <div id="profileData">
-        <p><strong>Name:</strong> <span id="displayName">Not set</span></p>
-        <p><strong>Bio:</strong> <span id="displayBio">Not set</span></p>
-        <p><strong>Location:</strong> <span id="displayLocation">Not set</span></p>
-      </div>
-      <button class="btn" onclick="editProfile()">Edit Profile</button>
-      <button class="btn" onclick="logout()" style="background: #ef4444;">Logout</button>
-    </div>
+    <h2 id="user-email"></h2>
+    <button id="logoutBtn">Logout</button>
   </div>
 
   <script>
-    // ✅ Firebase Configuration - THIS IS ALREADY SET UP
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -133,252 +93,102 @@
       appId: "1:252353608421:web:6706056048e9a8f12db20c",
       measurementId: "G-9BFPPVMMRF"
     };
-
-    // ✅ Cloudinary Configuration - YOU NEED TO SET THIS UP
-    const cloudinaryConfig = {
-      // ⚠️ REPLACE WITH YOUR ACTUAL CLOUDINARY CLOUD NAME
-      cloudName: 'dcwof2ngn', // This might work, but check your Cloudinary dashboard
-      // ⚠️ REPLACE WITH YOUR ACTUAL UPLOAD PRESET NAME
-      uploadPreset: 'Meet-profile' // Create this in Cloudinary dashboard
-    };
-    
-    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`;
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Global variables
-    let currentUser = null;
-    let currentUploadType = null;
+    const CLOUD_NAME = "dcwof2ngn"; // your Cloudinary cloud name
+    const UPLOAD_PRESET = "Meet-profile"; // your unsigned preset name
 
-    // ✅ Check Cloudinary configuration on load
-    function checkConfiguration() {
-      if (!cloudinaryConfig.cloudName || cloudinaryConfig.cloudName === 'YOUR_CLOUD_NAME') {
-        console.error('❌ Cloudinary not configured: Please set your cloud name');
-        showStatus('Error: Cloudinary not configured. Please check setup.', 'error');
-        return false;
-      }
-      if (!cloudinaryConfig.uploadPreset || cloudinaryConfig.uploadPreset === 'YOUR_UPLOAD_PRESET') {
-        console.error('❌ Cloudinary upload preset not configured');
-        showStatus('Error: Upload preset not configured. Please check setup.', 'error');
-        return false;
-      }
-      return true;
-    }
+    const profilePic = document.getElementById("profile-pic");
+    const bgPic = document.getElementById("background");
+    const userEmail = document.getElementById("user-email");
 
-    // ✅ Firebase Authentication State Listener
+    // ✅ Load profile data
     auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        currentUser = user;
-        document.getElementById("user-email").textContent = user.email;
-        
-        // Check configuration
-        if (!checkConfiguration()) {
-          return;
-        }
-        
-        await loadUserProfile(user.uid);
-      } else {
+      if (!user) {
         window.location.href = "login.html";
+        return;
+      }
+
+      userEmail.textContent = user.email;
+
+      const docRef = db.collection("users").doc(user.uid);
+      const docSnap = await docRef.get();
+      if (docSnap.exists) {
+        const data = docSnap.data();
+        if (data.profilePicture) profilePic.src = data.profilePicture;
+        if (data.backgroundPicture) bgPic.src = data.backgroundPicture;
       }
     });
 
-    // ✅ Load User Profile from Firestore
-    async function loadUserProfile(userId) {
-      try {
-        const docRef = db.collection("users").doc(userId);
-        const docSnap = await docRef.get();
+    // ✅ Cloudinary Upload Function
+    async function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
 
-        if (docSnap.exists) {
-          const data = docSnap.data();
-          
-          // Update profile images
-          document.getElementById("profile-pic").src = 
-            data.profilePicture || "default-profile.jpg";
-          document.getElementById("background").src = 
-            data.backgroundPicture || "default-bg.jpg";
-          
-          // Update profile information
-          document.getElementById("displayName").textContent = 
-            data.displayName || "Not set";
-          document.getElementById("displayBio").textContent = 
-            data.bio || "Not set";
-          document.getElementById("displayLocation").textContent = 
-            data.location || "Not set";
-            
-        } else {
-          console.log("No profile data found. Creating default profile...");
-          await createDefaultProfile(userId);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      return data.secure_url;
+    }
+
+    // ✅ Change Profile Picture
+    document.getElementById("change-pic").addEventListener("click", async () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const url = await uploadToCloudinary(file);
+        profilePic.src = url;
+
+        const user = auth.currentUser;
+        if (user) {
+          await db.collection("users").doc(user.uid).update({
+            profilePicture: url,
+            updatedAt: new Date()
+          });
+          alert("Profile picture updated!");
         }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        showStatus("Error loading profile: " + error.message, "error");
-      }
-    }
+      };
+      input.click();
+    });
 
-    // ✅ Create Default Profile
-    async function createDefaultProfile(userId) {
-      try {
-        const defaultData = {
-          email: currentUser.email,
-          displayName: currentUser.displayName || "User",
-          bio: "",
-          location: "",
-          profilePicture: "",
-          backgroundPicture: "",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        await db.collection("users").doc(userId).set(defaultData);
-        console.log("Default profile created");
-      } catch (error) {
-        console.error("Error creating default profile:", error);
-      }
-    }
+    // ✅ Change Background Picture
+    document.getElementById("change-bg").addEventListener("click", async () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    // ✅ Cloudinary Image Upload
-    async function uploadImage() {
-      // Check configuration first
-      if (!checkConfiguration()) {
-        return;
-      }
+        const url = await uploadToCloudinary(file);
+        bgPic.src = url;
 
-      const fileInput = document.getElementById('imageInput');
-      const file = fileInput.files[0];
-      const uploadBtn = document.getElementById('uploadBtn');
-      const statusDiv = document.getElementById('uploadStatus');
-      
-      if (!file) {
-        showStatus("Please select an image file", "error", statusDiv);
-        return;
-      }
-
-      // Validate file type
-      if (!file.type.match('image.*')) {
-        showStatus("Please select a valid image file", "error", statusDiv);
-        return;
-      }
-
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        showStatus("File size too large. Maximum 5MB.", "error", statusDiv);
-        return;
-      }
-
-      // Show loading state
-      uploadBtn.disabled = true;
-      uploadBtn.textContent = 'Uploading...';
-      showStatus("Uploading image...", "", statusDiv);
-
-      try {
-        // Prepare form data for Cloudinary
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-
-        console.log('Uploading to Cloudinary...', {
-          cloudName: cloudinaryConfig.cloudName,
-          uploadPreset: cloudinaryConfig.uploadPreset
-        });
-
-        // Upload to Cloudinary
-        const response = await fetch(CLOUDINARY_UPLOAD_URL, {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+        const user = auth.currentUser;
+        if (user) {
+          await db.collection("users").doc(user.uid).update({
+            backgroundPicture: url,
+            updatedAt: new Date()
+          });
+          alert("Background picture updated!");
         }
+      };
+      input.click();
+    });
 
-        const data = await response.json();
-        console.log('Cloudinary upload success:', data);
-        
-        // Update Firebase with new image URL
-        await updateProfileImage(data.secure_url);
-        
-        showStatus("Image uploaded successfully!", "success", statusDiv);
-        
-        // Close upload section after delay
-        setTimeout(() => {
-          closeUploadSection();
-          uploadBtn.disabled = false;
-          uploadBtn.textContent = 'Upload';
-        }, 1500);
-        
-      } catch (error) {
-        console.error('Upload error:', error);
-        showStatus("Upload failed: " + error.message, "error", statusDiv);
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Upload';
-      }
-    }
-
-    // ✅ Update Profile Image in Firestore
-    async function updateProfileImage(imageUrl) {
-      try {
-        const updateData = {
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        if (currentUploadType === 'profile') {
-          updateData.profilePicture = imageUrl;
-          document.getElementById("profile-pic").src = imageUrl;
-        } else if (currentUploadType === 'background') {
-          updateData.backgroundPicture = imageUrl;
-          document.getElementById("background").src = imageUrl;
-        }
-        
-        await db.collection("users").doc(currentUser.uid).update(updateData);
-        console.log("Profile image updated successfully");
-      } catch (error) {
-        console.error("Error updating profile image:", error);
-        throw error;
-      }
-    }
-
-    // ✅ UI Functions
-    function openImageUpload(type) {
-      currentUploadType = type;
-      document.getElementById('uploadType').textContent = 
-        type === 'profile' ? 'Profile Picture' : 'Cover Photo';
-      document.getElementById('uploadSection').style.display = 'block';
-      document.getElementById('imageInput').value = '';
-      document.getElementById('uploadStatus').innerHTML = '';
-    }
-
-    function closeUploadSection() {
-      document.getElementById('uploadSection').style.display = 'none';
-      currentUploadType = null;
-    }
-
-    function showStatus(message, type, element = null) {
-      const statusDiv = element || document.getElementById('uploadStatus');
-      statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
-    }
-
-    function editProfile() {
-      alert("Edit profile functionality would open here. You can implement a modal or redirect to an edit page.");
-    }
-
-    function logout() {
-      if (confirm("Are you sure you want to logout?")) {
-        auth.signOut().then(() => {
-          window.location.href = "login.html";
-        }).catch((error) => {
-          console.error("Logout error:", error);
-          showStatus("Logout failed", "error");
-        });
-      }
-    }
-
-    // Check configuration on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      checkConfiguration();
+    // ✅ Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await auth.signOut();
+      window.location.href = "login.html";
     });
   </script>
 </body>
