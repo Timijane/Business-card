@@ -3,143 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile Page</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<title>MEET | Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  body.dark-mode { background: #121212; color: #fff; }
-  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-  .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; }
-  body.dark-mode .modal-content { background: #1e1e1e; color: #fff; }
-  .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 18px; height: 18px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 8px; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .privacy-selector .privacy-option.active { font-weight: bold; color: #3498db; }
-  .post-thumbnail { position: relative; overflow: hidden; margin-bottom: 10px; border-radius: 8px; }
-  .post-stats-overlay { position: absolute; bottom: 5px; left: 5px; color: #fff; font-size: 12px; }
-  .private-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 4px; font-size: 12px; color: #fff; }
+  /* --- General Styles --- */
+  body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f5f5f5; color: #333; }
+  .dark-mode { background-color: #121212; color: #e0e0e0; }
+  button { cursor: pointer; }
+  .container { max-width: 1000px; margin: auto; padding: 20px; }
+
+  /* --- Profile Header --- */
+  .profile-header { position: relative; text-align: center; margin-bottom: 20px; }
+  .cover-photo { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+  .profile-picture { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #fff; position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); cursor: pointer; }
+  .edit-btn { margin-top: 80px; padding: 8px 16px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; }
+
+  /* --- Modals --- */
+  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
+  .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; position: relative; }
+  .modal-content img { max-width: 100%; border-radius: 8px; }
+  .close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+
+  /* --- Privacy Selector --- */
+  .privacy-selector { display: flex; gap: 10px; margin-top: 5px; }
+  .privacy-option { padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; }
+  .privacy-option.active { background-color: #007bff; color: #fff; border-color: #007bff; }
+
+  /* --- Posts Grid --- */
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 15px; margin-top: 20px; }
+  .post-thumbnail { position: relative; background: #eee; border-radius: 8px; overflow: hidden; cursor: pointer; }
+  .post-thumbnail img, .post-thumbnail video { width: 100%; height: 150px; object-fit: cover; }
+  .private-badge { position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.7); color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+  .post-stats-overlay { position: absolute; bottom: 0; left:0; right:0; background: rgba(0,0,0,0.5); color: #fff; display: flex; justify-content: space-around; padding: 3px 0; font-size: 12px; }
+
+  /* --- Loading Message --- */
+  .loading { text-align: center; padding: 20px; color: #555; }
+  .error-message { color: red; text-align: center; padding: 10px; }
+
+  /* --- Theme Toggle --- */
+  .theme-toggle { position: fixed; bottom: 20px; right: 20px; padding: 8px 12px; background: #007bff; color: #fff; border-radius: 4px; border: none; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div>
-  <span id="currentUserAvatar"></span>
-  <span id="userName"></span>
-  <button id="logoutBtn">Logout</button>
-  <button id="nightToggleBtn"><i class="fas fa-moon"></i> Night Mode</button>
-</div>
+<div class="container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img id="coverPhoto" class="cover-photo" src="https://via.placeholder.com/1000x250" alt="Cover Photo">
+    <img id="profilePicture" class="profile-picture" src="https://via.placeholder.com/120" alt="Profile Picture">
+    <button id="editProfileBtn" class="edit-btn">Edit Profile</button>
+  </div>
 
-<!-- EDIT PROFILE BUTTON -->
-<button id="editProfileBtn">Edit Profile</button>
+  <!-- Posts Grid -->
+  <div id="postsGrid" class="posts-grid"></div>
 
-<!-- PROFILE FORM MODAL -->
-<div id="editProfileModal" class="modal">
-  <div class="modal-content">
-    <span id="closeEditModal" style="cursor:pointer;">&times;</span>
-    <h2>Edit Profile</h2>
-    <form id="profileForm">
-      <input id="fullName" placeholder="Full Name" /><br/>
-      <textarea id="bio" placeholder="Bio"></textarea><br/>
-      <input id="dob" type="date" placeholder="Date of Birth" /><br/>
-      <button type="submit">Save</button>
-    </form>
+  <!-- Theme Toggle -->
+  <button id="nightToggleBtn" class="theme-toggle"><i class="fas fa-moon"></i> Night Mode</button>
 
-    <div class="privacy-selector" data-field="profilePrivacy">
-      <span class="privacy-option" data-privacy="public">Public</span>
-      <span class="privacy-option" data-privacy="friends">Friends</span>
-      <span class="privacy-option" data-privacy="private">Private</span>
+  <!-- Modals -->
+
+  <!-- Edit Profile Modal -->
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <span id="closeEditModal" class="close">&times;</span>
+      <h3>Edit Profile</h3>
+      <form id="profileForm">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" required>
+        </div>
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob">
+        </div>
+        <div class="form-group">
+          <label>Privacy Settings</label>
+          <div class="privacy-selector" data-field="dob">
+            <div class="privacy-option" data-privacy="public">Public</div>
+            <div class="privacy-option" data-privacy="friends">Friends</div>
+            <div class="privacy-option" data-privacy="private">Private</div>
+          </div>
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
     </div>
+  </div>
 
-    <button id="editProfilePicture">Edit Profile Picture</button>
-    <button id="editCoverPhoto">Edit Cover Photo</button>
+  <!-- Image Upload Modal -->
+  <div id="imageUploadModal" class="modal">
+    <div class="modal-content">
+      <span id="closeImageModal" class="close">&times;</span>
+      <h3 id="imageUploadTitle">Upload Image</h3>
+      <div id="imageUploadArea" style="border:2px dashed #ccc; padding:20px; text-align:center; cursor:pointer;">
+        Click here or drag to upload
+      </div>
+      <input type="file" id="imageUploadInput" style="display:none;">
+      <div id="imagePreview" style="margin-top:10px;"></div>
+      <button id="uploadImageBtn" style="margin-top:10px;">Upload</button>
+    </div>
+  </div>
+
+  <!-- Image View Modal -->
+  <div id="imageViewModal" class="modal">
+    <div class="modal-content">
+      <span id="closeImageViewModal" class="close">&times;</span>
+      <img id="viewedImage" src="" alt="View Image">
+    </div>
   </div>
 </div>
 
-<!-- IMAGE UPLOAD MODAL -->
-<div id="imageUploadModal" class="modal">
-  <div class="modal-content">
-    <span id="closeImageModal" style="cursor:pointer;">&times;</span>
-    <h3 id="imageUploadTitle"></h3>
-    <div id="imageUploadArea" style="border:1px dashed #ccc; padding:20px; cursor:pointer;">Click or drag image here</div>
-    <input type="file" id="imageUploadInput" style="display:none;" />
-    <div id="imagePreview"></div>
-    <button id="uploadImageBtn">Upload</button>
-  </div>
-</div>
-
-<!-- IMAGE VIEW MODAL -->
-<div id="imageViewModal" class="modal">
-  <div class="modal-content">
-    <span id="closeImageViewModal" style="cursor:pointer;">&times;</span>
-    <img id="viewedImage" style="max-width:100%;" />
-  </div>
-</div>
-
-<!-- POSTS GRID -->
-<div id="postsGrid"></div>
-
-<!-- SCRIPT -->
 <script>
-  // ---------- GLOBAL VARIABLES ----------
-  let currentUser = null;
+  // --- Mock Variables ---
+  let privacySettings = { dob: 'public' };
   let userProfile = {};
-  let privacySettings = {};
   let userSkills = [];
-  let currentUploadType = null;
+  let currentUploadType = '';
+  let currentUser = { uid: 'user123', displayName: 'John Doe' }; // Mock auth
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-  const editProfileModal = document.getElementById('editProfileModal');
+  // --- Elements ---
   const editProfileBtn = document.getElementById('editProfileBtn');
+  const editProfileModal = document.getElementById('editProfileModal');
   const closeEditModal = document.getElementById('closeEditModal');
-
+  const profileForm = document.getElementById('profileForm');
+  const coverPhoto = document.getElementById('coverPhoto');
+  const profilePicture = document.getElementById('profilePicture');
   const imageUploadModal = document.getElementById('imageUploadModal');
-  const imageUploadArea = document.getElementById('imageUploadArea');
+  const closeImageModal = document.getElementById('closeImageModal');
   const imageUploadInput = document.getElementById('imageUploadInput');
+  const imageUploadArea = document.getElementById('imageUploadArea');
   const imagePreview = document.getElementById('imagePreview');
   const uploadImageBtn = document.getElementById('uploadImageBtn');
-  const editCoverPhoto = document.getElementById('editCoverPhoto');
-  const editProfilePicture = document.getElementById('editProfilePicture');
-
   const imageViewModal = document.getElementById('imageViewModal');
-  const viewedImage = document.getElementById('viewedImage');
   const closeImageViewModal = document.getElementById('closeImageViewModal');
-  const closeImageModal = document.getElementById('closeImageModal');
-
-  const profileForm = document.getElementById('profileForm');
+  const viewedImage = document.getElementById('viewedImage');
+  const nightToggleBtn = document.getElementById('nightToggleBtn');
   const postsGrid = document.getElementById('postsGrid');
 
-  const logoutBtn = document.getElementById('logoutBtn');
-  const nightToggleBtn = document.getElementById('nightToggleBtn');
+  function showMessage(msg, type='error') { alert(msg); }
 
-  const currentUserAvatar = document.getElementById('currentUserAvatar');
-  const userName = document.getElementById('userName');
-
-  // ---------- HELPER FUNCTIONS ----------
-  function setLoading(button, isLoading) {
-    if (!button) return;
-    if (isLoading) {
-      button.disabled = true;
-      button.dataset.originalText = button.innerHTML;
-      button.innerHTML = `<span class="spinner"></span> Please wait...`;
-    } else {
-      button.disabled = false;
-      button.innerHTML = button.dataset.originalText || button.innerHTML;
-    }
+  function setLoading(btnId, isLoading) { 
+    const btn = document.getElementById(btnId);
+    if(btn) btn.textContent = isLoading ? 'Loading...' : btn.dataset.original || btn.textContent; 
   }
 
-  function showMessage(message, type = 'error') {
-    alert(message);
-  }
-
-  // ---------- PRIVACY SELECTORS ----------
   function initPrivacySelectors() {
     document.querySelectorAll('.privacy-selector').forEach(selector => {
       const options = selector.querySelectorAll('.privacy-option');
       const field = selector.getAttribute('data-field');
+
       if (privacySettings[field]) {
         options.forEach(opt => opt.classList.remove('active'));
         const activeOption = selector.querySelector(`.privacy-option[data-privacy="${privacySettings[field]}"]`);
         if (activeOption) activeOption.classList.add('active');
       }
+
       options.forEach(option => {
         option.addEventListener('click', () => {
           options.forEach(opt => opt.classList.remove('active'));
@@ -150,116 +176,122 @@
     });
   }
 
-  // ---------- IMAGE UPLOAD ----------
+  function populateEditForm() {
+    document.getElementById('fullName').value = userProfile.fullName || '';
+    document.getElementById('bio').value = userProfile.bio || '';
+    document.getElementById('dob').value = userProfile.dob || '';
+    initPrivacySelectors();
+  }
+
+  function updateProfileDisplay() {
+    coverPhoto.src = userProfile.coverPhoto || 'https://via.placeholder.com/1000x250';
+    profilePicture.src = userProfile.profilePicture || 'https://via.placeholder.com/120';
+  }
+
   function initImageUploads() {
-    function openUploadModal(type, title) {
-      currentUploadType = type;
-      document.getElementById('imageUploadTitle').textContent = title;
+    profilePicture.addEventListener('click', () => {
+      currentUploadType = 'profile';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Profile Picture';
       imageUploadModal.style.display = 'flex';
       imagePreview.innerHTML = '';
       imageUploadInput.value = '';
-    }
+    });
 
-    editCoverPhoto.addEventListener('click', () => openUploadModal('cover', 'Upload Cover Photo'));
-    editProfilePicture.addEventListener('click', () => openUploadModal('profile', 'Upload Profile Picture'));
+    coverPhoto.addEventListener('click', () => {
+      currentUploadType = 'cover';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Cover Photo';
+      imageUploadModal.style.display = 'flex';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
+    });
 
     imageUploadArea.addEventListener('click', () => imageUploadInput.click());
 
     imageUploadInput.addEventListener('change', (e) => {
-      if (!e.target.files.length) return;
-      const file = e.target.files[0];
-      if (!file.type.startsWith('image/')) return showMessage('Select an image file.');
-      if (file.size > MAX_FILE_SIZE) return showMessage('File too large (10MB max).');
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) return showMessage('Select an image file.');
+        if (file.size > MAX_FILE_SIZE) return showMessage('Max file 10MB.');
 
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        imagePreview.innerHTML = `<img src="${event.target.result}" style="max-width:100%; max-height:300px; border-radius:8px;">`;
-      };
-      reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.innerHTML = `<img src="${e.target.result}">`;
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
-    uploadImageBtn.addEventListener('click', async () => {
+    uploadImageBtn.addEventListener('click', () => {
       const file = imageUploadInput.files[0];
-      if (!file) return showMessage('Select an image to upload.');
-      setLoading(uploadImageBtn, true);
-
-      try {
-        const imageUrl = await uploadToCloudinary(file); // implement your upload function
-        const updateData = currentUploadType === 'cover' ? {coverPhoto: imageUrl} : {profilePicture: imageUrl};
-        await db.collection("profiles").doc(currentUser.uid).update(updateData);
-        Object.assign(userProfile, updateData);
+      if (!file) return showMessage('Select an image.');
+      // Simulate upload
+      setTimeout(() => {
+        const url = URL.createObjectURL(file);
+        if(currentUploadType === 'cover') userProfile.coverPhoto = url;
+        if(currentUploadType === 'profile') userProfile.profilePicture = url;
         updateProfileDisplay();
-        showMessage('Image uploaded successfully!', 'success');
         imageUploadModal.style.display = 'none';
-      } catch (err) {
-        console.error(err);
-        showMessage('Upload failed, try again.');
-      } finally { setLoading(uploadImageBtn, false); }
+        showMessage('Image uploaded!', 'success');
+      }, 1000);
     });
   }
 
-  // ---------- IMAGE VIEW ----------
-  function initImageView() {
-    profilePicture?.addEventListener('click', () => {
-      if (userProfile.profilePicture) {
-        viewedImage.src = userProfile.profilePicture;
-        imageViewModal.style.display = 'flex';
-      }
-    });
-    coverPhoto?.addEventListener('click', () => {
-      if (userProfile.coverPhoto) {
-        viewedImage.src = userProfile.coverPhoto;
-        imageViewModal.style.display = 'flex';
-      }
-    });
-    closeImageViewModal.addEventListener('click', () => imageViewModal.style.display = 'none');
-    closeImageModal.addEventListener('click', () => imageUploadModal.style.display = 'none');
-  }
-
-  // ---------- MODALS ----------
   function initModals() {
     editProfileBtn.addEventListener('click', () => {
       editProfileModal.style.display = 'flex';
-      populateEditForm(); // implement to fill form with existing data
-      initPrivacySelectors();
+      populateEditForm();
     });
     closeEditModal.addEventListener('click', () => editProfileModal.style.display = 'none');
+    closeImageModal.addEventListener('click', () => imageUploadModal.style.display = 'none');
+    closeImageViewModal.addEventListener('click', () => imageViewModal.style.display = 'none');
+
     window.addEventListener('click', (e) => {
-      if ([editProfileModal, imageUploadModal, imageViewModal].includes(e.target)) e.target.style.display = 'none';
+      if (e.target === editProfileModal) editProfileModal.style.display = 'none';
+      if (e.target === imageUploadModal) imageUploadModal.style.display = 'none';
+      if (e.target === imageViewModal) imageViewModal.style.display = 'none';
     });
   }
 
-  // ---------- PROFILE FORM ----------
-  profileForm.addEventListener('submit', async (e) => {
+  profileForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!currentUser) return;
-    setLoading(profileForm.querySelector('button[type="submit"]'), true);
-
-    try {
-      const profileData = {
-        fullName: document.getElementById('fullName').value,
-        bio: document.getElementById('bio').value,
-        dob: document.getElementById('dob').value,
-        skills: userSkills,
-        privacySettings: privacySettings,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      await db.collection("profiles").doc(currentUser.uid).update(profileData);
-      Object.assign(userProfile, profileData);
-      updateProfileDisplay();
-      showMessage('Profile updated successfully!', 'success');
-      editProfileModal.style.display = 'none';
-    } catch (err) { console.error(err); showMessage('Update failed.'); }
-    finally { setLoading(profileForm.querySelector('button[type="submit"]'), false); }
+    userProfile.fullName = document.getElementById('fullName').value;
+    userProfile.bio = document.getElementById('bio').value;
+    userProfile.dob = document.getElementById('dob').value;
+    updateProfileDisplay();
+    editProfileModal.style.display = 'none';
+    showMessage('Profile updated!', 'success');
   });
 
-  // ---------- INIT ----------
-  document.addEventListener('DOMContentLoaded', () => {
+  nightToggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+  });
+
+  function loadUserPosts() {
+    postsGrid.innerHTML = '';
+    const posts = [
+      { text: 'Hello world!', media: '', privacy:'public', likes: 5, comments: [] },
+      { text: '', media: 'https://via.placeholder.com/150', privacy:'private', likes: 3, comments: [{},{}] }
+    ];
+    posts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.className = 'post-thumbnail';
+      if(post.privacy==='private') postElement.classList.add('private');
+      if(post.media){
+        postElement.innerHTML = `<img src="${post.media}">` + (post.privacy==='private'?'<div class="private-badge"><i class="fas fa-lock"></i></div>':'');
+      } else {
+        postElement.innerHTML = `<div style="padding:20px;">${post.text}</div>` + (post.privacy==='private'?'<div class="private-badge"><i class="fas fa-lock"></i></div>':'');
+      }
+      postsGrid.appendChild(postElement);
+    });
+  }
+
+  // --- Init ---
+  document.addEventListener('DOMContentLoaded', function() {
+    updateProfileDisplay();
+    initPrivacySelectors();
     initImageUploads();
-    initImageView();
     initModals();
-    initTheme(); // implement your theme init
-    renderSkills(); // implement your skill rendering
+    loadUserPosts();
   });
 </script>
 
