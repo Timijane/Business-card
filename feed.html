@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Profile</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -29,117 +29,806 @@
     --border-color: #3e4042;
   }
 
-  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body{ height:100%; overflow-x:hidden; font-size:18px; }
-  body{
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    font-size: 18px;
+  }
+
+  body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #e0f7ff 0%, #b3e0ff 100%);
     color: var(--text-color);
-    transition: all .3s ease;
-    min-height:100vh;
+    transition: all 0.3s ease;
+    min-height: 100vh;
     -webkit-overflow-scrolling: touch;
   }
 
-  .app-container{ display:flex; min-height:100vh; position:relative; }
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+  }
 
-  /* Sidebar */
-  .sidebar{
-    position:fixed; left:0; top:0; height:100vh; width:280px;
+  /* SIDEBAR - EXACTLY LIKE FEED */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 280px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right:1px solid var(--border-color); overflow-y:auto; z-index:100; padding:20px; color:white;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 20px;
+    transition: all 0.3s ease;
+    color: white;
   }
-  .sidebar-header{ padding:10px 0 20px; border-bottom:1px solid rgba(255,255,255,.2); margin-bottom:20px; }
-  .sidebar-menu{ list-style:none; }
-  .sidebar-menu li{ margin-bottom:8px; }
-  .sidebar-menu a{ display:flex; align-items:center; padding:12px; color:white; text-decoration:none; border-radius:8px; font-size:18px; min-height:44px; }
-  .sidebar-menu a:hover, .sidebar-menu a.active{ background: rgba(255,255,255,.2); }
-  .sidebar-menu i{ margin-right:12px; font-size:22px; }
 
-  /* Main */
-  .main-content{ flex:1; margin-left:280px; padding:20px; min-height:100vh; }
+  .sidebar-header {
+    padding: 10px 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+  }
 
-  /* Navbar */
-  .navbar{
+  .sidebar-menu {
+    list-style: none;
+  }
+
+  .sidebar-menu li {
+    margin-bottom: 8px;
+  }
+
+  .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: background 0.3s;
+    min-height: 44px;
+    font-size: 18px;
+  }
+
+  .sidebar-menu a:hover, .sidebar-menu a.active {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .sidebar-menu i {
+    margin-right: 12px;
+    font-size: 22px;
+  }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  /* NAVBAR - EXACTLY LIKE FEED */
+  .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding:15px 20px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; color:white; gap:10px; flex-wrap:wrap;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    color: white;
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  .search-bar{ display:flex; align-items:center; background: rgba(255,255,255,.2); border-radius:20px; padding:8px 15px; margin-right:15px; }
-  .search-bar input{ background:transparent; border:none; color:white; outline:none; width:200px; font-size:16px; }
-  .user-profile-nav{ display:flex; align-items:center; gap:10px; padding:5px 10px; border-radius:20px; background:rgba(255,255,255,.2); cursor:pointer; position:relative; min-height:44px; }
-  .user-avatar{ width:40px; height:40px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; position:relative; min-width:40px; }
-  .user-avatar.small{ width:30px; height:30px; font-size:16px; min-width:30px; }
-  .status-indicator{ position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; border:2px solid white; }
-  .status-online{ background-color:var(--online); }
-  .status-offline{ background-color:var(--offline); }
-  .btn{ background: rgba(255,255,255,.2); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; }
-  .btn:hover{ background: rgba(255,255,255,.3); }
 
-  /* Profile */
-  .profile-container{ max-width:1200px; margin:0 auto; }
-  .cover-photo-container{ position:relative; height:400px; border-radius:12px; overflow:hidden; margin-bottom:80px; box-shadow:0 4px 12px rgba(0,0,0,.1); background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%); }
-  .cover-photo{ width:100%; height:100%; object-fit:cover; cursor:pointer; }
-  .cover-photo-edit{ position:absolute; top:20px; right:20px; background:rgba(0,0,0,.7); color:white; border:none; border-radius:20px; padding:8px 16px; cursor:pointer; display:flex; align-items:center; gap:8px; }
-  .profile-picture-container{ position:absolute; bottom:-30px; left:40px; display:flex; align-items:flex-end; gap:20px; }
-  .profile-picture{ width:180px; height:180px; border-radius:50%; border:5px solid var(--card-bg); object-fit:cover; background:var(--bg-color); cursor:pointer; }
-  .profile-picture-edit{ background:rgba(0,0,0,.7); color:white; border:none; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-bottom:20px; }
-  .edit-profile-btn{ position:absolute; right:40px; bottom:-30px; background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%); color:white; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .nav-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-  .profile-info{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px; }
-  .profile-card{ background:var(--card-bg); border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
-  .profile-card h2{ margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border-color); color:var(--primary); }
-  .info-grid{ display:grid; gap:12px; }
-  .info-item{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color); }
-  .info-item:last-child{ border-bottom:none; }
-  .info-label{ font-weight:600; color:var(--secondary-text); }
-  .privacy-badge{ background:var(--bg-color); color:var(--secondary-text); padding:2px 8px; border-radius:12px; font-size:12px; margin-left:8px; }
-  .privacy-public{ border-left:3px solid #10B981; }
-  .privacy-friends{ border-left:3px solid #3B82F6; }
-  .privacy-private{ border-left:3px solid #6B7280; }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 15px;
+    margin-right: 15px;
+  }
 
-  .skills-container{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .skill-tag{ background: linear-gradient(135deg,#0080FF 0%,#00C6FF 100%); color:white; padding:6px 12px; border-radius:16px; font-size:14px; }
+  .search-bar input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    width: 200px;
+    font-size: 16px;
+  }
 
-  .posts-history{ margin-top:40px; }
-  .posts-history h2{ margin-bottom:20px; color:var(--primary); }
-  .posts-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
-  .post-thumbnail{ position:relative; border-radius:12px; overflow:hidden; cursor:pointer; aspect-ratio:1; background:var(--bg-color); }
-  .post-thumbnail img, .post-thumbnail video{ width:100%; height:100%; object-fit:cover; }
-  .post-thumbnail.private::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,.7); backdrop-filter: blur(10px); }
-  .private-badge{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.8); color:white; padding:8px 16px; border-radius:20px; z-index:2; display:flex; align-items:center; gap:8px; }
-  .post-stats-overlay{ position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,.8)); color:white; padding:12px; display:flex; justify-content:space-between; font-size:14px; }
+  .search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
 
-  /* Modals */
-  .modal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; padding:20px; }
-  .modal-content{ background:var(--card-bg); border-radius:12px; width:500px; max-width:90%; max-height:90vh; overflow-y:auto; }
-  .modal-header{ padding:16px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; }
-  .modal-body{ padding:16px; }
-  .close-modal{ background:none; border:none; font-size:24px; cursor:pointer; color:var(--secondary-text); min-width:44px; min-height:44px; }
-  .form-group{ margin-bottom:16px; }
-  .form-group label{ display:block; margin-bottom:8px; font-weight:600; }
-  .form-control{ width:100%; padding:12px; border:2px solid var(--border-color); border-radius:8px; background:var(--bg-color); color:var(--text-color); font-size:16px; }
-  .privacy-selector{ display:flex; gap:8px; margin-top:8px; }
-  .privacy-option{ flex:1; padding:8px; border:2px solid var(--border-color); border-radius:8px; text-align:center; cursor:pointer; transition:all .3s; }
-  .privacy-option.active{ border-color:var(--primary); background:var(--primary); color:white; }
+  .user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    position: relative;
+    min-height: 44px;
+  }
 
-  .skills-input-container{ display:flex; gap:8px; margin-bottom:8px; }
-  .skills-input{ flex:1; }
-  .add-skill-btn{ background:var(--primary); color:white; border:none; border-radius:8px; padding:0 16px; cursor:pointer; }
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    min-width: 40px;
+    font-size: 18px;
+    overflow: hidden;
+  }
 
-  .media-modal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:2000; align-items:center; justify-content:center; padding:20px; }
-  .media-modal-content{ max-width:90%; max-height:90vh; position:relative; }
-  .media-modal-content img{ max-width:100%; max-height:90vh; object-fit:contain; border-radius:8px; }
-  .close-media-modal{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,.7); color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .user-avatar.small {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    min-width: 30px;
+  }
 
-  .ai-button{ position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,#00C6FF 0%, #80b3ff 100%); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:99; transition:all .3s ease; min-width:60px; min-height:60px; }
-  .loading { text-align:center; padding:20px; color:var(--secondary-text); }
-  .error-message { background: rgba(239,68,68,.1); color:var(--error); padding:10px; border-radius:5px; margin:10px 0; text-align:center; }
-  .success-message { background: rgba(16,185,129,.1); color:var(--success); padding:10px; border-radius:5px; margin:10px 0; text-align:center; }
-  .spinner{ display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-radius:50%; border-top-color:#fff; animation:spin 1s ease-in-out infinite; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-  @media (max-width:1200px){ .sidebar{ width:80px; } .main-content{ margin-left:80px; } }
-  @media (max-width:768px){ .sidebar{ width:70px; } .main-content{ margin-left:70px; padding:10px; } .profile-info{ grid-template-columns:1fr; } .cover-photo-container{ height:300px; margin-bottom:60px; } .profile-picture{ width:120px; height:120px; } }
-  @media (max-width:480px){ .sidebar{ width:60px; } .main-content{ margin-left:60px; padding:8px; } .cover-photo-container{ height:200px; margin-bottom:50px; } .profile-picture{ width:100px; height:100px; } .posts-grid{ grid-template-columns:1fr; } }
+  .status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  .status-online {
+    background-color: var(--online);
+  }
+
+  .status-offline {
+    background-color: var(--offline);
+  }
+
+  .user-profile-nav span {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* PROFILE SPECIFIC STYLES */
+  .profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .cover-photo-container {
+    position: relative;
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 80px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+  }
+
+  .cover-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cover-photo-edit {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .profile-picture-container {
+    position: absolute;
+    bottom: -30px;
+    left: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  .profile-picture {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid var(--card-bg);
+    object-fit: cover;
+    background: var(--bg-color);
+    cursor: pointer;
+  }
+
+  .profile-picture-edit {
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .edit-profile-btn {
+    position: absolute;
+    right: 40px;
+    bottom: -30px;
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .profile-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .profile-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .profile-card h2 {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary);
+  }
+
+  .info-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: var(--secondary-text);
+  }
+
+  .privacy-badge {
+    background: var(--bg-color);
+    color: var(--secondary-text);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  .privacy-public { border-left: 3px solid #10B981; }
+  .privacy-friends { border-left: 3px solid #3B82F6; }
+  .privacy-private { border-left: 3px solid #6B7280; }
+
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .skill-tag {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+
+  .posts-history {
+    margin-top: 40px;
+  }
+
+  .posts-history h2 {
+    margin-bottom: 20px;
+    color: var(--primary);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .post-thumbnail {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 1;
+    background: var(--bg-color);
+  }
+
+  .post-thumbnail img,
+  .post-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-thumbnail.private::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  .private-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-stats-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    color: white;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  /* MODAL STYLES */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 16px;
+  }
+
+  .privacy-selector {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .privacy-option {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .privacy-option.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+  }
+
+  .skills-input-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .skills-input {
+    flex: 1;
+  }
+
+  .add-skill-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+  }
+
+  .media-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .media-modal-content {
+    max-width: 90%;
+    max-height: 90vh;
+    position: relative;
+  }
+
+  .media-modal-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .close-media-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .avatar-selection {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+  }
+
+  .avatar-option {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .avatar-option:hover {
+    transform: scale(1.05);
+  }
+
+  .avatar-option.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary);
+  }
+
+  .avatar-section {
+    margin: 20px 0;
+    padding: 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .avatar-section h3 {
+    margin-bottom: 15px;
+    color: var(--primary);
+  }
+
+  .ai-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 99;
+    transition: all 0.3s ease;
+    min-width: 60px;
+    min-height: 60px;
+  }
+
+  .ai-button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--secondary-text);
+  }
+
+  .error-message {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+  }
+
+  .success-message {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* RESPONSIVE DESIGN */
+  @media (max-width: 1200px) {
+    .sidebar {
+      width: 80px;
+    }
+    .sidebar span {
+      display: none;
+    }
+    .main-content {
+      margin-left: 80px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 70px;
+      padding: 10px 5px;
+    }
+    
+    .sidebar-header {
+      display: none;
+    }
+    
+    .sidebar-menu a {
+      flex-direction: column;
+      padding: 10px 5px;
+      font-size: 12px;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .sidebar-menu i {
+      margin-right: 0;
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+    
+    .main-content {
+      margin-left: 70px;
+      padding: 10px;
+    }
+    
+    .profile-info {
+      grid-template-columns: 1fr;
+    }
+    
+    .cover-photo-container {
+      height: 300px;
+      margin-bottom: 60px;
+    }
+    
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .profile-picture-container {
+      left: 20px;
+      bottom: -25px;
+    }
+    
+    .edit-profile-btn {
+      right: 20px;
+      bottom: -25px;
+      padding: 8px 16px;
+    }
+    
+    .posts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .avatar-selection {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar {
+      width: 60px;
+    }
+    
+    .main-content {
+      margin-left: 60px;
+      padding: 8px;
+    }
+    
+    .cover-photo-container {
+      height: 200px;
+      margin-bottom: 50px;
+    }
+    
+    .profile-picture {
+      width: 100px;
+      height: 100px;
+    }
+    
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .avatar-selection {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 </style>
 
 <!-- Firebase SDK -->
@@ -170,14 +859,15 @@
     <!-- Navbar -->
     <div class="navbar">
       <h2 style="color: white;">MEET Profile</h2>
-      <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div class="search-bar">
           <i class="fas fa-search"></i>
           <input type="text" placeholder="Search...">
         </div>
         <div class="nav-controls">
           <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">U
+            <div class="user-avatar small" id="currentUserAvatar">
+              U
               <div class="status-indicator status-online"></div>
             </div>
             <span id="userName">User</span>
@@ -196,15 +886,15 @@
     <div class="profile-container">
       <!-- Cover Photo -->
       <div class="cover-photo-container">
-        <img src="" alt="Cover Photo" class="cover-photo" id="coverPhoto">
+        <img src="https://via.placeholder.com/1200x400/0080FF/FFFFFF?text=MEET+Profile" alt="Cover Photo" class="cover-photo" id="coverPhoto">
         <button class="cover-photo-edit" id="editCoverPhoto">
           <i class="fas fa-camera"></i> Edit Cover
         </button>
-
+        
         <!-- Profile Picture -->
         <div class="profile-picture-container">
-          <div style="position:relative;">
-            <img src="" alt="Profile Picture" class="profile-picture" id="profilePicture">
+          <div style="position: relative;">
+            <img src="https://via.placeholder.com/180x180/0080FF/FFFFFF?text=MEET" alt="Profile Picture" class="profile-picture" id="profilePicture">
             <button class="profile-picture-edit" id="editProfilePicture">
               <i class="fas fa-camera"></i>
             </button>
@@ -321,6 +1011,20 @@
     </div>
     <div class="modal-body">
       <form id="profileForm">
+        <!-- Avatar Selection Section -->
+        <div class="avatar-section">
+          <h3>Choose Your Avatar</h3>
+          <p style="margin-bottom: 15px; color: var(--secondary-text);">Select an avatar or upload your own photo</p>
+          
+          <div class="avatar-selection" id="avatarSelection">
+            <!-- Avatars will be dynamically added here -->
+          </div>
+          
+          <button type="button" class="btn" id="uploadCustomAvatar" style="margin-top: 15px; background: var(--primary);">
+            <i class="fas fa-upload"></i> Upload Custom Photo
+          </button>
+        </div>
+
         <div class="form-group">
           <label>Full Name</label>
           <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
@@ -436,9 +1140,9 @@
           <div class="skills-container" id="skillsContainer"></div>
         </div>
 
-        <button type="submit" class="btn" id="saveProfileBtn" style="width:100%; background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%); margin-top:20px;">
+        <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%); margin-top: 20px;">
           <span id="saveBtnText">Save Changes</span>
-          <span id="saveBtnSpinner" class="spinner" style="display:none;"></span>
+          <span id="saveBtnSpinner" class="spinner" style="display: none;"></span>
         </button>
       </form>
     </div>
@@ -453,17 +1157,17 @@
       <button class="close-modal" id="closeImageModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="text-align:center; padding:20px;">
-        <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
-        <div style="border:2px dashed var(--border-color); border-radius:12px; padding:40px; margin-bottom:20px; cursor:pointer;" id="imageUploadArea">
-          <i class="fas fa-cloud-upload-alt" style="font-size:48px; color:var(--secondary-text); margin-bottom:16px;"></i>
+      <div style="text-align: center; padding: 20px;">
+        <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+        <div style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; margin-bottom: 20px; cursor: pointer;" id="imageUploadArea">
+          <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: var(--secondary-text); margin-bottom: 16px;"></i>
           <p>Click to upload or drag and drop</p>
-          <p style="font-size:14px; color:var(--secondary-text);">PNG, JPG, JPEG up to 10MB</p>
+          <p style="font-size: 14px; color: var(--secondary-text);">PNG, JPG, JPEG up to 10MB</p>
         </div>
-        <div id="imagePreview" style="margin-bottom:20px;"></div>
-        <button class="btn" id="uploadImageBtn" style="background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%);">
+        <div id="imagePreview" style="margin-bottom: 20px;"></div>
+        <button class="btn" id="uploadImageBtn" style="background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);">
           <span id="uploadBtnText">Upload Image</span>
-          <span id="uploadBtnSpinner" class="spinner" style="display:none;"></span>
+          <span id="uploadBtnSpinner" class="spinner" style="display: none;"></span>
         </button>
       </div>
     </div>
@@ -479,456 +1183,726 @@
 </div>
 
 <!-- Messages -->
-<div id="messageContainer" style="position:fixed; top:80px; right:20px; z-index:2000;"></div>
+<div id="messageContainer"></div>
 
 <script>
-/* ===================== CONFIG ===================== */
-const firebaseConfig = {
-  apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-  authDomain: "meet-6e159.firebaseapp.com",
-  databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-  projectId: "meet-6e159",
-  storageBucket: "meet-6e159.appspot.com",
-  messagingSenderId: "252353608421",
-  appId: "1:252353608421:web:6706056048e9a8f12db20c",
-  measurementId: "G-9BFPPVMMRF"
-};
+  // ✅ Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.firebasestorage.app",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c",
+    measurementId: "G-9BFPPVMMRF"
+  };
 
-const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-const CLOUDINARY_UPLOAD_PRESET = 'Meet_profile';
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  // ✅ Cloudinary Configuration
+  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
+  const CLOUDINARY_UPLOAD_PRESET = 'Meet_profile';
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-/* ===================== INIT FIREBASE ===================== */
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+  // Avatar options
+  const AVATAR_OPTIONS = [
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Taylor',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Casey',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Riley',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan'
+  ];
 
-/* ===================== GLOBALS & ELEMENTS ===================== */
-let currentUser = null;
-let userProfile = null;
-let userSkills = [];
-let currentUploadType = null;
-let privacySettings = {};
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
 
-const el = id => document.getElementById(id);
-const currentUserAvatar = el('currentUserAvatar');
-const userName = el('userName');
-const logoutBtn = el('logoutBtn');
-const nightToggleBtn = el('nightToggleBtn');
-const messageContainer = el('messageContainer');
-const editProfileBtn = el('editProfileBtn');
-const editProfileModal = el('editProfileModal');
-const closeEditModal = el('closeEditModal');
-const profileForm = el('profileForm');
-const postsGrid = el('postsGrid');
-const addSkillBtn = el('addSkillBtn');
-const skillInput = el('skillInput');
-const skillsContainer = el('skillsContainer');
-const editCoverPhoto = el('editCoverPhoto');
-const editProfilePicture = el('editProfilePicture');
-const coverPhoto = el('coverPhoto');
-const profilePicture = el('profilePicture');
-const imageUploadModal = el('imageUploadModal');
-const closeImageModal = el('closeImageModal');
-const imageUploadInput = el('imageUploadInput');
-const imageUploadArea = el('imageUploadArea');
-const imagePreview = el('imagePreview');
-const uploadImageBtn = el('uploadImageBtn');
-const imageViewModal = el('imageViewModal');
-const closeImageViewModal = el('closeImageViewModal');
-const viewedImage = el('viewedImage');
-const saveProfileBtn = el('saveProfileBtn');
+  // Global variables
+  let currentUser = null;
+  let userProfile = null;
+  let userSkills = [];
+  let currentUploadType = null;
+  let privacySettings = {};
+  let selectedAvatar = '';
 
-/* ===================== UTILITIES ===================== */
-function showMessage(msg, type='error') {
-  messageContainer.innerHTML = `<div class="${type==='success' ? 'success-message' : 'error-message'}">${msg}</div>`;
-  setTimeout(()=> messageContainer.innerHTML = '', 4500);
-}
-function safeEl(id){ return document.getElementById(id) || null; }
-function setLoadingButton(buttonElOrId, isLoading){
-  const btn = (typeof buttonElOrId === 'string') ? safeEl(buttonElOrId) : buttonElOrId;
-  if(!btn) return;
-  const spinner = btn.querySelector('.spinner');
-  const textSpan = btn.querySelector('span');
-  if(isLoading){
-    btn.disabled = true;
-    if(textSpan) textSpan.style.display='none';
-    if(spinner) spinner.style.display='inline-block';
-  } else {
-    btn.disabled = false;
-    if(textSpan) textSpan.style.display='inline-block';
-    if(spinner) spinner.style.display='none';
+  // DOM elements
+  const currentUserAvatar = document.getElementById('currentUserAvatar');
+  const userName = document.getElementById('userName');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const nightToggleBtn = document.getElementById('nightToggleBtn');
+  const messageContainer = document.getElementById('messageContainer');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const editProfileModal = document.getElementById('editProfileModal');
+  const closeEditModal = document.getElementById('closeEditModal');
+  const profileForm = document.getElementById('profileForm');
+  const postsGrid = document.getElementById('postsGrid');
+  const addSkillBtn = document.getElementById('addSkillBtn');
+  const skillInput = document.getElementById('skillInput');
+  const skillsContainer = document.getElementById('skillsContainer');
+  const editCoverPhoto = document.getElementById('editCoverPhoto');
+  const editProfilePicture = document.getElementById('editProfilePicture');
+  const coverPhoto = document.getElementById('coverPhoto');
+  const profilePicture = document.getElementById('profilePicture');
+  const imageUploadModal = document.getElementById('imageUploadModal');
+  const closeImageModal = document.getElementById('closeImageModal');
+  const imageUploadInput = document.getElementById('imageUploadInput');
+  const imageUploadArea = document.getElementById('imageUploadArea');
+  const imagePreview = document.getElementById('imagePreview');
+  const uploadImageBtn = document.getElementById('uploadImageBtn');
+  const imageViewModal = document.getElementById('imageViewModal');
+  const closeImageViewModal = document.getElementById('closeImageViewModal');
+  const viewedImage = document.getElementById('viewedImage');
+  const avatarSelection = document.getElementById('avatarSelection');
+  const uploadCustomAvatar = document.getElementById('uploadCustomAvatar');
+
+  // Initialize avatar selection
+  function initAvatarSelection() {
+    avatarSelection.innerHTML = '';
+    
+    AVATAR_OPTIONS.forEach((avatar, index) => {
+      const avatarElement = document.createElement('img');
+      avatarElement.className = 'avatar-option';
+      avatarElement.src = avatar;
+      avatarElement.alt = `Avatar ${index + 1}`;
+      
+      if (userProfile && userProfile.avatar === avatar) {
+        avatarElement.classList.add('selected');
+        selectedAvatar = avatar;
+      }
+      
+      avatarElement.addEventListener('click', () => {
+        // Remove selected class from all avatars
+        document.querySelectorAll('.avatar-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        
+        // Add selected class to clicked avatar
+        avatarElement.classList.add('selected');
+        selectedAvatar = avatar;
+        
+        // Update profile picture preview
+        profilePicture.src = avatar;
+      });
+      
+      avatarSelection.appendChild(avatarElement);
+    });
   }
-}
 
-/* ===================== SKILLS ===================== */
-function renderSkillsLocal(){
-  skillsContainer.innerHTML = userSkills.map(skill =>
-    `<span class="skill-tag">${skill} <i class="fas fa-times" style="margin-left:8px; cursor:pointer;" data-skill="${skill}"></i></span>`
-  ).join('') || '<span style="color:var(--secondary-text)">No skills added</span>';
-  // attach remove listeners
-  Array.from(skillsContainer.querySelectorAll('i[data-skill]')).forEach(btn=>{
-    btn.onclick = () => {
-      const s = btn.getAttribute('data-skill');
-      userSkills = userSkills.filter(x=> x !== s);
-      renderSkillsLocal();
-    };
-  });
-}
-
-/* ===================== CLOUDINARY UPLOAD ===================== */
-async function uploadToCloudinary(file){
-  if(!file) throw new Error('No file');
-  if(file.size > MAX_FILE_SIZE) throw new Error('File too large (max 10MB)');
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  const res = await fetch(CLOUDINARY_URL, { method:'POST', body: fd });
-  if(!res.ok){
-    const text = await res.text();
-    throw new Error('Cloudinary upload failed: ' + text);
+  // Initialize skills
+  function renderSkills() {
+    skillsContainer.innerHTML = userSkills.map(skill => 
+      `<span class="skill-tag">${skill} <i class="fas fa-times" onclick="removeSkill('${skill.replace(/'/g, "\\'")}')" style="cursor: pointer; margin-left: 5px;"></i></span>`
+    ).join('');
   }
-  const data = await res.json();
-  return data.secure_url;
-}
 
-/* ===================== PRIVACY SELECTORS ===================== */
-function initPrivacySelectors(){
-  document.querySelectorAll('.privacy-selector').forEach(selector=>{
-    const options = selector.querySelectorAll('.privacy-option');
-    const field = selector.getAttribute('data-field');
-    // initial
-    if(privacySettings[field]){
-      options.forEach(o=>o.classList.remove('active'));
-      const active = selector.querySelector(`.privacy-option[data-privacy="${privacySettings[field]}"]`);
-      if(active) active.classList.add('active');
+  // Remove skill function
+  window.removeSkill = (skill) => {
+    userSkills = userSkills.filter(s => s !== skill);
+    renderSkills();
+  };
+
+  // Add skill
+  addSkillBtn.addEventListener('click', () => {
+    const skill = skillInput.value.trim();
+    if (skill && !userSkills.includes(skill)) {
+      userSkills.push(skill);
+      renderSkills();
+      skillInput.value = '';
     }
-    // click
-    options.forEach(option=>{
-      option.addEventListener('click', ()=>{
-        options.forEach(o=>o.classList.remove('active'));
-        option.classList.add('active');
-        privacySettings[field] = option.getAttribute('data-privacy');
+  });
+
+  skillInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkillBtn.click();
+    }
+  });
+
+  // Upload to Cloudinary - SIMPLIFIED WORKING VERSION
+  async function uploadToCloudinary(file) {
+    console.log("Starting upload...", file);
+    
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('File size too large. Maximum 10MB.');
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      console.log("Sending to Cloudinary...");
+      const response = await fetch(CLOUDINARY_URL, {
+        method: "POST",
+        body: formData,
+      });
+      
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload failed:", errorText);
+        throw new Error('Upload failed. Please try again.');
+      }
+      
+      const data = await response.json();
+      console.log("Upload successful:", data);
+      return data.secure_url;
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      throw new Error('Failed to upload image. Please check your connection and try again.');
+    }
+  }
+
+  // Set loading state
+  function setLoading(buttonId, isLoading) {
+    const button = document.getElementById(buttonId);
+    const text = button.querySelector('span:first-child');
+    const spinner = button.querySelector('.spinner');
+    
+    if (isLoading) {
+      button.disabled = true;
+      text.style.display = 'none';
+      spinner.style.display = 'inline-block';
+    } else {
+      button.disabled = false;
+      text.style.display = 'inline-block';
+      spinner.style.display = 'none';
+    }
+  }
+
+  // Theme management
+  function initTheme() {
+    const savedTheme = localStorage.getItem('meet_theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
+    } else {
+      document.body.classList.remove('dark-mode');
+      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
+    }
+  }
+
+  // Message display
+  function showMessage(message, type = 'error') {
+    messageContainer.innerHTML = `<div class="${type === 'success' ? 'success-message' : 'error-message'}">${message}</div>`;
+    setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
+  }
+
+  // Load user profile
+  async function loadUserProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      console.log("Loading profile for user:", user.uid);
+      
+      const profileDoc = await db.collection("profiles").doc(user.uid).get();
+      
+      if (profileDoc.exists) {
+        userProfile = profileDoc.data();
+        console.log("Profile data loaded:", userProfile);
+        updateProfileDisplay();
+        populateEditForm();
+      } else {
+        console.log("No profile found, creating new one");
+        // Create new profile with user's display name
+        userProfile = {
+          fullName: user.displayName || 'User',
+          bio: '',
+          introduction: '',
+          dob: '',
+          position: '',
+          company: '',
+          experience: '',
+          country: '',
+          state: '',
+          city: '',
+          education: '',
+          skills: [],
+          profilePicture: '',
+          coverPhoto: '',
+          avatar: AVATAR_OPTIONS[0], // Default avatar
+          privacySettings: {},
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          email: user.email
+        };
+        
+        try {
+          await db.collection("profiles").doc(user.uid).set(userProfile);
+          console.log("New profile created");
+          updateProfileDisplay();
+          
+          // Auto-open edit modal for new users to set up their profile
+          setTimeout(() => {
+            editProfileModal.style.display = 'flex';
+            populateEditForm();
+            initPrivacySelectors();
+            initAvatarSelection();
+          }, 1000);
+          
+        } catch (createError) {
+          console.error("Error creating profile:", createError);
+          showMessage('Failed to create profile. Please refresh the page.');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      showMessage('Failed to load profile data. Please check your connection.');
+    }
+  }
+
+  // Update profile display
+  function updateProfileDisplay() {
+    if (!userProfile) return;
+
+    console.log("Updating profile display with:", userProfile);
+
+    // Update personal info
+    document.getElementById('displayFullName').innerHTML = `${userProfile.fullName || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('fullName')}</span>`;
+    document.getElementById('displayBio').innerHTML = `${userProfile.bio || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('bio')}</span>`;
+    document.getElementById('displayIntro').innerHTML = `${userProfile.introduction || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('introduction')}</span>`;
+    
+    // Format date of birth
+    let dobDisplay = 'Not set';
+    if (userProfile.dob) {
+      const dob = new Date(userProfile.dob);
+      dobDisplay = `${dob.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+    }
+    document.getElementById('displayDob').innerHTML = `${dobDisplay} <span class="privacy-badge">Private</span>`;
+
+    // Update professional info
+    document.getElementById('displayPosition').innerHTML = `${userProfile.position || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('position')}</span>`;
+    document.getElementById('displayCompany').innerHTML = `${userProfile.company || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('company')}</span>`;
+    document.getElementById('displayExperience').innerHTML = `${userProfile.experience ? userProfile.experience + ' years' : 'Not set'} <span class="privacy-badge">${getPrivacyBadge('experience')}</span>`;
+
+    // Update location
+    document.getElementById('displayCountry').innerHTML = `${userProfile.country || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('country')}</span>`;
+    document.getElementById('displayState').innerHTML = `${userProfile.state || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('state')}</span>`;
+    document.getElementById('displayCity').innerHTML = `${userProfile.city || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('city')}</span>`;
+
+    // Update education and skills
+    document.getElementById('displayEducation').innerHTML = `${userProfile.education || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('education')}</span>`;
+    
+    const displaySkills = document.getElementById('displaySkills');
+    if (userProfile.skills && userProfile.skills.length > 0) {
+      displaySkills.innerHTML = userProfile.skills.map(skill => 
+        `<span class="skill-tag">${skill}</span>`
+      ).join('');
+    } else {
+      displaySkills.innerHTML = '<span style="color: var(--secondary-text);">No skills added</span>';
+    }
+
+    // Update profile images - prioritize avatar, then profile picture
+    if (userProfile.avatar) {
+      profilePicture.src = userProfile.avatar;
+      currentUserAvatar.innerHTML = `<img src="${userProfile.avatar}" alt="Profile">`;
+    } else if (userProfile.profilePicture) {
+      profilePicture.src = userProfile.profilePicture;
+      currentUserAvatar.innerHTML = `<img src="${userProfile.profilePicture}" alt="Profile">`;
+    } else {
+      profilePicture.src = "https://via.placeholder.com/180x180/0080FF/FFFFFF?text=MEET";
+      const userInitial = (userProfile.fullName || 'User').charAt(0).toUpperCase();
+      currentUserAvatar.textContent = userInitial;
+    }
+    
+    if (userProfile.coverPhoto) {
+      coverPhoto.src = userProfile.coverPhoto;
+    } else {
+      coverPhoto.src = "https://via.placeholder.com/1200x400/0080FF/FFFFFF?text=MEET+Profile";
+    }
+
+    // Update privacy settings
+    privacySettings = userProfile.privacySettings || {};
+    
+    // Update user name in navbar
+    const userNameText = userProfile.fullName || 'User';
+    userName.textContent = userNameText;
+  }
+
+  function getPrivacyBadge(field) {
+    const privacy = privacySettings[field] || 'public';
+    return privacy.charAt(0).toUpperCase() + privacy.slice(1);
+  }
+
+  // Populate edit form
+  function populateEditForm() {
+    if (!userProfile) return;
+
+    console.log("Populating form with:", userProfile);
+
+    document.getElementById('fullName').value = userProfile.fullName || '';
+    document.getElementById('bio').value = userProfile.bio || '';
+    document.getElementById('introduction').value = userProfile.introduction || '';
+    document.getElementById('dob').value = userProfile.dob || '';
+    document.getElementById('position').value = userProfile.position || '';
+    document.getElementById('company').value = userProfile.company || '';
+    document.getElementById('experience').value = userProfile.experience || '';
+    document.getElementById('country').value = userProfile.country || '';
+    document.getElementById('state').value = userProfile.state || '';
+    document.getElementById('city').value = userProfile.city || '';
+    document.getElementById('education').value = userProfile.education || '';
+    
+    userSkills = userProfile.skills || [];
+    renderSkills();
+
+    // Set privacy selectors
+    Object.keys(privacySettings).forEach(field => {
+      const selector = document.querySelector(`.privacy-selector[data-field="${field}"]`);
+      if (selector) {
+        const options = selector.querySelectorAll('.privacy-option');
+        options.forEach(opt => opt.classList.remove('active'));
+        const activeOption = selector.querySelector(`.privacy-option[data-privacy="${privacySettings[field]}"]`);
+        if (activeOption) activeOption.classList.add('active');
+      }
+    });
+  }
+
+  // Privacy selector functionality
+  function initPrivacySelectors() {
+    document.querySelectorAll('.privacy-selector').forEach(selector => {
+      const options = selector.querySelectorAll('.privacy-option');
+      const field = selector.getAttribute('data-field');
+      
+      // Set initial active state
+      if (privacySettings[field]) {
+        options.forEach(opt => opt.classList.remove('active'));
+        const activeOption = selector.querySelector(`.privacy-option[data-privacy="${privacySettings[field]}"]`);
+        if (activeOption) activeOption.classList.add('active');
+      }
+
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+          privacySettings[field] = option.getAttribute('data-privacy');
+        });
       });
     });
-  });
-}
-
-/* ===================== UI POPULATE & UPDATE ===================== */
-function getPrivacyBadge(field){
-  const p = privacySettings[field] || 'public';
-  return p.charAt(0).toUpperCase() + p.slice(1);
-}
-
-function updateProfileDisplay(){
-  if(!userProfile) return;
-  el('displayFullName').innerHTML = `${userProfile.fullName || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('fullName')}</span>`;
-  el('displayBio').innerHTML = `${userProfile.bio || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('bio')}</span>`;
-  el('displayIntro').innerHTML = `${userProfile.introduction || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('introduction')}</span>`;
-  let dobDisplay = 'Not set';
-  if(userProfile.dob){
-    try {
-      const d = new Date(userProfile.dob);
-      dobDisplay = `${d.toLocaleDateString('en-US', {month:'long', day:'numeric'})}`;
-    } catch(e){}
-  }
-  el('displayDob').innerHTML = `${dobDisplay} <span class="privacy-badge">Private</span>`;
-  el('displayPosition').innerHTML = `${userProfile.position || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('position')}</span>`;
-  el('displayCompany').innerHTML = `${userProfile.company || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('company')}</span>`;
-  el('displayExperience').innerHTML = `${userProfile.experience ? userProfile.experience + ' years' : 'Not set'} <span class="privacy-badge">${getPrivacyBadge('experience')}</span>`;
-  el('displayCountry').innerHTML = `${userProfile.country || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('country')}</span>`;
-  el('displayState').innerHTML = `${userProfile.state || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('state')}</span>`;
-  el('displayCity').innerHTML = `${userProfile.city || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('city')}</span>`;
-  el('displayEducation').innerHTML = `${userProfile.education || 'Not set'} <span class="privacy-badge">${getPrivacyBadge('education')}</span>`;
-
-  const displaySkills = el('displaySkills');
-  if(userProfile.skills && userProfile.skills.length > 0){
-    displaySkills.innerHTML = userProfile.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('');
-  } else {
-    displaySkills.innerHTML = '<span style="color:var(--secondary-text)">No skills added</span>';
   }
 
-  if(userProfile.profilePicture) profilePicture.src = userProfile.profilePicture;
-  else profilePicture.src = '';
-
-  if(userProfile.coverPhoto) coverPhoto.src = userProfile.coverPhoto;
-  else coverPhoto.src = '';
-  // local privacy settings
-  privacySettings = userProfile.privacySettings || {};
-}
-
-/* ===================== POPULATE EDIT FORM ===================== */
-function populateEditForm(){
-  if(!userProfile) return;
-  el('fullName').value = userProfile.fullName || '';
-  el('bio').value = userProfile.bio || '';
-  el('introduction').value = userProfile.introduction || '';
-  el('dob').value = userProfile.dob || '';
-  el('position').value = userProfile.position || '';
-  el('company').value = userProfile.company || '';
-  el('experience').value = userProfile.experience || '';
-  el('country').value = userProfile.country || '';
-  el('state').value = userProfile.state || '';
-  el('city').value = userProfile.city || '';
-  el('education').value = userProfile.education || '';
-  userSkills = userProfile.skills || [];
-  renderSkillsLocal();
-  initPrivacySelectors();
-}
-
-/* ===================== IMAGE UPLOAD FLOW ===================== */
-function initImageUploads(){
-  // open upload modal for cover/profile
-  function openUpload(type){
-    currentUploadType = type;
-    el('imageUploadTitle').textContent = (type==='cover') ? 'Upload Cover Photo' : 'Upload Profile Picture';
-    imagePreview.innerHTML = '';
-    imageUploadInput.value = '';
-    imageUploadModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-
-  editCoverPhoto && editCoverPhoto.addEventListener('click', ()=> openUpload('cover'));
-  editProfilePicture && editProfilePicture.addEventListener('click', ()=> openUpload('profile'));
-  profilePicture && profilePicture.addEventListener('click', ()=> openUpload('profile'));
-  coverPhoto && coverPhoto.addEventListener('click', ()=> openUpload('cover'));
-
-  imageUploadArea && imageUploadArea.addEventListener('click', ()=> imageUploadInput.click());
-  imageUploadInput && imageUploadInput.addEventListener('change', (e)=>{
-    if(!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    if(!file.type.startsWith('image/')) { showMessage('Please select an image file'); return; }
-    if(file.size > MAX_FILE_SIZE){ showMessage('File too large (max 10MB)'); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => { imagePreview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:300px; border-radius:8px;">`; };
-    reader.readAsDataURL(file);
-  });
-
-  uploadImageBtn && uploadImageBtn.addEventListener('click', async ()=>{
-    const file = imageUploadInput.files[0];
-    if(!file){ showMessage('Please select an image to upload'); return; }
-    setLoadingButton(uploadImageBtn, true);
-    try {
-      const url = await uploadToCloudinary(file);
-      const updateData = {};
-      if(currentUploadType === 'cover') updateData.coverPhoto = url;
-      else updateData.profilePicture = url;
-      // save to firestore
-      await db.collection('profiles').doc(currentUser.uid).update(updateData);
-      // merge locally
-      userProfile = Object.assign(userProfile || {}, updateData);
-      updateProfileDisplay();
-      showMessage('Image uploaded successfully!', 'success');
-      imageUploadModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    } catch(err){
-      console.error(err);
-      showMessage('Failed to upload image. ' + (err.message || '' ));
-    } finally {
-      setLoadingButton(uploadImageBtn, false);
-    }
-  });
-}
-
-/* ===================== IMAGE VIEW ===================== */
-function initImageView(){
-  profilePicture && profilePicture.addEventListener('click', ()=>{
-    if(userProfile && userProfile.profilePicture){
-      viewedImage.src = userProfile.profilePicture;
-      imageViewModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-  });
-  coverPhoto && coverPhoto.addEventListener('click', ()=>{
-    if(userProfile && userProfile.coverPhoto){
-      viewedImage.src = userProfile.coverPhoto;
-      imageViewModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-  });
-}
-
-/* ===================== MODALS ===================== */
-function initModals(){
-  editProfileBtn && editProfileBtn.addEventListener('click', ()=>{
-    editProfileModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    populateEditForm();
-  });
-  closeEditModal && closeEditModal.addEventListener('click', ()=> { editProfileModal.style.display = 'none'; document.body.style.overflow='auto'; });
-  closeImageModal && closeImageModal.addEventListener('click', ()=> { imageUploadModal.style.display = 'none'; document.body.style.overflow='auto'; });
-  closeImageViewModal && closeImageViewModal.addEventListener('click', ()=> { imageViewModal.style.display = 'none'; document.body.style.overflow='auto'; });
-
-  window.addEventListener('click', (e)=>{
-    if(e.target === editProfileModal){ editProfileModal.style.display = 'none'; document.body.style.overflow='auto'; }
-    if(e.target === imageUploadModal){ imageUploadModal.style.display = 'none'; document.body.style.overflow='auto'; }
-    if(e.target === imageViewModal){ imageViewModal.style.display = 'none'; document.body.style.overflow='auto'; }
-  });
-}
-
-/* ===================== SAVE PROFILE FORM ===================== */
-profileForm && profileForm.addEventListener('submit', async (ev)=>{
-  ev.preventDefault();
-  if(!currentUser) { showMessage('You must be logged in to save profile'); return; }
-  const profileData = {
-    fullName: el('fullName').value || '',
-    bio: el('bio').value || '',
-    introduction: el('introduction').value || '',
-    dob: el('dob').value || '',
-    position: el('position').value || '',
-    company: el('company').value || '',
-    experience: el('experience').value || '',
-    country: el('country').value || '',
-    state: el('state').value || '',
-    city: el('city').value || '',
-    education: el('education').value || '',
-    skills: userSkills,
-    privacySettings: privacySettings,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  setLoadingButton(saveProfileBtn, true);
-  try {
-    await db.collection('profiles').doc(currentUser.uid).update(profileData);
-    userProfile = Object.assign(userProfile || {}, profileData);
-    updateProfileDisplay();
-    editProfileModal.style.display = 'none';
-    document.body.style.overflow='auto';
-    showMessage('Profile updated successfully!', 'success');
-  } catch(err){
-    console.error(err);
-    showMessage('Failed to update profile. ' + (err.message || ''));
-  } finally {
-    setLoadingButton(saveProfileBtn, false);
-  }
-});
-
-/* ===================== LOAD POSTS ===================== */
-async function loadUserPosts(){
-  if(!currentUser) return;
-  postsGrid.innerHTML = '<div class="loading">Loading posts...</div>';
-  try {
-    const q = await db.collection('posts').where('userId','==',currentUser.uid).orderBy('timestamp','desc').get();
-    postsGrid.innerHTML = '';
-    if(q.empty){
-      postsGrid.innerHTML = '<div class="loading">No posts yet. Start sharing your thoughts on the feed!</div>';
-      return;
-    }
-    q.forEach(doc=>{
-      const post = doc.data();
-      const isPrivate = post.privacy === 'private';
-      const wrapper = document.createElement('div');
-      wrapper.className = `post-thumbnail ${isPrivate ? 'private' : ''}`;
-      if(post.media){
-        const isVideo = /\.(mp4|mov|avi|webm)$/i.test(post.media);
-        wrapper.innerHTML = `
-          ${isVideo ? `<video muted loop><source src="${post.media}"></video>` : `<img src="${post.media}" alt="Post">`}
-          ${isPrivate ? `<div class="private-badge"><i class="fas fa-lock"></i> Private</div>` : ''}
-          <div class="post-stats-overlay">
-            <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
-            <span><i class="fas fa-comment"></i> ${post.comments?.length || 0}</span>
-          </div>`;
-      } else {
-        wrapper.innerHTML = `<div style="padding:20px; color:var(--text-color)">${post.text || 'Text post'}</div>
-          ${isPrivate ? `<div class="private-badge"><i class="fas fa-lock"></i> Private</div>` : ''}
-          <div class="post-stats-overlay">
-            <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
-            <span><i class="fas fa-comment"></i> ${post.comments?.length || 0}</span>
-          </div>`;
-      }
-      postsGrid.appendChild(wrapper);
+  // Image upload functionality - FIXED
+  function initImageUploads() {
+    editCoverPhoto.addEventListener('click', () => {
+      currentUploadType = 'cover';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Cover Photo';
+      imageUploadModal.style.display = 'flex';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
     });
-  } catch(err){
-    console.error(err);
-    postsGrid.innerHTML = '<div class="error-message">Failed to load posts. Please try again later.</div>';
-  }
-}
 
-/* ===================== AUTH + PROFILE LOAD ===================== */
-auth.onAuthStateChanged(async (user)=>{
-  if(!user){
-    // not signed in -> redirect to login
-    window.location.href = 'login.html';
-    return;
-  }
-  currentUser = user;
-  const userNameText = user.displayName || user.email || 'User';
-  const userInitial = userNameText.charAt(0).toUpperCase();
-  currentUserAvatar.textContent = userInitial;
-  userName.textContent = userNameText;
+    editProfilePicture.addEventListener('click', () => {
+      currentUploadType = 'profile';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Profile Picture';
+      imageUploadModal.style.display = 'flex';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
+    });
 
-  try {
-    // load or create profile doc
-    const docRef = db.collection('profiles').doc(user.uid);
-    const doc = await docRef.get();
-    if(doc.exists){
-      userProfile = doc.data();
-    } else {
-      userProfile = {
-        fullName: user.displayName || (user.email || 'User'),
-        bio: '',
-        introduction: '',
-        dob: '',
-        position: '',
-        company: '',
-        experience: '',
-        country: '',
-        state: '',
-        city: '',
-        education: '',
-        skills: [],
-        profilePicture: '',
-        coverPhoto: '',
-        privacySettings: {},
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    uploadCustomAvatar.addEventListener('click', () => {
+      currentUploadType = 'avatar';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Custom Avatar';
+      imageUploadModal.style.display = 'flex';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
+    });
+
+    // Image preview
+    imageUploadArea.addEventListener('click', () => {
+      imageUploadInput.click();
+    });
+
+    imageUploadInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) {
+          showMessage('Please select an image file.');
+          return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          showMessage('File size too large. Maximum 10MB.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Upload image - FIXED
+    uploadImageBtn.addEventListener('click', async () => {
+      const file = imageUploadInput.files[0];
+      if (!file) {
+        showMessage('Please select an image to upload.');
+        return;
+      }
+
+      setLoading('uploadBtnText', true);
+
+      try {
+        console.log("Starting upload...");
+        const imageUrl = await uploadToCloudinary(file);
+        console.log("Upload successful:", imageUrl);
+        
+        const updateData = {};
+        if (currentUploadType === 'cover') {
+          updateData.coverPhoto = imageUrl;
+        } else if (currentUploadType === 'profile') {
+          updateData.profilePicture = imageUrl;
+        } else if (currentUploadType === 'avatar') {
+          updateData.avatar = imageUrl;
+          // Also update the avatar selection
+          selectedAvatar = imageUrl;
+        }
+
+        await db.collection("profiles").doc(currentUser.uid).update(updateData);
+        
+        // Update local profile and UI
+        Object.assign(userProfile, updateData);
+        updateProfileDisplay();
+        
+        showMessage('Image uploaded successfully!', 'success');
+        imageUploadModal.style.display = 'none';
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        showMessage(error.message || 'Failed to upload image. Please try again.');
+      } finally {
+        setLoading('uploadBtnText', false);
+      }
+    });
+  }
+
+  // Image view functionality
+  function initImageView() {
+    profilePicture.addEventListener('click', () => {
+      if (userProfile && (userProfile.profilePicture || userProfile.avatar)) {
+        viewedImage.src = userProfile.profilePicture || userProfile.avatar;
+        imageViewModal.style.display = 'flex';
+      }
+    });
+
+    coverPhoto.addEventListener('click', () => {
+      if (userProfile && userProfile.coverPhoto) {
+        viewedImage.src = userProfile.coverPhoto;
+        imageViewModal.style.display = 'flex';
+      }
+    });
+  }
+
+  // Modal controls - FIXED
+  function initModals() {
+    editProfileBtn.addEventListener('click', () => {
+      editProfileModal.style.display = 'flex';
+      populateEditForm();
+      initPrivacySelectors();
+      initAvatarSelection();
+    });
+
+    closeEditModal.addEventListener('click', () => {
+      editProfileModal.style.display = 'none';
+    });
+
+    closeImageModal.addEventListener('click', () => {
+      imageUploadModal.style.display = 'none';
+    });
+
+    closeImageViewModal.addEventListener('click', () => {
+      imageViewModal.style.display = 'none';
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === editProfileModal) {
+        editProfileModal.style.display = 'none';
+      }
+      if (e.target === imageUploadModal) {
+        imageUploadModal.style.display = 'none';
+      }
+      if (e.target === imageViewModal) {
+        imageViewModal.style.display = 'none';
+      }
+    });
+  }
+
+  // Form submission - FIXED
+  profileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setLoading('saveBtnText', true);
+
+    try {
+      const profileData = {
+        fullName: document.getElementById('fullName').value,
+        bio: document.getElementById('bio').value,
+        introduction: document.getElementById('introduction').value,
+        dob: document.getElementById('dob').value,
+        position: document.getElementById('position').value,
+        company: document.getElementById('company').value,
+        experience: document.getElementById('experience').value,
+        country: document.getElementById('country').value,
+        state: document.getElementById('state').value,
+        city: document.getElementById('city').value,
+        education: document.getElementById('education').value,
+        skills: userSkills,
+        privacySettings: privacySettings,
+        avatar: selectedAvatar || userProfile.avatar,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
-      await docRef.set(userProfile);
+
+      await db.collection("profiles").doc(user.uid).update(profileData);
+      
+      // Update local profile
+      Object.assign(userProfile, profileData);
+      updateProfileDisplay();
+      
+      showMessage('Profile updated successfully!', 'success');
+      editProfileModal.style.display = 'none';
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showMessage('Failed to update profile. Please try again.');
+    } finally {
+      setLoading('saveBtnText', false);
     }
-    // update UI
-    updateProfileDisplay();
-    populateEditForm();
-    // initialize interactive pieces (some depend on profile)
-    initPrivacySelectors();
-    renderSkillsLocal();
-    initImageUploads();
-    initImageView();
-    initModals();
-    loadUserPosts();
-  } catch(err){
-    console.error('Error loading profile', err);
-    showMessage('Failed to load profile data.');
-  }
-});
+  });
 
-/* ===================== LOGOUT & THEME ===================== */
-logoutBtn && logoutBtn.addEventListener('click', async ()=>{
-  try {
-    await auth.signOut();
-    window.location.href = 'login.html';
-  } catch(err){
-    console.error(err);
-    showMessage('Failed to logout.');
-  }
-});
+  // Load user's posts
+  async function loadUserPosts() {
+    const user = auth.currentUser;
+    if (!user) return;
 
-nightToggleBtn && nightToggleBtn.addEventListener('click', ()=>{
-  if(document.body.classList.contains('dark-mode')){
-    document.body.classList.remove('dark-mode');
-    localStorage.setItem('meet_theme','light');
-    nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
-  } else {
-    document.body.classList.add('dark-mode');
-    localStorage.setItem('meet_theme','dark');
-    nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
-  }
-});
+    try {
+      console.log("Loading posts for user:", user.uid);
+      
+      // Simple query without complex where clauses
+      const querySnapshot = await db.collection("posts")
+        .where("userId", "==", user.uid)
+        .limit(12)
+        .get();
+      
+      postsGrid.innerHTML = '';
 
-/* ===================== INIT ON DOM READY ===================== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  // ensure UI pieces that don't require auth are available
-  initPrivacySelectors();
-  renderSkillsLocal();
-});
+      if (querySnapshot.empty) {
+        postsGrid.innerHTML = '<div class="loading">No posts yet. Start sharing your thoughts on the feed!</div>';
+        return;
+      }
+
+      const posts = [];
+      querySnapshot.forEach((doc) => {
+        const post = doc.data();
+        post.id = doc.id;
+        posts.push(post);
+      });
+
+      // Render posts
+      posts.forEach((post) => {
+        const isPrivate = post.privacy === 'private';
+        
+        const postElement = document.createElement('div');
+        postElement.className = `post-thumbnail ${isPrivate ? 'private' : ''}`;
+        
+        if (post.media) {
+          const isVideo = post.media.match(/\.(mp4|mov|avi|webm)$/i);
+          
+          postElement.innerHTML = `
+            ${isVideo ? 
+              `<video style="width: 100%; height: 100%; object-fit: cover;"><source src="${post.media}"></video>` : 
+              `<img src="${post.media}" alt="Post" style="width: 100%; height: 100%; object-fit: cover;">`
+            }
+            ${isPrivate ? `
+              <div class="private-badge">
+                <i class="fas fa-lock"></i> Private
+              </div>
+            ` : ''}
+            <div class="post-stats-overlay">
+              <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
+              <span><i class="fas fa-comment"></i> ${post.comments?.length || 0}</span>
+            </div>
+          `;
+        } else {
+          postElement.innerHTML = `
+            <div style="padding: 20px; color: var(--text-color); height: 100%; display: flex; align-items: center; justify-content: center;">
+              <p>${post.text ? (post.text.substring(0, 100) + (post.text.length > 100 ? '...' : '')) : 'Text post'}</p>
+              ${isPrivate ? `
+                <div class="private-badge">
+                  <i class="fas fa-lock"></i> Private
+                </div>
+              ` : ''}
+            </div>
+            <div class="post-stats-overlay">
+              <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
+              <span><i class="fas fa-comment"></i> ${post.comments?.length || 0}</span>
+            </div>
+          `;
+        }
+        
+        postsGrid.appendChild(postElement);
+      });
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      postsGrid.innerHTML = '<div class="loading">No posts to display. Create your first post on the feed page!</div>';
+    }
+  }
+
+  // Authentication state listener
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+    } else {
+      currentUser = user;
+      console.log("User authenticated:", user.uid);
+      
+      // Initialize functionality
+      initImageUploads();
+      initImageView();
+      initModals();
+      
+      // Load data
+      loadUserProfile();
+      loadUserPosts();
+    }
+  });
+
+  // Logout functionality
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await auth.signOut();
+      window.location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout error:', error);
+      showMessage('Failed to logout. Please try again.');
+    }
+  });
+
+  // Theme toggle
+  nightToggleBtn.addEventListener('click', () => {
+    if (document.body.classList.contains('dark-mode')) {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('meet_theme', 'light');
+      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
+    } else {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('meet_theme', 'dark');
+      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
+    }
+  });
+
+  // Initialize the app
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Profile page initialized");
+    initTheme();
+    renderSkills();
+  });
 </script>
 </body>
 </html>
