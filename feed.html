@@ -1,149 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profile Upload | MEET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile Upload | MEET (Fixed)</title>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .card {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 30px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-    img {
-      border-radius: 10px;
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      margin-bottom: 15px;
-    }
-    input {
-      margin: 10px 0;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    button:disabled {
-      opacity: 0.7;
-    }
+    body { font-family: Arial, sans-serif; background:#f4f6fb; display:flex; justify-content:center; padding:40px;}
+    .card { width:100%; max-width:520px; background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    img { width:100%; height:200px; object-fit:cover; border-radius:8px; background:#eee; display:block; margin-bottom:10px;}
+    input[type=file] { display:block; margin:8px 0 16px; }
+    button { padding:10px 14px; border-radius:8px; border:none; background:#0061FF; color:#fff; cursor:pointer; font-weight:600; }
+    button[disabled] { opacity:0.6; cursor:default; }
+    #status { margin-top:12px; }
+    .row { display:flex; gap:12px; }
+    .col { flex:1; }
   </style>
 </head>
 <body>
-
   <div class="card">
-    <h2>Update Your Profile</h2>
+    <h2>Update Profile</h2>
 
-    <h4>Profile Picture</h4>
-    <img id="profilePreview" src="https://via.placeholder.com/300x200?text=Profile+Picture" alt="Profile Preview" />
-    <input type="file" id="profileInput" accept="image/*">
+    <div>
+      <h4>Profile Picture</h4>
+      <img id="profilePreview" src="https://via.placeholder.com/600x200?text=Profile+Preview" alt="profile preview">
+      <input id="profileInput" type="file" accept="image/*">
+    </div>
 
-    <h4>Background Picture</h4>
-    <img id="bgPreview" src="https://via.placeholder.com/300x200?text=Background+Picture" alt="Background Preview" />
-    <input type="file" id="bgInput" accept="image/*">
+    <div>
+      <h4>Background Picture</h4>
+      <img id="bgPreview" src="https://via.placeholder.com/600x200?text=Background+Preview" alt="background preview">
+      <input id="bgInput" type="file" accept="image/*">
+    </div>
 
-    <button id="saveBtn">Save to Firestore</button>
-    <p id="status"></p>
+    <div class="row" style="margin-top:8px">
+      <div class="col">
+        <button id="saveBtn">Save to Firestore</button>
+      </div>
+      <div class="col">
+        <button id="clearBtn" style="background:#ef4444">Clear (dev)</button>
+      </div>
+    </div>
+
+    <div id="status"></div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <!-- Firebase modular SDK -->
+  <script type="module">
+    // ---------------------------
+    // 1) FIREBASE CONFIG - REPLACE THESE
+    // ---------------------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <script>
-    // Initialize Firebase
+    // Replace with your real config (you shared earlier - use those exact strings)
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      authDomain: "meet-6e159.firebaseapp.com",
+      projectId: "meet-6e159",
+      // You can include storageBucket / messagingSenderId / appId if you wish
     };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    const cloudName = "your_cloud_name"; // 🔧 Replace with your Cloudinary cloud name
-    const uploadPreset = "Meet-profile"; // 🔧 Unsigned preset for profile
+    // If you DON'T use auth, set a fallback user id for dev/testing
+    const FALLBACK_USER_ID = "dev_user_1"; // change to whatever you want for testing
 
+    // ---------------------------
+    // 2) CLOUDINARY CONFIG - REPLACE IF NEEDED
+    // ---------------------------
+    const cloudName = "dcwof2ngn";
+    const uploadPreset = "Meet-profile"; // unsigned preset for profile
+
+    // ---------------------------
+    // 3) Initialize Firebase
+    // ---------------------------
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // ---------------------------
+    // 4) DOM
+    // ---------------------------
     const profileInput = document.getElementById("profileInput");
     const bgInput = document.getElementById("bgInput");
     const profilePreview = document.getElementById("profilePreview");
     const bgPreview = document.getElementById("bgPreview");
     const saveBtn = document.getElementById("saveBtn");
-    const status = document.getElementById("status");
+    const clearBtn = document.getElementById("clearBtn");
+    const statusEl = document.getElementById("status");
 
+    // track uploaded URLs
     let profileURL = "";
     let bgURL = "";
+    let currentUserId = FALLBACK_USER_ID; // will be updated if auth is present
 
-    async function uploadImage(file, type) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
+    // if you use Firebase Authentication, capture the signed-in user id
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        console.log("Auth user:", user.uid);
+      } else {
+        console.log("No auth user - using fallback id:", currentUserId);
+      }
+    });
+
+    // helper to update status
+    function setStatus(msg, isError=false) {
+      statusEl.textContent = msg;
+      statusEl.style.color = isError ? "red" : "green";
+      console.log("STATUS:", msg);
+    }
+
+    // Cloudinary unsigned upload function (image)
+    async function uploadToCloudinary(file) {
+      const f = new FormData();
+      f.append("file", file);
+      f.append("upload_preset", uploadPreset);
 
       const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: "POST",
-        body: formData
+        body: f
       });
 
-      const data = await res.json();
-      if (type === "profile") profileURL = data.secure_url;
-      if (type === "bg") bgURL = data.secure_url;
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error("Cloudinary upload failed: " + text);
+      }
 
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("No secure_url in Cloudinary response: " + JSON.stringify(data));
       return data.secure_url;
     }
 
     profileInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
-      status.textContent = "Uploading profile picture...";
-      const url = await uploadImage(file, "profile");
-      profilePreview.src = url;
-      status.textContent = "Profile picture uploaded!";
+      try {
+        setStatus("Uploading profile picture...");
+        saveBtn.disabled = true;
+        profileURL = await uploadToCloudinary(file);
+        profilePreview.src = profileURL;
+        setStatus("Profile uploaded.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Profile upload failed: " + err.message, true);
+      } finally {
+        saveBtn.disabled = false;
+      }
     });
 
     bgInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
-      status.textContent = "Uploading background picture...";
-      const url = await uploadImage(file, "bg");
-      bgPreview.src = url;
-      status.textContent = "Background picture uploaded!";
+      try {
+        setStatus("Uploading background picture...");
+        saveBtn.disabled = true;
+        bgURL = await uploadToCloudinary(file);
+        bgPreview.src = bgURL;
+        setStatus("Background uploaded.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Background upload failed: " + err.message, true);
+      } finally {
+        saveBtn.disabled = false;
+      }
     });
 
+    // SAVE to Firestore
     saveBtn.addEventListener("click", async () => {
+      // basic validation
       if (!profileURL && !bgURL) {
-        status.textContent = "Please upload at least one image.";
+        setStatus("Please upload at least one image before saving.", true);
         return;
       }
-      status.textContent = "Saving to Firestore...";
+
+      saveBtn.disabled = true;
+      setStatus("Saving profile to Firestore...");
+
       try {
-        await db.collection("users").doc("USER_ID_HERE").set({
-          profilePicture: profileURL,
-          backgroundPicture: bgURL,
-          updatedAt: new Date()
-        }, { merge: true });
-        status.textContent = "Profile updated successfully!";
+        // choose the document id (use authenticated uid if available)
+        const userDocRef = doc(db, "users", currentUserId);
+
+        // fields to set (only set properties that exist)
+        const payload = { updatedAt: new Date() };
+        if (profileURL) payload.profilePicture = profileURL;
+        if (bgURL) payload.backgroundPicture = bgURL;
+
+        // setDoc with merge:true behavior using setDoc + existing merging
+        await setDoc(userDocRef, payload, { merge: true });
+
+        setStatus("Profile saved to Firestore ✅");
+        console.log("Saved doc for user:", currentUserId, payload);
       } catch (err) {
-        status.textContent = "Error saving profile: " + err.message;
+        console.error("Error saving to Firestore:", err);
+        setStatus("Error saving to Firestore: " + err.message, true);
+      } finally {
+        saveBtn.disabled = false;
       }
     });
+
+    // optional clear button (dev)
+    clearBtn.addEventListener("click", () => {
+      profilePreview.src = "https://via.placeholder.com/600x200?text=Profile+Preview";
+      bgPreview.src = "https://via.placeholder.com/600x200?text=Background+Preview";
+      profileInput.value = "";
+      bgInput.value = "";
+      profileURL = "";
+      bgURL = "";
+      setStatus("Cleared.");
+    });
+
+    // Debug helper: open dev console (tell user)
+    console.log("Profile uploader initialized. Open DevTools (F12) and check Console/Network if something fails.");
   </script>
 </body>
 </html>
