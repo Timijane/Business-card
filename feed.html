@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Profile</title>
   <style>
+    /* Your existing styles remain the same */
     body {
       font-family: Poppins, sans-serif;
       text-align: center;
@@ -121,7 +122,7 @@
   </div>
 
   <script>
-    // ✅ Firebase Configuration [citation:1][citation:5]
+    // ✅ Firebase Configuration - THIS IS ALREADY SET UP
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -133,34 +134,58 @@
       measurementId: "G-9BFPPVMMRF"
     };
 
-    // ✅ Initialize Firebase Services [citation:1]
+    // ✅ Cloudinary Configuration - YOU NEED TO SET THIS UP
+    const cloudinaryConfig = {
+      // ⚠️ REPLACE WITH YOUR ACTUAL CLOUDINARY CLOUD NAME
+      cloudName: 'dcwof2ngn', // This might work, but check your Cloudinary dashboard
+      // ⚠️ REPLACE WITH YOUR ACTUAL UPLOAD PRESET NAME
+      uploadPreset: 'Meet-profile' // Create this in Cloudinary dashboard
+    };
+    
+    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`;
+
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
-
-    // ✅ Cloudinary Configuration [citation:2]
-    const cloudinaryConfig = {
-      cloudName: 'dcwof2ngn',
-      uploadPreset: 'Meet-profile' // Unsigned preset for security
-    };
-    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`;
 
     // Global variables
     let currentUser = null;
     let currentUploadType = null;
 
-    // ✅ Firebase Authentication State Listener [citation:3][citation:10]
+    // ✅ Check Cloudinary configuration on load
+    function checkConfiguration() {
+      if (!cloudinaryConfig.cloudName || cloudinaryConfig.cloudName === 'YOUR_CLOUD_NAME') {
+        console.error('❌ Cloudinary not configured: Please set your cloud name');
+        showStatus('Error: Cloudinary not configured. Please check setup.', 'error');
+        return false;
+      }
+      if (!cloudinaryConfig.uploadPreset || cloudinaryConfig.uploadPreset === 'YOUR_UPLOAD_PRESET') {
+        console.error('❌ Cloudinary upload preset not configured');
+        showStatus('Error: Upload preset not configured. Please check setup.', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    // ✅ Firebase Authentication State Listener
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         currentUser = user;
         document.getElementById("user-email").textContent = user.email;
+        
+        // Check configuration
+        if (!checkConfiguration()) {
+          return;
+        }
+        
         await loadUserProfile(user.uid);
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // ✅ Load User Profile from Firestore [citation:4][citation:8]
+    // ✅ Load User Profile from Firestore
     async function loadUserProfile(userId) {
       try {
         const docRef = db.collection("users").doc(userId);
@@ -189,11 +214,11 @@
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        showStatus("Error loading profile", "error");
+        showStatus("Error loading profile: " + error.message, "error");
       }
     }
 
-    // ✅ Create Default Profile [citation:4]
+    // ✅ Create Default Profile
     async function createDefaultProfile(userId) {
       try {
         const defaultData = {
@@ -214,8 +239,13 @@
       }
     }
 
-    // ✅ Cloudinary Image Upload [citation:2]
+    // ✅ Cloudinary Image Upload
     async function uploadImage() {
+      // Check configuration first
+      if (!checkConfiguration()) {
+        return;
+      }
+
       const fileInput = document.getElementById('imageInput');
       const file = fileInput.files[0];
       const uploadBtn = document.getElementById('uploadBtn');
@@ -232,6 +262,12 @@
         return;
       }
 
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        showStatus("File size too large. Maximum 5MB.", "error", statusDiv);
+        return;
+      }
+
       // Show loading state
       uploadBtn.disabled = true;
       uploadBtn.textContent = 'Uploading...';
@@ -243,6 +279,11 @@
         formData.append('file', file);
         formData.append('upload_preset', cloudinaryConfig.uploadPreset);
 
+        console.log('Uploading to Cloudinary...', {
+          cloudName: cloudinaryConfig.cloudName,
+          uploadPreset: cloudinaryConfig.uploadPreset
+        });
+
         // Upload to Cloudinary
         const response = await fetch(CLOUDINARY_UPLOAD_URL, {
           method: 'POST',
@@ -250,10 +291,12 @@
         });
 
         if (!response.ok) {
-          throw new Error('Upload failed');
+          const errorText = await response.text();
+          throw new Error(`Upload failed: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('Cloudinary upload success:', data);
         
         // Update Firebase with new image URL
         await updateProfileImage(data.secure_url);
@@ -275,7 +318,7 @@
       }
     }
 
-    // ✅ Update Profile Image in Firestore [citation:4][citation:8]
+    // ✅ Update Profile Image in Firestore
     async function updateProfileImage(imageUrl) {
       try {
         const updateData = {
@@ -318,14 +361,10 @@
       statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
     }
 
-    // ✅ Edit Profile Function
     function editProfile() {
-      // For now, redirect to an edit page or open a modal
       alert("Edit profile functionality would open here. You can implement a modal or redirect to an edit page.");
-      // window.location.href = "edit-profile.html";
     }
 
-    // ✅ Logout Function [citation:3]
     function logout() {
       if (confirm("Are you sure you want to logout?")) {
         auth.signOut().then(() => {
@@ -337,36 +376,10 @@
       }
     }
 
-    // ✅ Update Profile Data [citation:4][citation:8]
-    async function updateProfileData(updatedData) {
-      try {
-        updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection("users").doc(currentUser.uid).update(updatedData);
-        showStatus("Profile updated successfully!", "success");
-        return true;
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        showStatus("Error updating profile", "error");
-        return false;
-      }
-    }
-
-    // ✅ Example: Update user profile information
-    async function saveProfileChanges() {
-      const updatedData = {
-        displayName: document.getElementById('editName').value,
-        bio: document.getElementById('editBio').value,
-        location: document.getElementById('editLocation').value
-      };
-      
-      const success = await updateProfileData(updatedData);
-      if (success) {
-        // Update the display immediately
-        document.getElementById('displayName').textContent = updatedData.displayName;
-        document.getElementById('displayBio').textContent = updatedData.bio;
-        document.getElementById('displayLocation').textContent = updatedData.location;
-      }
-    }
+    // Check configuration on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      checkConfiguration();
+    });
   </script>
 </body>
 </html>
