@@ -12,14 +12,12 @@
       margin: 0;
       padding: 0;
     }
-
     #background {
       width: 100%;
       height: 200px;
       object-fit: cover;
       border-radius: 0 0 10px 10px;
     }
-
     #profile-pic {
       width: 120px;
       height: 120px;
@@ -28,13 +26,12 @@
       border: 4px solid white;
       object-fit: cover;
       background-color: #eee;
+      cursor: pointer;
     }
-
     h2 {
       margin-top: 10px;
       color: #333;
     }
-
     .profile-container {
       max-width: 500px;
       margin: auto;
@@ -42,7 +39,45 @@
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
+      position: relative;
     }
+    .edit-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .upload-section {
+      margin: 20px;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      border-radius: 8px;
+    }
+    .btn {
+      background: #0080FF;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status-message {
+      margin: 10px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
   </style>
 
   <!-- Firebase SDK -->
@@ -54,12 +89,39 @@
 <body>
   <div class="profile-container">
     <img id="background" src="default-bg.jpg" alt="Background Image">
-    <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture">
+    <div class="edit-overlay" onclick="openImageUpload('background')">Edit Cover</div>
+    
+    <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture" onclick="openImageUpload('profile')">
+    <div style="margin-top: -20px;">
+      <small style="color: #666; cursor: pointer;" onclick="openImageUpload('profile')">Change Photo</small>
+    </div>
+    
     <h2 id="user-email">Loading...</h2>
+    
+    <!-- Upload Section -->
+    <div class="upload-section" id="uploadSection" style="display: none;">
+      <h3>Upload New <span id="uploadType"></span></h3>
+      <input type="file" id="imageInput" accept="image/*">
+      <button class="btn" onclick="uploadImage()" id="uploadBtn">Upload</button>
+      <button class="btn" onclick="closeUploadSection()">Cancel</button>
+      <div id="uploadStatus"></div>
+    </div>
+
+    <!-- Profile Data Display -->
+    <div style="padding: 20px; text-align: left;">
+      <h3>Profile Information</h3>
+      <div id="profileData">
+        <p><strong>Name:</strong> <span id="displayName">Not set</span></p>
+        <p><strong>Bio:</strong> <span id="displayBio">Not set</span></p>
+        <p><strong>Location:</strong> <span id="displayLocation">Not set</span></p>
+      </div>
+      <button class="btn" onclick="editProfile()">Edit Profile</button>
+      <button class="btn" onclick="logout()" style="background: #ef4444;">Logout</button>
+    </div>
   </div>
 
   <script>
-    // ✅ Your Firebase configuration
+    // ✅ Firebase Configuration [citation:1][citation:5]
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -71,41 +133,240 @@
       measurementId: "G-9BFPPVMMRF"
     };
 
-    // ✅ Initialize Firebase
+    // ✅ Initialize Firebase Services [citation:1]
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // ✅ Listen for auth state changes
+    // ✅ Cloudinary Configuration [citation:2]
+    const cloudinaryConfig = {
+      cloudName: 'dcwof2ngn',
+      uploadPreset: 'Meet-profile' // Unsigned preset for security
+    };
+    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`;
+
+    // Global variables
+    let currentUser = null;
+    let currentUploadType = null;
+
+    // ✅ Firebase Authentication State Listener [citation:3][citation:10]
     auth.onAuthStateChanged(async (user) => {
       if (user) {
+        currentUser = user;
         document.getElementById("user-email").textContent = user.email;
-
-        try {
-          const docRef = db.collection("users").doc(user.uid);
-          const docSnap = await docRef.get();
-
-          if (docSnap.exists) {
-            const data = docSnap.data();
-
-            // ✅ Set user profile data
-            document.getElementById("profile-pic").src =
-              data.profilePicture || "default-profile.jpg";
-            document.getElementById("background").src =
-              data.backgroundPicture || "default-bg.jpg";
-
-          } else {
-            console.log("No profile data found for user.");
-          }
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-        }
-
+        await loadUserProfile(user.uid);
       } else {
-        // Not logged in → redirect
         window.location.href = "login.html";
       }
     });
+
+    // ✅ Load User Profile from Firestore [citation:4][citation:8]
+    async function loadUserProfile(userId) {
+      try {
+        const docRef = db.collection("users").doc(userId);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          
+          // Update profile images
+          document.getElementById("profile-pic").src = 
+            data.profilePicture || "default-profile.jpg";
+          document.getElementById("background").src = 
+            data.backgroundPicture || "default-bg.jpg";
+          
+          // Update profile information
+          document.getElementById("displayName").textContent = 
+            data.displayName || "Not set";
+          document.getElementById("displayBio").textContent = 
+            data.bio || "Not set";
+          document.getElementById("displayLocation").textContent = 
+            data.location || "Not set";
+            
+        } else {
+          console.log("No profile data found. Creating default profile...");
+          await createDefaultProfile(userId);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        showStatus("Error loading profile", "error");
+      }
+    }
+
+    // ✅ Create Default Profile [citation:4]
+    async function createDefaultProfile(userId) {
+      try {
+        const defaultData = {
+          email: currentUser.email,
+          displayName: currentUser.displayName || "User",
+          bio: "",
+          location: "",
+          profilePicture: "",
+          backgroundPicture: "",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection("users").doc(userId).set(defaultData);
+        console.log("Default profile created");
+      } catch (error) {
+        console.error("Error creating default profile:", error);
+      }
+    }
+
+    // ✅ Cloudinary Image Upload [citation:2]
+    async function uploadImage() {
+      const fileInput = document.getElementById('imageInput');
+      const file = fileInput.files[0];
+      const uploadBtn = document.getElementById('uploadBtn');
+      const statusDiv = document.getElementById('uploadStatus');
+      
+      if (!file) {
+        showStatus("Please select an image file", "error", statusDiv);
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        showStatus("Please select a valid image file", "error", statusDiv);
+        return;
+      }
+
+      // Show loading state
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Uploading...';
+      showStatus("Uploading image...", "", statusDiv);
+
+      try {
+        // Prepare form data for Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+
+        // Upload to Cloudinary
+        const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        
+        // Update Firebase with new image URL
+        await updateProfileImage(data.secure_url);
+        
+        showStatus("Image uploaded successfully!", "success", statusDiv);
+        
+        // Close upload section after delay
+        setTimeout(() => {
+          closeUploadSection();
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = 'Upload';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        showStatus("Upload failed: " + error.message, "error", statusDiv);
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload';
+      }
+    }
+
+    // ✅ Update Profile Image in Firestore [citation:4][citation:8]
+    async function updateProfileImage(imageUrl) {
+      try {
+        const updateData = {
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        if (currentUploadType === 'profile') {
+          updateData.profilePicture = imageUrl;
+          document.getElementById("profile-pic").src = imageUrl;
+        } else if (currentUploadType === 'background') {
+          updateData.backgroundPicture = imageUrl;
+          document.getElementById("background").src = imageUrl;
+        }
+        
+        await db.collection("users").doc(currentUser.uid).update(updateData);
+        console.log("Profile image updated successfully");
+      } catch (error) {
+        console.error("Error updating profile image:", error);
+        throw error;
+      }
+    }
+
+    // ✅ UI Functions
+    function openImageUpload(type) {
+      currentUploadType = type;
+      document.getElementById('uploadType').textContent = 
+        type === 'profile' ? 'Profile Picture' : 'Cover Photo';
+      document.getElementById('uploadSection').style.display = 'block';
+      document.getElementById('imageInput').value = '';
+      document.getElementById('uploadStatus').innerHTML = '';
+    }
+
+    function closeUploadSection() {
+      document.getElementById('uploadSection').style.display = 'none';
+      currentUploadType = null;
+    }
+
+    function showStatus(message, type, element = null) {
+      const statusDiv = element || document.getElementById('uploadStatus');
+      statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
+    }
+
+    // ✅ Edit Profile Function
+    function editProfile() {
+      // For now, redirect to an edit page or open a modal
+      alert("Edit profile functionality would open here. You can implement a modal or redirect to an edit page.");
+      // window.location.href = "edit-profile.html";
+    }
+
+    // ✅ Logout Function [citation:3]
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        auth.signOut().then(() => {
+          window.location.href = "login.html";
+        }).catch((error) => {
+          console.error("Logout error:", error);
+          showStatus("Logout failed", "error");
+        });
+      }
+    }
+
+    // ✅ Update Profile Data [citation:4][citation:8]
+    async function updateProfileData(updatedData) {
+      try {
+        updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        await db.collection("users").doc(currentUser.uid).update(updatedData);
+        showStatus("Profile updated successfully!", "success");
+        return true;
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        showStatus("Error updating profile", "error");
+        return false;
+      }
+    }
+
+    // ✅ Example: Update user profile information
+    async function saveProfileChanges() {
+      const updatedData = {
+        displayName: document.getElementById('editName').value,
+        bio: document.getElementById('editBio').value,
+        location: document.getElementById('editLocation').value
+      };
+      
+      const success = await updateProfileData(updatedData);
+      if (success) {
+        // Update the display immediately
+        document.getElementById('displayName').textContent = updatedData.displayName;
+        document.getElementById('displayBio').textContent = updatedData.bio;
+        document.getElementById('displayLocation').textContent = updatedData.location;
+      }
+    }
   </script>
 </body>
 </html>
