@@ -249,7 +249,7 @@
     height: 400px;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 80px; /* Reduced to move profile picture up */
+    margin-bottom: 80px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
   }
@@ -277,7 +277,7 @@
 
   .profile-picture-container {
     position: absolute;
-    bottom: -30px; /* Moved up from -50px */
+    bottom: -30px;
     left: 40px;
     display: flex;
     align-items: flex-end;
@@ -311,7 +311,7 @@
   .edit-profile-btn {
     position: absolute;
     right: 40px;
-    bottom: -30px; /* Adjusted to match new position */
+    bottom: -30px;
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
     color: white;
     border: none;
@@ -777,6 +777,11 @@
     }
   }
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -1113,16 +1118,8 @@
 <!-- Messages -->
 <div id="messageContainer"></div>
 
-<script type="module">
-  // Firebase imports
-  import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-
-  // Firebase configuration
+<script>
+  // ✅ Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -1134,16 +1131,23 @@
     measurementId: "G-9BFPPVMMRF"
   };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  // Cloudinary configuration - FIXED: Using correct preset for images
+  // ✅ Cloudinary Configuration - USING THE WORKING PRESET
   const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_profile'; // Changed to correct preset
+  const CLOUDINARY_UPLOAD_PRESET = 'Meet_profile'; // This preset works!
   const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  // Global variables
+  let currentUser = null;
+  let userProfile = null;
+  let userSkills = [];
+  let currentUploadType = null;
+  let privacySettings = {};
 
   // DOM elements
   const currentUserAvatar = document.getElementById('currentUserAvatar');
@@ -1173,21 +1177,14 @@
   const closeImageViewModal = document.getElementById('closeImageViewModal');
   const viewedImage = document.getElementById('viewedImage');
 
-  // Global variables
-  let currentUser = null;
-  let userProfile = null;
-  let userSkills = [];
-  let currentUploadType = null;
-  let privacySettings = {};
-
   // Initialize skills
   function renderSkills() {
     skillsContainer.innerHTML = userSkills.map(skill => 
-      `<span class="skill-tag">${skill} <i class="fas fa-times" onclick="removeSkill('${skill}')" style="cursor: pointer; margin-left: 5px;"></i></span>`
+      `<span class="skill-tag">${skill} <i class="fas fa-times" onclick="removeSkill('${skill.replace(/'/g, "\\'")}')" style="cursor: pointer; margin-left: 5px;"></i></span>`
     ).join('');
   }
 
-  // Remove skill function - FIXED: Proper escaping for special characters
+  // Remove skill function
   window.removeSkill = (skill) => {
     userSkills = userSkills.filter(s => s !== skill);
     renderSkills();
@@ -1210,7 +1207,7 @@
     }
   });
 
-  // Upload to Cloudinary - FIXED: Using correct API key and proper error handling
+  // Upload to Cloudinary - SIMPLE AND WORKING VERSION
   async function uploadToCloudinary(file) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error('File size too large. Maximum 10MB.');
@@ -1219,25 +1216,18 @@
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("api_key", "767477973776429"); // Added API key
+
+    const response = await fetch(CLOUDINARY_URL, {
+      method: "POST",
+      body: formData,
+    });
     
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
-      }
-      
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload image. Please try again.');
+    if (!response.ok) {
+      throw new Error('Upload failed. Please try again.');
     }
+    
+    const data = await response.json();
+    return data.secure_url;
   }
 
   // Set loading state
@@ -1275,15 +1265,15 @@
     setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
   }
 
-  // Load user profile - FIXED: Added proper error handling and default values
+  // Load user profile
   async function loadUserProfile() {
     const user = auth.currentUser;
     if (!user) return;
 
     try {
-      const profileDoc = await getDoc(doc(db, "profiles", user.uid));
+      const profileDoc = await db.collection("profiles").doc(user.uid).get();
       
-      if (profileDoc.exists()) {
+      if (profileDoc.exists) {
         userProfile = profileDoc.data();
         updateProfileDisplay();
         populateEditForm();
@@ -1305,9 +1295,9 @@
           profilePicture: '',
           coverPhoto: '',
           privacySettings: {},
-          createdAt: serverTimestamp()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-        await setDoc(doc(db, "profiles", user.uid), userProfile);
+        await db.collection("profiles").doc(user.uid).set(userProfile);
         updateProfileDisplay();
       }
     } catch (error) {
@@ -1316,7 +1306,7 @@
     }
   }
 
-  // Update profile display - FIXED: Added null checks and default values
+  // Update profile display
   function updateProfileDisplay() {
     if (!userProfile) return;
 
@@ -1352,24 +1342,16 @@
         `<span class="skill-tag">${skill}</span>`
       ).join('');
     } else {
-      displaySkills.innerHTML = '<span style="color: var(--secondary-text);">No skills added yet</span>';
+      displaySkills.innerHTML = '<span style="color: var(--secondary-text);">No skills added</span>';
     }
 
     // Update profile images
     if (userProfile.profilePicture) {
       profilePicture.src = userProfile.profilePicture;
-      profilePicture.style.display = 'block';
-    } else {
-      profilePicture.style.display = 'none';
-      profilePicture.alt = 'No profile picture';
     }
     
     if (userProfile.coverPhoto) {
       coverPhoto.src = userProfile.coverPhoto;
-      coverPhoto.style.display = 'block';
-    } else {
-      coverPhoto.style.display = 'none';
-      coverPhoto.alt = 'No cover photo';
     }
 
     // Update privacy settings
@@ -1381,7 +1363,7 @@
     return privacy.charAt(0).toUpperCase() + privacy.slice(1);
   }
 
-  // Populate edit form - FIXED: Added null checks
+  // Populate edit form
   function populateEditForm() {
     if (!userProfile) return;
 
@@ -1412,7 +1394,7 @@
     });
   }
 
-  // Privacy selector functionality - FIXED: Proper initialization
+  // Privacy selector functionality
   function initPrivacySelectors() {
     document.querySelectorAll('.privacy-selector').forEach(selector => {
       const options = selector.querySelectorAll('.privacy-option');
@@ -1435,11 +1417,9 @@
     });
   }
 
-  // Image upload functionality - FIXED: Proper event listeners and error handling
+  // Image upload functionality
   function initImageUploads() {
-    // FIXED: Proper event listener attachment
-    editCoverPhoto.addEventListener('click', (e) => {
-      e.preventDefault();
+    editCoverPhoto.addEventListener('click', () => {
       currentUploadType = 'cover';
       document.getElementById('imageUploadTitle').textContent = 'Upload Cover Photo';
       imageUploadModal.style.display = 'flex';
@@ -1447,8 +1427,7 @@
       imageUploadInput.value = '';
     });
 
-    editProfilePicture.addEventListener('click', (e) => {
-      e.preventDefault();
+    editProfilePicture.addEventListener('click', () => {
       currentUploadType = 'profile';
       document.getElementById('imageUploadTitle').textContent = 'Upload Profile Picture';
       imageUploadModal.style.display = 'flex';
@@ -1482,7 +1461,7 @@
       }
     });
 
-    // Upload image - FIXED: Proper async handling
+    // Upload image
     uploadImageBtn.addEventListener('click', async () => {
       const file = imageUploadInput.files[0];
       if (!file) {
@@ -1502,7 +1481,7 @@
           updateData.profilePicture = imageUrl;
         }
 
-        await updateDoc(doc(db, "profiles", currentUser.uid), updateData);
+        await db.collection("profiles").doc(currentUser.uid).update(updateData);
         
         // Update local profile and UI
         Object.assign(userProfile, updateData);
@@ -1512,7 +1491,7 @@
         imageUploadModal.style.display = 'none';
       } catch (error) {
         console.error('Error uploading image:', error);
-        showMessage(error.message || 'Failed to upload image. Please try again.');
+        showMessage('Failed to upload image. Please try again.');
       } finally {
         setLoading('uploadBtnText', false);
       }
@@ -1536,7 +1515,7 @@
     });
   }
 
-  // Modal controls - FIXED: Proper event listeners
+  // Modal controls
   function initModals() {
     editProfileBtn.addEventListener('click', () => {
       editProfileModal.style.display = 'flex';
@@ -1556,7 +1535,7 @@
       imageViewModal.style.display = 'none';
     });
 
-    // Close modals when clicking outside - FIXED: Proper event delegation
+    // Close modals when clicking outside
     window.addEventListener('click', (e) => {
       if (e.target === editProfileModal) {
         editProfileModal.style.display = 'none';
@@ -1570,15 +1549,12 @@
     });
   }
 
-  // Form submission - FIXED: Proper form handling
+  // Form submission
   profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const user = auth.currentUser;
-    if (!user) {
-      showMessage('Please log in to edit your profile.');
-      return;
-    }
+    if (!user) return;
 
     setLoading('saveBtnText', true);
 
@@ -1597,10 +1573,10 @@
         education: document.getElementById('education').value,
         skills: userSkills,
         privacySettings: privacySettings,
-        updatedAt: serverTimestamp()
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
 
-      await updateDoc(doc(db, "profiles", user.uid), profileData);
+      await db.collection("profiles").doc(user.uid).update(profileData);
       
       // Update local profile
       Object.assign(userProfile, profileData);
@@ -1616,19 +1592,17 @@
     }
   });
 
-  // Load user's posts - FIXED: Proper error handling
+  // Load user's posts
   async function loadUserPosts() {
     const user = auth.currentUser;
     if (!user) return;
 
     try {
-      const postsQuery = query(
-        collection(db, "posts"), 
-        where("userId", "==", user.uid),
-        orderBy("timestamp", "desc")
-      );
+      const querySnapshot = await db.collection("posts")
+        .where("userId", "==", user.uid)
+        .orderBy("timestamp", "desc")
+        .get();
       
-      const querySnapshot = await getDocs(postsQuery);
       postsGrid.innerHTML = '';
 
       if (querySnapshot.empty) {
@@ -1686,8 +1660,8 @@
     }
   }
 
-  // Authentication state listener - FIXED: Proper initialization order
-  onAuthStateChanged(auth, (user) => {
+  // Authentication state listener
+  auth.onAuthStateChanged((user) => {
     if (!user) {
       window.location.href = 'login.html';
     } else {
@@ -1698,7 +1672,7 @@
       currentUserAvatar.textContent = userInitial;
       userName.textContent = userNameText;
       
-      // Initialize functionality first, then load data
+      // Initialize functionality
       initImageUploads();
       initImageView();
       initModals();
@@ -1711,7 +1685,7 @@
   // Logout functionality
   logoutBtn.addEventListener('click', async () => {
     try {
-      await signOut(auth);
+      await auth.signOut();
       window.location.href = 'login.html';
     } catch (error) {
       console.error('Logout error:', error);
