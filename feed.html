@@ -257,33 +257,41 @@
             position: relative;
         }
 
-        .profile-picture {
+        .profile-picture-container {
             position: relative;
             margin-top: -80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-picture {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 5px solid var(--card-bg);
+            overflow: hidden;
+            cursor: pointer;
         }
 
         .profile-picture img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid var(--card-bg);
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
         .change-pic-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
             background: var(--primary);
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
         }
 
         .profile-details {
@@ -294,6 +302,9 @@
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .profile-bio {
@@ -327,12 +338,28 @@
         .profile-actions {
             display: flex;
             gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-tag {
+            background: var(--primary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
         }
 
         /* Profile Content */
         .profile-content {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
         }
 
@@ -341,7 +368,6 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
@@ -413,6 +439,7 @@
             overflow: hidden;
             aspect-ratio: 9/16;
             background: var(--bg-color);
+            cursor: pointer;
         }
 
         .post-item img, .post-item video {
@@ -562,6 +589,75 @@
             transform: translateX(26px);
         }
 
+        .skill-entry {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .skill-entry input {
+            flex: 1;
+        }
+
+        .year-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .year-inputs input {
+            width: 100px;
+        }
+
+        .add-skill-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        /* Image Preview Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .image-modal-content img {
+            width: 100%;
+            height: auto;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .close-image-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .sidebar {
@@ -624,26 +720,27 @@
                 padding: 8px;
             }
             
-            .profile-content {
-                grid-template-columns: 1fr;
-            }
-            
             .profile-info {
                 flex-direction: column;
                 text-align: center;
             }
             
-            .profile-picture {
+            .profile-picture-container {
                 margin-top: -50px;
             }
             
-            .profile-picture img {
-                width: 100px;
-                height: 100px;
+            .profile-picture {
+                width: 120px;
+                height: 120px;
             }
             
             .profile-stats {
                 justify-content: center;
+            }
+            
+            .profile-name {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>
@@ -697,16 +794,23 @@
                 </button>
             </div>
             <div class="profile-info">
-                <div class="profile-picture">
-                    <div class="user-avatar" id="profilePicture">
-                        U
+                <div class="profile-picture-container">
+                    <div class="profile-picture" id="profilePicture">
+                        <div class="user-avatar" style="width: 100%; height: 100%; font-size: 60px;">
+                            U
+                        </div>
                     </div>
                     <button class="change-pic-btn" id="changePicBtn">
-                        <i class="fas fa-camera"></i>
+                        <i class="fas fa-camera"></i> Change Picture
                     </button>
                 </div>
                 <div class="profile-details">
-                    <h1 class="profile-name" id="profileName">User Name</h1>
+                    <div class="profile-name">
+                        <span id="profileName">User Name</span>
+                        <button class="btn btn-primary" id="editProfileBtn">
+                            <i class="fas fa-edit"></i> <span>Edit Profile</span>
+                        </button>
+                    </div>
                     <p class="profile-bio" id="profileBio">This is my bio. Click edit to update.</p>
                     <div class="profile-stats">
                         <div class="stat">
@@ -715,20 +819,15 @@
                         </div>
                         <div class="stat">
                             <span class="stat-value" id="followerCount">0</span>
-                            <span class="stat-label">Followers</span>
+                            <span class="stat-label">Associate</span>
                         </div>
                         <div class="stat">
                             <span class="stat-value" id="followingCount">0</span>
-                            <span class="stat-label">Following</span>
+                            <span class="stat-label">Associated With</span>
                         </div>
                     </div>
-                    <div class="profile-actions">
-                        <button class="btn btn-primary" id="editProfileBtn">
-                            <i class="fas fa-edit"></i> <span>Edit Profile</span>
-                        </button>
-                        <button class="btn">
-                            <i class="fas fa-share-alt"></i> <span>Share Profile</span>
-                        </button>
+                    <div class="skills-tags" id="skillsTags">
+                        <!-- Skills will be dynamically added here -->
                     </div>
                 </div>
             </div>
@@ -736,97 +835,89 @@
 
         <!-- Profile Content -->
         <div class="profile-content">
-            <!-- Left Column - Profile Info -->
-            <div class="left-column">
-                <!-- About Section -->
-                <div class="profile-section">
-                    <div class="section-header">
-                        <h3 class="section-title">About</h3>
-                        <button class="edit-btn" data-section="about">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Introduction</div>
-                        <div class="info-value" id="introText">No introduction added yet</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Current City</div>
-                        <div class="info-value" id="currentCity">Not specified</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Hometown</div>
-                        <div class="info-value" id="hometown">Not specified</div>
-                    </div>
+            <!-- Profile Information Cards -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h3 class="section-title">Know Me</h3>
+                    <button class="edit-btn" data-section="about">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
                 </div>
-
-                <!-- Work & Education -->
-                <div class="profile-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Work & Education</h3>
-                        <button class="edit-btn" data-section="work">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Work</div>
-                        <div class="info-value" id="workInfo">Not specified</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Position</div>
-                        <div class="info-value" id="positionInfo">Not specified</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Education</div>
-                        <div class="info-value" id="educationInfo">Not specified</div>
-                    </div>
+                <div class="info-item">
+                    <div class="info-label">Introduction</div>
+                    <div class="info-value" id="introText">No introduction added yet</div>
                 </div>
-
-                <!-- Skills -->
-                <div class="profile-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Skills</h3>
-                        <button class="edit-btn" data-section="skills">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                    </div>
-                    <div id="skillsContainer">
-                        <span class="skill-tag">No skills added</span>
-                    </div>
+                <div class="info-item">
+                    <div class="info-label">Current City</div>
+                    <div class="info-value" id="currentCity">Not specified</div>
                 </div>
-
-                <!-- Contact Info -->
-                <div class="profile-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Contact Information</h3>
-                        <button class="edit-btn" data-section="contact">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Email</div>
-                        <div class="info-value" id="emailInfo">Not specified</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Phone</div>
-                        <div class="info-value" id="phoneInfo">Not specified</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Website</div>
-                        <div class="info-value" id="websiteInfo">Not specified</div>
-                    </div>
+                <div class="info-item">
+                    <div class="info-label">Hometown</div>
+                    <div class="info-value" id="hometown">Not specified</div>
                 </div>
             </div>
 
-            <!-- Right Column - Post History -->
-            <div class="right-column">
-                <div class="profile-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Post History</h3>
-                    </div>
-                    <div class="post-history" id="postHistory">
-                        <div class="loading">Loading posts...</div>
-                    </div>
+            <div class="profile-section">
+                <div class="section-header">
+                    <h3 class="section-title">Work & Education</h3>
+                    <button class="edit-btn" data-section="work">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Work</div>
+                    <div class="info-value" id="workInfo">Not specified</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Position</div>
+                    <div class="info-value" id="positionInfo">Not specified</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Education</div>
+                    <div class="info-value" id="educationInfo">Not specified</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-header">
+                    <h3 class="section-title">Training & Experience</h3>
+                    <button class="edit-btn" data-section="skills">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div id="skillsContainer">
+                    <span class="skill-tag">No skills added</span>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-header">
+                    <h3 class="section-title">Contact Information</h3>
+                    <button class="edit-btn" data-section="contact">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="emailInfo">Not specified</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value" id="phoneInfo">Not specified</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Website</div>
+                    <div class="info-value" id="websiteInfo">Not specified</div>
+                </div>
+            </div>
+
+            <!-- Post History at the Bottom -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h3 class="section-title">Post History</h3>
+                </div>
+                <div class="post-history" id="postHistory">
+                    <div class="loading">Loading posts...</div>
                 </div>
             </div>
         </div>
@@ -844,7 +935,7 @@
             <form id="profileForm">
                 <div id="aboutSection" class="form-section">
                     <div class="form-group">
-                        <label class="form-label" for="introInput">Introduction</label>
+                        <label class="form-label" for="introInput">Know Me (Introduction)</label>
                         <textarea class="form-control" id="introInput" rows="3" placeholder="Tell people about yourself"></textarea>
                         <div class="privacy-toggle">
                             <span class="toggle-label">Public</span>
@@ -921,17 +1012,25 @@
                 </div>
 
                 <div id="skillsSection" class="form-section" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label" for="skillsInput">Skills</label>
-                        <input type="text" class="form-control" id="skillsInput" placeholder="Add skills separated by commas">
-                        <div class="privacy-toggle">
-                            <span class="toggle-label">Public</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="skillsPrivacy">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span class="toggle-label">Private</span>
+                    <div id="skillsFormContainer">
+                        <div class="skill-entry">
+                            <input type="text" class="form-control" placeholder="Skill name">
+                            <div class="year-inputs">
+                                <input type="number" class="form-control" placeholder="Start Year" min="1900" max="2030">
+                                <input type="number" class="form-control" placeholder="End Year" min="1900" max="2030">
+                            </div>
                         </div>
+                    </div>
+                    <button type="button" class="add-skill-btn" id="addSkillBtn">
+                        <i class="fas fa-plus"></i> Add Another Skill
+                    </button>
+                    <div class="privacy-toggle">
+                        <span class="toggle-label">Public</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="skillsPrivacy">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Private</span>
                     </div>
                 </div>
 
@@ -982,6 +1081,14 @@
     </div>
 </div>
 
+<!-- Image Preview Modal -->
+<div class="image-modal" id="imageModal">
+    <button class="close-image-modal" id="closeImageModal">&times;</button>
+    <div class="image-modal-content" id="imageModalContent">
+        <!-- Image will be inserted here -->
+    </div>
+</div>
+
 <script type="module">
     import { 
         initializeApp 
@@ -1029,10 +1136,17 @@
     const nightToggleBtn = document.getElementById('nightToggleBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const editButtons = document.querySelectorAll('.edit-btn');
+    const addSkillBtn = document.getElementById('addSkillBtn');
+    const skillsFormContainer = document.getElementById('skillsFormContainer');
+    const imageModal = document.getElementById('imageModal');
+    const closeImageModal = document.getElementById('closeImageModal');
+    const imageModalContent = document.getElementById('imageModalContent');
 
     // Global variables
     let currentUser = null;
     let currentSection = 'about';
+    let profileImageUrl = '';
+    let backgroundImageUrl = '';
 
     // Theme management
     function initTheme() {
@@ -1084,25 +1198,35 @@
                 
                 // Update profile picture
                 if (data.profilePicture) {
+                    profileImageUrl = data.profilePicture;
                     profilePicture.innerHTML = '';
                     const img = document.createElement('img');
                     img.src = data.profilePicture;
                     img.alt = 'Profile Picture';
                     profilePicture.appendChild(img);
+                    
+                    // Preload image for faster loading
+                    const preloadImg = new Image();
+                    preloadImg.src = data.profilePicture;
                 } else {
                     // Use first letter of display name or email
                     const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
-                    profilePicture.textContent = initial;
+                    profilePicture.innerHTML = `<div class="user-avatar" style="width: 100%; height: 100%; font-size: 60px;">${initial}</div>`;
                 }
                 
                 // Update background picture
                 if (data.backgroundPicture) {
+                    backgroundImageUrl = data.backgroundPicture;
                     profileBackground.innerHTML = '';
                     const img = document.createElement('img');
                     img.src = data.backgroundPicture;
                     img.alt = 'Background Picture';
                     profileBackground.appendChild(img);
                     profileBackground.appendChild(changeBgBtn);
+                    
+                    // Preload image for faster loading
+                    const preloadImg = new Image();
+                    preloadImg.src = data.backgroundPicture;
                 }
                 
                 // Update profile information
@@ -1152,17 +1276,29 @@
         }
         
         // Skills
+        const skillsContainer = document.getElementById('skillsContainer');
+        const skillsTags = document.getElementById('skillsTags');
+        
         if (data.skills && data.skills.list && data.skills.list.length > 0) {
-            const skillsContainer = document.getElementById('skillsContainer');
             skillsContainer.innerHTML = '';
+            skillsTags.innerHTML = '';
+            
             data.skills.list.forEach(skill => {
                 const skillTag = document.createElement('span');
                 skillTag.className = 'skill-tag';
-                skillTag.textContent = skill;
+                skillTag.textContent = skill.name;
                 skillsContainer.appendChild(skillTag);
+                
+                const profileSkillTag = document.createElement('span');
+                profileSkillTag.className = 'skill-tag';
+                profileSkillTag.style.background = 'var(--primary)';
+                profileSkillTag.style.color = 'white';
+                profileSkillTag.textContent = skill.name;
+                skillsTags.appendChild(profileSkillTag);
             });
         } else {
-            document.getElementById('skillsContainer').innerHTML = '<span class="skill-tag">No skills added</span>';
+            skillsContainer.innerHTML = '<span class="skill-tag">No skills added</span>';
+            skillsTags.innerHTML = '';
         }
         
         // Contact Info
@@ -1265,9 +1401,32 @@
         if (e.target === settingsModal) {
             settingsModal.style.display = 'none';
         }
+        if (e.target === imageModal) {
+            imageModal.style.display = 'none';
+        }
     });
 
-    changePicBtn.addEventListener('click', async () => {
+    closeImageModal.addEventListener('click', () => {
+        imageModal.style.display = 'none';
+    });
+
+    // Add click events for image preview
+    profilePicture.addEventListener('click', () => {
+        if (profileImageUrl) {
+            imageModalContent.innerHTML = `<img src="${profileImageUrl}" alt="Profile Picture">`;
+            imageModal.style.display = 'flex';
+        }
+    });
+
+    profileBackground.addEventListener('click', (e) => {
+        if (e.target.tagName === 'IMG' && backgroundImageUrl) {
+            imageModalContent.innerHTML = `<img src="${backgroundImageUrl}" alt="Background Picture">`;
+            imageModal.style.display = 'flex';
+        }
+    });
+
+    changePicBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -1277,6 +1436,7 @@
             
             try {
                 const url = await uploadToCloudinary(file);
+                profileImageUrl = url;
                 
                 profilePicture.innerHTML = '';
                 const img = document.createElement('img');
@@ -1300,7 +1460,8 @@
         input.click();
     });
 
-    changeBgBtn.addEventListener('click', async () => {
+    changeBgBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -1310,6 +1471,7 @@
             
             try {
                 const url = await uploadToCloudinary(file);
+                backgroundImageUrl = url;
                 
                 profileBackground.innerHTML = '';
                 const img = document.createElement('img');
@@ -1334,6 +1496,20 @@
         input.click();
     });
 
+    // Add skill button
+    addSkillBtn.addEventListener('click', () => {
+        const skillEntry = document.createElement('div');
+        skillEntry.className = 'skill-entry';
+        skillEntry.innerHTML = `
+            <input type="text" class="form-control" placeholder="Skill name">
+            <div class="year-inputs">
+                <input type="number" class="form-control" placeholder="Start Year" min="1900" max="2030">
+                <input type="number" class="form-control" placeholder="End Year" min="1900" max="2030">
+            </div>
+        `;
+        skillsFormContainer.appendChild(skillEntry);
+    });
+
     profileForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -1356,9 +1532,25 @@
                     education: document.getElementById('educationInput').value
                 };
             } else if (currentSection === 'skills') {
-                const skillsInput = document.getElementById('skillsInput').value;
+                const skillEntries = skillsFormContainer.querySelectorAll('.skill-entry');
+                const skills = [];
+                
+                skillEntries.forEach(entry => {
+                    const nameInput = entry.querySelector('input[type="text"]');
+                    const startYearInput = entry.querySelectorAll('input[type="number"]')[0];
+                    const endYearInput = entry.querySelectorAll('input[type="number"]')[1];
+                    
+                    if (nameInput.value.trim()) {
+                        skills.push({
+                            name: nameInput.value.trim(),
+                            startYear: startYearInput.value || null,
+                            endYear: endYearInput.value || null
+                        });
+                    }
+                });
+                
                 updateData.skills = {
-                    list: skillsInput.split(',').map(skill => skill.trim()).filter(skill => skill !== '')
+                    list: skills
                 };
             } else if (currentSection === 'contact') {
                 updateData.contact = {
@@ -1442,7 +1634,34 @@
                     document.getElementById('positionInput').value = data.work.position || '';
                     document.getElementById('educationInput').value = data.work.education || '';
                 } else if (section === 'skills' && data.skills) {
-                    document.getElementById('skillsInput').value = data.skills.list ? data.skills.list.join(', ') : '';
+                    skillsFormContainer.innerHTML = '';
+                    
+                    if (data.skills.list && data.skills.list.length > 0) {
+                        data.skills.list.forEach(skill => {
+                            const skillEntry = document.createElement('div');
+                            skillEntry.className = 'skill-entry';
+                            skillEntry.innerHTML = `
+                                <input type="text" class="form-control" value="${skill.name || ''}" placeholder="Skill name">
+                                <div class="year-inputs">
+                                    <input type="number" class="form-control" value="${skill.startYear || ''}" placeholder="Start Year" min="1900" max="2030">
+                                    <input type="number" class="form-control" value="${skill.endYear || ''}" placeholder="End Year" min="1900" max="2030">
+                                </div>
+                            `;
+                            skillsFormContainer.appendChild(skillEntry);
+                        });
+                    } else {
+                        // Add one empty skill entry
+                        const skillEntry = document.createElement('div');
+                        skillEntry.className = 'skill-entry';
+                        skillEntry.innerHTML = `
+                            <input type="text" class="form-control" placeholder="Skill name">
+                            <div class="year-inputs">
+                                <input type="number" class="form-control" placeholder="Start Year" min="1900" max="2030">
+                                <input type="number" class="form-control" placeholder="End Year" min="1900" max="2030">
+                            </div>
+                        `;
+                        skillsFormContainer.appendChild(skillEntry);
+                    }
                 } else if (section === 'contact' && data.contact) {
                     document.getElementById('emailInput').value = data.contact.email || '';
                     document.getElementById('phoneInput').value = data.contact.phone || '';
