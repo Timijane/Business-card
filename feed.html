@@ -5,23 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Profile</title>
   <style>
-    body { font-family: Poppins, sans-serif; text-align: center; }
-    #background { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
-    #profile-pic { width: 120px; height: 120px; border-radius: 50%; margin-top: -60px; border: 3px solid white; object-fit: cover; }
+    body {
+      font-family: Poppins, sans-serif;
+      text-align: center;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    #background {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 0 0 10px 10px;
+    }
+
+    #profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-top: -60px;
+      border: 4px solid white;
+      object-fit: cover;
+      background-color: #eee;
+    }
+
+    h2 {
+      margin-top: 10px;
+      color: #333;
+    }
+
+    .profile-container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
   </style>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
+
 <body>
-  <div>
+  <div class="profile-container">
     <img id="background" src="default-bg.jpg" alt="Background Image">
     <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture">
+    <h2 id="user-email">Loading...</h2>
   </div>
-  <h2 id="user-email"></h2>
 
   <script>
-    // Your Firebase config
+    // ✅ Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -32,26 +70,40 @@
       appId: "1:252353608421:web:6706056048e9a8f12db20c",
       measurementId: "G-9BFPPVMMRF"
     };
+
+    // ✅ Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Load user profile on auth state change
+    // ✅ Listen for auth state changes
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         document.getElementById("user-email").textContent = user.email;
 
-        const docRef = db.collection("users").doc(user.uid);
-        const docSnap = await docRef.get();
-        if (docSnap.exists) {
-          const data = docSnap.data();
-          document.getElementById("profile-pic").src = data.profilePicture || "default-profile.jpg";
-          document.getElementById("background").src = data.backgroundPicture || "default-bg.jpg";
-        } else {
-          console.log("No profile data found.");
+        try {
+          const docRef = db.collection("users").doc(user.uid);
+          const docSnap = await docRef.get();
+
+          if (docSnap.exists) {
+            const data = docSnap.data();
+
+            // ✅ Set user profile data
+            document.getElementById("profile-pic").src =
+              data.profilePicture || "default-profile.jpg";
+            document.getElementById("background").src =
+              data.backgroundPicture || "default-bg.jpg";
+
+          } else {
+            console.log("No profile data found for user.");
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
         }
+
       } else {
-        window.location.href = "login.html"; // Redirect if not logged in
+        // Not logged in → redirect
+        window.location.href = "login.html";
       }
     });
   </script>
