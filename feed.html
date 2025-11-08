@@ -249,7 +249,7 @@
     height: 400px;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 100px;
+    margin-bottom: 80px; /* Reduced to move profile picture up */
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
   }
@@ -277,7 +277,7 @@
 
   .profile-picture-container {
     position: absolute;
-    bottom: -50px;
+    bottom: -30px; /* Moved up from -50px */
     left: 40px;
     display: flex;
     align-items: flex-end;
@@ -311,7 +311,7 @@
   .edit-profile-btn {
     position: absolute;
     right: 40px;
-    bottom: -40px;
+    bottom: -30px; /* Adjusted to match new position */
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
     color: white;
     border: none;
@@ -728,7 +728,7 @@
     
     .cover-photo-container {
       height: 300px;
-      margin-bottom: 80px;
+      margin-bottom: 60px;
     }
     
     .profile-picture {
@@ -738,12 +738,12 @@
     
     .profile-picture-container {
       left: 20px;
-      bottom: -40px;
+      bottom: -25px;
     }
     
     .edit-profile-btn {
       right: 20px;
-      bottom: -30px;
+      bottom: -25px;
       padding: 8px 16px;
     }
     
@@ -764,7 +764,7 @@
     
     .cover-photo-container {
       height: 200px;
-      margin-bottom: 60px;
+      margin-bottom: 50px;
     }
     
     .profile-picture {
@@ -1139,7 +1139,7 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // Cloudinary configuration
+  // Cloudinary configuration - USING THE EXACT SAME AS FEED
   const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
   const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
   const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
@@ -1210,7 +1210,7 @@
     }
   });
 
-  // Upload to Cloudinary
+  // Upload to Cloudinary - FIXED VERSION (same as feed)
   async function uploadToCloudinary(file) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error('File size too large. Maximum 10MB.');
@@ -1227,7 +1227,8 @@
       });
       
       if (!response.ok) {
-        throw new Error('Upload failed. Please try again.');
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
       }
       
       const data = await response.json();
@@ -1431,149 +1432,155 @@
     });
   }
 
-  // Image upload functionality
-  editCoverPhoto.addEventListener('click', () => {
-    currentUploadType = 'cover';
-    document.getElementById('imageUploadTitle').textContent = 'Upload Cover Photo';
-    imageUploadModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    imagePreview.innerHTML = '';
-    imageUploadInput.value = '';
-  });
+  // Image upload functionality - FIXED EVENT LISTENERS
+  function initImageUploads() {
+    editCoverPhoto.addEventListener('click', () => {
+      currentUploadType = 'cover';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Cover Photo';
+      imageUploadModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
+    });
 
-  editProfilePicture.addEventListener('click', () => {
-    currentUploadType = 'profile';
-    document.getElementById('imageUploadTitle').textContent = 'Upload Profile Picture';
-    imageUploadModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    imagePreview.innerHTML = '';
-    imageUploadInput.value = '';
-  });
+    editProfilePicture.addEventListener('click', () => {
+      currentUploadType = 'profile';
+      document.getElementById('imageUploadTitle').textContent = 'Upload Profile Picture';
+      imageUploadModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      imagePreview.innerHTML = '';
+      imageUploadInput.value = '';
+    });
 
-  // Image preview
-  imageUploadArea.addEventListener('click', () => {
-    imageUploadInput.click();
-  });
+    // Image preview
+    imageUploadArea.addEventListener('click', () => {
+      imageUploadInput.click();
+    });
 
-  imageUploadInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (!file.type.startsWith('image/')) {
-        showMessage('Please select an image file.');
+    imageUploadInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) {
+          showMessage('Please select an image file.');
+          return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          showMessage('File size too large. Maximum 10MB.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Upload image
+    uploadImageBtn.addEventListener('click', async () => {
+      const file = imageUploadInput.files[0];
+      if (!file) {
+        showMessage('Please select an image to upload.');
         return;
       }
 
-      if (file.size > MAX_FILE_SIZE) {
-        showMessage('File size too large. Maximum 10MB.');
-        return;
+      setLoading('uploadBtnText', true);
+
+      try {
+        const imageUrl = await uploadToCloudinary(file);
+        
+        const updateData = {};
+        if (currentUploadType === 'cover') {
+          updateData.coverPhoto = imageUrl;
+        } else if (currentUploadType === 'profile') {
+          updateData.profilePicture = imageUrl;
+        }
+
+        await updateDoc(doc(db, "profiles", currentUser.uid), updateData);
+        
+        // Update local profile and UI
+        Object.assign(userProfile, updateData);
+        updateProfileDisplay();
+        
+        showMessage('Image uploaded successfully!', 'success');
+        imageUploadModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        showMessage(error.message || 'Failed to upload image. Please try again.');
+      } finally {
+        setLoading('uploadBtnText', false);
       }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        imagePreview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">`;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // Upload image
-  uploadImageBtn.addEventListener('click', async () => {
-    const file = imageUploadInput.files[0];
-    if (!file) {
-      showMessage('Please select an image to upload.');
-      return;
-    }
-
-    setLoading('uploadBtnText', true);
-
-    try {
-      const imageUrl = await uploadToCloudinary(file);
-      
-      const updateData = {};
-      if (currentUploadType === 'cover') {
-        updateData.coverPhoto = imageUrl;
-      } else if (currentUploadType === 'profile') {
-        updateData.profilePicture = imageUrl;
-      }
-
-      await updateDoc(doc(db, "profiles", currentUser.uid), updateData);
-      
-      // Update local profile and UI
-      Object.assign(userProfile, updateData);
-      updateProfileDisplay();
-      
-      showMessage('Image uploaded successfully!', 'success');
-      imageUploadModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      showMessage(error.message);
-    } finally {
-      setLoading('uploadBtnText', false);
-    }
-  });
+    });
+  }
 
   // Image view functionality
-  profilePicture.addEventListener('click', () => {
-    if (userProfile.profilePicture) {
-      viewedImage.src = userProfile.profilePicture;
-      imageViewModal.style.display = 'flex';
+  function initImageView() {
+    profilePicture.addEventListener('click', () => {
+      if (userProfile && userProfile.profilePicture) {
+        viewedImage.src = userProfile.profilePicture;
+        imageViewModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    coverPhoto.addEventListener('click', () => {
+      if (userProfile && userProfile.coverPhoto) {
+        viewedImage.src = userProfile.coverPhoto;
+        imageViewModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  }
+
+  // Modal controls - FIXED EVENT LISTENERS
+  function initModals() {
+    editProfileBtn.addEventListener('click', () => {
+      editProfileModal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
-    }
-  });
+      populateEditForm();
+      initPrivacySelectors();
+    });
 
-  coverPhoto.addEventListener('click', () => {
-    if (userProfile.coverPhoto) {
-      viewedImage.src = userProfile.coverPhoto;
-      imageViewModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-  });
-
-  // Modal controls
-  editProfileBtn.addEventListener('click', () => {
-    editProfileModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    populateEditForm();
-    initPrivacySelectors();
-  });
-
-  closeEditModal.addEventListener('click', () => {
-    editProfileModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  closeImageModal.addEventListener('click', () => {
-    imageUploadModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  closeImageViewModal.addEventListener('click', () => {
-    imageViewModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  // Close modals when clicking outside
-  editProfileModal.addEventListener('click', (e) => {
-    if (e.target === editProfileModal) {
+    closeEditModal.addEventListener('click', () => {
       editProfileModal.style.display = 'none';
       document.body.style.overflow = 'auto';
-    }
-  });
+    });
 
-  imageUploadModal.addEventListener('click', (e) => {
-    if (e.target === imageUploadModal) {
+    closeImageModal.addEventListener('click', () => {
       imageUploadModal.style.display = 'none';
       document.body.style.overflow = 'auto';
-    }
-  });
+    });
 
-  imageViewModal.addEventListener('click', (e) => {
-    if (e.target === imageViewModal) {
+    closeImageViewModal.addEventListener('click', () => {
       imageViewModal.style.display = 'none';
       document.body.style.overflow = 'auto';
-    }
-  });
+    });
+
+    // Close modals when clicking outside
+    editProfileModal.addEventListener('click', (e) => {
+      if (e.target === editProfileModal) {
+        editProfileModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    imageUploadModal.addEventListener('click', (e) => {
+      if (e.target === imageUploadModal) {
+        imageUploadModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    imageViewModal.addEventListener('click', (e) => {
+      if (e.target === imageViewModal) {
+        imageViewModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+  }
 
   // Form submission
   profileForm.addEventListener('submit', async (e) => {
@@ -1619,7 +1626,7 @@
     }
   });
 
-  // Load user's posts - FIXED VERSION
+  // Load user's posts
   async function loadUserPosts() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1704,6 +1711,14 @@
       
       loadUserProfile();
       loadUserPosts();
+      
+      // Initialize all functionality after user is loaded
+      setTimeout(() => {
+        initImageUploads();
+        initImageView();
+        initModals();
+        initPrivacySelectors();
+      }, 100);
     }
   });
 
@@ -1735,7 +1750,6 @@
   document.addEventListener('DOMContentLoaded', function() {
     initTheme();
     renderSkills();
-    initPrivacySelectors();
   });
 </script>
 </body>
