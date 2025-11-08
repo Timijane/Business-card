@@ -1,216 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profile Upload | MEET (Fixed)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Profile</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6fb; display:flex; justify-content:center; padding:40px;}
-    .card { width:100%; max-width:520px; background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-    img { width:100%; height:200px; object-fit:cover; border-radius:8px; background:#eee; display:block; margin-bottom:10px;}
-    input[type=file] { display:block; margin:8px 0 16px; }
-    button { padding:10px 14px; border-radius:8px; border:none; background:#0061FF; color:#fff; cursor:pointer; font-weight:600; }
-    button[disabled] { opacity:0.6; cursor:default; }
-    #status { margin-top:12px; }
-    .row { display:flex; gap:12px; }
-    .col { flex:1; }
+    body { font-family: Poppins, sans-serif; text-align: center; }
+    #background { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+    #profile-pic { width: 120px; height: 120px; border-radius: 50%; margin-top: -60px; border: 3px solid white; object-fit: cover; }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <div class="card">
-    <h2>Update Profile</h2>
-
-    <div>
-      <h4>Profile Picture</h4>
-      <img id="profilePreview" src="https://via.placeholder.com/600x200?text=Profile+Preview" alt="profile preview">
-      <input id="profileInput" type="file" accept="image/*">
-    </div>
-
-    <div>
-      <h4>Background Picture</h4>
-      <img id="bgPreview" src="https://via.placeholder.com/600x200?text=Background+Preview" alt="background preview">
-      <input id="bgInput" type="file" accept="image/*">
-    </div>
-
-    <div class="row" style="margin-top:8px">
-      <div class="col">
-        <button id="saveBtn">Save to Firestore</button>
-      </div>
-      <div class="col">
-        <button id="clearBtn" style="background:#ef4444">Clear (dev)</button>
-      </div>
-    </div>
-
-    <div id="status"></div>
+  <div>
+    <img id="background" src="default-bg.jpg" alt="Background Image">
+    <img id="profile-pic" src="default-profile.jpg" alt="Profile Picture">
   </div>
+  <h2 id="user-email"></h2>
 
-  <!-- Firebase modular SDK -->
-  <script type="module">
-    // ---------------------------
-    // 1) FIREBASE CONFIG - REPLACE THESE
-    // ---------------------------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    // Replace with your real config (you shared earlier - use those exact strings)
+  <script>
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
       projectId: "meet-6e159",
-      // You can include storageBucket / messagingSenderId / appId if you wish
+      storageBucket: "meet-6e159.firebasestorage.app",
+      messagingSenderId: "252353608421",
+      appId: "1:252353608421:web:6706056048e9a8f12db20c",
+      measurementId: "G-9BFPPVMMRF"
     };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    // If you DON'T use auth, set a fallback user id for dev/testing
-    const FALLBACK_USER_ID = "dev_user_1"; // change to whatever you want for testing
-
-    // ---------------------------
-    // 2) CLOUDINARY CONFIG - REPLACE IF NEEDED
-    // ---------------------------
-    const cloudName = "dcwof2ngn";
-    const uploadPreset = "Meet-profile"; // unsigned preset for profile
-
-    // ---------------------------
-    // 3) Initialize Firebase
-    // ---------------------------
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // ---------------------------
-    // 4) DOM
-    // ---------------------------
-    const profileInput = document.getElementById("profileInput");
-    const bgInput = document.getElementById("bgInput");
-    const profilePreview = document.getElementById("profilePreview");
-    const bgPreview = document.getElementById("bgPreview");
-    const saveBtn = document.getElementById("saveBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const statusEl = document.getElementById("status");
-
-    // track uploaded URLs
-    let profileURL = "";
-    let bgURL = "";
-    let currentUserId = FALLBACK_USER_ID; // will be updated if auth is present
-
-    // if you use Firebase Authentication, capture the signed-in user id
-    onAuthStateChanged(auth, (user) => {
+    // Load user profile on auth state change
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
-        currentUserId = user.uid;
-        console.log("Auth user:", user.uid);
+        document.getElementById("user-email").textContent = user.email;
+
+        const docRef = db.collection("users").doc(user.uid);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          document.getElementById("profile-pic").src = data.profilePicture || "default-profile.jpg";
+          document.getElementById("background").src = data.backgroundPicture || "default-bg.jpg";
+        } else {
+          console.log("No profile data found.");
+        }
       } else {
-        console.log("No auth user - using fallback id:", currentUserId);
+        window.location.href = "login.html"; // Redirect if not logged in
       }
     });
-
-    // helper to update status
-    function setStatus(msg, isError=false) {
-      statusEl.textContent = msg;
-      statusEl.style.color = isError ? "red" : "green";
-      console.log("STATUS:", msg);
-    }
-
-    // Cloudinary unsigned upload function (image)
-    async function uploadToCloudinary(file) {
-      const f = new FormData();
-      f.append("file", file);
-      f.append("upload_preset", uploadPreset);
-
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: "POST",
-        body: f
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error("Cloudinary upload failed: " + text);
-      }
-
-      const data = await res.json();
-      if (!data.secure_url) throw new Error("No secure_url in Cloudinary response: " + JSON.stringify(data));
-      return data.secure_url;
-    }
-
-    profileInput.addEventListener("change", async (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      try {
-        setStatus("Uploading profile picture...");
-        saveBtn.disabled = true;
-        profileURL = await uploadToCloudinary(file);
-        profilePreview.src = profileURL;
-        setStatus("Profile uploaded.");
-      } catch (err) {
-        console.error(err);
-        setStatus("Profile upload failed: " + err.message, true);
-      } finally {
-        saveBtn.disabled = false;
-      }
-    });
-
-    bgInput.addEventListener("change", async (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      try {
-        setStatus("Uploading background picture...");
-        saveBtn.disabled = true;
-        bgURL = await uploadToCloudinary(file);
-        bgPreview.src = bgURL;
-        setStatus("Background uploaded.");
-      } catch (err) {
-        console.error(err);
-        setStatus("Background upload failed: " + err.message, true);
-      } finally {
-        saveBtn.disabled = false;
-      }
-    });
-
-    // SAVE to Firestore
-    saveBtn.addEventListener("click", async () => {
-      // basic validation
-      if (!profileURL && !bgURL) {
-        setStatus("Please upload at least one image before saving.", true);
-        return;
-      }
-
-      saveBtn.disabled = true;
-      setStatus("Saving profile to Firestore...");
-
-      try {
-        // choose the document id (use authenticated uid if available)
-        const userDocRef = doc(db, "users", currentUserId);
-
-        // fields to set (only set properties that exist)
-        const payload = { updatedAt: new Date() };
-        if (profileURL) payload.profilePicture = profileURL;
-        if (bgURL) payload.backgroundPicture = bgURL;
-
-        // setDoc with merge:true behavior using setDoc + existing merging
-        await setDoc(userDocRef, payload, { merge: true });
-
-        setStatus("Profile saved to Firestore ✅");
-        console.log("Saved doc for user:", currentUserId, payload);
-      } catch (err) {
-        console.error("Error saving to Firestore:", err);
-        setStatus("Error saving to Firestore: " + err.message, true);
-      } finally {
-        saveBtn.disabled = false;
-      }
-    });
-
-    // optional clear button (dev)
-    clearBtn.addEventListener("click", () => {
-      profilePreview.src = "https://via.placeholder.com/600x200?text=Profile+Preview";
-      bgPreview.src = "https://via.placeholder.com/600x200?text=Background+Preview";
-      profileInput.value = "";
-      bgInput.value = "";
-      profileURL = "";
-      bgURL = "";
-      setStatus("Cleared.");
-    });
-
-    // Debug helper: open dev console (tell user)
-    console.log("Profile uploader initialized. Open DevTools (F12) and check Console/Network if something fails.");
   </script>
 </body>
 </html>
