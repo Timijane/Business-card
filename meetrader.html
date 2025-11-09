@@ -1016,7 +1016,7 @@
         <div class="empty-icon"><i class="fas fa-store"></i></div>
         <h3 class="empty-title">No items found</h3>
         <p class="empty-description">Try adjusting your filters or be the first to post an item in Meetrader!</p>
-        <button class="post-item-btn" onclick="openPostItemModal()"><i class="fas fa-plus"></i> Post an Item</button>
+        <button class="post-item-btn" id="emptyStatePostBtn"><i class="fas fa-plus"></i> Post an Item</button>
       </div>
     </div>
   </div>
@@ -1137,13 +1137,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-
-  // Cloudinary configuration
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_API_KEY = '767477973776429';
-  const CLOUDINARY_API_SECRET = '3n8OO8MaqD6SZN-AGnLaIIulGW0';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
   
   // File size limits
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -1170,6 +1163,7 @@
   const currentUserAvatar = document.getElementById('currentUserAvatar');
   const userName = document.getElementById('userName');
   const messageContainer = document.getElementById('messageContainer');
+  const emptyStatePostBtn = document.getElementById('emptyStatePostBtn');
 
   // State
   let currentUser = null;
@@ -1190,6 +1184,17 @@
     'GHS': '₵',
     'KES': 'KSh',
     'ZAR': 'R'
+  };
+
+  // Default item images by category
+  const defaultImages = {
+    electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    clothing: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    services: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    skills: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    courses: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+    other: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
   };
 
   // Theme management
@@ -1218,33 +1223,14 @@
     }, 5000);
   }
 
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('File size too large. Maximum 10MB.');
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
-      }
-      
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload media. Please try again.');
-    }
+  // Convert image file to base64 for storage
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
   }
 
   // Get user profile data
@@ -1271,8 +1257,8 @@
     const userName = user.displayName || userProfile?.name || "Anonymous";
     const userInitial = userName.charAt(0).toUpperCase();
 
-    // Use the provided image or a default image
-    const imageUrl = itemData.image || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+    // Use the provided image or a default image based on category
+    const imageUrl = itemData.image || defaultImages[itemData.category] || defaultImages.other;
 
     // Create the item in Firestore
     const docRef = await addDoc(collection(db, "meetrader"), {
@@ -1410,7 +1396,7 @@
       const isOwner = currentUser && currentUser.uid === item.userId;
       
       itemCard.innerHTML = `
-        <img src="${item.image}" alt="${item.title}" class="item-image" onerror="this.src='https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'">
+        <img src="${item.image}" alt="${item.title}" class="item-image" onerror="this.src='${defaultImages.other}'">
         <div class="item-details">
           <div class="item-header">
             <h3 class="item-title">${item.title}</h3>
@@ -1510,7 +1496,7 @@
 
     // Filter button
     filterBtn.addEventListener('click', () => {
-      meetraderFilters.style.display = 'block';
+      meetraderFilters.style.display = meetraderFilters.style.display === 'block' ? 'none' : 'block';
     });
 
     // Close filters
@@ -1523,6 +1509,7 @@
 
     // Post item button
     postItemBtn.addEventListener('click', openPostItemModal);
+    emptyStatePostBtn.addEventListener('click', openPostItemModal);
 
     // Close post item modal
     closePostItemModal.addEventListener('click', closePostItemModalHandler);
@@ -1647,10 +1634,11 @@
       let imageUrl = null;
       if (itemImage.files[0]) {
         try {
-          imageUrl = await uploadMedia(itemImage.files[0]);
+          // Convert image to base64 for simple storage
+          imageUrl = await fileToBase64(itemImage.files[0]);
         } catch (uploadError) {
-          console.error('Image upload error:', uploadError);
-          showMessage('Failed to upload image. Using default image instead.');
+          console.error('Image processing error:', uploadError);
+          showMessage('Failed to process image. Using default image instead.');
           // Continue with default image
         }
       }
@@ -1676,7 +1664,7 @@
       
     } catch (error) {
       console.error('Error posting item:', error);
-      showMessage('Failed to post item. Please try again.');
+      showMessage('Failed to post item: ' + error.message);
     } finally {
       // Reset button state
       submitBtn.textContent = originalText;
