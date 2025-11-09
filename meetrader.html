@@ -1,0 +1,1622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET — Meetrader</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #0080FF;
+    --primary-dark: #0066CC;
+    --accent: #00C6FF;
+    --success: #10B981;
+    --error: #EF4444;
+    --bg-color: #f0f2f5;
+    --card-bg: #fff;
+    --text-color: #111;
+    --secondary-text: #65676b;
+    --border-color: #dddfe2;
+    --online: #10B981;
+    --offline: #EF4444;
+    --radius: 12px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  body.dark-mode {
+    --bg-color: #18191a;
+    --card-bg: #242526;
+    --text-color: #e4e6eb;
+    --secondary-text: #b0b3b8;
+    --border-color: #3e4042;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    font-size: 16px;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 280px;
+    background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 20px;
+    transition: all 0.3s ease;
+    color: white;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-header {
+    padding: 10px 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .sidebar-menu {
+    list-style: none;
+  }
+
+  .sidebar-menu li {
+    margin-bottom: 8px;
+  }
+
+  .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: background 0.3s;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .sidebar-menu i {
+    margin-right: 12px;
+    font-size: 18px;
+  }
+
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  /* Navbar */
+  .navbar {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    color: white;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .navbar h2 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .nav-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 15px;
+    margin-right: 15px;
+  }
+
+  .search-bar input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    width: 200px;
+    font-size: 14px;
+  }
+
+  .search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    position: relative;
+    min-height: 44px;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    min-width: 40px;
+    font-size: 16px;
+    border: 2px solid white;
+  }
+
+  .user-avatar.small {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    min-width: 30px;
+  }
+
+  .status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  .status-online {
+    background-color: var(--online);
+  }
+
+  .user-profile-nav span {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Meetrader Container */
+  .meetrader-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .meetrader-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .meetrader-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .meetrader-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .filter-btn, .sort-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    color: var(--text-color);
+  }
+
+  .filter-btn:hover, .sort-btn:hover {
+    background: rgba(0,128,255,0.05);
+  }
+
+  .post-item-btn {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border: 0;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+  }
+
+  .post-item-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Meetrader Filters */
+  .meetrader-filters {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .filters-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .filter-select, .filter-input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-color);
+  }
+
+  .price-range {
+    display: flex;
+    gap: 10px;
+  }
+
+  .price-input {
+    flex: 1;
+  }
+
+  .apply-filters-btn {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  /* Item Grid */
+  .meetrader-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .item-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .item-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .item-details {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .item-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .item-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .item-description {
+    font-size: 14px;
+    color: var(--secondary-text);
+    margin-bottom: 15px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .item-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--secondary-text);
+    margin-bottom: 15px;
+  }
+
+  .item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .item-seller {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .seller-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .seller-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    background: rgba(0,128,255,0.05);
+    color: var(--primary);
+  }
+
+  .like-btn.liked {
+    color: #ff4757;
+    border-color: rgba(255,71,87,0.2);
+  }
+
+  /* Post Item Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border 0.2s;
+    color: var(--text-color);
+  }
+
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .image-upload {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border 0.2s;
+  }
+
+  .image-upload:hover {
+    border-color: var(--primary);
+  }
+
+  .image-upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: var(--secondary-text);
+  }
+
+  .image-upload-text {
+    font-size: 14px;
+    color: var(--secondary-text);
+  }
+
+  .image-preview {
+    display: none;
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .image-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .cancel-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-color);
+  }
+
+  .cancel-btn:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Currency Selector */
+  .currency-price-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .currency-select {
+    width: 120px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-color);
+  }
+
+  .price-input-full {
+    flex: 1;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--secondary-text);
+  }
+
+  .empty-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .empty-description {
+    font-size: 14px;
+    max-width: 400px;
+    margin: 0 auto 20px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .sidebar {
+      width: 80px;
+    }
+    .sidebar span {
+      display: none;
+    }
+    .main-content {
+      margin-left: 80px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 70px;
+      padding: 10px 5px;
+      height: 100vh;
+    }
+    
+    .sidebar-header {
+      display: none;
+    }
+    
+    .sidebar-menu a {
+      flex-direction: column;
+      padding: 10px 5px;
+      font-size: 12px;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .sidebar-menu i {
+      margin-right: 0;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+    
+    .main-content {
+      margin-left: 70px;
+      padding: 10px;
+      width: calc(100% - 70px);
+    }
+    
+    .navbar {
+      padding: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .search-bar {
+      display: none;
+    }
+    
+    .user-profile-nav span {
+      display: none;
+    }
+    
+    .nav-controls {
+      gap: 5px;
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .btn span {
+      display: none;
+    }
+    
+    .btn {
+      padding: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .meetrader-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .meetrader-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .meetrader-items {
+      grid-template-columns: 1fr;
+    }
+
+    .filters-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .currency-price-group {
+      flex-direction: column;
+    }
+
+    .currency-select {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar {
+      width: 60px;
+    }
+    
+    .main-content {
+      margin-left: 60px;
+      padding: 8px;
+    }
+
+    .navbar h2 {
+      font-size: 18px;
+    }
+
+    .meetrader-actions {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .post-item-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2 style="color: white;">MEET</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
+      <li><a href="conference.html"><i class="fas fa-video"></i> <span>Conference</span></a></li>
+      <li><a href="meetrader.html" class="active"><i class="fas fa-store"></i> <span>Meetrader</span></a></li>
+      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
+      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Navbar -->
+    <div class="navbar">
+      <h2 style="color: white;">MEET Meetrader</h2>
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search items..." id="searchInput">
+        </div>
+        <div class="nav-controls">
+          <div class="user-profile-nav">
+            <div class="user-avatar small" id="currentUserAvatar">
+              U
+              <div class="status-indicator status-online"></div>
+            </div>
+            <span id="userName">User</span>
+          </div>
+          <button class="btn" id="nightToggleBtn">
+            <i class="fas fa-moon"></i> <span>Night Mode</span>
+          </button>
+          <button class="btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meetrader Container -->
+    <div class="meetrader-container">
+      <!-- Meetrader Header -->
+      <div class="meetrader-header">
+        <h1 class="meetrader-title">Meetrader</h1>
+        <div class="meetrader-actions">
+          <button class="filter-btn" id="filterBtn">
+            <i class="fas fa-filter"></i> <span>Filters</span>
+          </button>
+          <button class="sort-btn" id="sortBtn">
+            <i class="fas fa-sort"></i> <span>Sort</span>
+          </button>
+          <button class="post-item-btn" id="postItemBtn">
+            <i class="fas fa-plus"></i> <span>Post Item</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="meetrader-filters" id="meetraderFilters">
+        <div class="filters-header">
+          <h3 class="filters-title">Filter Items</h3>
+          <button class="close-modal" id="closeFilters"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label">Category</label>
+            <select class="filter-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              <option value="electronics">Electronics</option>
+              <option value="furniture">Furniture</option>
+              <option value="clothing">Clothing</option>
+              <option value="services">Services</option>
+              <option value="skills">Skills</option>
+              <option value="courses">Courses</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Location</label>
+            <input type="text" class="filter-input" id="locationFilter" placeholder="City or region">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Price Range</label>
+            <div class="price-range">
+              <input type="number" class="filter-input price-input" id="minPrice" placeholder="Min">
+              <input type="number" class="filter-input price-input" id="maxPrice" placeholder="Max">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Condition</label>
+            <select class="filter-select" id="conditionFilter">
+              <option value="">Any Condition</option>
+              <option value="new">New</option>
+              <option value="like-new">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+            </select>
+          </div>
+        </div>
+        <button class="apply-filters-btn" id="applyFilters">Apply Filters</button>
+      </div>
+
+      <!-- Items Grid -->
+      <div class="meetrader-items" id="meetraderItems">
+        <!-- Items will be populated by JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon"><i class="fas fa-store"></i></div>
+        <h3 class="empty-title">No items found</h3>
+        <p class="empty-description">Try adjusting your filters or be the first to post an item in Meetrader!</p>
+        <button class="post-item-btn" onclick="openPostItemModal()"><i class="fas fa-plus"></i> Post an Item</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Post Item Modal -->
+<div class="modal" id="postItemModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Post a New Item</h3>
+      <button class="close-modal" id="closePostItemModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form class="post-form" id="postItemForm">
+        <div class="form-group">
+          <label class="form-label" for="itemTitle">Item Title</label>
+          <input type="text" class="form-input" id="itemTitle" placeholder="What are you selling or offering?" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <div class="currency-price-group">
+            <select class="currency-select" id="itemCurrency" required>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="CAD">CAD ($)</option>
+              <option value="AUD">AUD ($)</option>
+              <option value="JPY">JPY (¥)</option>
+              <option value="CNY">CNY (¥)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="NGN">NGN (₦)</option>
+              <option value="GHS">GHS (₵)</option>
+              <option value="KES">KES (KSh)</option>
+              <option value="ZAR">ZAR (R)</option>
+            </select>
+            <input type="number" class="form-input price-input-full" id="itemPrice" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="itemLocation">Location</label>
+          <input type="text" class="form-input" id="itemLocation" placeholder="City, State" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="itemCategory">Category</label>
+          <select class="form-select" id="itemCategory" required>
+            <option value="">Select a category</option>
+            <option value="electronics">Electronics</option>
+            <option value="furniture">Furniture</option>
+            <option value="clothing">Clothing</option>
+            <option value="services">Services</option>
+            <option value="skills">Skills</option>
+            <option value="courses">Courses</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="itemCondition">Condition</label>
+          <select class="form-select" id="itemCondition">
+            <option value="new">New</option>
+            <option value="like-new">Like New</option>
+            <option value="good">Good</option>
+            <option value="fair">Fair</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="itemDescription">Description</label>
+          <textarea class="form-textarea" id="itemDescription" placeholder="Describe your item, service, or skill..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Item Image</label>
+          <div class="image-upload" id="imageUpload">
+            <div class="image-upload-icon"><i class="fas fa-camera"></i></div>
+            <div class="image-upload-text">Click to upload an image</div>
+            <input type="file" id="itemImage" accept="image/*" style="display: none">
+          </div>
+          <div class="image-preview" id="imagePreview">
+            <img id="previewImage" src="" alt="Preview">
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" id="cancelPostItem">Cancel</button>
+          <button type="submit" class="submit-btn">Post Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // Import Firebase modules
+  import { 
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
+    query, orderBy, where, setDoc, arrayUnion, arrayRemove
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.firebasestorage.app",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c",
+    measurementId: "G-9BFPPVMMRF"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // Cloudinary configuration
+  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
+  const CLOUDINARY_API_KEY = '767477973776429';
+  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+  // DOM Elements
+  const meetraderItems = document.getElementById('meetraderItems');
+  const emptyState = document.getElementById('emptyState');
+  const filterBtn = document.getElementById('filterBtn');
+  const meetraderFilters = document.getElementById('meetraderFilters');
+  const closeFilters = document.getElementById('closeFilters');
+  const applyFilters = document.getElementById('applyFilters');
+  const postItemBtn = document.getElementById('postItemBtn');
+  const postItemModal = document.getElementById('postItemModal');
+  const closePostItemModal = document.getElementById('closePostItemModal');
+  const cancelPostItem = document.getElementById('cancelPostItem');
+  const postItemForm = document.getElementById('postItemForm');
+  const imageUpload = document.getElementById('imageUpload');
+  const itemImage = document.getElementById('itemImage');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImage = document.getElementById('previewImage');
+  const searchInput = document.getElementById('searchInput');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const nightToggleBtn = document.getElementById('nightToggleBtn');
+  const currentUserAvatar = document.getElementById('currentUserAvatar');
+  const userName = document.getElementById('userName');
+
+  // State
+  let currentUser = null;
+  let items = [];
+  let filteredItems = [];
+  let likedItems = JSON.parse(localStorage.getItem('meet_liked_items') || '{}');
+
+  // Currency symbols
+  const currencySymbols = {
+    'USD': '$',
+    'EUR': '€',
+    'GBP': '£',
+    'CAD': '$',
+    'AUD': '$',
+    'JPY': '¥',
+    'CNY': '¥',
+    'INR': '₹',
+    'NGN': '₦',
+    'GHS': '₵',
+    'KES': 'KSh',
+    'ZAR': 'R'
+  };
+
+  // Theme management
+  function initTheme() {
+    const savedTheme = localStorage.getItem('meet_theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
+    } else {
+      document.body.classList.remove('dark-mode');
+      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
+    }
+  }
+
+  // Message display
+  function showMessage(message, type = 'error') {
+    // Create a temporary message display
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 10000;
+      background: ${type === 'success' ? 'var(--success)' : 'var(--error)'};
+      color: white;
+      box-shadow: var(--shadow);
+    `;
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+      document.body.removeChild(messageDiv);
+    }, 5000);
+  }
+
+  // Upload media to Cloudinary
+  async function uploadMedia(file) {
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('File size too large. Maximum 10MB.');
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    formData.append("api_key", CLOUDINARY_API_KEY);
+    
+    try {
+      const response = await fetch(CLOUDINARY_URL, {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
+      }
+      
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      throw new Error('Failed to upload media. Please try again.');
+    }
+  }
+
+  // Get user profile data
+  async function getUserProfile(userId) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return null;
+    }
+  }
+
+  // CREATE ITEM
+  async function createItem(itemData) {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Please login first!");
+
+    // Get user profile data
+    const userProfile = await getUserProfile(user.uid);
+    const userName = user.displayName || userProfile?.name || "Anonymous";
+    const userInitial = userName.charAt(0).toUpperCase();
+
+    await addDoc(collection(db, "meetrader"), {
+      userId: user.uid,
+      userName: userName,
+      userInitial: userInitial,
+      title: itemData.title,
+      price: itemData.price,
+      currency: itemData.currency,
+      location: itemData.location,
+      description: itemData.description,
+      category: itemData.category,
+      condition: itemData.condition,
+      image: itemData.image,
+      timestamp: serverTimestamp(),
+      likes: 0,
+      status: 'active'
+    });
+  }
+
+  // TOGGLE LIKE
+  async function toggleLike(itemId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const itemRef = doc(db, "meetrader", itemId);
+    const likeRef = doc(db, "meetrader", itemId, "likes", user.uid);
+    const likeSnap = await getDoc(likeRef);
+
+    if (likeSnap.exists()) {
+      // Unlike: remove the like document and decrement likes count
+      await deleteDoc(likeRef);
+      await updateDoc(itemRef, {
+        likes: (await getDoc(itemRef)).data().likes - 1
+      });
+    } else {
+      // Like: create a like document and increment likes count
+      await setDoc(likeRef, {
+        userId: user.uid,
+        timestamp: serverTimestamp()
+      });
+      await updateDoc(itemRef, {
+        likes: (await getDoc(itemRef)).data().likes + 1
+      });
+    }
+  }
+
+  // DELETE ITEM
+  async function deleteItem(itemId) {
+    if (!confirm('Are you sure you want to delete this item?')) return;
+    
+    try {
+      await deleteDoc(doc(db, "meetrader", itemId));
+      showMessage('Item deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      showMessage('Failed to delete item. Please try again.');
+    }
+  }
+
+  // Authentication state listener
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      window.location.href = 'login.html';
+    } else {
+      currentUser = user;
+      // Update user info in UI
+      const userNameText = user.displayName || 'User';
+      const userInitial = userNameText.charAt(0).toUpperCase();
+      
+      currentUserAvatar.textContent = userInitial;
+      userName.textContent = userNameText;
+      
+      setupRealTimeListener();
+    }
+  });
+
+  // Setup real-time listener for items
+  const setupRealTimeListener = () => {
+    const itemsQuery = query(collection(db, "meetrader"), orderBy("timestamp", "desc"));
+    
+    onSnapshot(itemsQuery, (snapshot) => {
+      items = [];
+      snapshot.docs.forEach((doc) => {
+        const item = doc.data();
+        items.push({
+          id: doc.id,
+          ...item,
+          isLiked: likedItems[doc.id] || false
+        });
+      });
+      
+      filteredItems = [...items];
+      renderItems();
+    }, error => {
+      console.error('Real-time listener error:', error);
+      showMessage('Failed to load items. Please refresh the page.');
+    });
+  };
+
+  // Render items
+  function renderItems() {
+    if (filteredItems.length === 0) {
+      meetraderItems.style.display = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+    
+    meetraderItems.style.display = 'grid';
+    emptyState.style.display = 'none';
+    
+    meetraderItems.innerHTML = '';
+    
+    filteredItems.forEach(item => {
+      const itemCard = document.createElement('div');
+      itemCard.className = 'item-card';
+      
+      const currencySymbol = currencySymbols[item.currency] || item.currency;
+      
+      itemCard.innerHTML = `
+        <img src="${item.image}" alt="${item.title}" class="item-image">
+        <div class="item-details">
+          <div class="item-header">
+            <h3 class="item-title">${item.title}</h3>
+            <div class="item-price">${currencySymbol}${item.price}</div>
+          </div>
+          <p class="item-description">${item.description}</p>
+          <div class="item-location">
+            <i class="fas fa-map-marker-alt"></i> ${item.location}
+          </div>
+          <div class="item-footer">
+            <div class="item-seller">
+              <div class="seller-avatar">${item.userInitial}</div>
+              <span class="seller-name">${item.userName}</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-btn like-btn ${item.isLiked ? 'liked' : ''}" data-id="${item.id}">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="action-btn message-btn" data-id="${item.id}">
+                <i class="fas fa-comment"></i>
+              </button>
+              ${currentUser && currentUser.uid === item.userId ? `
+                <button class="action-btn delete-btn" data-id="${item.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      meetraderItems.appendChild(itemCard);
+    });
+    
+    // Add event listeners
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const itemId = e.currentTarget.getAttribute('data-id');
+        toggleLike(itemId);
+      });
+    });
+    
+    document.querySelectorAll('.message-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const itemId = e.currentTarget.getAttribute('data-id');
+        messageSeller(itemId);
+      });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const itemId = e.currentTarget.getAttribute('data-id');
+        deleteItem(itemId);
+      });
+    });
+  }
+
+  // Message seller
+  function messageSeller(itemId) {
+    const item = items.find(i => i.id === itemId);
+    if (!item) return;
+    
+    alert(`Messaging feature would open a chat with ${item.userName} about "${item.title}"`);
+  }
+
+  // Initialize
+  function initMeetrader() {
+    setupEventListeners();
+  }
+
+  // Setup event listeners
+  function setupEventListeners() {
+    // Theme toggle
+    nightToggleBtn.addEventListener('click', () => {
+      if (document.body.classList.contains('dark-mode')) {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('meet_theme', 'light');
+        nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
+      } else {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('meet_theme', 'dark');
+        nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
+      }
+    });
+
+    // Logout functionality
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        showMessage('Failed to logout. Please try again.');
+      }
+    });
+
+    // Filter button
+    filterBtn.addEventListener('click', () => {
+      meetraderFilters.style.display = 'block';
+    });
+
+    // Close filters
+    closeFilters.addEventListener('click', () => {
+      meetraderFilters.style.display = 'none';
+    });
+
+    // Apply filters
+    applyFilters.addEventListener('click', applyFiltersHandler);
+
+    // Post item button
+    postItemBtn.addEventListener('click', openPostItemModal);
+
+    // Close post item modal
+    closePostItemModal.addEventListener('click', closePostItemModalHandler);
+    cancelPostItem.addEventListener('click', closePostItemModalHandler);
+    postItemModal.addEventListener('click', (e) => {
+      if (e.target === postItemModal) {
+        closePostItemModalHandler();
+      }
+    });
+
+    // Post item form
+    postItemForm.addEventListener('submit', submitItemForm);
+
+    // Image upload
+    imageUpload.addEventListener('click', () => {
+      itemImage.click();
+    });
+    itemImage.addEventListener('change', handleImageUpload);
+
+    // Search
+    searchInput.addEventListener('input', handleSearch);
+  }
+
+  // Apply filters
+  function applyFiltersHandler() {
+    const category = document.getElementById('categoryFilter').value;
+    const location = document.getElementById('locationFilter').value.toLowerCase();
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    const condition = document.getElementById('conditionFilter').value;
+    
+    filteredItems = items.filter(item => {
+      // Category filter
+      if (category && item.category !== category) return false;
+      
+      // Location filter
+      if (location && !item.location.toLowerCase().includes(location)) return false;
+      
+      // Price filter
+      if (minPrice && item.price < parseFloat(minPrice)) return false;
+      if (maxPrice && item.price > parseFloat(maxPrice)) return false;
+      
+      // Condition filter
+      if (condition && item.condition !== condition) return false;
+      
+      return true;
+    });
+    
+    renderItems();
+    meetraderFilters.style.display = 'none';
+  }
+
+  // Open post item modal
+  function openPostItemModal() {
+    postItemModal.style.display = 'flex';
+  }
+
+  // Close post item modal
+  function closePostItemModalHandler() {
+    postItemModal.style.display = 'none';
+    postItemForm.reset();
+    imagePreview.style.display = 'none';
+  }
+
+  // Handle image upload
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImage.src = e.target.result;
+      imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Submit item form
+  async function submitItemForm(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('itemTitle').value;
+    const price = parseFloat(document.getElementById('itemPrice').value);
+    const currency = document.getElementById('itemCurrency').value;
+    const location = document.getElementById('itemLocation').value;
+    const category = document.getElementById('itemCategory').value;
+    const condition = document.getElementById('itemCondition').value;
+    const description = document.getElementById('itemDescription').value;
+    
+    // Get image URL
+    let imageUrl = previewImage.src;
+    if (itemImage.files[0]) {
+      try {
+        imageUrl = await uploadMedia(itemImage.files[0]);
+      } catch (error) {
+        showMessage('Failed to upload image. Please try again.');
+        return;
+      }
+    } else {
+      // Default image if none provided
+      imageUrl = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+    }
+    
+    try {
+      await createItem({
+        title,
+        price,
+        currency,
+        location,
+        description,
+        category,
+        condition,
+        image: imageUrl
+      });
+      
+      // Close modal and reset form
+      closePostItemModalHandler();
+      
+      // Show success message
+      showMessage('Item posted successfully!', 'success');
+    } catch (error) {
+      console.error('Item creation error:', error);
+      showMessage('Failed to post item. Please try again.');
+    }
+  }
+
+  // Handle search
+  function handleSearch() {
+    const query = searchInput.value.toLowerCase().trim();
+    
+    if (!query) {
+      filteredItems = [...items];
+    } else {
+      filteredItems = items.filter(item => 
+        item.title.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query) ||
+        item.location.toLowerCase().includes(query) ||
+        item.userName.toLowerCase().includes(query)
+      );
+    }
+    
+    renderItems();
+  }
+
+  // Initialize meetrader when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
+    initMeetrader();
+  });
+</script>
+</body>
+</html>
