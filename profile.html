@@ -198,6 +198,7 @@
     /* Better touch target */
     min-width: 40px;
     font-size: 18px; /* Increased font size */
+    overflow: hidden;
   }
 
   .user-avatar.small {
@@ -205,6 +206,20 @@
     height: 30px;
     font-size: 16px; /* Increased font size */
     min-width: 30px;
+  }
+
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .user-avatar.small img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .status-indicator {
@@ -954,7 +969,7 @@
     </div>
     <ul class="sidebar-menu">
       <li><a href="#"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="#" onclick="goToMyProfile()"><i class="fas fa-user"></i> <span>Profile</span></a></li>
       <li><a href="#"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="#"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
       <li><a href="#"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
@@ -1110,7 +1125,7 @@
 </div>
 
 <script type="module">
-  // ... (Previous Firebase imports and configuration remain the same)
+  // Firebase imports
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
     query, orderBy, where, setDoc
@@ -1259,6 +1274,7 @@
       userId: user.uid,
       userName: user.displayName || "Anonymous",
       userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
+      userPhotoURL: user.photoURL || null,
       text: text,
       media: mediaUrls,
       privacy: privacy,
@@ -1282,6 +1298,7 @@
       await setDoc(likeRef, {
         userId: user.uid,
         userName: user.displayName || "Anonymous",
+        userPhotoURL: user.photoURL || null,
         timestamp: serverTimestamp()
       });
     }
@@ -1298,6 +1315,7 @@
       userId: user.uid,
       userName: user.displayName || "Anonymous",
       userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
+      userPhotoURL: user.photoURL || null,
       text: commentText,
       timestamp: serverTimestamp()
     });
@@ -1316,6 +1334,68 @@
     }
   }
 
+  // ASSOCIATE SYSTEM FUNCTIONS
+  async function followUser(userIdToFollow) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const followRef = doc(db, "users", user.uid, "following", userIdToFollow);
+        await setDoc(followRef, {
+            timestamp: serverTimestamp()
+        });
+        
+        const followerRef = doc(db, "users", userIdToFollow, "followers", user.uid);
+        await setDoc(followerRef, {
+            timestamp: serverTimestamp()
+        });
+        
+        showMessage('You are now associates!', 'success');
+    } catch (error) {
+        console.error('Error following user:', error);
+        showMessage('Failed to follow user. Please try again.');
+    }
+  }
+
+  async function unfollowUser(userIdToUnfollow) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const followRef = doc(db, "users", user.uid, "following", userIdToUnfollow);
+        await deleteDoc(followRef);
+        
+        const followerRef = doc(db, "users", userIdToUnfollow, "followers", user.uid);
+        await deleteDoc(followerRef);
+        
+        showMessage('You are no longer associates.', 'success');
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        showMessage('Failed to unfollow user. Please try again.');
+    }
+  }
+
+  async function checkIfFollowing(userId) {
+    const user = auth.currentUser;
+    if (!user) return false;
+
+    const followRef = doc(db, "users", user.uid, "following", userId);
+    const followSnap = await getDoc(followRef);
+    return followSnap.exists();
+  }
+
+  async function getFollowerCount(userId) {
+    const followersRef = collection(db, "users", userId, "followers");
+    const followersSnap = await getDocs(followersRef);
+    return followersSnap.size;
+  }
+
+  async function getFollowingCount(userId) {
+    const followingRef = collection(db, "users", userId, "following");
+    const followingSnap = await getDocs(followingRef);
+    return followingSnap.size;
+  }
+
   // Authentication state listener
   onAuthStateChanged(auth, user => {
     if (!user) {
@@ -1326,9 +1406,19 @@
       const userNameText = user.displayName || 'User';
       const userInitial = userNameText.charAt(0).toUpperCase();
       
-      currentUserAvatar.textContent = userInitial;
-      currentUserAvatarComposer.textContent = userInitial;
-      modalUserAvatar.textContent = userInitial;
+      // Function to update avatar with profile picture
+      const updateAvatar = (element, initial) => {
+        if (user.photoURL) {
+          element.innerHTML = `<img src="${user.photoURL}" alt="${userNameText}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>`;
+        } else {
+          element.textContent = initial;
+        }
+      };
+      
+      updateAvatar(currentUserAvatar, userInitial);
+      updateAvatar(currentUserAvatarComposer, userInitial);
+      updateAvatar(modalUserAvatar, userInitial);
+      
       modalUserName.textContent = userNameText;
       userName.textContent = userNameText;
       
@@ -1571,15 +1661,21 @@
     const displayedComments = comments.slice(-2);
     const totalComments = comments.length;
 
-    let commentsHtml = displayedComments.map(comment => `
-      <div class="comment">
-        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">${comment.userInitial || 'U'}</div>
-        <div class="comment-content">
-          <div style="font-weight: 600; font-size: 14px;">${comment.userName || 'User'}</div>
-          <div>${escapeHtml(comment.text)}</div>
+    let commentsHtml = displayedComments.map(comment => {
+      const commentAvatar = comment.userPhotoURL ? 
+        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        comment.userInitial || 'U';
+      
+      return `
+        <div class="comment">
+          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+          <div class="comment-content">
+            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
+            <div>${escapeHtml(comment.text)}</div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Add "View more" button if there are more than 2 comments
     if (totalComments > 2) {
@@ -1612,16 +1708,22 @@
     const commentsSnapshot = await getDocs(commentsQuery);
     const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
-    let commentsHtml = comments.map(comment => `
-      <div class="comment" style="margin-bottom: 16px;">
-        <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px;">${comment.userInitial || 'U'}</div>
-        <div class="comment-content" style="flex: 1;">
-          <div style="font-weight: 600; font-size: 16px;">${comment.userName || 'User'}</div>
-          <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
-          <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
+    let commentsHtml = comments.map(comment => {
+      const commentAvatar = comment.userPhotoURL ? 
+        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        comment.userInitial || 'U';
+      
+      return `
+        <div class="comment" style="margin-bottom: 16px;">
+          <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+          <div class="comment-content" style="flex: 1;">
+            <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
+            <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
+            <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     
     commentsModalBody.innerHTML = commentsHtml;
     commentsModal.style.display = 'flex';
@@ -1665,6 +1767,11 @@
     
     const user = auth.currentUser;
     const isOwner = data.userId === user.uid;
+    
+    // Use profile picture if available, otherwise fallback to initial
+    const userAvatar = data.userPhotoURL ? 
+      `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+      data.userInitial || 'U';
     
     // Truncate long posts
     const maxLength = 200;
@@ -1719,9 +1826,9 @@
     postEl.innerHTML = `
       <div class="post-header">
         <div class="post-user" onclick="viewProfile('${data.userId}')">
-          <div class="user-avatar">${data.userInitial || 'U'}</div>
+          <div class="user-avatar">${userAvatar}</div>
           <div>
-            <div class="user-name">${data.userName || 'Anonymous'}</div>
+            <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
             <div class="post-meta">
               ${formatTimestamp(data.timestamp)} • 
               ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}
@@ -1759,15 +1866,21 @@
         </div>
       </div>
       <div class="comments-section">
-        ${comments.slice(-2).map(comment => `
-          <div class="comment">
-            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">${comment.userInitial || 'U'}</div>
-            <div class="comment-content">
-              <div style="font-weight: 600; font-size: 14px;">${comment.userName || 'User'}</div>
-              <div>${escapeHtml(comment.text)}</div>
+        ${comments.slice(-2).map(comment => {
+          const commentAvatar = comment.userPhotoURL ? 
+            `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+            comment.userInitial || 'U';
+          
+          return `
+            <div class="comment">
+              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+              <div class="comment-content">
+                <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
+                <div>${escapeHtml(comment.text)}</div>
+              </div>
             </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
         ${comments.length > 2 ? `
           <div class="view-more-comments" onclick="openCommentsModal('${id}')">
             View ${comments.length - 2} more comments
@@ -1917,8 +2030,19 @@
 
   // Profile navigation
   window.viewProfile = (userId) => {
-    window.location.href = `profile.html?userId=${userId}`;
+    // Store the target user ID in sessionStorage and redirect
+    sessionStorage.setItem('targetUserId', userId);
+    window.location.href = 'profile.html';
   };
+
+  // Function to navigate to current user's profile
+  function goToMyProfile() {
+    const user = auth.currentUser;
+    if (user) {
+      sessionStorage.removeItem('targetUserId'); // Clear any previous target
+      window.location.href = 'profile.html';
+    }
+  }
 
   // Close menus when clicking outside
   document.addEventListener('click', (e) => {
