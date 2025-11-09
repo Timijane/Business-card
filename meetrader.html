@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Meetrader</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MEET | Meetrader</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -725,6 +725,45 @@
     margin: 0 auto 20px;
   }
 
+  /* Message Container */
+  .message-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 300px;
+  }
+
+  .message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+
+  .message.success {
+    background: var(--success);
+    color: white;
+  }
+
+  .message.error {
+    background: var(--error);
+    color: white;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
   /* Responsive */
   @media (max-width: 1200px) {
     .sidebar {
@@ -901,6 +940,9 @@
       </div>
     </div>
 
+    <!-- Message Container -->
+    <div class="message-container" id="messageContainer"></div>
+
     <!-- Meetrader Container -->
     <div class="meetrader-container">
       <!-- Meetrader Header -->
@@ -1074,7 +1116,7 @@
   // Import Firebase modules
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, arrayUnion, arrayRemove
+    query, orderBy, where, setDoc
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -1095,14 +1137,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-
-  // Cloudinary configuration
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_API_KEY = '767477973776429';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
-
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   // DOM Elements
   const meetraderItems = document.getElementById('meetraderItems');
@@ -1125,12 +1159,12 @@
   const nightToggleBtn = document.getElementById('nightToggleBtn');
   const currentUserAvatar = document.getElementById('currentUserAvatar');
   const userName = document.getElementById('userName');
+  const messageContainer = document.getElementById('messageContainer');
 
   // State
   let currentUser = null;
   let items = [];
   let filteredItems = [];
-  let likedItems = JSON.parse(localStorage.getItem('meet_liked_items') || '{}');
 
   // Currency symbols
   const currencySymbols = {
@@ -1162,56 +1196,16 @@
 
   // Message display
   function showMessage(message, type = 'error') {
-    // Create a temporary message display
     const messageDiv = document.createElement('div');
-    messageDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      z-index: 10000;
-      background: ${type === 'success' ? 'var(--success)' : 'var(--error)'};
-      color: white;
-      box-shadow: var(--shadow);
-    `;
+    messageDiv.className = `message ${type}`;
     messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
+    messageContainer.appendChild(messageDiv);
     
     setTimeout(() => {
-      document.body.removeChild(messageDiv);
-    }, 5000);
-  }
-
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('File size too large. Maximum 10MB.');
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("api_key", CLOUDINARY_API_KEY);
-    
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
+      if (messageDiv.parentNode) {
+        messageDiv.parentNode.removeChild(messageDiv);
       }
-      
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload media. Please try again.');
-    }
+    }, 5000);
   }
 
   // Get user profile data
@@ -1228,7 +1222,7 @@
     }
   }
 
-  // CREATE ITEM
+  // CREATE ITEM - FIXED VERSION
   async function createItem(itemData) {
     const user = auth.currentUser;
     if (!user) throw new Error("Please login first!");
@@ -1238,22 +1232,28 @@
     const userName = user.displayName || userProfile?.name || "Anonymous";
     const userInitial = userName.charAt(0).toUpperCase();
 
-    await addDoc(collection(db, "meetrader"), {
+    // Use a default image if none provided
+    const imageUrl = itemData.image || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+
+    // Create the item in Firestore
+    const docRef = await addDoc(collection(db, "meetrader"), {
       userId: user.uid,
       userName: userName,
       userInitial: userInitial,
       title: itemData.title,
-      price: itemData.price,
+      price: parseFloat(itemData.price),
       currency: itemData.currency,
       location: itemData.location,
       description: itemData.description,
       category: itemData.category,
       condition: itemData.condition,
-      image: itemData.image,
+      image: imageUrl,
       timestamp: serverTimestamp(),
       likes: 0,
       status: 'active'
     });
+
+    return docRef.id;
   }
 
   // TOGGLE LIKE
@@ -1263,23 +1263,35 @@
 
     const itemRef = doc(db, "meetrader", itemId);
     const likeRef = doc(db, "meetrader", itemId, "likes", user.uid);
-    const likeSnap = await getDoc(likeRef);
-
-    if (likeSnap.exists()) {
-      // Unlike: remove the like document and decrement likes count
-      await deleteDoc(likeRef);
-      await updateDoc(itemRef, {
-        likes: (await getDoc(itemRef)).data().likes - 1
-      });
-    } else {
-      // Like: create a like document and increment likes count
-      await setDoc(likeRef, {
-        userId: user.uid,
-        timestamp: serverTimestamp()
-      });
-      await updateDoc(itemRef, {
-        likes: (await getDoc(itemRef)).data().likes + 1
-      });
+    
+    try {
+      const likeSnap = await getDoc(likeRef);
+      
+      if (likeSnap.exists()) {
+        // Unlike: remove the like document and decrement likes count
+        await deleteDoc(likeRef);
+        const itemDoc = await getDoc(itemRef);
+        if (itemDoc.exists()) {
+          await updateDoc(itemRef, {
+            likes: (itemDoc.data().likes || 1) - 1
+          });
+        }
+      } else {
+        // Like: create a like document and increment likes count
+        await setDoc(likeRef, {
+          userId: user.uid,
+          timestamp: serverTimestamp()
+        });
+        const itemDoc = await getDoc(itemRef);
+        if (itemDoc.exists()) {
+          await updateDoc(itemRef, {
+            likes: (itemDoc.data().likes || 0) + 1
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      showMessage('Failed to update like. Please try again.');
     }
   }
 
@@ -1321,10 +1333,12 @@
       items = [];
       snapshot.docs.forEach((doc) => {
         const item = doc.data();
+        // Convert Firestore timestamp to Date if it exists
+        const timestamp = item.timestamp ? item.timestamp.toDate() : new Date();
         items.push({
           id: doc.id,
           ...item,
-          isLiked: likedItems[doc.id] || false
+          timestamp: timestamp
         });
       });
       
@@ -1354,9 +1368,10 @@
       itemCard.className = 'item-card';
       
       const currencySymbol = currencySymbols[item.currency] || item.currency;
+      const isOwner = currentUser && currentUser.uid === item.userId;
       
       itemCard.innerHTML = `
-        <img src="${item.image}" alt="${item.title}" class="item-image">
+        <img src="${item.image}" alt="${item.title}" class="item-image" onerror="this.src='https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'">
         <div class="item-details">
           <div class="item-header">
             <h3 class="item-title">${item.title}</h3>
@@ -1372,14 +1387,14 @@
               <span class="seller-name">${item.userName}</span>
             </div>
             <div class="item-actions">
-              <button class="action-btn like-btn ${item.isLiked ? 'liked' : ''}" data-id="${item.id}">
+              <button class="action-btn like-btn" data-id="${item.id}" title="Like">
                 <i class="fas fa-heart"></i>
               </button>
-              <button class="action-btn message-btn" data-id="${item.id}">
+              <button class="action-btn message-btn" data-id="${item.id}" title="Message Seller">
                 <i class="fas fa-comment"></i>
               </button>
-              ${currentUser && currentUser.uid === item.userId ? `
-                <button class="action-btn delete-btn" data-id="${item.id}">
+              ${isOwner ? `
+                <button class="action-btn delete-btn" data-id="${item.id}" title="Delete Item">
                   <i class="fas fa-trash"></i>
                 </button>
               ` : ''}
@@ -1419,12 +1434,13 @@
     const item = items.find(i => i.id === itemId);
     if (!item) return;
     
-    alert(`Messaging feature would open a chat with ${item.userName} about "${item.title}"`);
+    showMessage(`Would open chat with ${item.userName} about "${item.title}"`, 'success');
   }
 
   // Initialize
   function initMeetrader() {
     setupEventListeners();
+    initTheme();
   }
 
   // Setup event listeners
@@ -1537,6 +1553,18 @@
     const file = e.target.files[0];
     if (!file) return;
     
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('File size too large. Please choose an image smaller than 5MB.');
+      return;
+    }
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      showMessage('Please select a valid image file.');
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = function(e) {
       previewImage.src = e.target.result;
@@ -1545,52 +1573,74 @@
     reader.readAsDataURL(file);
   }
 
-  // Submit item form
+  // Submit item form - FIXED VERSION
   async function submitItemForm(e) {
     e.preventDefault();
     
-    const title = document.getElementById('itemTitle').value;
-    const price = parseFloat(document.getElementById('itemPrice').value);
+    // Get form values
+    const title = document.getElementById('itemTitle').value.trim();
+    const price = document.getElementById('itemPrice').value;
     const currency = document.getElementById('itemCurrency').value;
-    const location = document.getElementById('itemLocation').value;
+    const location = document.getElementById('itemLocation').value.trim();
     const category = document.getElementById('itemCategory').value;
     const condition = document.getElementById('itemCondition').value;
-    const description = document.getElementById('itemDescription').value;
+    const description = document.getElementById('itemDescription').value.trim();
     
-    // Get image URL
-    let imageUrl = previewImage.src;
-    if (itemImage.files[0]) {
-      try {
-        imageUrl = await uploadMedia(itemImage.files[0]);
-      } catch (error) {
-        showMessage('Failed to upload image. Please try again.');
-        return;
-      }
-    } else {
-      // Default image if none provided
-      imageUrl = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+    // Validate form
+    if (!title || !price || !location || !category || !description) {
+      showMessage('Please fill in all required fields.');
+      return;
     }
     
+    if (parseFloat(price) <= 0) {
+      showMessage('Please enter a valid price.');
+      return;
+    }
+    
+    // Show loading state
+    const submitBtn = postItemForm.querySelector('.submit-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+    submitBtn.disabled = true;
+    
     try {
-      await createItem({
+      // Get image data
+      let imageData = null;
+      if (itemImage.files[0]) {
+        const file = itemImage.files[0];
+        imageData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+      
+      // Create item data
+      const itemData = {
         title,
-        price,
+        price: parseFloat(price),
         currency,
         location,
         description,
         category,
         condition,
-        image: imageUrl
-      });
+        image: imageData // Using data URL for now instead of Cloudinary
+      };
       
-      // Close modal and reset form
+      // Create the item in Firebase
+      await createItem(itemData);
+      
+      // Success
+      showMessage('Item posted successfully!', 'success');
       closePostItemModalHandler();
       
-      // Show success message
-      showMessage('Item posted successfully!', 'success');
     } catch (error) {
-      console.error('Item creation error:', error);
+      console.error('Error posting item:', error);
       showMessage('Failed to post item. Please try again.');
+    } finally {
+      // Reset button state
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
     }
   }
 
@@ -1613,10 +1663,7 @@
   }
 
   // Initialize meetrader when page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    initTheme();
-    initMeetrader();
-  });
+  document.addEventListener('DOMContentLoaded', initMeetrader);
 </script>
 </body>
 </html>
