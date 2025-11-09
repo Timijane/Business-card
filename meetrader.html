@@ -1,142 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Meetrader</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🛒 Meetrader Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f7f9fb;
+      margin: 0;
+      color: #333;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 15px;
+    }
+    .post-form, .filter-bar {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    input, select, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+    .item-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .item-card:hover {
+      transform: scale(1.03);
+    }
+    .item-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .item-info {
+      padding: 10px;
+    }
+    .item-info h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .item-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .dark-mode {
+      background: #121212;
+      color: #eee;
+    }
+    .dark-mode header {
+      background: #222;
+    }
+    .dark-mode .post-form, .dark-mode .filter-bar, .dark-mode .item-card {
+      background: #1f1f1f;
+      color: #eee;
+    }
+  </style>
 
-<!-- Import configuration -->
-<script type="module" src="config.js"></script>
-
-<style>
-  /* Your existing CSS styles remain the same */
-  :root {
-    --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --accent: #00C6FF;
-    --success: #10B981;
-    --error: #EF4444;
-    --bg-color: #f0f2f5;
-    --card-bg: #fff;
-    --text-color: #111;
-    --secondary-text: #65676b;
-    --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
-    --radius: 12px;
-    --shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  /* ... rest of your CSS ... */
-</style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
+  <header>🛒 Meetrader Marketplace</header>
 
-<div class="app-container">
-  <!-- Your HTML structure remains the same -->
-  <!-- Sidebar, Navbar, Meetrader Container, etc. -->
-</div>
+  <div class="container">
 
-<!-- Post Item Modal -->
-<div class="modal" id="postItemModal">
-  <!-- Modal content remains the same -->
-</div>
+    <!-- Post Item -->
+    <div class="post-form">
+      <h3>Post a New Item</h3>
+      <input type="text" id="title" placeholder="Product Title" required />
+      <textarea id="description" placeholder="Description"></textarea>
+      <input type="number" id="price" placeholder="Price" required />
+      <select id="currency">
+        <option value="NGN">NGN</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+      </select>
+      <input type="text" id="location" placeholder="Location" />
+      <select id="category">
+        <option value="Electronics">Electronics</option>
+        <option value="Fashion">Fashion</option>
+        <option value="Services">Services</option>
+        <option value="Automobile">Automobile</option>
+        <option value="Real Estate">Real Estate</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="file" id="itemImage" accept="image/*" />
+      <button id="postItemBtn">Post Item</button>
+    </div>
 
-<script type="module">
-  // Import Firebase modules
-  import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  
-  // Import configurations
-  import { firebaseConfig, cloudinaryConfig } from './config.js';
+    <!-- Filter/Search -->
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search product..." />
+      <select id="filterCategory">
+        <option value="">All Categories</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Fashion">Fashion</option>
+        <option value="Services">Services</option>
+        <option value="Automobile">Automobile</option>
+        <option value="Real Estate">Real Estate</option>
+      </select>
+      <input type="number" id="minPrice" placeholder="Min Price" />
+      <input type="number" id="maxPrice" placeholder="Max Price" />
+      <input type="text" id="filterLocation" placeholder="Filter by Location" />
+      <button id="filterBtn">Filter</button>
+    </div>
 
-  // Initialize Firebase with imported config
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+    <!-- Market Feed -->
+    <div class="market-grid" id="marketGrid"></div>
+  </div>
 
-  // Use Cloudinary configuration
-  const CLOUDINARY_URL = cloudinaryConfig.url;
-  const CLOUDINARY_UPLOAD_PRESET = cloudinaryConfig.uploadPreset;
+  <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i> Mode</button>
 
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  <script type="module">
+    import { firebaseConfig, cloudinaryConfig } from './config.js';
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-  // DOM Elements
-  const meetraderItems = document.getElementById('meetraderItems');
-  const emptyState = document.getElementById('emptyState');
-  const filterBtn = document.getElementById('filterBtn');
-  const meetraderFilters = document.getElementById('meetraderFilters');
-  const closeFilters = document.getElementById('closeFilters');
-  const applyFilters = document.getElementById('applyFilters');
-  const postItemBtn = document.getElementById('postItemBtn');
-  const postItemModal = document.getElementById('postItemModal');
-  const closePostItemModal = document.getElementById('closePostItemModal');
-  const cancelPostItem = document.getElementById('cancelPostItem');
-  const postItemForm = document.getElementById('postItemForm');
-  const imageUpload = document.getElementById('imageUpload');
-  const itemImage = document.getElementById('itemImage');
-  const imagePreview = document.getElementById('imagePreview');
-  const previewImage = document.getElementById('previewImage');
-  const searchInput = document.getElementById('searchInput');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const nightToggleBtn = document.getElementById('nightToggleBtn');
-  const currentUserAvatar = document.getElementById('currentUserAvatar');
-  const userName = document.getElementById('userName');
-  const messageContainer = document.getElementById('messageContainer');
-
-  // State
-  let currentUser = null;
-  let items = [];
-  let filteredItems = [];
-
-  // Currency symbols
-  const currencySymbols = {
-    'USD': '$', 'EUR': '€', 'GBP': '£', 'CAD': '$', 'AUD': '$',
-    'JPY': '¥', 'CNY': '¥', 'INR': '₹', 'NGN': '₦', 'GHS': '₵',
-    'KES': 'KSh', 'ZAR': 'R'
-  };
-
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('File size too large. Maximum 10MB.');
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
+    // Cloudinary upload (unsigned)
+    async function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
         method: "POST",
-        body: formData,
+        body: formData
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
-      }
-      
-      const data = await response.json();
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Upload failed");
       return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload media. Please try again.');
     }
-  }
 
-  // Rest of your JavaScript code remains the same...
-  // [Include all your existing functions: createItem, toggleLike, deleteItem, etc.]
+    // Add Item
+    document.getElementById("postItemBtn").addEventListener("click", async () => {
+      const file = document.getElementById("itemImage").files[0];
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const currency = document.getElementById("currency").value;
+      const location = document.getElementById("location").value.trim();
+      const category = document.getElementById("category").value;
 
-  // Initialize meetrader when page loads
-  document.addEventListener('DOMContentLoaded', initMeetrader);
-</script>
+      if (!file || !title || !price) {
+        alert("Please fill all required fields and select an image.");
+        return;
+      }
+
+      try {
+        const imageUrl = await uploadToCloudinary(file);
+        await db.collection("marketItems").add({
+          title,
+          description,
+          price: parseFloat(price),
+          currency,
+          location,
+          category,
+          imageUrl,
+          userId: auth.currentUser ? auth.currentUser.uid : "guest",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("Item posted successfully!");
+        loadItems();
+      } catch (err) {
+        alert("Upload failed: " + err.message);
+      }
+    });
+
+    // Load Items
+    async function loadItems(filters = {}) {
+      const grid = document.getElementById("marketGrid");
+      grid.innerHTML = "<p>Loading...</p>";
+      let ref = db.collection("marketItems").orderBy("createdAt", "desc");
+
+      const snapshot = await ref.get();
+      grid.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (
+          (filters.search && !data.title.toLowerCase().includes(filters.search.toLowerCase())) ||
+          (filters.category && data.category !== filters.category) ||
+          (filters.location && !data.location.toLowerCase().includes(filters.location.toLowerCase())) ||
+          (filters.minPrice && data.price < filters.minPrice) ||
+          (filters.maxPrice && data.price > filters.maxPrice)
+        ) return;
+
+        const card = `
+          <div class="item-card">
+            <img src="${data.imageUrl}" alt="${data.title}">
+            <div class="item-info">
+              <h4>${data.title}</h4>
+              <p>${data.currency}${data.price}</p>
+              <p>${data.category} • ${data.location || "N/A"}</p>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += card;
+      });
+
+      if (grid.innerHTML === "") grid.innerHTML = "<p>No items found.</p>";
+    }
+
+    // Filter button
+    document.getElementById("filterBtn").addEventListener("click", () => {
+      const filters = {
+        search: document.getElementById("searchInput").value.trim(),
+        category: document.getElementById("filterCategory").value,
+        minPrice: parseFloat(document.getElementById("minPrice").value) || null,
+        maxPrice: parseFloat(document.getElementById("maxPrice").value) || null,
+        location: document.getElementById("filterLocation").value.trim()
+      };
+      loadItems(filters);
+    });
+
+    // Dark/Light toggle
+    const themeBtn = document.getElementById("themeToggle");
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+    });
+
+    // Real-time updates
+    db.collection("marketItems").orderBy("createdAt", "desc")
+      .onSnapshot(() => loadItems());
+
+    // Initial load
+    loadItems();
+  </script>
 </body>
 </html>
