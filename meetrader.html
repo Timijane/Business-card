@@ -13,49 +13,89 @@
       margin: 0;
       color: #333;
     }
-    .dark-mode { background: #121212; color: #eee; }
+    .dark-mode {
+      background: #121212;
+      color: #eee;
+    }
     header {
-      background: #007bff; color: white; text-align: center;
-      padding: 15px; font-size: 22px; font-weight: 600;
+      background: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: 600;
     }
-    .container { max-width: 900px; margin: 20px auto; padding: 15px; }
-    .filters {
-      display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
-    }
-    .filters input, .filters select {
-      flex: 1; min-width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 15px;
     }
     .post-form {
-      background: white; border-radius: 10px; padding: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 25px;
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
     }
     .post-form input, .post-form select, .post-form textarea {
-      width: 100%; margin-bottom: 10px; padding: 10px;
-      border: 1px solid #ccc; border-radius: 6px; font-family: inherit;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: inherit;
     }
     .post-form button {
-      background: #007bff; color: white; border: none;
-      padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
     }
     .market-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 15px;
     }
     .item-card {
-      background: white; border-radius: 8px; overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: 0.3s;
     }
-    .item-card:hover { transform: scale(1.03); }
+    .item-card:hover {
+      transform: scale(1.03);
+    }
     .item-card img {
-      width: 100%; height: 150px; object-fit: cover;
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
     }
-    .item-info { padding: 10px; }
-    .item-info h4 { margin: 0; font-size: 16px; font-weight: 600; }
-    .item-info p { margin: 5px 0; font-size: 14px; }
+    .item-info {
+      padding: 10px;
+    }
+    .item-info h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .item-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
     .theme-toggle {
-      position: fixed; bottom: 20px; right: 20px;
-      background: #007bff; color: white; border: none;
-      padding: 8px 12px; border-radius: 6px; cursor: pointer;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 
@@ -68,23 +108,6 @@
   <header>🛍️ Meetrader Marketplace</header>
 
   <div class="container">
-    <!-- Search and Filters -->
-    <div class="filters">
-      <input type="text" id="searchInput" placeholder="Search items..." />
-      <select id="filterCategory">
-        <option value="">All Categories</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Fashion">Fashion</option>
-        <option value="Services">Services</option>
-        <option value="Automobile">Automobile</option>
-        <option value="Real Estate">Real Estate</option>
-        <option value="Other">Other</option>
-      </select>
-      <input type="number" id="minPrice" placeholder="Min Price" />
-      <input type="number" id="maxPrice" placeholder="Max Price" />
-      <input type="text" id="filterLocation" placeholder="Location" />
-    </div>
-
     <!-- Post Product Form -->
     <div class="post-form">
       <h3>Post a New Item</h3>
@@ -96,6 +119,8 @@
         <option value="USD">USD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
+        <option value="CAD">CAD</option>
+        <option value="INR">INR</option>
       </select>
       <input type="text" id="location" placeholder="Location" />
       <select id="category">
@@ -117,20 +142,22 @@
   <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i> Dark</button>
 
   <script>
-    // Firebase config
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
       projectId: "meet-6e159",
       storageBucket: "meet-6e159.firebasestorage.app",
       messagingSenderId: "252353608421",
-      appId: "1:252353608421:web:6706056048e9a8f12db20c"
+      appId: "1:252353608421:web:6706056048e9a8f12db20c",
+      measurementId: "G-9BFPPVMMRF"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Cloudinary
+    // Cloudinary Setup
     const CLOUD_NAME = "dcwof2ngn";
     const UPLOAD_PRESET = "Meet-profile";
 
@@ -146,12 +173,12 @@
       return data.secure_url;
     }
 
-    // Post item
+    // Add Item to Firestore
     document.getElementById("postItemBtn").addEventListener("click", async () => {
       const file = document.getElementById("itemImage").files[0];
       const title = document.getElementById("title").value.trim();
       const description = document.getElementById("description").value.trim();
-      const price = parseFloat(document.getElementById("price").value.trim());
+      const price = document.getElementById("price").value.trim();
       const currency = document.getElementById("currency").value;
       const location = document.getElementById("location").value.trim();
       const category = document.getElementById("category").value;
@@ -162,6 +189,7 @@
       }
 
       const imageUrl = await uploadToCloudinary(file);
+
       await db.collection("marketItems").add({
         title,
         description,
@@ -173,12 +201,16 @@
         userId: auth.currentUser ? auth.currentUser.uid : "guest",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+
       alert("Item posted successfully!");
+      loadItems();
     });
 
-    // Real-time listener
-    db.collection("marketItems").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+    // Load Items
+    async function loadItems() {
       const grid = document.getElementById("marketGrid");
+      grid.innerHTML = "<p>Loading...</p>";
+      const snapshot = await db.collection("marketItems").orderBy("createdAt", "desc").get();
       grid.innerHTML = "";
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -194,50 +226,9 @@
         `;
         grid.innerHTML += card;
       });
-    });
-
-    // Search and filters
-    const searchInput = document.getElementById("searchInput");
-    const filterCategory = document.getElementById("filterCategory");
-    const minPrice = document.getElementById("minPrice");
-    const maxPrice = document.getElementById("maxPrice");
-    const filterLocation = document.getElementById("filterLocation");
-
-    function applyFilters(snapshot) {
-      const grid = document.getElementById("marketGrid");
-      grid.innerHTML = "";
-      const searchText = searchInput.value.toLowerCase();
-      const selectedCategory = filterCategory.value;
-      const minP = parseFloat(minPrice.value) || 0;
-      const maxP = parseFloat(maxPrice.value) || Infinity;
-      const locationFilter = filterLocation.value.toLowerCase();
-
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        if (
-          (!selectedCategory || d.category === selectedCategory) &&
-          (!locationFilter || (d.location && d.location.toLowerCase().includes(locationFilter))) &&
-          (!searchText || (d.title.toLowerCase().includes(searchText) || d.description.toLowerCase().includes(searchText))) &&
-          d.price >= minP && d.price <= maxP
-        ) {
-          grid.innerHTML += `
-            <div class="item-card">
-              <img src="${d.imageUrl}" alt="${d.title}">
-              <div class="item-info">
-                <h4>${d.title}</h4>
-                <p>${d.currency}${d.price}</p>
-                <p>${d.category} • ${d.location || "N/A"}</p>
-              </div>
-            </div>
-          `;
-        }
-      });
     }
 
-    db.collection("marketItems").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-      applyFilters(snapshot);
-      [searchInput, filterCategory, minPrice, maxPrice, filterLocation].forEach(el => el.addEventListener("input", () => applyFilters(snapshot)));
-    });
+    loadItems();
 
     // Theme toggle
     const themeBtn = document.getElementById("themeToggle");
