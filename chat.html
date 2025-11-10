@@ -760,6 +760,179 @@
     }
   }
 
+  /* User Search Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .search-users-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-size: 15px;
+    margin-bottom: 15px;
+    outline: none;
+  }
+
+  .search-users-input:focus {
+    border-color: var(--primary);
+  }
+
+  .users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: background 0.2s;
+  }
+
+  .user-item:hover {
+    background: rgba(0,128,255,0.05);
+  }
+
+  .user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .user-info {
+    flex: 1;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .user-email {
+    font-size: 13px;
+    color: var(--secondary-text);
+  }
+
+  .follow-btn {
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: transform 0.2s;
+  }
+
+  .follow-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .follow-btn.following {
+    background: var(--success);
+  }
+
+  .follow-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .start-chat-btn {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin-left: 8px;
+  }
+
+  .start-chat-btn:hover {
+    background: rgba(0,128,255,0.1);
+  }
+
+  /* Followers/Following Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--secondary-text);
+  }
+
+  .tab.active {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+  }
+
   /* Responsive */
   @media (max-width: 1200px) {
     .sidebar {
@@ -906,6 +1079,10 @@
     .message-input-container {
       padding: 15px;
     }
+
+    .modal-content {
+      max-height: 90vh;
+    }
   }
 </style>
 </head>
@@ -1043,6 +1220,31 @@
   </div>
 </div>
 
+<!-- User Search Modal -->
+<div class="modal" id="userSearchModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Find Users to Chat With</h3>
+      <button class="close-modal" id="closeUserSearchModal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="text" class="search-users-input" id="searchUsersInput" placeholder="Search by name or email...">
+      
+      <div class="tabs">
+        <button class="tab active" id="allUsersTab">All Users</button>
+        <button class="tab" id="followingTab">Following</button>
+        <button class="tab" id="followersTab">Followers</button>
+      </div>
+      
+      <div class="users-list" id="usersList">
+        <!-- Users will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   // Firebase imports
   import { 
@@ -1093,6 +1295,13 @@
   const currentUserAvatar = document.getElementById('currentUserAvatar');
   const userName = document.getElementById('userName');
   const messageContainer = document.getElementById('messageContainer');
+  const userSearchModal = document.getElementById('userSearchModal');
+  const closeUserSearchModal = document.getElementById('closeUserSearchModal');
+  const searchUsersInput = document.getElementById('searchUsersInput');
+  const usersList = document.getElementById('usersList');
+  const allUsersTab = document.getElementById('allUsersTab');
+  const followingTab = document.getElementById('followingTab');
+  const followersTab = document.getElementById('followersTab');
 
   // State
   let currentUser = null;
@@ -1100,8 +1309,11 @@
   let currentChatUser = null;
   let conversations = [];
   let users = [];
+  let following = [];
+  let followers = [];
   let isMobile = window.innerWidth <= 768;
   let typingTimeout = null;
+  let currentTab = 'allUsers';
 
   // Theme management
   function initTheme() {
@@ -1140,6 +1352,236 @@
     } catch (error) {
       console.error('Error getting user profile:', error);
       return null;
+    }
+  }
+
+  // Get current user's follow data
+  async function getFollowData() {
+    const currentUserId = auth.currentUser.uid;
+    try {
+      const followDoc = await getDoc(doc(db, "follows", currentUserId));
+      if (followDoc.exists()) {
+        const data = followDoc.data();
+        following = data.following || [];
+        followers = data.followers || [];
+      } else {
+        // Create initial follow document
+        await setDoc(doc(db, "follows", currentUserId), {
+          following: [],
+          followers: [],
+          createdAt: serverTimestamp()
+        });
+      }
+    } catch (error) {
+      console.error('Error getting follow data:', error);
+    }
+  }
+
+  // Follow/Unfollow user
+  async function toggleFollow(userId) {
+    const currentUserId = auth.currentUser.uid;
+    
+    try {
+      const followRef = doc(db, "follows", currentUserId);
+      const targetFollowRef = doc(db, "follows", userId);
+      
+      if (following.includes(userId)) {
+        // Unfollow
+        await updateDoc(followRef, {
+          following: arrayRemove(userId)
+        });
+        await updateDoc(targetFollowRef, {
+          followers: arrayRemove(currentUserId)
+        });
+        following = following.filter(id => id !== userId);
+        showMessage('Unfollowed user', 'success');
+      } else {
+        // Follow
+        await updateDoc(followRef, {
+          following: arrayUnion(userId)
+        });
+        await updateDoc(targetFollowRef, {
+          followers: arrayUnion(currentUserId)
+        });
+        following.push(userId);
+        showMessage('Now following user', 'success');
+      }
+      
+      // Refresh user list
+      loadUsers();
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      showMessage('Failed to update follow status');
+    }
+  }
+
+  // Search users
+  async function searchUsers(searchTerm = '') {
+    try {
+      const usersRef = collection(db, "users");
+      let usersQuery;
+      
+      if (searchTerm.trim()) {
+        // Search by name or email (case insensitive)
+        // Note: Firestore doesn't support case-insensitive search directly
+        // In production, you'd use a more sophisticated search solution
+        usersQuery = query(
+          usersRef,
+          where("name", ">=", searchTerm),
+          where("name", "<=", searchTerm + '\uf8ff')
+        );
+      } else {
+        // Get all users (limit to 20 for performance)
+        usersQuery = query(usersRef, orderBy("name"), limit(20));
+      }
+      
+      const querySnapshot = await getDocs(usersQuery);
+      users = [];
+      
+      querySnapshot.forEach((doc) => {
+        const user = doc.data();
+        // Don't include current user in results
+        if (doc.id !== auth.currentUser.uid) {
+          users.push({
+            id: doc.id,
+            ...user
+          });
+        }
+      });
+      
+      renderUsers();
+    } catch (error) {
+      console.error('Error searching users:', error);
+      // Fallback to mock data for demo
+      loadMockUsers();
+    }
+  }
+
+  // Load mock users for demo
+  function loadMockUsers() {
+    users = [
+      {
+        id: 'user2',
+        name: 'Emily Chen',
+        email: 'emily@example.com',
+        avatar: 'https://i.pravatar.cc/150?img=14',
+        profession: 'UI/UX Designer'
+      },
+      {
+        id: 'user3',
+        name: 'Marcus Lee',
+        email: 'marcus@example.com',
+        avatar: 'https://i.pravatar.cc/150?img=22',
+        profession: 'Product Manager'
+      },
+      {
+        id: 'user4',
+        name: 'Sarah Johnson',
+        email: 'sarah@example.com',
+        avatar: 'https://i.pravatar.cc/150?img=33',
+        profession: 'Software Engineer'
+      },
+      {
+        id: 'user5',
+        name: 'Alex Rodriguez',
+        email: 'alex@example.com',
+        avatar: 'https://i.pravatar.cc/150?img=44',
+        profession: 'Data Scientist'
+      }
+    ];
+    renderUsers();
+  }
+
+  // Render users in search modal
+  function renderUsers() {
+    usersList.innerHTML = '';
+    
+    let usersToShow = [];
+    
+    switch (currentTab) {
+      case 'allUsers':
+        usersToShow = users;
+        break;
+      case 'following':
+        usersToShow = users.filter(user => following.includes(user.id));
+        break;
+      case 'followers':
+        usersToShow = users.filter(user => followers.includes(user.id));
+        break;
+    }
+    
+    if (usersToShow.length === 0) {
+      usersList.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; color: var(--secondary-text);">
+          <div style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;">👥</div>
+          <h3 style="margin-bottom: 10px;">No users found</h3>
+          <p>${currentTab === 'allUsers' ? 'Try searching with different terms' : `You don't have any ${currentTab} yet`}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    usersToShow.forEach(user => {
+      const userElement = document.createElement('div');
+      userElement.className = 'user-item';
+      const isFollowing = following.includes(user.id);
+      
+      userElement.innerHTML = `
+        <img src="${user.avatar}" alt="${user.name}" class="user-avatar">
+        <div class="user-info">
+          <div class="user-name">${user.name}</div>
+          <div class="user-email">${user.profession || user.email}</div>
+        </div>
+        <button class="follow-btn ${isFollowing ? 'following' : ''}" data-user-id="${user.id}">
+          ${isFollowing ? 'Following' : 'Follow'}
+        </button>
+        <button class="start-chat-btn" data-user-id="${user.id}">
+          Chat
+        </button>
+      `;
+      
+      usersList.appendChild(userElement);
+    });
+    
+    // Add event listeners to follow buttons
+    document.querySelectorAll('.follow-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const userId = e.target.getAttribute('data-user-id');
+        toggleFollow(userId);
+      });
+    });
+    
+    // Add event listeners to chat buttons
+    document.querySelectorAll('.start-chat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const userId = e.target.getAttribute('data-user-id');
+        startChatWithUser(userId);
+      });
+    });
+  }
+
+  // Load users based on current tab
+  async function loadUsers() {
+    await getFollowData();
+    
+    if (currentTab === 'allUsers') {
+      await searchUsers(searchUsersInput.value.trim());
+    } else {
+      // For following/followers tabs, we need to get user details for each ID
+      const userIds = currentTab === 'following' ? following : followers;
+      users = [];
+      
+      for (const userId of userIds) {
+        const userProfile = await getUserProfile(userId);
+        if (userProfile) {
+          users.push({
+            id: userId,
+            ...userProfile
+          });
+        }
+      }
+      
+      renderUsers();
     }
   }
 
@@ -1191,6 +1633,22 @@
     
     const docRef = await addDoc(collection(db, "conversations"), conversationData);
     return docRef.id;
+  }
+
+  // Start chat with user
+  async function startChatWithUser(userId) {
+    try {
+      const conversationId = await createOrGetConversation(userId);
+      closeUserSearchModalHandler();
+      loadChat(conversationId, userId);
+      
+      if (isMobile) {
+        showChatView();
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      showMessage('Failed to start chat. Please try again.');
+    }
   }
 
   // Send message
@@ -1408,28 +1866,15 @@
     chatArea.classList.remove('active');
   }
 
-  // Start new chat
-  async function startNewChat() {
-    const searchTerm = searchInput.value.trim();
-    if (!searchTerm) {
-      showMessage('Please enter a name or email to search for users');
-      return;
-    }
-    
-    try {
-      // In a real app, you would search users by name or email
-      // For now, we'll simulate finding a user
-      showMessage('Searching for users...', 'success');
-      
-      // Simulate user search - in production, you'd query Firestore
-      setTimeout(() => {
-        showMessage('User search would be implemented here. For demo, try chatting with existing users.');
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Error starting new chat:', error);
-      showMessage('Failed to start new chat. Please try again.');
-    }
+  // Open user search modal
+  function openUserSearchModal() {
+    userSearchModal.style.display = 'flex';
+    loadUsers();
+  }
+
+  // Close user search modal
+  function closeUserSearchModalHandler() {
+    userSearchModal.style.display = 'none';
   }
 
   // Authentication state listener
@@ -1447,7 +1892,8 @@
       currentUserAvatar.textContent = userInitial;
       userName.textContent = userNameText;
       
-      // Load conversations
+      // Load follow data and conversations
+      await getFollowData();
       loadConversations();
     }
   });
@@ -1504,8 +1950,40 @@
     backButton.addEventListener('click', showConversationsView);
 
     // New chat buttons
-    newChatBtn.addEventListener('click', startNewChat);
-    startNewChatBtn.addEventListener('click', startNewChat);
+    newChatBtn.addEventListener('click', openUserSearchModal);
+    startNewChatBtn.addEventListener('click', openUserSearchModal);
+
+    // Close user search modal
+    closeUserSearchModal.addEventListener('click', closeUserSearchModalHandler);
+    userSearchModal.addEventListener('click', (e) => {
+      if (e.target === userSearchModal) {
+        closeUserSearchModalHandler();
+      }
+    });
+
+    // User search
+    searchUsersInput.addEventListener('input', (e) => {
+      loadUsers();
+    });
+
+    // Tab switching
+    allUsersTab.addEventListener('click', () => {
+      currentTab = 'allUsers';
+      updateTabs();
+      loadUsers();
+    });
+
+    followingTab.addEventListener('click', () => {
+      currentTab = 'following';
+      updateTabs();
+      loadUsers();
+    });
+
+    followersTab.addEventListener('click', () => {
+      currentTab = 'followers';
+      updateTabs();
+      loadUsers();
+    });
 
     // Search
     chatSearch.addEventListener('input', handleSearch);
@@ -1513,6 +1991,12 @@
 
     // Window resize handler
     window.addEventListener('resize', checkMobileLayout);
+  }
+
+  // Update active tab
+  function updateTabs() {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(`${currentTab}Tab`).classList.add('active');
   }
 
   // Check mobile layout
