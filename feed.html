@@ -1,2078 +1,699 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<!-- FIXED VIEWPORT TAG - PREVENTS ZOOMING -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Feed</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>MEET | Feed — MeetCasts</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
-  :root {
-    --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --bg-color: #f0f2f5;
-    --card-bg: #fff;
-    --text-color: #111;
-    --secondary-text: #65676b;
-    --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
-  }
-
-  body.dark-mode {
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-color: #e4e6eb;
-    --secondary-text: #b0b3b8;
-    --border-color: #3e4042;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Better mobile tapping */
-  }
-
-  /* FIXED HTML AND BODY HEIGHT FOR MOBILE */
-  html, body {
-    height: 100%;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    font-size: 18px; /* Increased default font size */
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #e0f7ff 0%, #b3e0ff 100%);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    min-height: 100vh;
-    /* Improved mobile scrolling */
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-  }
-
-  /* FIXED SIDEBAR - FULL HEIGHT ON MOBILE */
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 20px;
-    transition: all 0.3s ease;
-    color: white;
-    /* Improved mobile scrolling */
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .sidebar-header {
-    padding: 10px 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
-  }
-
-  .sidebar-menu {
-    list-style: none;
-  }
-
-  .sidebar-menu li {
-    margin-bottom: 8px;
-  }
-
-  .sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    text-decoration: none;
-    color: white;
-    border-radius: 8px;
-    transition: background 0.3s;
-    /* Better touch targets on mobile */
-    min-height: 44px;
-    font-size: 18px; /* Increased font size */
-  }
-
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .sidebar-menu i {
-    margin-right: 12px;
-    font-size: 22px; /* Increased icon size */
-  }
-
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    margin-left: 280px;
-    padding: 20px;
-    /* Ensure content doesn't get cut off on mobile */
-    min-height: 100vh;
-    font-size: 18px; /* Increased font size */
-  }
-
-  /* Navbar */
-  .navbar {
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    color: white;
-    /* Better mobile layout */
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .nav-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 8px 15px;
-    margin-right: 15px;
-  }
-
-  .search-bar input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 200px;
-    /* Better mobile input */
-    font-size: 18px; /* Increased font size */
-  }
-
-  .search-bar input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    position: relative;
-    /* Better touch target */
-    min-height: 44px;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    /* Better touch target */
-    min-width: 40px;
-    font-size: 18px; /* Increased font size */
-    overflow: hidden;
-  }
-
-  .user-avatar.small {
-    width: 30px;
-    height: 30px;
-    font-size: 16px; /* Increased font size */
-    min-width: 30px;
-  }
-
-  .user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .user-avatar.small img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .status-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-  }
-
-  .status-online {
-    background-color: var(--online);
-  }
-
-  .status-offline {
-    background-color: var(--offline);
-  }
-
-  .user-profile-nav span {
-    font-size: 16px; /* Increased font size */
-    font-weight: 600;
-  }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px; /* Increased font size */
-    /* Better touch target */
-    min-height: 44px;
-  }
-
-  .btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .btn-secondary {
-    background: var(--secondary-text);
-  }
-
-  /* Post Form - Facebook Style */
-  .post-composer {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .composer-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .composer-input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 12px 16px;
-    border-radius: 25px;
-    color: var(--text-color);
-    font-size: 18px; /* Increased font size */
-    cursor: pointer;
-    /* Better touch target */
-    min-height: 44px;
-  }
-
-  .composer-divider {
-    height: 1px;
-    background: var(--border-color);
-    margin: 16px 0;
-  }
-
-  .composer-actions {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    /* Better touch target */
-    min-height: 44px;
-    font-size: 16px; /* Increased font size */
-  }
-
-  .action-btn:hover {
-    background: var(--bg-color);
-  }
-
-  /* AI Button */
-  .ai-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 99;
-    transition: all 0.3s ease;
-    /* Better touch target */
-    min-width: 60px;
-    min-height: 60px;
-  }
-
-  .ai-button:hover {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-  }
-
-  /* Modal Styles */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px; /* Added padding for mobile */
-  }
-
-  .modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    /* Better mobile modal */
-    width: 100%;
-  }
-
-  .modal-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-body {
-    padding: 16px;
-  }
-
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--secondary-text);
-    /* Better touch target */
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  /* Enhanced Post Form */
-  .post-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post-user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .post-textarea {
-    width: 100%;
-    min-height: 120px;
-    border: 2px solid #0080FF;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 18px; /* Increased font size */
-    resize: none;
-    outline: none;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .media-preview {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .media-preview img,
-  .media-preview video {
-    width: 100%;
-    max-height: 400px; /* Increased size */
-    object-fit: contain;
-    background: var(--bg-color);
-  }
-
-  .remove-media {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    /* Better touch target */
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .post-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    /* Better mobile layout */
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  /* Posts */
-  .posts {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .post-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .post-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-  }
-
-  .post-user:hover .user-name {
-    text-decoration: underline;
-  }
-
-  .post-meta {
-    font-size: 15px; /* Increased font size */
-    color: var(--secondary-text);
-  }
-
-  .post-actions {
-    position: relative;
-  }
-
-  .post-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    padding: 8px;
-    min-width: 150px;
-    z-index: 10;
-    display: none;
-  }
-
-  .post-menu-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /* Better touch target */
-    min-height: 44px;
-    font-size: 16px; /* Increased font size */
-  }
-
-  .post-menu-item:hover {
-    background: var(--bg-color);
-  }
-
-  .post-menu-item.delete {
-    color: var(--error);
-  }
-
-  .post-content {
-    margin-bottom: 12px;
-    font-size: 18px; /* Increased font size */
-    line-height: 1.5;
-  }
-
-  .post-text-truncated {
-    margin-bottom: 8px;
-  }
-
-  .read-more {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .post-media {
-    margin-top: 12px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .post-media img,
-  .post-media video {
-    width: 100%;
-    max-height: 600px; /* Increased size */
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  .post-media img:hover,
-  .post-media video:hover {
-    transform: scale(1.02);
-  }
-
-  .post-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--secondary-text);
-    font-size: 16px; /* Increased font size */
-  }
-
-  .post-interactions {
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
-  }
-
-  .interaction-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    font-weight: 600;
-    /* Better touch target */
-    min-height: 44px;
-    font-size: 16px; /* Increased font size */
-  }
-
-  .interaction-btn:hover {
-    background: var(--bg-color);
-  }
-
-  .interaction-btn.active {
-    color: var(--primary);
-  }
-
-  .comments-section {
-    margin-top: 12px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
-  }
-
-  .comment {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .comment-content {
-    flex: 1;
-    background: var(--bg-color);
-    padding: 8px 12px;
-    border-radius: 18px;
-  }
-
-  .comment-input {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    align-items: center;
-  }
-
-  .comment-input input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 18px;
-    color: var(--text-color);
-    font-size: 16px; /* Increased font size */
-  }
-
-  .send-comment-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s;
-    /* Better touch target */
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .send-comment-btn:hover {
-    background: var(--primary-dark);
-  }
-
-  .send-comment-btn:disabled {
-    background: var(--secondary-text);
-    cursor: not-allowed;
-  }
-
-  .view-more-comments {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-    text-align: center;
-    padding: 8px 0;
-    margin-top: 8px;
-  }
-
-  .comments-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .comments-modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .comments-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .comments-modal-body {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .media-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .media-modal-content {
-    max-width: 90%;
-    max-height: 90vh;
-    position: relative;
-  }
-
-  .media-modal-content img,
-  .media-modal-content video {
-    max-width: 100%;
-    max-height: 90vh;
-    object-fit: contain;
-  }
-
-  .close-media-modal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: var(--secondary-text);
-  }
-
-  .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .success-message {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Post Button in Modal - Reduced length */
-  #postBtn {
-    width: 120px; /* Reduced width */
-    margin: 0 auto; /* Center it */
-  }
-
-  /* IMPROVED RESPONSIVE DESIGN */
-  @media (max-width: 1200px) {
-    .sidebar {
-      width: 80px;
-    }
-    .sidebar span {
-      display: none;
-    }
-    .main-content {
-      margin-left: 80px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    /* FIXED MOBILE SIDEBAR */
-    .sidebar {
-      width: 70px;
-      padding: 10px 5px;
-      height: 100vh; /* Ensure full height */
-    }
-    
-    .sidebar-header {
-      display: none;
-    }
-    
-    .sidebar-menu a {
-      flex-direction: column;
-      padding: 10px 5px;
-      font-size: 12px;
-      justify-content: center;
-      text-align: center;
-    }
-    
-    .sidebar-menu i {
-      margin-right: 0;
-      margin-bottom: 5px;
-      font-size: 18px;
-    }
-    
-    .main-content {
-      margin-left: 70px;
-      padding: 10px;
-      width: calc(100% - 70px); /* Ensure proper width calculation */
-    }
-    
-    .navbar {
-      padding: 12px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-    }
-    
-    .search-bar {
-      display: none;
-    }
-    
-    .user-profile-nav span {
-      display: none;
-    }
-    
-    .nav-controls {
-      gap: 5px;
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .btn span {
-      display: none;
-    }
-    
-    .btn {
-      padding: 8px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    /* Better mobile post composer */
-    .composer-actions {
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .action-btn {
-      justify-content: center;
-    }
-
-    /* Better mobile posts */
-    .post-interactions {
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .interaction-btn {
-      justify-content: center;
-    }
-
-    /* Fix modal for mobile */
-    .modal {
-      padding: 10px;
-    }
-
-    .modal-content {
-      width: 100%;
-      max-width: 100%;
-      margin: 0;
-    }
-  }
-
-  /* Extra small devices */
-  @media (max-width: 480px) {
-    .sidebar {
-      width: 60px;
-    }
-    
-    .main-content {
-      margin-left: 60px;
-      padding: 8px;
-    }
-
-    .navbar h2 {
-      font-size: 18px;
-    }
-
-    .post-composer {
-      padding: 12px;
-    }
-
-    .post {
-      padding: 12px;
-    }
-  }
-
-  /* Fix for very tall screens */
-  @media (min-height: 1000px) {
-    .sidebar {
-      height: 100vh;
-      position: fixed;
-    }
-  }
+  :root{
+    --primary:#0080FF; --primary-dark:#0066CC; --bg:#f0f2f5; --card:#fff;
+    --text:#111; --muted:#65676b; --border:#dddfe2; --success:#10B981; --error:#EF4444;
+  }
+  body.dark-mode { --bg:#18191a; --card:#242526; --text:#e4e6eb; --muted:#b0b3b8; --border:#3e4042;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:'Poppins',sans-serif;font-size:18px;background:linear-gradient(135deg,#e0f7ff 0%,#b3e0ff 100%);color:var(--text)}
+  .app-container{display:flex;min-height:100vh}
+  .sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:linear-gradient(180deg,#0080FF 0%,#00C6FF 100%);padding:20px;color:white;border-right:1px solid rgba(255,255,255,.06)}
+  .sidebar h2{margin-bottom:12px}
+  .sidebar-menu{list-style:none;margin-top:12px}
+  .sidebar-menu a{display:flex;align-items:center;padding:12px;color:white;text-decoration:none;border-radius:8px;font-size:18px}
+  .main-content{flex:1;margin-left:280px;padding:20px;min-height:100vh}
+  .navbar{background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%);padding:15px;border-radius:12px;color:white;display:flex;justify-content:space-between;align-items:center}
+  .user-profile-nav{display:flex;align-items:center;gap:10px}
+  .user-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden}
+  .btn{background:rgba(255,255,255,.15);color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+  .post-composer{background:var(--card);border-radius:12px;padding:16px;margin-top:16px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+  .composer-input{padding:12px;border-radius:25px;border:1px solid var(--border);cursor:pointer;color:var(--muted)}
+  .ai-button{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#00C6FF 0%,#80b3ff 100%);display:flex;align-items:center;justify-content:center;color:white;font-size:22px;z-index:99}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000;padding:20px}
+  .modal-content{background:var(--card);border-radius:12px;padding:16px;width:680px;max-width:100%;max-height:90vh;overflow:auto}
+  .posts{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+  .post{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .post-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .post-user{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .post-content{margin-top:12px;font-size:18px;line-height:1.4}
+  .post-media img, .post-media video{width:100%;height:auto;border-radius:8px;margin-top:12px;object-fit:contain}
+  .post-stats{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border);color:var(--muted)}
+  .post-actions{display:flex;gap:8px;margin-top:8px}
+  .action-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-weight:600;color:var(--muted)}
+  .action-btn.active{color:var(--primary);border-color:var(--primary)}
+  .comments-section{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+  .comment{display:flex;gap:12px;margin-bottom:12px}
+  .comment .user-avatar{width:32px;height:32px;font-size:14px}
+  .comment-input{display:flex;gap:8px;align-items:center}
+  .send-comment-btn{background:var(--primary);color:white;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer}
+  .loading{text-align:center;color:var(--muted);padding:20px}
+  @media(max-width:768px){.sidebar{width:70px}.main-content{margin-left:70px;padding:10px}}
 </style>
 </head>
 <body>
-
 <div class="app-container">
-  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white;">MEET</h2>
-    </div>
+    <h2>MEET</h2>
     <ul class="sidebar-menu">
-      <li><a href="#"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="goToMyProfile()"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="#"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="#"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="#"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="#"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
+      <li><a href="#"><i class="fas fa-compass"></i>&nbsp; <span>Feed</span></a></li>
+      <li><a href="#" onclick="goToMyProfile()"><i class="fas fa-user"></i>&nbsp;<span>Profile</span></a></li>
+      <li><a href="#"><i class="fas fa-comments"></i>&nbsp;<span>Chat</span></a></li>
     </ul>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Navbar -->
     <div class="navbar">
-      <h2 style="color: white;">MEET Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search...">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h3 style="margin:0">MEETCasts</h3>
+        <div style="color:rgba(255,255,255,.9);font-size:14px">Share your MeetCast — promote what matters</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="user-profile-nav" title="Open profile">
+          <div class="user-avatar" id="currentUserAvatar">U</div>
+          <div id="userName" style="color:white;font-weight:600">Guest</div>
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">
-              U
-              <div class="status-indicator status-online"></div>
-            </div>
-            <span id="userName">User</span>
-          </div>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span>Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </button>
-        </div>
+        <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i>&nbsp;<span>Night Mode</span></button>
+        <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>&nbsp;<span>Logout</span></button>
       </div>
     </div>
 
-    <!-- Post Composer -->
+    <!-- Composer -->
     <div class="post-composer">
-      <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">
-          U
-          <div class="status-indicator status-online"></div>
-        </div>
-        <div class="composer-input" id="openComposer">
-          Surprise the world now
-        </div>
-      </div>
-      <div class="composer-divider"></div>
-      <div class="composer-actions">
-        <div class="action-btn">
-          <i class="fas fa-video" style="color: #f02849;"></i>
-          <span>Live Video</span>
-        </div>
-        <div class="action-btn">
-          <i class="fas fa-images" style="color: #45bd62;"></i>
-          <span>Photo/Video</span>
-        </div>
-        <div class="action-btn">
-          <i class="fas fa-laugh" style="color: #f7b928;"></i>
-          <span>Feeling/Activity</span>
-        </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="user-avatar" id="composerAvatar">U</div>
+        <div class="composer-input" id="openComposer" role="button" tabindex="0">Create a MeetCast — share something special</div>
+        <button class="btn" id="newMeetCastBtn" style="margin-left:auto">New MeetCast</button>
       </div>
     </div>
 
-    <!-- AI Button -->
-    <div class="ai-button">
-      <i class="fas fa-robot"></i>
-    </div>
-
-    <!-- Messages -->
-    <div id="messageContainer"></div>
-
-    <!-- Posts Container -->
     <div class="posts" id="postsContainer">
-      <div class="loading">Loading posts...</div>
+      <div class="loading">Loading MeetCasts…</div>
     </div>
   </div>
 </div>
 
-<!-- Post Modal -->
-<div class="modal" id="postModal">
+<!-- MeetCast Modal -->
+<div class="modal" id="meetcastModal">
   <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Post</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="margin:0">Create MeetCast</h3>
+      <button class="btn" id="closeMeetcastModal">&times;</button>
     </div>
-    <div class="modal-body">
-      <div class="post-form">
-        <div class="post-user-info">
-          <div class="user-avatar" id="modalUserAvatar">
-            U
-            <div class="status-indicator status-online"></div>
-          </div>
-          <div>
-            <div class="user-name" id="modalUserName">User Name</div>
-            <select id="privacy" style="border: none; background: var(--bg-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; font-size: 14px;">
-              <option value="public">🌍 Public</option>
-              <option value="friends">👥 Friends</option>
-              <option value="private">🔒 Only Me</option>
-            </select>
-          </div>
+
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="user-avatar" id="modalAvatar">U</div>
+      <div style="flex:1">
+        <input id="meetcastText" placeholder="Write your MeetCast..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:16px" maxlength="800"/>
+        <div id="mediaPreview" style="margin-top:10px"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+          <input type="file" id="meetcastMedia" accept="image/*,video/*" multiple style="display:none"/>
+          <button class="action-btn" onclick="document.getElementById('meetcastMedia').click()"><i class="fas fa-image"></i>&nbsp;Add Media</button>
+          <select id="meetcastPrivacy" style="padding:8px;border-radius:8px;border:1px solid var(--border)">
+            <option value="public">Public</option>
+            <option value="associates">Associates</option>
+            <option value="private">Only me</option>
+          </select>
+          <button class="btn" id="publishMeetcastBtn" style="margin-left:auto;background:linear-gradient(135deg,#0080FF 0%,#00C6FF 100%);color:white">Publish MeetCast</button>
         </div>
-        <textarea class="post-textarea" id="postText" placeholder="Surprise the world now"></textarea>
-        <div class="media-preview" id="mediaPreview"></div>
-        <div class="post-options">
-          <div style="color: var(--secondary-text);">Add to your post</div>
-          <div style="display: flex; gap: 8px;">
-            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;" multiple>
-            <div class="action-btn" onclick="document.getElementById('postMedia').click()">
-              <i class="fas fa-images" style="color: #45bd62;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-user-tag" style="color: #1877f2;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-laugh" style="color: #f7b928;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-map-marker-alt" style="color: #f5533d;"></i>
-            </div>
-          </div>
-        </div>
-        <button class="btn" id="postBtn" style="background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);">
-          <span id="postBtnText">Post</span>
-          <span id="postBtnSpinner" class="spinner" style="display: none;"></span>
-        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Comments Modal -->
-<div class="comments-modal" id="commentsModal">
-  <div class="comments-modal-content">
-    <div class="comments-modal-header">
-      <h3>Comments</h3>
-      <button class="close-modal" id="closeCommentsModal">&times;</button>
+<!-- AI Modal (placeholder) -->
+<div class="modal" id="aiModal">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:0">MEET AI — Suggestions</h3>
+      <button class="btn" id="closeAiModal">&times;</button>
     </div>
-    <div class="comments-modal-body" id="commentsModalBody">
-      <!-- Comments will be loaded here -->
+    <div style="margin-top:12px">
+      <div style="margin-bottom:8px;color:var(--muted)">Ask MEET AI to suggest captions, hashtags or summarize a MeetCast.</div>
+      <textarea id="aiPrompt" placeholder="Describe what you want..." style="width:100%;min-height:120px;padding:10px;border:1px solid var(--border);border-radius:8px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn" id="askAiBtn" style="background:var(--primary);color:white">Ask AI</button>
+        <div id="aiResult" style="flex:1"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Media Modal -->
-<div class="media-modal" id="mediaModal">
-  <div class="media-modal-content">
-    <button class="close-media-modal" id="closeMediaModal">&times;</button>
-    <img id="mediaModalImage" src="" alt="Enlarged media">
-    <video id="mediaModalVideo" controls style="display: none;">
-      Your browser does not support the video tag.
-    </video>
-  </div>
-</div>
+<button class="ai-button" id="openAiBtn" title="MEET AI"><i class="fas fa-robot"></i></button>
 
 <script type="module">
-  // Firebase imports
-  import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+/* ===========================================================
+   MEET Feed — Full script (MeetCast, Star, Associates)
+   Uses Firebase modular SDK v10 (Firestore + Auth)
+   Cloudinary unsigned preset uploads (no secret in client)
+   =========================================================== */
 
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c",
-    measurementId: "G-9BFPPVMMRF"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, addDoc, setDoc, deleteDoc, getDoc, getDocs,
+  onSnapshot, query, orderBy, where, serverTimestamp, runTransaction, limit
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+/* -------------------------
+   YOUR FIREBASE CONFIG
+   ------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+  authDomain: "meet-6e159.firebaseapp.com",
+  databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+  projectId: "meet-6e159",
+  storageBucket: "meet-6e159.appspot.com",
+  messagingSenderId: "252353608421",
+  appId: "1:252353608421:web:6706056048e9a8f12db20c",
+  measurementId: "G-9BFPPVMMRF"
+};
 
-  // Cloudinary configuration
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_API_KEY = '767477973776429';
-  const CLOUDINARY_API_SECRET = '3n8OO8MaqD6SZN-AGnLaIIulGW0';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+/* -------------------------
+   CLOUDINARY (unsigned preset)
+   Make sure you created an unsigned upload preset in Cloudinary
+   ------------------------- */
+const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
+const CLOUDINARY_UPLOAD_PRESET = 'Meet_video'; // unsigned preset
+const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
 
-  // DOM elements
-  const postsContainer = document.getElementById('postsContainer');
-  const postBtn = document.getElementById('postBtn');
-  const postText = document.getElementById('postText');
-  const postMedia = document.getElementById('postMedia');
-  const privacySelect = document.getElementById('privacy');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const messageContainer = document.getElementById('messageContainer');
-  const nightToggleBtn = document.getElementById('nightToggleBtn');
-  const postModal = document.getElementById('postModal');
-  const openComposer = document.getElementById('openComposer');
-  const closeModal = document.getElementById('closeModal');
-  const mediaPreview = document.getElementById('mediaPreview');
-  const currentUserAvatar = document.getElementById('currentUserAvatar');
-  const currentUserAvatarComposer = document.getElementById('currentUserAvatarComposer');
-  const modalUserAvatar = document.getElementById('modalUserAvatar');
-  const modalUserName = document.getElementById('modalUserName');
-  const userName = document.getElementById('userName');
-  
-  // New modal elements
-  const commentsModal = document.getElementById('commentsModal');
-  const closeCommentsModal = document.getElementById('closeCommentsModal');
-  const commentsModalBody = document.getElementById('commentsModalBody');
-  const mediaModal = document.getElementById('mediaModal');
-  const closeMediaModal = document.getElementById('closeMediaModal');
-  const mediaModalImage = document.getElementById('mediaModalImage');
-  const mediaModalVideo = document.getElementById('mediaModalVideo');
+/* -------------------------
+   DOM refs
+   ------------------------- */
+const postsContainer = document.getElementById('postsContainer');
+const openComposer = document.getElementById('openComposer');
+const meetcastModal = document.getElementById('meetcastModal');
+const closeMeetcastModal = document.getElementById('closeMeetcastModal');
+const newMeetCastBtn = document.getElementById('newMeetCastBtn');
+const publishMeetcastBtn = document.getElementById('publishMeetcastBtn');
+const meetcastText = document.getElementById('meetcastText');
+const meetcastMedia = document.getElementById('meetcastMedia');
+const mediaPreview = document.getElementById('mediaPreview');
+const modalAvatar = document.getElementById('modalAvatar');
+const modalUserName = document.getElementById('userName');
+const currentUserAvatar = document.getElementById('currentUserAvatar');
+const composerAvatar = document.getElementById('composerAvatar');
+const nightToggleBtn = document.getElementById('nightToggleBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const openAiBtn = document.getElementById('openAiBtn');
+const aiModal = document.getElementById('aiModal');
+const closeAiModal = document.getElementById('closeAiModal');
+const askAiBtn = document.getElementById('askAiBtn');
+const aiPrompt = document.getElementById('aiPrompt');
+const aiResult = document.getElementById('aiResult');
 
-  // Global variables
-  let currentUser = null;
-  let postListeners = {};
+let currentUser = null;
+let postUnsubs = {};
 
-  // Theme management
-  function initTheme() {
-    const savedTheme = localStorage.getItem('meet_theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-mode');
-      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
-    } else {
-      document.body.classList.remove('dark-mode');
-      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
+/* -------------------------
+   THEME
+   ------------------------- */
+function initTheme(){
+  const t = localStorage.getItem('meet_theme');
+  if(t==='dark'){ document.body.classList.add('dark-mode'); nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i>&nbsp;<span>Day Mode</span>'; }
+  else { document.body.classList.remove('dark-mode'); nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i>&nbsp;<span>Night Mode</span>'; }
+}
+initTheme();
+nightToggleBtn.addEventListener('click', ()=> {
+  if(document.body.classList.contains('dark-mode')){ document.body.classList.remove('dark-mode'); localStorage.setItem('meet_theme','light'); nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i>&nbsp;<span>Night Mode</span>' }
+  else { document.body.classList.add('dark-mode'); localStorage.setItem('meet_theme','dark'); nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i>&nbsp;<span>Day Mode</span>' }
+});
+
+/* -------------------------
+   UTIL: show message
+   ------------------------- */
+function showMessage(msg, type='error'){
+  const el = document.createElement('div');
+  el.className = type === 'success' ? 'success-message' : 'error-message';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 4500);
+}
+
+/* -------------------------
+   CLOUDINARY UPLOAD
+   ------------------------- */
+async function uploadToCloudinary(file){
+  if(!file) return null;
+  if(file.size > 20 * 1024 * 1024) throw new Error('File too large; max 20MB');
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+  if(!res.ok){ const err = await res.json().catch(()=>null); throw new Error(err?.error?.message || 'Upload failed'); }
+  const data = await res.json();
+  return data.secure_url;
+}
+
+/* -------------------------
+   CREATE MeetCast (post)
+   - Stores author info inside the post for fast reads
+   - Adds starCount: 0
+   ------------------------- */
+async function createMeetCast(text, files, privacy='public'){
+  const user = auth.currentUser;
+  if(!user) throw new Error('Sign in to publish');
+
+  // upload media sequentially (you can parallelize as needed)
+  const mediaUrls = [];
+  if(files && files.length){
+    for(const f of files){
+      mediaUrls.push(await uploadToCloudinary(f));
     }
   }
 
-  // Message display
-  function showMessage(message, type = 'error') {
-    messageContainer.innerHTML = `<div class="${type === 'success' ? 'success-message' : 'error-message'}">${message}</div>`;
-    setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
-  }
+  await addDoc(collection(db,'posts'), {
+    userId: user.uid,
+    userName: user.displayName || 'Anonymous',
+    userPhotoURL: user.photoURL || null,
+    userInitial: (user.displayName && user.displayName.charAt(0)) ? user.displayName.charAt(0).toUpperCase() : 'U',
+    text: text || '',
+    media: mediaUrls,
+    privacy: privacy,
+    starCount: 0,
+    timestamp: serverTimestamp()
+  });
+}
 
-  // Loading state
-  function setLoading(buttonId, isLoading) {
-    const button = document.getElementById(buttonId);
-    const text = button.querySelector('span:first-child');
-    const spinner = button.querySelector('.spinner');
-    
-    if (isLoading) {
-      button.disabled = true;
-      text.style.display = 'none';
-      spinner.style.display = 'inline-block';
-    } else {
-      button.disabled = false;
-      text.style.display = 'inline-block';
-      spinner.style.display = 'none';
-    }
-  }
+/* -------------------------
+   STAR (like) toggle
+   ensures atomic update of starCount + star doc
+   path: posts/{postId}/stars/{uid}
+   ------------------------- */
+async function toggleStar(postId){
+  const user = auth.currentUser;
+  if(!user) { showMessage('Please sign in to vibe', 'error'); return; }
+  const postRef = doc(db,'posts',postId);
+  const starRef = doc(db,'posts',postId,'stars',user.uid);
 
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('File size too large. Maximum 10MB.');
-    }
+  try{
+    await runTransaction(db, async (tx) => {
+      const postSnap = await tx.get(postRef);
+      if(!postSnap.exists()) throw new Error('MeetCast no longer exists');
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("api_key", CLOUDINARY_API_KEY);
-    
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
+      const starSnap = await tx.get(starRef);
+      const currentCount = postSnap.data().starCount || 0;
+
+      if(starSnap.exists()){
+        // user already starred -> remove
+        tx.delete(starRef);
+        tx.update(postRef, { starCount: Math.max(0, currentCount - 1) });
+      } else {
+        // add star doc
+        tx.set(starRef, { userId: user.uid, userName: user.displayName || 'Anonymous', userPhotoURL: user.photoURL || null, timestamp: serverTimestamp() });
+        tx.update(postRef, { starCount: currentCount + 1 });
       }
-      
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload media. Please try again.');
-    }
-  }
-
-  // CREATE POST
-  async function createPost(text, files, privacy) {
-    const user = auth.currentUser;
-    if (!user) throw new Error("Please login first!");
-
-    let mediaUrls = [];
-    if (files && files.length > 0) {
-      for (let file of files) {
-        const mediaUrl = await uploadMedia(file);
-        mediaUrls.push(mediaUrl);
-      }
-    }
-
-    await addDoc(collection(db, "posts"), {
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: user.photoURL || null,
-      text: text,
-      media: mediaUrls,
-      privacy: privacy,
-      timestamp: serverTimestamp(),
     });
+  } catch(err){
+    console.error('toggleStar error', err);
+    showMessage('Failed to update star. Try again.');
   }
+}
 
-  // TOGGLE LIKE - USING SUBCOLLECTION APPROACH
-  async function toggleLike(postId) {
-    const user = auth.currentUser;
-    if (!user) return;
+/* -------------------------
+   Comments -> Responses
+   path: posts/{postId}/responses/{id}
+   ------------------------- */
+async function addResponse(postId, text){
+  const user = auth.currentUser;
+  if(!user) return;
+  if(!text || !text.trim()) return;
+  await addDoc(collection(db,'posts',postId,'responses'), {
+    userId: user.uid,
+    userName: user.displayName || 'Anonymous',
+    userPhotoURL: user.photoURL || null,
+    text: text.trim(),
+    timestamp: serverTimestamp()
+  });
+}
 
-    const likeRef = doc(db, "posts", postId, "likes", user.uid);
-    const likeSnap = await getDoc(likeRef);
+/* -------------------------
+   Associates (follow/unfollow) — a simple unidirectional associate:
+   - users/{uid}/associates/{otherUid}
+   - users/{otherUid}/associatesFollowers/{uid}
+   ------------------------- */
+async function addAssociate(targetUid){
+  const user = auth.currentUser;
+  if(!user) return;
+  try{
+    await setDoc(doc(db,'users',user.uid,'associates',targetUid), { createdAt: serverTimestamp() });
+    await setDoc(doc(db,'users',targetUid,'associatesFollowers',user.uid), { createdAt: serverTimestamp() });
+    showMessage('Associated successfully', 'success');
+  } catch(e){ console.error(e); showMessage('Failed to associate'); }
+}
 
-    if (likeSnap.exists()) {
-      // Unlike: remove the like document
-      await deleteDoc(likeRef);
-    } else {
-      // Like: create a like document
-      await setDoc(likeRef, {
-        userId: user.uid,
-        userName: user.displayName || "Anonymous",
-        userPhotoURL: user.photoURL || null,
-        timestamp: serverTimestamp()
+async function removeAssociate(targetUid){
+  const user = auth.currentUser;
+  if(!user) return;
+  try{
+    await deleteDoc(doc(db,'users',user.uid,'associates',targetUid));
+    await deleteDoc(doc(db,'users',targetUid,'associatesFollowers',user.uid));
+    showMessage('No longer associated', 'success');
+  } catch(e){ console.error(e); showMessage('Failed to remove association'); }
+}
+
+/* -------------------------
+   Real-time feed (MeetCasts)
+   - listens to posts collection ordered by timestamp desc
+   - for each post we subscribe to stars & responses subcollections
+   - we render using renderMeetCast()
+   ------------------------- */
+
+function clearPostListeners(){
+  Object.values(postUnsubs).forEach(fn => fn && fn());
+  postUnsubs = {};
+}
+
+function setupRealtimeFeed(){
+  const q = query(collection(db,'posts'), orderBy('timestamp','desc'));
+  // top-level listener
+  onSnapshot(q, snapshot => {
+    clearPostListeners();
+    postsContainer.innerHTML = '';
+    if(snapshot.empty){ postsContainer.innerHTML = '<div class="loading">No MeetCasts yet — be first to publish!</div>'; return; }
+
+    snapshot.docs.forEach(docSnap => {
+      const postId = docSnap.id;
+      const postData = docSnap.data();
+      // Only render if viewable according to privacy (simple rules)
+      if(!canViewMeetCast(postData)) return;
+      // subscribe to stars and responses counts
+      const starsQ = query(collection(db,'posts',postId,'stars'));
+      const starsUnsub = onSnapshot(starsQ, starsSnap => {
+        const starCount = starsSnap.size;
+        // check if current user starred
+        const userStarred = !!starsSnap.docs.find(d => d.id === (currentUser?.uid || ''));
+        // For responses
+        const responsesQ = query(collection(db,'posts',postId,'responses'), orderBy('timestamp','asc'), limit(100));
+        const responsesUnsub = onSnapshot(responsesQ, resSnap => {
+          const responses = resSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          // initial render or update existing post DOM
+          renderMeetCast(postId, postData, starCount, userStarred, responses);
+        });
+        // store nested unsub
+        postUnsubs[postId] = () => { starsUnsub(); responsesUnsub(); };
       });
-    }
-  }
-
-  // ADD COMMENT - USING SUBCOLLECTION APPROACH
-  async function addComment(postId, commentText) {
-    const user = auth.currentUser;
-    if (!user || !commentText.trim()) return;
-
-    const commentsRef = collection(db, "posts", postId, "comments");
-    
-    await addDoc(commentsRef, {
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: user.photoURL || null,
-      text: commentText,
-      timestamp: serverTimestamp()
     });
+  }, err => {
+    console.error('feed listener error', err);
+    postsContainer.innerHTML = '<div class="error-message">Failed loading feed — refresh the page.</div>';
+  });
+}
+
+/* -------------------------
+   Privacy check (simple)
+   - public: anyone signed in sees
+   - associates: only users who are associated (or post owner) sees
+   - private: owner only
+   ------------------------- */
+async function isAssociatedWith(viewerUid, ownerUid){
+  if(!viewerUid || !ownerUid) return false;
+  const ref = doc(db,'users',ownerUid,'associatesFollowers',viewerUid);
+  const snap = await getDoc(ref);
+  return snap.exists();
+}
+
+function canViewMeetCast(post){
+  // if no auth, don't show (your previous rules required auth)
+  if(!currentUser) return false;
+  if(!post.privacy || post.privacy === 'public') return true;
+  if(post.privacy === 'private' && post.userId === currentUser.uid) return true;
+  // associates: show if viewer is associate follower of author OR author is viewer
+  if(post.privacy === 'associates'){
+    if(post.userId === currentUser.uid) return true;
+    // we cannot await here in the top-level listener; assume true and filter later in render, or do a synchronous check above.
+    // For simplicity, allow for now and double-check in renderMeetCast with a quick isAssociatedWith call.
+    return true;
   }
+  return false;
+}
 
-  // DELETE POST
-  async function deletePost(postId) {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      showMessage('Post deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      showMessage('Failed to delete post. Please try again.');
-    }
-  }
+/* -------------------------
+   Helper: fetch user profile fallback
+   used when post doesn't include userPhotoURL
+   ------------------------- */
+const userCache = {};
+async function getUserProfile(uid){
+  if(!uid) return null;
+  if(userCache[uid]) return userCache[uid];
+  try{
+    const snap = await getDoc(doc(db,'users',uid));
+    if(snap.exists()){ userCache[uid] = snap.data(); return userCache[uid]; }
+    return null;
+  }catch(e){ console.error(e); return null; }
+}
 
-  // ASSOCIATE SYSTEM FUNCTIONS
-  async function followUser(userIdToFollow) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const followRef = doc(db, "users", user.uid, "following", userIdToFollow);
-        await setDoc(followRef, {
-            timestamp: serverTimestamp()
-        });
-        
-        const followerRef = doc(db, "users", userIdToFollow, "followers", user.uid);
-        await setDoc(followerRef, {
-            timestamp: serverTimestamp()
-        });
-        
-        showMessage('You are now associates!', 'success');
-    } catch (error) {
-        console.error('Error following user:', error);
-        showMessage('Failed to follow user. Please try again.');
-    }
-  }
-
-  async function unfollowUser(userIdToUnfollow) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const followRef = doc(db, "users", user.uid, "following", userIdToUnfollow);
-        await deleteDoc(followRef);
-        
-        const followerRef = doc(db, "users", userIdToUnfollow, "followers", user.uid);
-        await deleteDoc(followerRef);
-        
-        showMessage('You are no longer associates.', 'success');
-    } catch (error) {
-        console.error('Error unfollowing user:', error);
-        showMessage('Failed to unfollow user. Please try again.');
-    }
-  }
-
-  async function checkIfFollowing(userId) {
-    const user = auth.currentUser;
-    if (!user) return false;
-
-    const followRef = doc(db, "users", user.uid, "following", userId);
-    const followSnap = await getDoc(followRef);
-    return followSnap.exists();
-  }
-
-  async function getFollowerCount(userId) {
-    const followersRef = collection(db, "users", userId, "followers");
-    const followersSnap = await getDocs(followersRef);
-    return followersSnap.size;
-  }
-
-  async function getFollowingCount(userId) {
-    const followingRef = collection(db, "users", userId, "following");
-    const followingSnap = await getDocs(followingRef);
-    return followingSnap.size;
-  }
-
-  // Authentication state listener
-  onAuthStateChanged(auth, user => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
-      currentUser = user;
-      // Update user info in UI
-      const userNameText = user.displayName || 'User';
-      const userInitial = userNameText.charAt(0).toUpperCase();
-      
-      // Function to update avatar with profile picture
-      const updateAvatar = (element, initial) => {
-        if (user.photoURL) {
-          element.innerHTML = `<img src="${user.photoURL}" alt="${userNameText}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>`;
-        } else {
-          element.textContent = initial;
-        }
-      };
-      
-      updateAvatar(currentUserAvatar, userInitial);
-      updateAvatar(currentUserAvatarComposer, userInitial);
-      updateAvatar(modalUserAvatar, userInitial);
-      
-      modalUserName.textContent = userNameText;
-      userName.textContent = userNameText;
-      
-      setupRealTimeListener();
-    }
-  });
-
-  // Logout functionality
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      window.location.href = 'login.html';
-    } catch (error) {
-      console.error('Logout error:', error);
-      showMessage('Failed to logout. Please try again.');
-    }
-  });
-
-  // Theme toggle
-  nightToggleBtn.addEventListener('click', () => {
-    if (document.body.classList.contains('dark-mode')) {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('meet_theme', 'light');
-      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
-    } else {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('meet_theme', 'dark');
-      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
-    }
-  });
-
-  // Modal controls
-  openComposer.addEventListener('click', () => {
-    postModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Prevent background scroll
-  });
-
-  closeModal.addEventListener('click', () => {
-    postModal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore scroll
-    resetPostForm();
-  });
-
-  // Close modal when clicking outside
-  postModal.addEventListener('click', (e) => {
-    if (e.target === postModal) {
-      postModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      resetPostForm();
-    }
-  });
-
-  // Comments modal controls
-  closeCommentsModal.addEventListener('click', () => {
-    commentsModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  commentsModal.addEventListener('click', (e) => {
-    if (e.target === commentsModal) {
-      commentsModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-  });
-
-  // Media modal controls
-  closeMediaModal.addEventListener('click', () => {
-    mediaModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    mediaModalVideo.pause();
-  });
-
-  mediaModal.addEventListener('click', (e) => {
-    if (e.target === mediaModal) {
-      mediaModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      mediaModalVideo.pause();
-    }
-  });
-
-  // Media preview
-  postMedia.addEventListener('change', function(e) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    mediaPreview.innerHTML = '';
-    
-    for (let file of files) {
-      if (file.size > MAX_FILE_SIZE) {
-        showMessage('File size too large. Maximum 10MB.');
-        postMedia.value = '';
+/* -------------------------
+   RENDER MeetCast
+   - creates or updates DOM for each post id
+   ------------------------- */
+function renderMeetCast(id, data, starCount=0, userStarred=false, responses=[]){
+  // If privacy is 'associates', ensure viewer is associate (async check)
+  if(data.privacy === 'associates' && data.userId !== (currentUser && currentUser.uid)){
+    isAssociatedWith(currentUser?.uid, data.userId).then(isAssoc => {
+      if(!isAssoc) {
+        // remove existing DOM if present
+        const dom = document.querySelector(`[data-post-id="${id}"]`);
+        if(dom) dom.remove();
         return;
       }
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const isVideo = file.type.startsWith('video/');
-        const mediaElement = document.createElement('div');
-        mediaElement.style.position = 'relative';
-        mediaElement.style.marginBottom = '10px';
-        mediaElement.innerHTML = `
-          ${isVideo ? 
-            `<video controls style="width: 100%; max-height: 300px; object-fit: contain; background: var(--bg-color);"><source src="${e.target.result}" type="${file.type}"></video>` : 
-            `<img src="${e.target.result}" alt="Preview" style="width: 100%; max-height: 300px; object-fit: contain; background: var(--bg-color);">`
-          }
-          <button class="remove-media" onclick="this.parentElement.remove()">&times;</button>
-        `;
-        mediaPreview.appendChild(mediaElement);
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function removeMedia() {
-    mediaPreview.innerHTML = '';
-    postMedia.value = '';
+      // if associated show the post by calling render again but now allowed
+      actuallyRender();
+    }).catch(err => { console.error(err); });
+  } else {
+    actuallyRender();
   }
 
-  function resetPostForm() {
-    postText.value = '';
-    removeMedia();
-  }
-
-  // Create post
-  postBtn.addEventListener('click', async () => {
-    const text = postText.value.trim();
-    const mediaFiles = postMedia.files;
-    const privacy = privacySelect.value;
-
-    if (!text && (!mediaFiles || mediaFiles.length === 0)) {
-      showMessage('Please add some text or media to your post!');
-      return;
+  async function actuallyRender(){
+    // ensure we show author photo (use post's userPhotoURL or fallback to user profile)
+    let authorPhoto = data.userPhotoURL || null;
+    if(!authorPhoto){
+      const profile = await getUserProfile(data.userId);
+      authorPhoto = profile?.photoURL || null;
     }
 
-    if (text.length > 500) {
-      showMessage('Post text is too long. Maximum 500 characters.');
-      return;
-    }
+    // find existing element
+    let postEl = document.querySelector(`[data-post-id="${id}"]`);
+    const isOwner = currentUser && data.userId === currentUser.uid;
 
-    setLoading('postBtn', true);
+    // compose user avatar html
+    const avatarHtml = authorPhoto ? `<img src="${authorPhoto}" alt="${data.userName || 'User'}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (data.userInitial || 'U');
 
-    try {
-      await createPost(text, mediaFiles, privacy);
-      resetPostForm();
-      postModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      showMessage('Post created successfully!', 'success');
-    } catch (error) {
-      console.error('Post creation error:', error);
-      if (error.message.includes('File size too large')) {
-        showMessage('File size too large. Maximum 10MB.');
-      } else {
-        showMessage('Failed to create post. Please try again.');
-      }
-    } finally {
-      setLoading('postBtn', false);
-    }
-  });
+    const truncated = (data.text && data.text.length > 300) ? (data.text.substring(0,300) + '...') : (data.text || '');
 
-  // Setup real-time listener for all posts (sorted by recent)
-  const setupRealTimeListener = () => {
-    const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-    
-    onSnapshot(postsQuery, (snapshot) => {
-      // Clean up previous listeners
-      Object.values(postListeners).forEach(unsubscribe => unsubscribe());
-      postListeners = {};
-
-      postsContainer.innerHTML = "";
-      snapshot.docs.forEach((doc) => {
-        const post = doc.data();
-        if (canViewPost(post)) {
-          setupPostWithRealtimeData(doc.id, post);
-        }
-      });
-      
-      if (snapshot.empty) {
-        postsContainer.innerHTML = '<div class="loading">No posts yet. Be the first to post!</div>';
-      }
-    }, error => {
-      console.error('Real-time listener error:', error);
-      postsContainer.innerHTML = '<div class="error-message">Failed to load posts. Please refresh the page.</div>';
-    });
-  };
-
-  // Setup individual post with real-time likes and comments
-  async function setupPostWithRealtimeData(postId, postData) {
-    const user = auth.currentUser;
-    
-    // Set up real-time listener for likes
-    const likesQuery = query(collection(db, "posts", postId, "likes"));
-    const unsubscribeLikes = onSnapshot(likesQuery, (likesSnapshot) => {
-      const likeCount = likesSnapshot.size;
-      const isLiked = likesSnapshot.docs.some(doc => doc.id === user.uid);
-      updatePostLikeUI(postId, likeCount, isLiked);
-    });
-
-    // Set up real-time listener for comments
-    const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-    const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
-      const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      updatePostCommentsUI(postId, comments);
-    });
-
-    // Store unsubscribe functions
-    postListeners[postId] = () => {
-      unsubscribeLikes();
-      unsubscribeComments();
-    };
-
-    // Initial render
-    renderPost(postId, postData, 0, false, []);
-  }
-
-  // Update post like UI
-  function updatePostLikeUI(postId, likeCount, isLiked) {
-    const likeBtn = document.querySelector(`[data-post-id="${postId}"] .interaction-btn`);
-    const likeStats = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
-    
-    if (likeBtn) {
-      if (isLiked) {
-        likeBtn.classList.add('active');
-      } else {
-        likeBtn.classList.remove('active');
-      }
-    }
-    
-    if (likeStats) {
-      const commentCount = document.querySelectorAll(`[data-post-id="${postId}"] .comments-section .comment`).length;
-      likeStats.textContent = `${likeCount} likes • ${commentCount} comments`;
-    }
-  }
-
-  // Update post comments UI
-  function updatePostCommentsUI(postId, comments) {
-    const commentsSection = document.querySelector(`[data-post-id="${postId}"] .comments-section`);
-    if (!commentsSection) return;
-
-    // Show only the last 2 comments
-    const displayedComments = comments.slice(-2);
-    const totalComments = comments.length;
-
-    let commentsHtml = displayedComments.map(comment => {
-      const commentAvatar = comment.userPhotoURL ? 
-        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        comment.userInitial || 'U';
-      
-      return `
-        <div class="comment">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
-          <div class="comment-content">
-            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-            <div>${escapeHtml(comment.text)}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Add "View more" button if there are more than 2 comments
-    if (totalComments > 2) {
-      commentsHtml += `
-        <div class="view-more-comments" onclick="openCommentsModal('${postId}')">
-          View ${totalComments - 2} more comments
-        </div>
-      `;
-    }
-
-    const existingComments = commentsSection.querySelectorAll('.comment:not(.comment-input), .view-more-comments');
-    existingComments.forEach(comment => comment.remove());
-    
-    const commentInput = commentsSection.querySelector('.comment-input');
-    if (commentInput) {
-      commentsSection.insertAdjacentHTML('afterbegin', commentsHtml);
-    }
-
-    // Update comment count in stats
-    const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
-    if (statsElement) {
-      const likeCount = document.querySelector(`[data-post-id="${postId}"] .interaction-btn.active`) ? 1 : 0;
-      statsElement.textContent = `${likeCount} likes • ${totalComments} comments`;
-    }
-  }
-
-  // Open comments modal
-  window.openCommentsModal = async (postId) => {
-    const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-    const commentsSnapshot = await getDocs(commentsQuery);
-    const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
-    let commentsHtml = comments.map(comment => {
-      const commentAvatar = comment.userPhotoURL ? 
-        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        comment.userInitial || 'U';
-      
-      return `
-        <div class="comment" style="margin-bottom: 16px;">
-          <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
-          <div class="comment-content" style="flex: 1;">
-            <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-            <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
-            <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-    commentsModalBody.innerHTML = commentsHtml;
-    commentsModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  };
-
-  // Open media modal
-  window.openMediaModal = (mediaUrl, isVideo = false) => {
-    if (isVideo) {
-      mediaModalImage.style.display = 'none';
-      mediaModalVideo.style.display = 'block';
-      mediaModalVideo.src = mediaUrl;
-    } else {
-      mediaModalImage.style.display = 'block';
-      mediaModalVideo.style.display = 'none';
-      mediaModalImage.src = mediaUrl;
-    }
-    
-    mediaModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  };
-
-  // Check post privacy
-  const canViewPost = (post) => {
-    const user = auth.currentUser;
-    if (!user) return false;
-    
-    if (post.privacy === 'public') return true;
-    if (post.privacy === 'friends') {
-      return true; 
-    }
-    if (post.privacy === 'private' && post.userId === user.uid) return true;
-    return false;
-  };
-
-  // Render post with all features
-  const renderPost = (id, data, likeCount = 0, isLiked = false, comments = []) => {
-    const postEl = document.createElement('div');
-    postEl.classList.add('post');
-    postEl.setAttribute('data-post-id', id);
-    
-    const user = auth.currentUser;
-    const isOwner = data.userId === user.uid;
-    
-    // Use profile picture if available, otherwise fallback to initial
-    const userAvatar = data.userPhotoURL ? 
-      `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-      data.userInitial || 'U';
-    
-    // Truncate long posts
-    const maxLength = 200;
-    let postContentHtml = '';
-    if (data.text && data.text.length > maxLength) {
-      postContentHtml = `
-        <div class="post-text-truncated">
-          ${escapeHtml(data.text.substring(0, maxLength))}...
-          <span class="read-more" onclick="toggleReadMore(this)">Read more</span>
-        </div>
-        <div class="post-text-full" style="display: none;">
-          ${escapeHtml(data.text)}
-          <span class="read-less" onclick="toggleReadLess(this)" style="color: var(--primary); cursor: pointer; font-weight: 600;"> Read less</span>
-        </div>
-      `;
-    } else {
-      postContentHtml = escapeHtml(data.text || '');
-    }
-    
-    // Media HTML
+    // media html
     let mediaHtml = '';
-    if (data.media && data.media.length > 0) {
-      if (data.media.length === 1) {
-        const media = data.media[0];
-        const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i);
-        mediaHtml = `
-          <div class="post-media" onclick="openMediaModal('${media}', ${isVideo})">
-            ${isVideo ? 
-              `<video controls><source src="${media}"></video>` : 
-              `<img src="${media}" loading="lazy">`
-            }
-          </div>
-        `;
+    if(Array.isArray(data.media) && data.media.length){
+      if(data.media.length === 1){
+        const m = data.media[0];
+        const isVideo = /\.(mp4|webm|mov|avi)$/i.test(m);
+        mediaHtml = `<div class="post-media" onclick="openMediaModal('${m}', ${isVideo})">${ isVideo ? `<video controls src="${m}"></video>` : `<img src="${m}" loading="lazy">` }</div>`;
       } else {
-        // Multiple media
-        mediaHtml = '<div class="post-media" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">';
-        data.media.forEach((media, index) => {
-          const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i);
-          mediaHtml += `
-            <div onclick="openMediaModal('${media}', ${isVideo})" style="cursor: pointer;">
-              ${isVideo ? 
-                `<video style="width: 100%; height: 200px; object-fit: cover;"><source src="${media}"></video>` : 
-                `<img src="${media}" style="width: 100%; height: 200px; object-fit: cover;" loading="lazy">`
-              }
-            </div>
-          `;
+        mediaHtml = '<div class="post-media" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+        data.media.forEach(m => {
+          const isVideo = /\.(mp4|webm|mov|avi)$/i.test(m);
+          mediaHtml += `<div onclick="openMediaModal('${m}', ${isVideo})" style="cursor:pointer">${ isVideo ? `<video style="width:100%;height:150px;object-fit:cover" src="${m}"></video>` : `<img style="width:100%;height:150px;object-fit:cover" src="${m}" loading="lazy">` }</div>`;
         });
         mediaHtml += '</div>';
       }
     }
-    
-    postEl.innerHTML = `
+
+    const responsesHtml = responses.slice(-2).map(r => {
+      const rAvatar = r.userPhotoURL ? `<img src="${r.userPhotoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (r.userInitial || 'U');
+      return `<div class="comment"><div class="user-avatar">${rAvatar}</div><div class="comment-content"><div style="font-weight:600;color:var(--primary)">${escapeHtml(r.userName||'User')}</div><div>${escapeHtml(r.text)}</div></div></div>`;
+    }).join('');
+
+    const inner = `
       <div class="post-header">
         <div class="post-user" onclick="viewProfile('${data.userId}')">
-          <div class="user-avatar">${userAvatar}</div>
+          <div class="user-avatar">${avatarHtml}</div>
           <div>
-            <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
-            <div class="post-meta">
-              ${formatTimestamp(data.timestamp)} • 
-              ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}
-            </div>
+            <div style="font-weight:700;color:var(--primary)">${escapeHtml(data.userName||'Anonymous')}</div>
+            <div style="color:var(--muted);font-size:13px">${formatTimestamp(data.timestamp)} • ${data.privacy === 'public' ? 'Public' : data.privacy === 'associates' ? 'Associates' : 'Only me'}</div>
           </div>
         </div>
-        ${isOwner ? `
-          <div class="post-actions">
-            <i class="fas fa-ellipsis-h" style="cursor: pointer;" onclick="togglePostMenu('${id}')"></i>
-            <div class="post-menu" id="menu-${id}">
-              <div class="post-menu-item" onclick="editPost('${id}')">
-                <i class="fas fa-edit"></i> Edit
-              </div>
-              <div class="post-menu-item delete" onclick="deletePost('${id}')">
-                <i class="fas fa-trash"></i> Delete
-              </div>
-            </div>
-          </div>
-        ` : ''}
+        ${isOwner ? `<div style="display:flex;gap:8px"><button class="action-btn" onclick="editMeetCast('${id}')">Edit</button><button class="action-btn" onclick="deleteMeetCast('${id}')">Delete</button></div>` : ''}
       </div>
-      <div class="post-content">${postContentHtml}</div>
+
+      <div class="post-content">${escapeHtml(truncated)}</div>
       ${mediaHtml}
-      <div class="post-stats">
-        <div>${likeCount} likes • ${comments.length} comments</div>
+      <div class="post-stats"><div>${starCount} ⭐ • ${responses.length} responses</div></div>
+
+      <div class="post-actions">
+        <button class="action-btn ${userStarred?'active':''}" data-action="star" onclick="window.toggleStar('${id}')"><i class="fas fa-star"></i>&nbsp;Star</button>
+        <button class="action-btn" onclick="focusRespond('${id}')"><i class="fas fa-comment"></i>&nbsp;Respond</button>
+        <button class="action-btn" onclick="promoteMeetCast('${id}')"><i class="fas fa-bullhorn"></i>&nbsp;Promote</button>
       </div>
-      <div class="post-interactions">
-        <div class="interaction-btn ${isLiked ? 'active' : ''}" onclick="window.toggleLike('${id}')">
-          <i class="fas fa-thumbs-up"></i> Like
-        </div>
-        <div class="interaction-btn" onclick="focusComment('${id}')">
-          <i class="fas fa-comment"></i> Comment
-        </div>
-        <div class="interaction-btn" onclick="sharePost('${id}')">
-          <i class="fas fa-share"></i> Share
-        </div>
-      </div>
+
       <div class="comments-section">
-        ${comments.slice(-2).map(comment => {
-          const commentAvatar = comment.userPhotoURL ? 
-            `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-            comment.userInitial || 'U';
-          
-          return `
-            <div class="comment">
-              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
-              <div class="comment-content">
-                <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-                <div>${escapeHtml(comment.text)}</div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-        ${comments.length > 2 ? `
-          <div class="view-more-comments" onclick="openCommentsModal('${id}')">
-            View ${comments.length - 2} more comments
-          </div>
-        ` : ''}
-        <div class="comment-input">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">${user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}</div>
-          <input type="text" id="comment-${id}" placeholder="Write a comment..." onkeypress="handleCommentKeypress(event, '${id}')">
-          <button class="send-comment-btn" onclick="addCommentViaButton('${id}')">
-            <i class="fas fa-paper-plane"></i>
-          </button>
+        ${responsesHtml}
+        ${responses.length > 2 ? `<div class="view-more-comments" onclick="openResponsesModal('${id}')">View ${responses.length - 2} more responses</div>` : ''}
+        <div class="comment-input"><div class="user-avatar">${(currentUser && currentUser.displayName) ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}</div>
+          <input type="text" id="respond-${id}" placeholder="Write a response..." onkeypress="handleRespondKeypress(event,'${id}')">
+          <button class="send-comment-btn" onclick="sendResponseBtn('${id}')"><i class="fas fa-paper-plane"></i></button>
         </div>
       </div>
     `;
-    
-    postsContainer.appendChild(postEl);
-  };
 
-  // Helper functions
-  function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  function formatTimestamp(timestamp) {
-    if (!timestamp) return 'Just now';
-    
-    const date = timestamp.toDate();
-    const now = new Date();
-    const diff = now - date;
-    
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    
-    return date.toLocaleDateString();
-  }
-
-  // Toggle read more/less
-  window.toggleReadMore = (element) => {
-    const truncated = element.parentElement;
-    const full = truncated.nextElementSibling;
-    
-    truncated.style.display = 'none';
-    full.style.display = 'block';
-  };
-
-  window.toggleReadLess = (element) => {
-    const full = element.parentElement;
-    const truncated = full.previousElementSibling;
-    
-    full.style.display = 'none';
-    truncated.style.display = 'block';
-  };
-
-  // Post interactions
-  window.toggleLike = async (id) => {
-    try {
-      await toggleLike(id);
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      showMessage('Failed to update like. Please try again.');
-    }
-  };
-
-  window.sharePost = async (id) => {
-    try {
-      if (navigator.share) {
-        navigator.share({
-          title: 'Check out this post on MEET',
-          text: 'I found this interesting post on MEET',
-          url: window.location.href
-        });
-      } else {
-        showMessage('Post shared!', 'success');
-      }
-    } catch (error) {
-      console.error('Error sharing post:', error);
-      showMessage('Failed to share post. Please try again.');
-    }
-  };
-
-  window.focusComment = (postId) => {
-    const commentInput = document.getElementById(`comment-${postId}`);
-    if (commentInput) {
-      commentInput.focus();
-    }
-  };
-
-  window.handleCommentKeypress = async (event, postId) => {
-    if (event.key === 'Enter') {
-      await addCommentFromInput(postId);
-    }
-  };
-
-  window.addCommentViaButton = async (postId) => {
-    await addCommentFromInput(postId);
-  };
-
-  async function addCommentFromInput(postId) {
-    const input = document.getElementById(`comment-${postId}`);
-    const text = input.value.trim();
-    
-    if (!text) return;
-    
-    try {
-      await addComment(postId, text);
-      input.value = '';
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      showMessage('Failed to add comment. Please try again.');
+    if(postEl){
+      postEl.innerHTML = inner;
+    } else {
+      postEl = document.createElement('div');
+      postEl.className = 'post';
+      postEl.setAttribute('data-post-id', id);
+      postEl.innerHTML = inner;
+      // insert at end (feed already ordered by timestamp)
+      postsContainer.appendChild(postEl);
     }
   }
+}
 
-  // Post management
-  window.togglePostMenu = (postId) => {
-    const menu = document.getElementById(`menu-${postId}`);
-    const isVisible = menu.style.display === 'block';
-    
-    document.querySelectorAll('.post-menu').forEach(m => {
-      m.style.display = 'none';
-    });
-    
-    menu.style.display = isVisible ? 'none' : 'block';
-  };
+/* -------------------------
+   Helpers: UI small features
+   ------------------------- */
+function escapeHtml(text){ if(!text) return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+function formatTimestamp(ts){ if(!ts) return 'Just now'; try{ const d = ts.toDate(); const diff = Date.now() - d.getTime(); const mins = Math.floor(diff/60000); if(mins<1) return 'Just now'; if(mins<60) return mins+'m ago'; const hrs = Math.floor(mins/60); if(hrs<24) return hrs+'h ago'; const days = Math.floor(hrs/24); if(days<7) return days+'d ago'; return d.toLocaleDateString(); } catch(e){ return 'Just now'; } }
 
-  window.editPost = async (postId) => {
-    showMessage('Edit feature coming soon!', 'success');
-    document.getElementById(`menu-${postId}`).style.display = 'none';
-  };
-
-  window.deletePost = async (postId) => {
-    try {
-      await deletePost(postId);
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    }
-    document.getElementById(`menu-${postId}`).style.display = 'none';
-  };
-
-  // Profile navigation
-  window.viewProfile = (userId) => {
-    // Store the target user ID in sessionStorage and redirect
-    sessionStorage.setItem('targetUserId', userId);
-    window.location.href = 'profile.html';
-  };
-
-  // Function to navigate to current user's profile
-  function goToMyProfile() {
-    const user = auth.currentUser;
-    if (user) {
-      sessionStorage.removeItem('targetUserId'); // Clear any previous target
-      window.location.href = 'profile.html';
-    }
+/* -------------------------
+   Inline actions wired to window for onclick usage
+   ------------------------- */
+window.toggleStar = (id) => toggleStar(id);
+window.handleRespondKeypress = (e,postId) => { if(e.key === 'Enter') sendResponseBtn(postId); };
+window.sendResponseBtn = async (postId) => {
+  const el = document.getElementById(`respond-${postId}`);
+  if(!el) return;
+  const txt = el.value.trim();
+  if(!txt) return;
+  await addResponse(postId, txt);
+  el.value = '';
+};
+window.promoteMeetCast = (id) => {
+  // simple native share or fallback
+  if(navigator.share){ navigator.share({ title:'Check this MeetCast on MEET', text:'See this MeetCast', url:window.location.href }); }
+  else { showMessage('Promoted!', 'success'); }
+};
+window.viewProfile = (uid) => { sessionStorage.setItem('targetUserId', uid); window.location.href = 'profile.html'; };
+window.openResponsesModal = async (postId) => {
+  // load responses and show modal (simple alert for now)
+  const snaps = await getDocs(query(collection(db,'posts',postId,'responses'), orderBy('timestamp','asc')));
+  const r = snaps.docs.map(d => d.data()).map(x => `${x.userName||'User'}: ${x.text}`).join('\n\n');
+  alert('Responses:\\n\\n' + r);
+};
+window.editMeetCast = (id) => showMessage('Edit MeetCast coming soon', 'success');
+window.deleteMeetCast = async (id) => {
+  if(!confirm('Delete this MeetCast?')) return;
+  try{ await deleteDoc(doc(db,'posts',id)); showMessage('MeetCast deleted','success'); } catch(e){ console.error(e); showMessage('Delete failed'); }
+};
+window.openMediaModal = (url,isVideo=false) => {
+  const mediaModal = document.getElementById('mediaModal');
+  if(!mediaModal) {
+    // create simple modal on-the-fly
+    const modal = document.createElement('div'); modal.className='modal'; modal.style.display='flex';
+    const content = document.createElement('div'); content.className='modal-content';
+    content.innerHTML = isVideo ? `<video controls src="${url}" style="width:100%"></video>` : `<img src="${url}" style="width:100%"/>`;
+    modal.appendChild(content);
+    modal.addEventListener('click', (e)=> { if(e.target===modal) modal.remove(); });
+    document.body.appendChild(modal);
   }
+};
 
-  // Close menus when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.post-actions')) {
-      document.querySelectorAll('.post-menu').forEach(menu => {
-        menu.style.display = 'none';
-      });
-    }
-  });
+/* -------------------------
+   Composer UI wiring
+   ------------------------- */
+openComposer.addEventListener('click', ()=> { meetcastModal.style.display='flex'; document.body.style.overflow='hidden'; });
+newMeetCastBtn.addEventListener('click', ()=> { meetcastModal.style.display='flex'; document.body.style.overflow='hidden'; });
+closeMeetcastModal.addEventListener('click', ()=> { meetcastModal.style.display='none'; document.body.style.overflow='auto'; resetMeetcastForm(); });
 
-  // Initialize the app
-  document.addEventListener('DOMContentLoaded', function() {
-    initTheme();
-    
-    // Prevent zoom on double-tap (iOS)
-    document.addEventListener('touchstart', function(e) {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-    
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(e) {
-      const now = (new Date()).getTime();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, false);
-  });
+meetcastMedia.addEventListener('change', (e) => {
+  // preview
+  const files = [...e.target.files];
+  mediaPreview.innerHTML = '';
+  for(const file of files){
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const isVideo = file.type.startsWith('video/');
+      const wrapper = document.createElement('div');
+      wrapper.style.marginBottom = '8px';
+      wrapper.innerHTML = isVideo ? `<video controls style="max-width:100%;height:160px;object-fit:cover" src="${ev.target.result}"></video>` : `<img src="${ev.target.result}" style="max-width:100%;height:160px;object-fit:cover"/>`;
+      mediaPreview.appendChild(wrapper);
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+publishMeetcastBtn.addEventListener('click', async () => {
+  const text = meetcastText.value.trim();
+  const files = Array.from(meetcastMedia.files || []);
+  const privacy = document.getElementById('meetcastPrivacy').value;
+  if(!text && files.length === 0){ showMessage('Add text or media to your MeetCast'); return; }
+  publishMeetcastBtn.disabled = true;
+  publishMeetcastBtn.textContent = 'Publishing...';
+  try{
+    await createMeetCast(text, files, privacy);
+    showMessage('MeetCast published', 'success');
+    meetcastModal.style.display='none';
+    resetMeetcastForm();
+  } catch(e){
+    console.error(e);
+    showMessage('Failed to publish MeetCast');
+  } finally {
+    publishMeetcastBtn.disabled = false;
+    publishMeetcastBtn.textContent = 'Publish MeetCast';
+  }
+});
+
+function resetMeetcastForm(){ meetcastText.value=''; meetcastMedia.value=''; mediaPreview.innerHTML=''; }
+
+/* -------------------------
+   AI widget wiring (client -> server)
+   - This calls a backend route /api/ai/suggest (implement server-side securely)
+   ------------------------- */
+openAiBtn.addEventListener('click', ()=>{ aiModal.style.display='flex'; document.body.style.overflow='hidden'; });
+closeAiModal.addEventListener('click', ()=>{ aiModal.style.display='none'; document.body.style.overflow='auto'; aiResult.innerHTML=''; aiPrompt.value=''; });
+
+askAiBtn.addEventListener('click', async ()=> {
+  const prompt = aiPrompt.value.trim();
+  if(!prompt) return showMessage('Type something for AI to help with');
+  askAiBtn.disabled = true; askAiBtn.textContent='Thinking...';
+  try{
+    // Replace '/api/ai/suggest' with your serverless function endpoint
+    const resp = await fetch('/api/ai/suggest', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt })});
+    if(!resp.ok) throw new Error('AI request failed');
+    const json = await resp.json();
+    aiResult.innerHTML = `<div style="white-space:pre-wrap">${escapeHtml(json.result || JSON.stringify(json))}</div>`;
+  } catch(err){ console.error(err); showMessage('AI request failed'); }
+  finally{ askAiBtn.disabled=false; askAiBtn.textContent='Ask AI'; }
+});
+
+/* -------------------------
+   Auth listener
+   ------------------------- */
+onAuthStateChanged(auth, user => {
+  if(!user){ window.location.href = 'login.html'; return; }
+  currentUser = user;
+  // update avatars
+  const setAvatar = (el, u) => {
+    if(!el) return;
+    if(u.photoURL) el.innerHTML = `<img src="${u.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    else el.textContent = (u.displayName && u.displayName.charAt(0)) ? u.displayName.charAt(0).toUpperCase() : 'U';
+  };
+  setAvatar(currentUserAvatar, user);
+  setAvatar(modalAvatar, user);
+  setAvatar(composerAvatar, user);
+  document.getElementById('userName').textContent = user.displayName || 'User';
+  // start feed
+  setupRealtimeFeed();
+});
+
+logoutBtn.addEventListener('click', async ()=> { try{ await signOut(auth); window.location.href='login.html'; } catch(e){ console.error(e); showMessage('Logout failed'); } });
+
+/* -------------------------
+   Init
+   ------------------------- */
+document.addEventListener('DOMContentLoaded', ()=> {
+  initTheme();
+});
 </script>
 </body>
 </html>
