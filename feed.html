@@ -1237,10 +1237,22 @@ async function createMeetCast(text, files, privacy){
   const user = auth.currentUser;  
   if(!user) throw new Error("Please login first");  
   let mediaUrls=[];  
-  if(files && files.length>0){ for(let f of files){ mediaUrls.push(await uploadMedia(f)); } }  
+  if(files && files.length>0){ 
+    for(let f of files){ 
+      const url = await uploadMedia(f); 
+      mediaUrls.push(url); 
+    } 
+  }  
   await addDoc(collection(db,"posts"),{  
-    userId:user.uid, userName:user.displayName||"Anonymous", userInitial:user.displayName?.charAt(0).toUpperCase()||"U", userPhotoURL:user.photoURL||null,  
-    text:text||'', media:mediaUrls, privacy:privacy||'public', starCount:0, timestamp:serverTimestamp()  
+    userId:user.uid, 
+    userName:user.displayName||"Anonymous", 
+    userInitial:user.displayName?.charAt(0).toUpperCase()||"U", 
+    userPhotoURL:user.photoURL||null,  
+    text:text||'', 
+    media:mediaUrls, 
+    privacy:privacy||'public', 
+    starCount:0, 
+    timestamp:serverTimestamp()  
   });  
 }
 
@@ -1261,132 +1273,422 @@ async function toggleStar(postId){
       if(starSnap.exists()){ tx.delete(starRef); tx.update(postRef,{starCount:Math.max(0,currentCount-1)}); }  
       else{ tx.set(starRef,{userId:user.uid,userName:user.displayName||'Anonymous',userPhotoURL:user.photoURL||null,timestamp:serverTimestamp()}); tx.update(postRef,{starCount:currentCount+1}); }  
     });  
-  }catch(e){ console.error(e); showMessage('Failed to update star'); }  
+  }catch(e){ console.error('Star toggle error:', e); showMessage('Failed to update star'); }  
 }
 
 async function addResponse(postId, commentText){  
   const user = auth.currentUser;  
   if(!user || !commentText?.trim()) return;  
-  await addDoc(collection(db,"posts",postId,"comments"),{  
-    userId:user.uid, userName:user.displayName||"Anonymous", userInitial:user.displayName?.charAt(0).toUpperCase()||"U", userPhotoURL:user.photoURL||null,  
-    text:commentText.trim(), timestamp:serverTimestamp()  
-  });  
+  try {
+    await addDoc(collection(db,"posts",postId,"comments"),{  
+      userId:user.uid, 
+      userName:user.displayName||"Anonymous", 
+      userInitial:user.displayName?.charAt(0).toUpperCase()||"U", 
+      userPhotoURL:user.photoURL||null,  
+      text:commentText.trim(), 
+      timestamp:serverTimestamp()  
+    });  
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    showMessage('Failed to add comment');
+  }
 }
 
 // -----------------------
-// ASSOCIATES (REAL-TIME + AVATAR)
+// REAL-TIME FEED - FIXED VERSION
 // -----------------------
-async function followUser(userIdToFollow){  
-  const user = auth.currentUser; if(!user) return;  
-  try{  
-    await setDoc(doc(db,"users",user.uid,"following",userIdToFollow),{timestamp:serverTimestamp()});  
-    await setDoc(doc(db,"users",userIdToFollow,"followers",user.uid),{timestamp:serverTimestamp()});  
-    showMessage('You are now associates!','success');  
-    setupAssociateListener(userIdToFollow); // new: live update avatar  
-  }catch(e){ console.error(e); showMessage('Failed to follow user'); }  
-}
-
-async function unfollowUser(userIdToUnfollow){  
-  const user = auth.currentUser; if(!user) return;  
-  try{  
-    await deleteDoc(doc(db,"users",user.uid,"following",userIdToUnfollow));  
-    await deleteDoc(doc(db,"users",userIdToUnfollow,"followers",user.uid));  
-    showMessage('You are no longer associates.','success');  
-    if(associateListeners[userIdToUnfollow]){ associateListeners[userIdToUnfollow](); delete associateListeners[userIdToUnfollow]; }  
-  }catch(e){ console.error(e); showMessage('Failed to unfollow user'); }  
-}
-
-// New: setup real-time avatar updates for an associate
-function setupAssociateListener(userId){  
-  if(associateListeners[userId]) return;  
-  const unsubscribe = onSnapshot(doc(db,"users",userId),(snap)=>{  
-    if(snap.exists()){ userCache[userId]=snap.data(); updateFeedAvatars(userId,snap.data().photoURL); }  
-  });  
-  associateListeners[userId]=unsubscribe;  
-}
-
-// Update all posts/comments in feed with new avatar
-function updateFeedAvatars(userId,newPhotoURL){  
-  document.querySelectorAll(`[data-post-id]`).forEach(postEl=>{  
-    const avatarImg = postEl.querySelector(`.post-user .user-avatar img`);  
-    if(avatarImg && postEl.dataset.userId===userId) avatarImg.src=newPhotoURL;  
-    postEl.querySelectorAll('.comment .user-avatar img').forEach(cEl=>{ if(cEl.dataset.userid===userId) cEl.src=newPhotoURL; });  
-  });  
-}
-
-// -----------------------
-// USER PROFILE CACHE
-// -----------------------
-async function getUserProfile(uid){  
-  if(!uid) return null;  
-  if(userCache[uid]) return userCache[uid];  
-  try{  
-    const snap=await getDoc(doc(db,"users",uid));  
-    if(snap.exists()){ userCache[uid]=snap.data(); return userCache[uid]; }  
-    return null;  
-  }catch(e){ console.error(e); return null; }  
-}
-
-// -----------------------
-// REAL-TIME FEED
-// -----------------------
-function cleanupPostListeners(){ Object.values(postListeners).forEach(fn=>fn&&fn()); postListeners={}; }  
+function cleanupPostListeners(){ 
+  Object.values(postListeners).forEach(fn=>fn&&fn()); 
+  postListeners={}; 
+}  
 
 function setupRealTimeListener(){  
   const postsQuery = query(collection(db,"posts"),orderBy("timestamp","desc"));  
-  onSnapshot(postsQuery,snapshot=>{  
-    cleanupPostListeners(); postsContainer.innerHTML='';  
-    snapshot.docs.forEach(d=>{  
-      const postId=d.id, data=d.data();  
-      const starsQuery=query(collection(db,"posts",postId,"stars"));  
-      const unsubscribeStars=onSnapshot(starsQuery,starsSnap=>{  
-        const starCount=starsSnap.size; const isStarred=!!starsSnap.docs.find(s=>s.id===(currentUser?.uid||''));  
-        const commentsQuery=query(collection(db,"posts",postId,"comments"),orderBy("timestamp","asc"));  
-        const unsubscribeComments=onSnapshot(commentsQuery,commentsSnap=>{  
-          const comments=commentsSnap.docs.map(c=>({id:c.id,...c.data()}));  
-          renderPost(postId,data,starCount,isStarred,comments);  
+  onSnapshot(postsQuery, snapshot=>{  
+    cleanupPostListeners(); 
+    postsContainer.innerHTML='';  
+    
+    if (snapshot.empty) {
+      postsContainer.innerHTML = '<div class="loading">No posts yet. Be the first to share something!</div>';
+      return;
+    }
+    
+    snapshot.docs.forEach(doc=>{  
+      const postId = doc.id; 
+      const data = doc.data();  
+      
+      // Set up stars listener
+      const starsQuery = query(collection(db,"posts",postId,"stars"));  
+      const unsubscribeStars = onSnapshot(starsQuery, starsSnap=>{  
+        const starCount = starsSnap.size; 
+        const isStarred = !!starsSnap.docs.find(s=>s.id === (currentUser?.uid||''));  
+        
+        // Set up comments listener
+        const commentsQuery = query(collection(db,"posts",postId,"comments"),orderBy("timestamp","asc"));  
+        const unsubscribeComments = onSnapshot(commentsQuery, commentsSnap=>{  
+          const comments = commentsSnap.docs.map(c=>({id:c.id,...c.data()}));  
+          renderPost(postId, data, starCount, isStarred, comments);  
+        }, error => {
+          console.error('Comments listener error:', error);
         });  
-        postListeners[postId]=()=>{unsubscribeStars();unsubscribeComments();};  
+        
+        postListeners[postId] = ()=>{
+          unsubscribeStars();
+          unsubscribeComments();
+        };  
+      }, error => {
+        console.error('Stars listener error:', error);
       });  
     });  
+  }, error => {
+    console.error('Posts listener error:', error);
+    postsContainer.innerHTML = '<div class="error-message">Failed to load posts. Please refresh the page.</div>';
   });  
 }
 
 // -----------------------
-// CLOUD FUNCTION (FIREBASE)
+// RENDER POST - IMPROVED VERSION
 // -----------------------
-// Place this in functions/index.js in your Firebase project
-/*
-import { onDocumentUpdated } from "firebase-functions/v2/firestore";
-import admin from "firebase-admin"; admin.initializeApp();
+function renderPost(postId, data, starCount, isStarred, comments) {
+  // Check if post already exists and update it, otherwise create new
+  let postEl = document.querySelector(`[data-post-id="${postId}"]`);
+  
+  if (!postEl) {
+    postEl = document.createElement('div');
+    postEl.classList.add('post');
+    postEl.setAttribute('data-post-id', postId);
+    postEl.setAttribute('data-user-id', data.userId);
+    postsContainer.appendChild(postEl);
+  }
+  
+  const user = auth.currentUser;
+  const isOwner = data.userId === user?.uid;
+  
+  // Use profile picture if available, otherwise fallback to initial
+  const userAvatar = data.userPhotoURL ? 
+    `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+    data.userInitial || 'U';
+  
+  // Truncate long posts
+  const maxLength = 200;
+  let postContentHtml = '';
+  if (data.text && data.text.length > maxLength) {
+    postContentHtml = `
+      <div class="post-text-truncated">
+        ${escapeHtml(data.text.substring(0, maxLength))}...
+        <span class="read-more" onclick="toggleReadMore(this)">Read more</span>
+      </div>
+      <div class="post-text-full" style="display: none;">
+        ${escapeHtml(data.text)}
+        <span class="read-less" onclick="toggleReadLess(this)" style="color: var(--primary); cursor: pointer; font-weight: 600;"> Read less</span>
+      </div>
+    `;
+  } else {
+    postContentHtml = escapeHtml(data.text || '');
+  }
+  
+  // Media HTML
+  let mediaHtml = '';
+  if (data.media && data.media.length > 0) {
+    if (data.media.length === 1) {
+      const media = data.media[0];
+      const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i) || media.includes('video');
+      mediaHtml = `
+        <div class="post-media" onclick="openMediaModal('${media}', ${isVideo})">
+          ${isVideo ? 
+            `<video controls style="width:100%; max-height:400px; background:var(--bg-color);"><source src="${media}"></video>` : 
+            `<img src="${media}" style="width:100%; max-height:400px; object-fit:contain; background:var(--bg-color);" loading="lazy">`
+          }
+        </div>
+      `;
+    } else {
+      // Multiple media
+      mediaHtml = '<div class="post-media" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">';
+      data.media.forEach((media, index) => {
+        const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i) || media.includes('video');
+        mediaHtml += `
+          <div onclick="openMediaModal('${media}', ${isVideo})" style="cursor: pointer; background:var(--bg-color); border-radius:8px; overflow:hidden;">
+            ${isVideo ? 
+              `<video style="width:100%; height:200px; object-fit:cover;"><source src="${media}"></video>` : 
+              `<img src="${media}" style="width:100%; height:200px; object-fit:cover;" loading="lazy">`
+            }
+          </div>
+        `;
+      });
+      mediaHtml += '</div>';
+    }
+  }
+  
+  // Ensure comments is an array
+  const safeComments = Array.isArray(comments) ? comments : [];
+  
+  postEl.innerHTML = `
+    <div class="post-header">
+      <div class="post-user" onclick="viewProfile('${data.userId}')">
+        <div class="user-avatar">${userAvatar}</div>
+        <div>
+          <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
+          <div class="post-meta">
+            ${formatTimestamp(data.timestamp)} • 
+            ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}
+          </div>
+        </div>
+      </div>
+      ${isOwner ? `
+        <div class="post-actions">
+          <i class="fas fa-ellipsis-h" style="cursor: pointer;" onclick="togglePostMenu('${postId}')"></i>
+          <div class="post-menu" id="menu-${postId}">
+            <div class="post-menu-item delete" onclick="deletePost('${postId}')">
+              <i class="fas fa-trash"></i> Delete
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+    <div class="post-content">${postContentHtml}</div>
+    ${mediaHtml}
+    <div class="post-stats">
+      <div>${starCount || 0} stars • ${safeComments.length} comments</div>
+    </div>
+    <div class="post-interactions">
+      <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="window.toggleStar('${postId}')">
+        <i class="fas fa-star"></i> Star
+      </div>
+      <div class="interaction-btn" onclick="focusComment('${postId}')">
+        <i class="fas fa-comment"></i> Comment
+      </div>
+      <div class="interaction-btn" onclick="sharePost('${postId}')">
+        <i class="fas fa-share"></i> Share
+      </div>
+    </div>
+    <div class="comments-section">
+      ${safeComments.slice(-2).map(comment => {
+        const commentAvatar = comment.userPhotoURL ? 
+          `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+          comment.userInitial || 'U';
+        
+        return `
+          <div class="comment">
+            <div class="user-avatar small" style="cursor: pointer; min-width: 32px;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+            <div class="comment-content">
+              <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
+              <div>${escapeHtml(comment.text)}</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      ${safeComments.length > 2 ? `
+        <div class="view-more-comments" onclick="openCommentsModal('${postId}')">
+          View ${safeComments.length - 2} more comments
+        </div>
+      ` : ''}
+      <div class="comment-input">
+        <div class="user-avatar small">${user?.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}</div>
+        <input type="text" id="comment-${postId}" placeholder="Write a comment..." onkeypress="handleCommentKeypress(event, '${postId}')">
+        <button class="send-comment-btn" onclick="addCommentViaButton('${postId}')">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
 
-export const propagateProfilePhoto = onDocumentUpdated("users/{userId}", async (event) => {
-  const before = event.data.before.data();
-  const after = event.data.after.data();
-  if(before.photoURL === after.photoURL) return;
-  const db = admin.firestore();
-  const userId = event.params.userId;
-  // update posts
-  const postsSnap = await db.collection("posts").where("userId","==",userId).get();
-  postsSnap.forEach(doc=>doc.ref.update({userPhotoURL:after.photoURL}));
-  // update stars
-  const postsSnap2 = await db.collection("posts").get();
-  postsSnap2.forEach(post=>{
-    post.ref.collection("stars").where("userId","==",userId).get().then(starsSnap=>{
-      starsSnap.forEach(s=>s.ref.update({userPhotoURL:after.photoURL}));
-    });
-  });
-  // update comments
-  const postsSnap3 = await db.collection("posts").get();
-  postsSnap3.forEach(post=>{
-    post.ref.collection("comments").where("userId","==",userId).get().then(cSnap=>{
-      cSnap.forEach(c=>c.ref.update({userPhotoURL:after.photoURL}));
-    });
-  });
-});
-*/
+// -----------------------
+// UTILITY FUNCTIONS
+// -----------------------
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
-// Add event listeners and other existing functionality
+function formatTimestamp(timestamp) {
+  if (!timestamp) return 'Just now';
+  
+  try {
+    const date = timestamp.toDate();
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString();
+  } catch (error) {
+    return 'Recently';
+  }
+}
+
+// -----------------------
+// GLOBAL INTERACTION FUNCTIONS
+// -----------------------
+window.toggleReadMore = (element) => {
+  const truncated = element.parentElement;
+  const full = truncated.nextElementSibling;
+  
+  truncated.style.display = 'none';
+  full.style.display = 'block';
+};
+
+window.toggleReadLess = (element) => {
+  const full = element.parentElement;
+  const truncated = full.previousElementSibling;
+  
+  full.style.display = 'none';
+  truncated.style.display = 'block';
+};
+
+window.togglePostMenu = (postId) => {
+  const menu = document.getElementById(`menu-${postId}`);
+  const isVisible = menu.style.display === 'block';
+  
+  document.querySelectorAll('.post-menu').forEach(m => {
+    m.style.display = 'none';
+  });
+  
+  menu.style.display = isVisible ? 'none' : 'block';
+};
+
+window.deletePost = async (postId) => {
+  if (!confirm('Are you sure you want to delete this MeetCast?')) return;
+  
+  try {
+    await deleteDoc(doc(db, "posts", postId));
+    showMessage('MeetCast deleted successfully!', 'success');
+  } catch (error) {
+    console.error('Error deleting MeetCast:', error);
+    showMessage('Failed to delete MeetCast. Please try again.');
+  }
+};
+
+window.openMediaModal = (mediaUrl, isVideo = false) => {
+  if (isVideo) {
+    mediaModalImage.style.display = 'none';
+    mediaModalVideo.style.display = 'block';
+    mediaModalVideo.src = mediaUrl;
+    mediaModalVideo.load();
+  } else {
+    mediaModalImage.style.display = 'block';
+    mediaModalVideo.style.display = 'none';
+    mediaModalVideo.pause();
+    mediaModalImage.src = mediaUrl;
+  }
+  
+  mediaModal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.openCommentsModal = async (postId) => {
+  try {
+    const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    const commentsSnapshot = await getDocs(commentsQuery);
+    const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    let commentsHtml = comments.map(comment => {
+      const commentAvatar = comment.userPhotoURL ? 
+        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        comment.userInitial || 'U';
+      
+      return `
+        <div class="comment" style="margin-bottom: 16px;">
+          <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+          <div class="comment-content" style="flex: 1;">
+            <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
+            <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
+            <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    if (comments.length === 0) {
+      commentsHtml = '<div style="text-align: center; color: var(--secondary-text); padding: 20px;">No comments yet</div>';
+    }
+    
+    commentsModalBody.innerHTML = commentsHtml;
+    commentsModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch (error) {
+    console.error('Error opening comments modal:', error);
+    showMessage('Failed to load comments');
+  }
+};
+
+window.focusComment = (postId) => {
+  const commentInput = document.getElementById(`comment-${postId}`);
+  if (commentInput) {
+    commentInput.focus();
+  }
+};
+
+window.handleCommentKeypress = async (event, postId) => {
+  if (event.key === 'Enter') {
+    await addCommentFromInput(postId);
+  }
+};
+
+window.addCommentViaButton = async (postId) => {
+  await addCommentFromInput(postId);
+};
+
+async function addCommentFromInput(postId) {
+  const input = document.getElementById(`comment-${postId}`);
+  const text = input.value.trim();
+  
+  if (!text) return;
+  
+  try {
+    await addResponse(postId, text);
+    input.value = '';
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    showMessage('Failed to add comment. Please try again.');
+  }
+}
+
+window.sharePost = async (postId) => {
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: 'Check out this MeetCast on MEET',
+        text: 'I found this interesting MeetCast on MEET',
+        url: window.location.href
+      });
+    } else {
+      showMessage('MeetCast shared!', 'success');
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Error sharing MeetCast:', error);
+      showMessage('Failed to share MeetCast. Please try again.');
+    }
+  }
+};
+
+// Profile navigation
+window.viewProfile = (userId) => {
+  sessionStorage.setItem('targetUserId', userId);
+  window.location.href = 'profile.html';
+};
+
+function goToMyProfile() {
+  const user = auth.currentUser;
+  if (user) {
+    sessionStorage.removeItem('targetUserId');
+    window.location.href = 'profile.html';
+  }
+}
+
+// -----------------------
+// EVENT LISTENERS
+// -----------------------
 postBtn.addEventListener('click', async () => {
   const text = postText.value.trim();
   const mediaFiles = postMedia.files;
@@ -1509,7 +1811,7 @@ onAuthStateChanged(auth, user => {
       if (user.photoURL) {
         element.innerHTML = `<img src="${user.photoURL}" alt="${userNameText}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>`;
       } else {
-        element.textContent = initial;
+        element.innerHTML = `${initial}<div class="status-indicator status-online"></div>`;
       }
     };
     
@@ -1547,316 +1849,6 @@ nightToggleBtn.addEventListener('click', () => {
     nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
   }
 });
-
-// Helper functions for rendering posts
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatTimestamp(timestamp) {
-  if (!timestamp) return 'Just now';
-  
-  const date = timestamp.toDate();
-  const now = new Date();
-  const diff = now - date;
-  
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  
-  return date.toLocaleDateString();
-}
-
-// Render post function
-function renderPost(postId, data, starCount, isStarred, comments) {
-  const postEl = document.createElement('div');
-  postEl.classList.add('post');
-  postEl.setAttribute('data-post-id', postId);
-  postEl.setAttribute('data-user-id', data.userId);
-  
-  const user = auth.currentUser;
-  const isOwner = data.userId === user.uid;
-  
-  // Use profile picture if available, otherwise fallback to initial
-  const userAvatar = data.userPhotoURL ? 
-    `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-    data.userInitial || 'U';
-  
-  // Truncate long posts
-  const maxLength = 200;
-  let postContentHtml = '';
-  if (data.text && data.text.length > maxLength) {
-    postContentHtml = `
-      <div class="post-text-truncated">
-        ${escapeHtml(data.text.substring(0, maxLength))}...
-        <span class="read-more" onclick="toggleReadMore(this)">Read more</span>
-      </div>
-      <div class="post-text-full" style="display: none;">
-        ${escapeHtml(data.text)}
-        <span class="read-less" onclick="toggleReadLess(this)" style="color: var(--primary); cursor: pointer; font-weight: 600;"> Read less</span>
-      </div>
-    `;
-  } else {
-    postContentHtml = escapeHtml(data.text || '');
-  }
-  
-  // Media HTML
-  let mediaHtml = '';
-  if (data.media && data.media.length > 0) {
-    if (data.media.length === 1) {
-      const media = data.media[0];
-      const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i);
-      mediaHtml = `
-        <div class="post-media" onclick="openMediaModal('${media}', ${isVideo})">
-          ${isVideo ? 
-            `<video controls><source src="${media}"></video>` : 
-            `<img src="${media}" loading="lazy">`
-          }
-        </div>
-      `;
-    } else {
-      // Multiple media
-      mediaHtml = '<div class="post-media" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">';
-      data.media.forEach((media, index) => {
-        const isVideo = media.match(/\.(mp4|mov|avi|webm)$/i);
-        mediaHtml += `
-          <div onclick="openMediaModal('${media}', ${isVideo})" style="cursor: pointer;">
-            ${isVideo ? 
-              `<video style="width: 100%; height: 200px; object-fit: cover;"><source src="${media}"></video>` : 
-              `<img src="${media}" style="width: 100%; height: 200px; object-fit: cover;" loading="lazy">`
-            }
-          </div>
-        `;
-      });
-      mediaHtml += '</div>';
-    }
-  }
-  
-  postEl.innerHTML = `
-    <div class="post-header">
-      <div class="post-user" onclick="viewProfile('${data.userId}')">
-        <div class="user-avatar">${userAvatar}</div>
-        <div>
-          <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
-          <div class="post-meta">
-            ${formatTimestamp(data.timestamp)} • 
-            ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}
-          </div>
-        </div>
-      </div>
-      ${isOwner ? `
-        <div class="post-actions">
-          <i class="fas fa-ellipsis-h" style="cursor: pointer;" onclick="togglePostMenu('${postId}')"></i>
-          <div class="post-menu" id="menu-${postId}">
-            <div class="post-menu-item delete" onclick="deletePost('${postId}')">
-              <i class="fas fa-trash"></i> Delete
-            </div>
-          </div>
-        </div>
-      ` : ''}
-    </div>
-    <div class="post-content">${postContentHtml}</div>
-    ${mediaHtml}
-    <div class="post-stats">
-      <div>${starCount} stars • ${comments.length} comments</div>
-    </div>
-    <div class="post-interactions">
-      <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="window.toggleStar('${postId}')">
-        <i class="fas fa-star"></i> Star
-      </div>
-      <div class="interaction-btn" onclick="focusComment('${postId}')">
-        <i class="fas fa-comment"></i> Comment
-      </div>
-      <div class="interaction-btn" onclick="sharePost('${postId}')">
-        <i class="fas fa-share"></i> Share
-      </div>
-    </div>
-    <div class="comments-section">
-      ${comments.slice(-2).map(comment => {
-        const commentAvatar = comment.userPhotoURL ? 
-          `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-          comment.userInitial || 'U';
-        
-        return `
-          <div class="comment">
-            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
-            <div class="comment-content">
-              <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-              <div>${escapeHtml(comment.text)}</div>
-            </div>
-          </div>
-        `;
-      }).join('')}
-      ${comments.length > 2 ? `
-        <div class="view-more-comments" onclick="openCommentsModal('${postId}')">
-          View ${comments.length - 2} more comments
-        </div>
-      ` : ''}
-      <div class="comment-input">
-        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">${user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}</div>
-        <input type="text" id="comment-${postId}" placeholder="Write a comment..." onkeypress="handleCommentKeypress(event, '${postId}')">
-        <button class="send-comment-btn" onclick="addCommentViaButton('${postId}')">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </div>
-    </div>
-  `;
-  
-  postsContainer.appendChild(postEl);
-}
-
-// Global functions for post interactions
-window.toggleReadMore = (element) => {
-  const truncated = element.parentElement;
-  const full = truncated.nextElementSibling;
-  
-  truncated.style.display = 'none';
-  full.style.display = 'block';
-};
-
-window.toggleReadLess = (element) => {
-  const full = element.parentElement;
-  const truncated = full.previousElementSibling;
-  
-  full.style.display = 'none';
-  truncated.style.display = 'block';
-};
-
-window.togglePostMenu = (postId) => {
-  const menu = document.getElementById(`menu-${postId}`);
-  const isVisible = menu.style.display === 'block';
-  
-  document.querySelectorAll('.post-menu').forEach(m => {
-    m.style.display = 'none';
-  });
-  
-  menu.style.display = isVisible ? 'none' : 'block';
-};
-
-window.deletePost = async (postId) => {
-  if (!confirm('Are you sure you want to delete this MeetCast?')) return;
-  
-  try {
-    await deleteDoc(doc(db, "posts", postId));
-    showMessage('MeetCast deleted successfully!', 'success');
-  } catch (error) {
-    console.error('Error deleting MeetCast:', error);
-    showMessage('Failed to delete MeetCast. Please try again.');
-  }
-};
-
-window.openMediaModal = (mediaUrl, isVideo = false) => {
-  if (isVideo) {
-    mediaModalImage.style.display = 'none';
-    mediaModalVideo.style.display = 'block';
-    mediaModalVideo.src = mediaUrl;
-  } else {
-    mediaModalImage.style.display = 'block';
-    mediaModalVideo.style.display = 'none';
-    mediaModalImage.src = mediaUrl;
-  }
-  
-  mediaModal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-};
-
-window.openCommentsModal = async (postId) => {
-  const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-  const commentsSnapshot = await getDocs(commentsQuery);
-  const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  
-  let commentsHtml = comments.map(comment => {
-    const commentAvatar = comment.userPhotoURL ? 
-      `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-      comment.userInitial || 'U';
-    
-    return `
-      <div class="comment" style="margin-bottom: 16px;">
-        <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
-        <div class="comment-content" style="flex: 1;">
-          <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-          <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
-          <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  commentsModalBody.innerHTML = commentsHtml;
-  commentsModal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-};
-
-window.focusComment = (postId) => {
-  const commentInput = document.getElementById(`comment-${postId}`);
-  if (commentInput) {
-    commentInput.focus();
-  }
-};
-
-window.handleCommentKeypress = async (event, postId) => {
-  if (event.key === 'Enter') {
-    await addCommentFromInput(postId);
-  }
-};
-
-window.addCommentViaButton = async (postId) => {
-  await addCommentFromInput(postId);
-};
-
-async function addCommentFromInput(postId) {
-  const input = document.getElementById(`comment-${postId}`);
-  const text = input.value.trim();
-  
-  if (!text) return;
-  
-  try {
-    await addResponse(postId, text);
-    input.value = '';
-  } catch (error) {
-    console.error('Error adding comment:', error);
-    showMessage('Failed to add comment. Please try again.');
-  }
-}
-
-window.sharePost = async (postId) => {
-  try {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this MeetCast on MEET',
-        text: 'I found this interesting MeetCast on MEET',
-        url: window.location.href
-      });
-    } else {
-      showMessage('MeetCast shared!', 'success');
-    }
-  } catch (error) {
-    console.error('Error sharing MeetCast:', error);
-    showMessage('Failed to share MeetCast. Please try again.');
-  }
-};
-
-// Profile navigation
-window.viewProfile = (userId) => {
-  sessionStorage.setItem('targetUserId', userId);
-  window.location.href = 'profile.html';
-};
-
-function goToMyProfile() {
-  const user = auth.currentUser;
-  if (user) {
-    sessionStorage.removeItem('targetUserId');
-    window.location.href = 'profile.html';
-  }
-}
 
 // Close menus when clicking outside
 document.addEventListener('click', (e) => {
