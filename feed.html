@@ -1417,7 +1417,7 @@
       userId: user.uid,
       userName: user.displayName || "Anonymous",
       userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: userData.profilePicture || user.photoURL || null,
+      userPhotoURL: userData.photoURL || user.photoURL || null,
       text: text,
       media: mediaUrls,
       privacy: privacy,
@@ -1433,7 +1433,7 @@
         throw new Error("Please login to star posts.");
       }
 
-      const starRef = doc(db, "posts", postId, "stars", user.uid);
+      const starRef = doc(db, "posts", postId, "likes", user.uid);
       const starSnap = await getDoc(starRef);
 
       if (starSnap.exists()) {
@@ -1465,13 +1465,13 @@
     const userDoc = await getDoc(doc(db, "users", user.uid));
     const userData = userDoc.exists() ? userDoc.data() : {};
 
-    const responsesRef = collection(db, "posts", postId, "responses");
+    const responsesRef = collection(db, "posts", postId, "comments");
     
     await addDoc(responsesRef, {
       userId: user.uid,
       userName: user.displayName || "Anonymous",
       userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: userData.profilePicture || user.photoURL || null,
+      userPhotoURL: userData.photoURL || user.photoURL || null,
       text: responseText,
       timestamp: serverTimestamp()
     });
@@ -1569,7 +1569,7 @@
         let userData = {
           displayName: "User",
           email: "",
-          profilePicture: null,
+          photoURL: null,
           createdAt: serverTimestamp()
         };
         
@@ -1577,7 +1577,7 @@
           userData = {
             displayName: authUser.displayName || "User",
             email: authUser.email || "",
-            profilePicture: authUser.photoURL || null,
+            photoURL: authUser.photoURL || null,
             createdAt: serverTimestamp()
           };
         }
@@ -1624,17 +1624,17 @@
         await setDoc(userDocRef, {
           displayName: user.displayName || "User",
           email: user.email || "",
-          profilePicture: user.photoURL || null,
+          photoURL: user.photoURL || null,
           createdAt: serverTimestamp()
         });
         console.log("User document created for:", user.uid);
       } else {
         // Update user document if profile has changed
         const existingData = userDocSnap.data();
-        if (existingData.displayName !== user.displayName || existingData.profilePicture !== user.photoURL) {
+        if (existingData.displayName !== user.displayName || existingData.photoURL !== user.photoURL) {
           await updateDoc(userDocRef, {
             displayName: user.displayName || "User",
-            profilePicture: user.photoURL || null
+            photoURL: user.photoURL || null
           });
         }
       }
@@ -1718,7 +1718,7 @@
       // Update user info in UI with actual profile pictures
       const userData = await getUserData(user.uid);
       const userNameText = userData?.displayName || user.displayName || 'User';
-      const userProfilePicture = userData?.profilePicture || user.photoURL;
+      const userProfilePicture = userData?.photoURL || user.photoURL;
       const userInitial = userNameText.charAt(0).toUpperCase();
       
       // Function to update avatar with profile picture
@@ -1799,8 +1799,8 @@
       
       const usersHtml = await Promise.all(allUsers.map(async (user) => {
         const isAssociated = await checkIfAssociated(user.id);
-        const userAvatar = user.profilePicture ? 
-          `<img src="${user.profilePicture}" alt="${user.displayName || 'User'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        const userAvatar = user.photoURL ? 
+          `<img src="${user.photoURL}" alt="${user.displayName || 'User'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
           (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
         
         return `
@@ -1993,7 +1993,7 @@
     const user = auth.currentUser;
     
     // Set up real-time listener for stars
-    const starsQuery = query(collection(db, "posts", postId, "stars"));
+    const starsQuery = query(collection(db, "posts", postId, "likes"));
     const unsubscribeStars = onSnapshot(starsQuery, (starsSnapshot) => {
       const starCount = starsSnapshot.size;
       const isStarred = starsSnapshot.docs.some(doc => doc.id === user.uid);
@@ -2001,7 +2001,7 @@
     });
 
     // Set up real-time listener for responses
-    const responsesQuery = query(collection(db, "posts", postId, "responses"), orderBy("timestamp", "asc"));
+    const responsesQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
     const unsubscribeResponses = onSnapshot(responsesQuery, (responsesSnapshot) => {
       const responses = responsesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       updatePostResponsesUI(postId, responses);
@@ -2088,7 +2088,7 @@
 
   // Open responses modal
   window.openCommentsModal = async (postId) => {
-    const responsesQuery = query(collection(db, "posts", postId, "responses"), orderBy("timestamp", "asc"));
+    const responsesQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
     const responsesSnapshot = await getDocs(responsesQuery);
     const responses = responsesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
