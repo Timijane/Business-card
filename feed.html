@@ -498,6 +498,10 @@
     background: rgba(var(--primary), 0.1);
   }
 
+  .notification-item a {
+    text-decoration: none;
+  }
+
   /* Enhanced Post Form */
   .post-form {
     display: flex;
@@ -1498,6 +1502,7 @@
       userId: user.uid,
       userName: userData.displayName || user.displayName || "Anonymous",
       userInitial: (userData.displayName || user.displayName || "U").charAt(0).toUpperCase(),
+      photoURL: userData.photoURL || user.photoURL || null,
       text: text,
       media: mediaUrls.length > 0 ? mediaUrls[0] : null, // Single URL as per response
       mediaType: mediaType,
@@ -1583,6 +1588,7 @@
       userId: user.uid,
       userName: userData.displayName || user.displayName || "Anonymous",
       userInitial: (userData.displayName || user.displayName || "U").charAt(0).toUpperCase(),
+      photoURL: userData.photoURL || user.photoURL || null,
       text: responseText,
       createdAt: serverTimestamp()
     };
@@ -1697,10 +1703,10 @@
 
     try {
       // Remove from current user's associates
-      await deleteDoc(doc(db, "users", user.uid, "associates", targetUserId));
+      await deleteDoc(doc(db, "users", user.uid, "associates", targetUserId)).catch(e => console.warn('Associate doc not found:', e));
       
       // Remove from target user's associatedWith
-      await deleteDoc(doc(db, "users", targetUserId, "associatedWith", user.uid));
+      await deleteDoc(doc(db, "users", targetUserId, "associatedWith", user.uid)).catch(e => console.warn('AssociatedWith doc not found:', e));
       
       // Create disassociate notification for target user
       await addDoc(collection(db, "notifications"), {
@@ -1793,7 +1799,7 @@
       const users = [];
       
       usersSnap.forEach(doc => {
-        if (doc.id !== currentUser.uid) {
+        if (doc.id !== currentUser?.uid) {
           users.push({ id: doc.id, ...doc.data() });
         }
       });
@@ -1919,7 +1925,7 @@
       notificationsList.innerHTML = html || '<div style="text-align: center; color: var(--secondary-text);">No notifications yet.</div>';
     } catch (error) {
       console.error('Error loading notifications:', error);
-      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications.</div>';
+      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications. Please refresh the page.</div>';
     }
   }
 
@@ -1956,7 +1962,7 @@
     // Handle navigation based on type
     if (postId) {
       scrollToPost(postId);
-    } else if (fromUserId && fromUserId !== currentUser.uid) {
+    } else if (fromUserId && fromUserId !== currentUser?.uid) {
       viewProfile(fromUserId);
     }
     // Mark single as read if needed, but since all marked on open, skip
@@ -2075,11 +2081,14 @@
 
     // Add recent 2 (latest first since ordered desc)
     const recent = responses.slice(0, 2);
-    recent.forEach(response => {
+    recent.forEach(async (response) => {
+      const userData = await getUserDataWithCache(response.userId);
       const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
+      const photoURL = userData?.photoURL || response.photoURL;
+      const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : responseInitial;
       const commentHtml = `
         <div class="comment">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseInitial}</div>
+          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
           <div class="comment-content">
             <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
             <div>${escapeHtml(response.text)}</div>
@@ -2356,7 +2365,7 @@
   function setupRealTimeListener() {
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     
-    onSnapshot(postsQuery, (snapshot) => {
+    onSnapshot(postsQuery, async (snapshot) => {
       // Clean up previous listeners and maps
       Object.values(postListeners).forEach(obj => {
         Object.values(obj).forEach(unsub => unsub());
@@ -2367,13 +2376,15 @@
       promotesCountMap = {};
 
       postsContainer.innerHTML = "";
-      snapshot.docs.forEach((doc) => {
+      const postPromises = snapshot.docs.map(async (doc) => {
         const post = doc.data();
         if (canViewPost(post)) {
-          postDataMap[doc.id] = { ...post, responses: [] };
+          const userData = await getUserDataWithCache(post.userId);
+          postDataMap[doc.id] = { ...post, responses: [], authorPhotoURL: userData?.photoURL || post.photoURL };
           setupPostWithRealtimeData(doc.id, post);
         }
       });
+      await Promise.all(postPromises);
       
       if (snapshot.empty) {
         postsContainer.innerHTML = '<div class="loading">No meetcasts yet. Be the first to post!</div>';
@@ -2389,10 +2400,12 @@
     const postDocRef = doc(db, "posts", postId);
     
     // Post document listener
-    const unsubscribePost = onSnapshot(postDocRef, (docSnap) => {
+    const unsubscribePost = onSnapshot(postDocRef, async (docSnap) => {
       if (docSnap.exists()) {
         const updated = docSnap.data();
-        postDataMap[postId] = { ...updated, responses: postDataMap[postId]?.responses || [] };
+        const userData = await getUserDataWithCache(updated.userId);
+        postDataMap[postId] = { ...updated, responses: postDataMap[postId]?.responses || [], authorPhotoURL: userData?.photoURL || updated.photoURL };
+        updatePostAvatars(postId);
         updateStats(postId);
       }
     });
@@ -2438,8 +2451,25 @@
     renderPost(postId, initialPostData);
   }
 
+  // Update post avatars
+  async function updatePostAvatars(postId) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+    const postData = postDataMap[postId];
+    if (!postData) return;
+
+    // Update post header avatar
+    const headerAvatar = postEl.querySelector('.post-header .user-avatar');
+    if (headerAvatar) {
+      const userData = await getUserDataWithCache(postData.userId);
+      const photoURL = userData?.photoURL || postData.authorPhotoURL;
+      const initial = postData.userInitial || (postData.userName ? postData.userName.charAt(0).toUpperCase() : 'U');
+      updateAvatar(headerAvatar, photoURL, postData.userName, initial);
+    }
+  }
+
   // ===== ENHANCED POST RENDERING =====
-  const renderPost = (id, data) => {
+  const renderPost = async (id, data) => {
     const postEl = document.createElement('div');
     postEl.classList.add('post');
     postEl.setAttribute('data-post-id', id);
@@ -2447,8 +2477,11 @@
     const user = auth.currentUser;
     const isOwner = data.userId === user.uid;
     
-    // Get user initial from post data
+    // Get user data for avatar
+    const userData = await getUserDataWithCache(data.userId);
+    const photoURL = userData?.photoURL || data.photoURL;
     const userInitial = data.userInitial || (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
+    const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : userInitial;
     
     // Truncate long posts
     const maxLength = 200;
@@ -2485,7 +2518,7 @@
     postEl.innerHTML = `
       <div class="post-header">
         <div class="post-user" onclick="viewProfile('${data.userId}')">
-          <div class="user-avatar">${userInitial}</div>
+          <div class="user-avatar">${avatarHtml}</div>
           <div>
             <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
             <div class="post-meta">
@@ -2551,11 +2584,15 @@
       const snapshot = await getDocs(q);
       const responses = snapshot.docs.map(doc => doc.data());
       
-      let responsesHtml = responses.map(response => {
+      let responsesHtml = '';
+      for (const response of responses) {
+        const userData = await getUserDataWithCache(response.userId);
         const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-        return `
+        const photoURL = userData?.photoURL || response.photoURL;
+        const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : responseInitial;
+        responsesHtml += `
           <div class="comment" style="margin-bottom: 16px;">
-            <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseInitial}</div>
+            <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
             <div class="comment-content" style="flex: 1;">
               <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
               <div style="font-size: 16px;">${escapeHtml(response.text)}</div>
@@ -2563,7 +2600,7 @@
             </div>
           </div>
         `;
-      }).join('');
+      }
       
       commentsModalBody.innerHTML = responsesHtml || '<div style="text-align: center; color: var(--secondary-text);">No responses yet.</div>';
       commentsModal.style.display = 'flex';
