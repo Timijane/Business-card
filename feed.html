@@ -1330,6 +1330,9 @@
   let postListeners = {};
   let allUsers = [];
   const userCache = {};
+  let postDataMap = {};
+  let starsCountMap = {};
+  let promotesCountMap = {};
 
   // File size limits
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -1432,10 +1435,6 @@
       media: mediaUrls.length > 0 ? mediaUrls[0] : null, // Single URL as per response
       mediaType: mediaType,
       privacy: privacy || 'public',
-      stars: 0,
-      starredBy: [],
-      promotes: 0,
-      responses: [], // Array of response objects
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -1455,17 +1454,9 @@
       if (starSnap.exists()) {
         // Remove star
         await deleteDoc(starRef);
-        await updateDoc(postRef, {
-          stars: increment(-1),
-          starredBy: arrayRemove(user.uid)
-        });
       } else {
         // Add star
         await setDoc(starRef, { userId: user.uid });
-        await updateDoc(postRef, {
-          stars: increment(1),
-          starredBy: arrayUnion(user.uid)
-        });
 
         // Create notification
         const postSnap = await getDoc(postRef);
@@ -1508,14 +1499,12 @@
       createdAt: serverTimestamp()
     };
 
-    // Add to responses array in post
-    const postRef = doc(db, "posts", postId);
-    await updateDoc(postRef, {
-      responses: arrayUnion(response),
-      updatedAt: serverTimestamp()
-    });
+    // Add to responses subcollection
+    const responsesRef = collection(db, `posts/${postId}/responses`);
+    await addDoc(responsesRef, response);
 
     // Create notification
+    const postRef = doc(db, "posts", postId);
     const postSnap = await getDoc(postRef);
     if (postSnap.exists()) {
       const postData = postSnap.data();
@@ -1547,15 +1536,9 @@
       if (promoteSnap.exists()) {
         // Remove promote
         await deleteDoc(promoteRef);
-        await updateDoc(postRef, {
-          promotes: increment(-1)
-        });
       } else {
         // Add promote
         await setDoc(promoteRef, { userId: user.uid });
-        await updateDoc(postRef, {
-          promotes: increment(1)
-        });
 
         // Create notification
         const postSnap = await getDoc(postRef);
@@ -1824,6 +1807,76 @@
     meetaiMessages.scrollTop = meetaiMessages.scrollHeight;
   }
 
+  // Update stats
+  function updateStats(postId) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+    const statsEl = postEl.querySelector('.post-stats div');
+    if (!statsEl) return;
+
+    const starsC = starsCountMap[postId] || 0;
+    const postD = postDataMap[postId] || { responses: [] };
+    const resC = postD.responses ? postD.responses.length : 0;
+    const proC = promotesCountMap[postId] || 0;
+
+    statsEl.textContent = `${starsC} stars • ${resC} responses • ${proC} promotes`;
+  }
+
+  // Update star status
+  function updateStarStatus(postId, isActive) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+    const starBtn = postEl.querySelector('.interaction-btn:nth-child(1)');
+    if (!starBtn) return;
+
+    if (isActive) {
+      starBtn.classList.add('active');
+    } else {
+      starBtn.classList.remove('active');
+    }
+  }
+
+  // Update comments section
+  function updateCommentsSection(postId, responses) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+    const commentsSection = postEl.querySelector(`#comments-${postId}`);
+    if (!commentsSection) return;
+
+    // Clear existing comments except input
+    const inputDiv = commentsSection.querySelector('.comment-input');
+    if (!inputDiv) return;
+    commentsSection.innerHTML = '';
+    commentsSection.appendChild(inputDiv);
+
+    // Add recent 2 (latest first since ordered desc)
+    const recent = responses.slice(0, 2);
+    recent.forEach(response => {
+      const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
+      const commentHtml = `
+        <div class="comment">
+          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseInitial}</div>
+          <div class="comment-content">
+            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
+            <div>${escapeHtml(response.text)}</div>
+          </div>
+        </div>
+      `;
+      const commentEl = document.createElement('div');
+      commentEl.innerHTML = commentHtml;
+      commentsSection.insertBefore(commentEl.firstChild, inputDiv);
+    });
+
+    // View more
+    if (responses.length > 2) {
+      const viewMoreEl = document.createElement('div');
+      viewMoreEl.className = 'view-more-comments';
+      viewMoreEl.onclick = () => openResponsesModal(postId);
+      viewMoreEl.innerHTML = `View ${responses.length - 2} more responses`;
+      commentsSection.insertBefore(viewMoreEl, inputDiv);
+    }
+  }
+
   // Authentication state listener
   onAuthStateChanged(auth, async user => {
     if (!user) {
@@ -2078,14 +2131,20 @@
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     
     onSnapshot(postsQuery, (snapshot) => {
-      // Clean up previous listeners
-      Object.values(postListeners).forEach(unsubscribe => unsubscribe());
+      // Clean up previous listeners and maps
+      Object.values(postListeners).forEach(obj => {
+        Object.values(obj).forEach(unsub => unsub());
+      });
       postListeners = {};
+      postDataMap = {};
+      starsCountMap = {};
+      promotesCountMap = {};
 
       postsContainer.innerHTML = "";
       snapshot.docs.forEach((doc) => {
         const post = doc.data();
         if (canViewPost(post)) {
+          postDataMap[doc.id] = { ...post, responses: [] };
           setupPostWithRealtimeData(doc.id, post);
         }
       });
@@ -2100,43 +2159,57 @@
   }
 
   // Update individual post with real-time data
-  async function setupPostWithRealtimeData(postId, postData) {
-    const user = auth.currentUser;
-    
-    // Set up real-time listener for post document
+  function setupPostWithRealtimeData(postId, initialPostData) {
     const postDocRef = doc(db, "posts", postId);
+    
+    // Post document listener
     const unsubscribePost = onSnapshot(postDocRef, (docSnap) => {
       if (docSnap.exists()) {
-        const updatedPostData = docSnap.data();
-        updatePostUI(postId, updatedPostData);
+        const updated = docSnap.data();
+        postDataMap[postId] = { ...updated, responses: postDataMap[postId]?.responses || [] };
+        updateStats(postId);
       }
     });
 
-    // Store unsubscribe function
-    postListeners[postId] = unsubscribePost;
+    // Responses listener
+    const responsesQuery = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'desc'));
+    const unsubscribeResponses = onSnapshot(responsesQuery, (snap) => {
+      const responses = snap.docs.map(d => d.data());
+      postDataMap[postId].responses = responses;
+      updateStats(postId);
+      updateCommentsSection(postId, responses);
+    });
+
+    // Stars count listener
+    const starsQuery = query(collection(db, `posts/${postId}/stars`));
+    const unsubscribeStars = onSnapshot(starsQuery, (snap) => {
+      starsCountMap[postId] = snap.size;
+      updateStats(postId);
+    });
+
+    // User star status listener
+    const userStarRef = doc(db, `posts/${postId}/stars`, currentUser.uid);
+    const unsubscribeUserStar = onSnapshot(userStarRef, (snap) => {
+      updateStarStatus(postId, snap.exists());
+    });
+
+    // Promotes count listener
+    const promotesQuery = query(collection(db, `posts/${postId}/promotes`));
+    const unsubscribePromotes = onSnapshot(promotesQuery, (snap) => {
+      promotesCountMap[postId] = snap.size;
+      updateStats(postId);
+    });
+
+    postListeners[postId] = {
+      post: unsubscribePost,
+      responses: unsubscribeResponses,
+      stars: unsubscribeStars,
+      userStar: unsubscribeUserStar,
+      promotes: unsubscribePromotes
+    };
 
     // Initial render
-    renderPost(postId, postData);
-  }
-
-  // Update post UI with real-time data
-  function updatePostUI(postId, postData) {
-    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postElement) return;
-
-    // Update star count and state
-    const starBtn = postElement.querySelector('.interaction-btn:nth-child(1)');
-    const starCount = postElement.querySelector('.post-stats div');
-    
-    if (starBtn && starCount) {
-      const isStarred = postData.starredBy?.includes(currentUser.uid);
-      if (isStarred) {
-        starBtn.classList.add('active');
-      } else {
-        starBtn.classList.remove('active');
-      }
-      starCount.textContent = `${postData.stars || 0} stars • ${postData.responses?.length || 0} responses • ${postData.promotes || 0} promotes`;
-    }
+    renderPost(postId, initialPostData);
   }
 
   // ===== ENHANCED POST RENDERING =====
@@ -2147,7 +2220,6 @@
     
     const user = auth.currentUser;
     const isOwner = data.userId === user.uid;
-    const isStarred = data.starredBy?.includes(user.uid);
     
     // Get user initial from post data
     const userInitial = data.userInitial || (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
@@ -2213,10 +2285,10 @@
       <div class="post-content">${postContentHtml}</div>
       ${mediaHtml}
       <div class="post-stats">
-        <div>${data.stars || 0} stars • ${data.responses?.length || 0} responses • ${data.promotes || 0} promotes</div>
+        <div>0 stars • 0 responses • 0 promotes</div>
       </div>
       <div class="post-interactions">
-        <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="window.toggleStar('${id}')">
+        <div class="interaction-btn" onclick="window.toggleStar('${id}')">
           <i class="fas fa-star"></i> Star
         </div>
         <div class="interaction-btn" onclick="focusResponse('${id}')">
@@ -2226,24 +2298,7 @@
           <i class="fas fa-share"></i> Promote
         </div>
       </div>
-      <div class="comments-section">
-        ${(data.responses || []).slice(-2).map(response => {
-          const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-          return `
-            <div class="comment">
-              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseInitial}</div>
-              <div class="comment-content">
-                <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
-                <div>${escapeHtml(response.text)}</div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-        ${(data.responses || []).length > 2 ? `
-          <div class="view-more-comments" onclick="openResponsesModal('${id}')">
-            View ${(data.responses || []).length - 2} more responses
-          </div>
-        ` : ''}
+      <div class="comments-section" id="comments-${id}">
         <div class="comment-input">
           <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">
             ${user.photoURL ? 
@@ -2264,10 +2319,11 @@
 
   // ===== RESPONSES MODAL =====
   window.openResponsesModal = async (postId) => {
-    const postDoc = await getDoc(doc(db, "posts", postId));
-    if (postDoc.exists()) {
-      const postData = postDoc.data();
-      const responses = postData.responses || [];
+    try {
+      const responsesRef = collection(db, `posts/${postId}/responses`);
+      const q = query(responsesRef, orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      const responses = snapshot.docs.map(doc => doc.data());
       
       let responsesHtml = responses.map(response => {
         const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
@@ -2283,9 +2339,12 @@
         `;
       }).join('');
       
-      commentsModalBody.innerHTML = responsesHtml;
+      commentsModalBody.innerHTML = responsesHtml || '<div style="text-align: center; color: var(--secondary-text);">No responses yet.</div>';
       commentsModal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
+    } catch (error) {
+      console.error('Error loading responses:', error);
+      commentsModalBody.innerHTML = '<div class="error-message">Failed to load responses.</div>';
     }
   };
 
