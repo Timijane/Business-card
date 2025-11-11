@@ -1254,15 +1254,26 @@
 </div>
 
 <script type="module">
-  // Firebase imports
+  // ===== Firebase Imports =====
   import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, increment
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    initializeApp 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
-  // Firebase configuration
+  import { 
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, 
+    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, arrayUnion, arrayRemove, increment 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+  import { 
+    getAuth, onAuthStateChanged, signOut 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+  // ===== Cloudinary Setup =====
+  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
+  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+
+  // ===== Firebase Config =====
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -1274,20 +1285,9 @@
     measurementId: "G-9BFPPVMMRF"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-
-  // Cloudinary configuration
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_API_KEY = '767477973776429';
-  const CLOUDINARY_API_SECRET = '3n8OO8MaqD6SZN-AGnLaIIulGW0';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
-
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   // DOM elements
   const postsContainer = document.getElementById('postsContainer');
@@ -1310,7 +1310,6 @@
   const usersModal = document.getElementById('usersModal');
   const usersList = document.getElementById('usersList');
   const closeUsersModal = document.getElementById('closeUsersModal');
-  const searchInput = document.getElementById('searchInput');
   
   // MeetAI Assistant elements
   const meetaiAssistant = document.getElementById('meetaiAssistant');
@@ -1331,6 +1330,9 @@
   let postListeners = {};
   let allUsers = [];
   const userCache = {};
+
+  // File size limits
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   // Theme management
   function initTheme() {
@@ -1367,8 +1369,8 @@
     }
   }
 
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
+  // ===== Handle Media Upload =====
+  async function uploadToCloudinary(file) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error('File size too large. Maximum 10MB.');
     }
@@ -1376,7 +1378,6 @@
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("api_key", CLOUDINARY_API_KEY);
     
     try {
       const response = await fetch(CLOUDINARY_URL, {
@@ -1397,7 +1398,7 @@
     }
   }
 
-  // CREATE POST (Now called Meetcast)
+  // ===== CREATE POST =====
   async function createPost(text, files, privacy) {
     const user = auth.currentUser;
     if (!user) throw new Error("Please login first!");
@@ -1409,116 +1410,70 @@
     let mediaUrls = [];
     if (files && files.length > 0) {
       for (let file of files) {
-        const mediaUrl = await uploadMedia(file);
+        const mediaUrl = await uploadToCloudinary(file);
         mediaUrls.push(mediaUrl);
       }
     }
 
+    // Save post with user's current profile data
     await addDoc(collection(db, "posts"), {
       userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: userData.photoURL || user.photoURL || null,
+      userName: userData.displayName || "Anonymous",
+      profilePicture: userData.photoURL || user.photoURL || null,
       text: text,
       media: mediaUrls,
-      privacy: privacy,
-      starCount: 0, // Initialize star count
+      likes: 0,
+      likedBy: [],
       timestamp: serverTimestamp(),
+      privacy: privacy
     });
   }
 
-  // FIXED STAR COUNTING SYSTEM WITH ATOMIC INCREMENT
-  async function toggleStar(postId) {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        throw new Error("Please login to star posts.");
-      }
+  // ===== TOGGLE STAR (LIKE) =====
+  async function toggleStar(postId, userId) {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
 
-      const starRef = doc(db, "posts", postId, "likes", user.uid);
-      const postRef = doc(db, "posts", postId);
-      const starSnap = await getDoc(starRef);
+    if (postSnap.exists()) {
+      const postData = postSnap.data();
+      const liked = postData.likedBy?.includes(userId);
 
-      if (starSnap.exists()) {
-        // Unstar: remove the star document and decrement count
-        await deleteDoc(starRef);
+      if (liked) {
         await updateDoc(postRef, {
-          starCount: increment(-1)
+          likedBy: arrayRemove(userId),
+          likes: increment(-1)
         });
-        return false;
       } else {
-        // Star: create a star document and increment count
-        await setDoc(starRef, {
-          userId: user.uid,
-          userName: user.displayName || "Anonymous",
-          userPhotoURL: user.photoURL || null,
-          timestamp: serverTimestamp()
-        });
         await updateDoc(postRef, {
-          starCount: increment(1)
+          likedBy: arrayUnion(userId),
+          likes: increment(1)
         });
-        return true;
       }
-    } catch (error) {
-      console.error("Error in toggleStar:", error);
-      throw error;
     }
   }
 
-  // ADD RESPONSE (formerly comment)
-  async function addResponse(postId, responseText) {
+  // ===== ASSOCIATE (FOLLOW) SYSTEM =====
+  async function associateWithUser(targetUserId) {
     const user = auth.currentUser;
-    if (!user || !responseText.trim()) return;
-
-    // Get user data from Firestore to ensure we have profile picture
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.exists() ? userDoc.data() : {};
-
-    const responsesRef = collection(db, "posts", postId, "comments");
-    
-    await addDoc(responsesRef, {
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: userData.photoURL || user.photoURL || null,
-      text: responseText,
-      timestamp: serverTimestamp()
-    });
-  }
-
-  // DELETE POST
-  async function deletePost(postId) {
-    if (!confirm('Are you sure you want to delete this meetcast?')) return;
-    
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      showMessage('Meetcast deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting meetcast:', error);
-      showMessage('Failed to delete meetcast. Please try again.');
-    }
-  }
-
-  // FIXED ASSOCIATION SYSTEM WITH MERGE: TRUE
-  async function associateWithUser(userIdToAssociate) {
-    const user = auth.currentUser;
-    if (!user || user.uid === userIdToAssociate) return;
+    if (!user || user.uid === targetUserId) return;
 
     try {
       // Ensure both users have documents in Firestore
       await ensureUserDocument(user.uid);
-      await ensureUserDocument(userIdToAssociate);
+      await ensureUserDocument(targetUserId);
       
-      // Add to current user's associates with merge: true
-      const associateRef = doc(db, "users", user.uid, "associates", userIdToAssociate);
-      await setDoc(associateRef, {
-        timestamp: serverTimestamp()
+      // Add to current user's associates
+      const myAssocRef = doc(db, "users", user.uid, "associates", targetUserId);
+      await setDoc(myAssocRef, { 
+        userId: targetUserId, 
+        timestamp: serverTimestamp() 
       }, { merge: true });
       
-      // Add to target user's associatedWith with merge: true
-      const associatedWithRef = doc(db, "users", userIdToAssociate, "associatedWith", user.uid);
-      await setDoc(associatedWithRef, {
-        timestamp: serverTimestamp()
+      // Add to target user's associatedWith
+      const targetAssocRef = doc(db, "users", targetUserId, "associatedWith", user.uid);
+      await setDoc(targetAssocRef, { 
+        userId: user.uid, 
+        timestamp: serverTimestamp() 
       }, { merge: true });
       
       showMessage('You are now associates!', 'success');
@@ -1566,6 +1521,39 @@
     }
   }
 
+  // ADD RESPONSE (formerly comment)
+  async function addResponse(postId, responseText) {
+    const user = auth.currentUser;
+    if (!user || !responseText.trim()) return;
+
+    // Get user data from Firestore to ensure we have profile picture
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userData = userDoc.exists() ? userDoc.data() : {};
+
+    const responsesRef = collection(db, "posts", postId, "comments");
+    
+    await addDoc(responsesRef, {
+      userId: user.uid,
+      userName: user.displayName || "Anonymous",
+      profilePicture: userData.photoURL || user.photoURL || null,
+      text: responseText,
+      timestamp: serverTimestamp()
+    });
+  }
+
+  // DELETE POST
+  async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this meetcast?')) return;
+    
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      showMessage('Meetcast deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting meetcast:', error);
+      showMessage('Failed to delete meetcast. Please try again.');
+    }
+  }
+
   // Ensure user document exists in Firestore
   async function ensureUserDocument(userId) {
     try {
@@ -1602,7 +1590,7 @@
     }
   }
 
-  // GET ALL USERS FOR ASSOCIATION - FIXED
+  // GET ALL USERS FOR ASSOCIATION
   async function getAllUsers() {
     try {
       const usersRef = collection(db, "users");
@@ -2005,20 +1993,13 @@
   async function setupPostWithRealtimeData(postId, postData) {
     const user = auth.currentUser;
     
-    // Set up real-time listener for post document (for starCount)
+    // Set up real-time listener for post document
     const postDocRef = doc(db, "posts", postId);
     const unsubscribePost = onSnapshot(postDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const updatedPostData = docSnap.data();
-        updatePostStarCountUI(postId, updatedPostData.starCount || 0);
+        updatePostUI(postId, updatedPostData);
       }
-    });
-
-    // Set up real-time listener for stars subcollection (for current user's star status)
-    const starsQuery = query(collection(db, "posts", postId, "likes"));
-    const unsubscribeStars = onSnapshot(starsQuery, (starsSnapshot) => {
-      const isStarred = starsSnapshot.docs.some(doc => doc.id === user.uid);
-      updatePostStarButtonUI(postId, isStarred);
     });
 
     // Set up real-time listener for responses
@@ -2031,34 +2012,30 @@
     // Store unsubscribe functions
     postListeners[postId] = () => {
       unsubscribePost();
-      unsubscribeStars();
       unsubscribeResponses();
     };
 
     // Initial render
-    renderPost(postId, postData, postData.starCount || 0, false, []);
+    renderPost(postId, postData, []);
   }
 
-  // Update post star count UI
-  function updatePostStarCountUI(postId, starCount) {
-    const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
-    if (statsElement) {
-      const currentText = statsElement.textContent;
-      const responseMatch = currentText.match(/(\d+) responses/);
-      const responseCount = responseMatch ? responseMatch[1] : 0;
-      statsElement.textContent = `${starCount} stars • ${responseCount} responses`;
-    }
-  }
-
-  // Update post star button UI
-  function updatePostStarButtonUI(postId, isStarred) {
+  // Update post UI
+  function updatePostUI(postId, postData) {
     const starBtn = document.querySelector(`[data-post-id="${postId}"] .interaction-btn`);
+    const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
+    
     if (starBtn) {
+      const isStarred = postData.likedBy?.includes(currentUser.uid);
       if (isStarred) {
         starBtn.classList.add('active');
       } else {
         starBtn.classList.remove('active');
       }
+    }
+    
+    if (statsElement) {
+      const responseCount = document.querySelectorAll(`[data-post-id="${postId}"] .comments-section .comment`).length;
+      statsElement.textContent = `${postData.likes || 0} stars • ${responseCount} responses`;
     }
   }
 
@@ -2072,9 +2049,9 @@
     const totalResponses = responses.length;
 
     let responsesHtml = displayedResponses.map(response => {
-      const responseAvatar = response.userPhotoURL ? 
-        `<img src="${response.userPhotoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        response.userInitial || 'U';
+      const responseAvatar = response.profilePicture ? 
+        `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
       
       return `
         <div class="comment">
@@ -2107,9 +2084,9 @@
     // Update response count in stats
     const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
     if (statsElement) {
-      const starCount = document.querySelector(`[data-post-id="${postId}"] .interaction-btn.active`) ? 1 : 0;
-      const starCountMatch = statsElement.textContent.match(/(\d+) stars/);
-      const actualStarCount = starCountMatch ? parseInt(starCountMatch[1]) : 0;
+      const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+      const starCount = postElement?.querySelector('.interaction-btn.active') ? 1 : 0;
+      const actualStarCount = document.querySelector(`[data-post-id="${postId}"]`)?.getAttribute('data-likes') || 0;
       statsElement.textContent = `${actualStarCount} stars • ${totalResponses} responses`;
     }
   }
@@ -2121,9 +2098,9 @@
     const responses = responsesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
     let responsesHtml = responses.map(response => {
-      const responseAvatar = response.userPhotoURL ? 
-        `<img src="${response.userPhotoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        response.userInitial || 'U';
+      const responseAvatar = response.profilePicture ? 
+        `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
       
       return `
         <div class="comment" style="margin-bottom: 16px;">
@@ -2172,18 +2149,20 @@
   };
 
   // FIXED POST RENDERING WITH PROFILE PICTURES
-  const renderPost = (id, data, starCount = 0, isStarred = false, responses = []) => {
+  const renderPost = (id, data, responses = []) => {
     const postEl = document.createElement('div');
     postEl.classList.add('post');
     postEl.setAttribute('data-post-id', id);
+    postEl.setAttribute('data-likes', data.likes || 0);
     
     const user = auth.currentUser;
     const isOwner = data.userId === user.uid;
+    const isStarred = data.likedBy?.includes(user.uid);
     
     // Use profile picture if available, otherwise fallback to initial
-    const userAvatar = data.userPhotoURL ? 
-      `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-      data.userInitial || 'U';
+    const userAvatar = data.profilePicture ? 
+      `<img src="${data.profilePicture}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+      (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
     
     // Truncate long posts
     const maxLength = 200;
@@ -2264,7 +2243,7 @@
       <div class="post-content">${postContentHtml}</div>
       ${mediaHtml}
       <div class="post-stats">
-        <div>${starCount} stars • ${responses.length} responses</div>
+        <div>${data.likes || 0} stars • ${responses.length} responses</div>
       </div>
       <div class="post-interactions">
         <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="window.toggleStar('${id}')">
@@ -2279,9 +2258,9 @@
       </div>
       <div class="comments-section">
         ${responses.slice(-2).map(response => {
-          const responseAvatar = response.userPhotoURL ? 
-            `<img src="${response.userPhotoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-            response.userInitial || 'U';
+          const responseAvatar = response.profilePicture ? 
+            `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+            (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
           
           return `
             <div class="comment">
@@ -2363,7 +2342,7 @@
   // Post interactions
   window.toggleStar = async (id) => {
     try {
-      await toggleStar(id);
+      await toggleStar(id, currentUser.uid);
     } catch (error) {
       console.error('Error toggling star:', error);
       showMessage('Failed to update star. Please try again.');
@@ -2493,9 +2472,7 @@
 
   // FIXED PROFILE NAVIGATION - Use post's userId instead of current user's ID
   window.viewProfile = (userId) => {
-    // Store the target user ID in session storage
-    sessionStorage.setItem('targetUserId', userId);
-    // Navigate to profile page
+    // Navigate to profile page with the correct user ID
     window.location.href = 'profile.html?uid=' + userId;
   };
 
@@ -2505,15 +2482,6 @@
       document.querySelectorAll('.post-menu').forEach(menu => {
         menu.style.display = 'none';
       });
-    }
-  });
-
-  // Search functionality
-  searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    // Implement search functionality here
-    if (searchTerm.length > 2) {
-      showMessage(`Searching for: ${searchTerm}`, 'success');
     }
   });
 
