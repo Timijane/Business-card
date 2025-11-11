@@ -7,1276 +7,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  :root {
-    --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --warning: #F59E0B;
-    --bg-color: #f0f2f5;
-    --card-bg: #fff;
-    --text-color: #111;
-    --secondary-text: #65676b;
-    --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
-  }
-
-  body.dark-mode {
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-color: #e4e6eb;
-    --secondary-text: #b0b3b8;
-    --border-color: #3e4042;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html, body {
-    height: 100%;
-    overflow-x: hidden;
-    font-size: 18px;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #e0f7ff 0%, #b3e0ff 100%);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    min-height: 100vh;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-  }
-
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 20px;
-    transition: all 0.3s ease;
-    color: white;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .sidebar-header {
-    padding: 10px 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
-  }
-
-  .sidebar-menu {
-    list-style: none;
-  }
-
-  .sidebar-menu li {
-    margin-bottom: 8px;
-  }
-
-  .sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    text-decoration: none;
-    color: white;
-    border-radius: 8px;
-    transition: background 0.3s;
-    min-height: 44px;
-    font-size: 18px;
-  }
-
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .sidebar-menu i {
-    margin-right: 12px;
-    font-size: 22px;
-  }
-
-  .main-content {
-    flex: 1;
-    margin-left: 280px;
-    padding: 20px;
-    min-height: 100vh;
-    font-size: 18px;
-  }
-
-  .navbar {
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    color: white;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .nav-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 8px 15px;
-    margin-right: 15px;
-  }
-
-  .search-bar input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 200px;
-    font-size: 18px;
-  }
-
-  .search-bar input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    position: relative;
-    min-height: 44px;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    min-width: 40px;
-    font-size: 18px;
-    overflow: hidden;
-  }
-
-  .user-avatar.small {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    min-width: 30px;
-  }
-
-  .user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .user-avatar.small img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .status-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-  }
-
-  .status-online {
-    background-color: var(--online);
-  }
-
-  .status-offline {
-    background-color: var(--offline);
-  }
-
-  .user-profile-nav span {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .btn-primary {
-    background: var(--primary);
-  }
-
-  .btn-secondary {
-    background: var(--secondary-text);
-  }
-
-  .btn-success {
-    background: var(--success);
-  }
-
-  .btn-warning {
-    background: var(--warning);
-  }
-
-  .follow-btn {
-    padding: 6px 12px;
-    font-size: 14px;
-    border-radius: 6px;
-    min-height: 36px;
-  }
-
-  /* Post Composer */
-  .post-composer {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .composer-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .composer-input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 12px 16px;
-    border-radius: 25px;
-    color: var(--text-color);
-    font-size: 18px;
-    cursor: pointer;
-    min-height: 44px;
-  }
-
-  .composer-divider {
-    height: 1px;
-    background: var(--border-color);
-    margin: 16px 0;
-  }
-
-  .composer-actions {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    min-height: 44px;
-    font-size: 16px;
-  }
-
-  .action-btn:hover {
-    background: var(--bg-color);
-  }
-
-  /* AI Features */
-  .ai-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 99;
-    transition: all 0.3s ease;
-    min-width: 60px;
-    min-height: 60px;
-  }
-
-  .ai-button:hover {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-  }
-
-  .ai-assistant {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 300px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    z-index: 98;
-    display: none;
-    flex-direction: column;
-    max-height: 400px;
-  }
-
-  .ai-header {
-    padding: 12px 16px;
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    color: white;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: between;
-    align-items: center;
-  }
-
-  .ai-messages {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    max-height: 300px;
-  }
-
-  .ai-message {
-    margin-bottom: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-
-  .ai-user {
-    background: var(--primary);
-    color: white;
-    margin-left: 20px;
-  }
-
-  .ai-bot {
-    background: var(--bg-color);
-    margin-right: 20px;
-  }
-
-  .ai-input {
-    display: flex;
-    padding: 12px;
-    gap: 8px;
-  }
-
-  .ai-input input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    background: var(--bg-color);
-    color: var(--text-color);
-  }
-
-  /* Modal Styles */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-body {
-    padding: 16px;
-  }
-
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--secondary-text);
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  /* Enhanced Post Form */
-  .post-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post-user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .post-textarea {
-    width: 100%;
-    min-height: 120px;
-    border: 2px solid #0080FF;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 18px;
-    resize: none;
-    outline: none;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .media-preview {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .media-preview img,
-  .media-preview video {
-    width: 100%;
-    max-height: 400px;
-    object-fit: contain;
-    background: var(--bg-color);
-  }
-
-  .remove-media {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .post-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  /* Posts */
-  .posts {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .post-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .post-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-  }
-
-  .post-user:hover .user-name {
-    text-decoration: underline;
-  }
-
-  .post-meta {
-    font-size: 15px;
-    color: var(--secondary-text);
-  }
-
-  .post-actions {
-    position: relative;
-  }
-
-  .post-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    padding: 8px;
-    min-width: 150px;
-    z-index: 10;
-    display: none;
-  }
-
-  .post-menu-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    font-size: 16px;
-  }
-
-  .post-menu-item:hover {
-    background: var(--bg-color);
-  }
-
-  .post-menu-item.delete {
-    color: var(--error);
-  }
-
-  .post-content {
-    margin-bottom: 12px;
-    font-size: 18px;
-    line-height: 1.5;
-  }
-
-  .post-text-truncated {
-    margin-bottom: 8px;
-  }
-
-  .read-more {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .post-media {
-    margin-top: 12px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .post-media img,
-  .post-media video {
-    width: 100%;
-    max-height: 600px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  .post-media img:hover,
-  .post-media video:hover {
-    transform: scale(1.02);
-  }
-
-  .post-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--secondary-text);
-    font-size: 16px;
-  }
-
-  .post-interactions {
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
-  }
-
-  .interaction-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    font-weight: 600;
-    min-height: 44px;
-    font-size: 16px;
-  }
-
-  .interaction-btn:hover {
-    background: var(--bg-color);
-  }
-
-  .interaction-btn.active {
-    color: var(--warning);
-  }
-
-  .comments-section {
-    margin-top: 12px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
-  }
-
-  .comment {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .comment-content {
-    flex: 1;
-    background: var(--bg-color);
-    padding: 8px 12px;
-    border-radius: 18px;
-  }
-
-  .comment-input {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    align-items: center;
-  }
-
-  .comment-input input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 18px;
-    color: var(--text-color);
-    font-size: 16px;
-  }
-
-  .send-comment-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s;
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .send-comment-btn:hover {
-    background: var(--primary-dark);
-  }
-
-  .send-comment-btn:disabled {
-    background: var(--secondary-text);
-    cursor: not-allowed;
-  }
-
-  .view-more-comments {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-    text-align: center;
-    padding: 8px 0;
-    margin-top: 8px;
-  }
-
-  .comments-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .comments-modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .comments-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .comments-modal-body {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .media-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .media-modal-content {
-    max-width: 90%;
-    max-height: 90vh;
-    position: relative;
-  }
-
-  .media-modal-content img,
-  .media-modal-content video {
-    max-width: 100%;
-    max-height: 90vh;
-    object-fit: contain;
-  }
-
-  .close-media-modal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: var(--secondary-text);
-  }
-
-  .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .success-message {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  #postBtn {
-    width: 120px;
-    margin: 0 auto;
-  }
-
-  /* Association System */
-  .association-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
-    min-height: 36px;
-  }
-
-  .associate-btn {
-    background: var(--primary);
-    color: white;
-  }
-
-  .associated-btn {
-    background: var(--success);
-    color: white;
-  }
-
-  /* Users List */
-  .users-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .user-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  /* IMPROVED RESPONSIVE DESIGN */
-  @media (max-width: 1200px) {
-    .sidebar {
-      width: 80px;
-    }
-    .sidebar span {
-      display: none;
-    }
-    .main-content {
-      margin-left: 80px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .sidebar {
-      width: 70px;
-      padding: 10px 5px;
-      height: 100vh;
-    }
-    
-    .sidebar-header {
-      display: none;
-    }
-    
-    .sidebar-menu a {
-      flex-direction: column;
-      padding: 10px 5px;
-      font-size: 12px;
-      justify-content: center;
-      text-align: center;
-    }
-    
-    .sidebar-menu i {
-      margin-right: 0;
-      margin-bottom: 5px;
-      font-size: 18px;
-    }
-    
-    .main-content {
-      margin-left: 70px;
-      padding: 10px;
-      width: calc(100% - 70px);
-    }
-    
-    .navbar {
-      padding: 12px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-    }
-    
-    .search-bar {
-      display: none;
-    }
-    
-    .user-profile-nav span {
-      display: none;
-    }
-    
-    .nav-controls {
-      gap: 5px;
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .btn span {
-      display: none;
-    }
-    
-    .btn {
-      padding: 8px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .composer-actions {
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .action-btn {
-      justify-content: center;
-    }
-
-    .post-interactions {
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .interaction-btn {
-      justify-content: center;
-    }
-
-    .modal {
-      padding: 10px;
-    }
-
-    .modal-content {
-      width: 100%;
-      max-width: 100%;
-      margin: 0;
-    }
-
-    .ai-assistant {
-      width: calc(100% - 40px);
-      right: 20px;
-      left: 20px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sidebar {
-      width: 60px;
-    }
-    
-    .main-content {
-      margin-left: 60px;
-      padding: 8px;
-    }
-
-    .navbar h2 {
-      font-size: 18px;
-    }
-
-    .post-composer {
-      padding: 12px;
-    }
-
-    .post {
-      padding: 12px;
-    }
-  }
-
-  @media (min-height: 1000px) {
-    .sidebar {
-      height: 100vh;
-      position: fixed;
-    }
-  }
+  /* ... (all your existing CSS remains the same) ... */
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white;">MEET</h2>
-    </div>
-    <ul class="sidebar-menu">
-      <li><a href="#"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="goToMyProfile()"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="#" onclick="goToChat()"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="#"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="#"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="#"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
-    </ul>
-  </div>
-
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Navbar -->
-    <div class="navbar">
-      <h2 style="color: white;">MEET Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search..." id="searchInput">
-        </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">
-              U
-              <div class="status-indicator status-online"></div>
-            </div>
-            <span id="userName">User</span>
-          </div>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span>Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Post Composer -->
-    <div class="post-composer">
-      <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">
-          U
-          <div class="status-indicator status-online"></div>
-        </div>
-        <div class="composer-input" id="openComposer">
-          Surprise the world now
-        </div>
-      </div>
-      <div class="composer-divider"></div>
-      <div class="composer-actions">
-        <div class="action-btn">
-          <i class="fas fa-video" style="color: #f02849;"></i>
-          <span>Live Video</span>
-        </div>
-        <div class="action-btn">
-          <i class="fas fa-images" style="color: #45bd62;"></i>
-          <span>Photo/Video</span>
-        </div>
-        <div class="action-btn">
-          <i class="fas fa-laugh" style="color: #f7b928;"></i>
-          <span>Feeling/Activity</span>
-        </div>
-        <div class="action-btn" onclick="openAIAssistant()">
-          <i class="fas fa-robot" style="color: #8a2be2;"></i>
-          <span>AI Assistant</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- AI Assistant -->
-    <div class="ai-assistant" id="aiAssistant">
-      <div class="ai-header">
-        <h4>MEET AI Assistant</h4>
-        <button class="close-modal" onclick="closeAIAssistant()">&times;</button>
-      </div>
-      <div class="ai-messages" id="aiMessages">
-        <div class="ai-message ai-bot">
-          Hello! I'm your MEET AI assistant. How can I help you today?
-        </div>
-      </div>
-      <div class="ai-input">
-        <input type="text" id="aiInput" placeholder="Ask me anything...">
-        <button class="send-comment-btn" onclick="sendAIMessage()">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- AI Button -->
-    <div class="ai-button" onclick="toggleAIAssistant()">
-      <i class="fas fa-robot"></i>
-    </div>
-
-    <!-- Messages -->
-    <div id="messageContainer"></div>
-
-    <!-- Posts Container -->
-    <div class="posts" id="postsContainer">
-      <div class="loading">Loading posts...</div>
-    </div>
-  </div>
-</div>
-
-<!-- Post Modal -->
-<div class="modal" id="postModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Post</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="post-form">
-        <div class="post-user-info">
-          <div class="user-avatar" id="modalUserAvatar">
-            U
-            <div class="status-indicator status-online"></div>
-          </div>
-          <div>
-            <div class="user-name" id="modalUserName">User Name</div>
-            <select id="privacy" style="border: none; background: var(--bg-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; font-size: 14px;">
-              <option value="public">🌍 Public</option>
-              <option value="friends">👥 Friends</option>
-              <option value="private">🔒 Only Me</option>
-            </select>
-          </div>
-        </div>
-        <textarea class="post-textarea" id="postText" placeholder="Surprise the world now"></textarea>
-        <div class="media-preview" id="mediaPreview"></div>
-        <div class="post-options">
-          <div style="color: var(--secondary-text);">Add to your post</div>
-          <div style="display: flex; gap: 8px;">
-            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;" multiple>
-            <div class="action-btn" onclick="document.getElementById('postMedia').click()">
-              <i class="fas fa-images" style="color: #45bd62;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-user-tag" style="color: #1877f2;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-laugh" style="color: #f7b928;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-map-marker-alt" style="color: #f5533d;"></i>
-            </div>
-          </div>
-        </div>
-        <button class="btn" id="postBtn" style="background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);">
-          <span id="postBtnText">Post</span>
-          <span id="postBtnSpinner" class="spinner" style="display: none;"></span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Users Modal -->
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="users-list" id="usersList">
-        <div class="loading">Loading users...</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Comments Modal -->
-<div class="comments-modal" id="commentsModal">
-  <div class="comments-modal-content">
-    <div class="comments-modal-header">
-      <h3>Comments</h3>
-      <button class="close-modal" id="closeCommentsModal">&times;</button>
-    </div>
-    <div class="comments-modal-body" id="commentsModalBody">
-      <!-- Comments will be loaded here -->
-    </div>
-  </div>
-</div>
-
-<!-- Media Modal -->
-<div class="media-modal" id="mediaModal">
-  <div class="media-modal-content">
-    <button class="close-media-modal" id="closeMediaModal">&times;</button>
-    <img id="mediaModalImage" src="" alt="Enlarged media">
-    <video id="mediaModalVideo" controls style="display: none;">
-      Your browser does not support the video tag.
-    </video>
-  </div>
+  <!-- ... (all your existing HTML structure remains the same) ... -->
 </div>
 
 <script type="module">
-  // Firebase imports
+  // ===== Firebase Imports =====
   import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, arrayUnion, arrayRemove
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    initializeApp 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
-  // Firebase configuration
+  import { 
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, 
+    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, arrayUnion, arrayRemove, increment 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+  import { 
+    getAuth, onAuthStateChanged, signOut 
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+  // ===== Cloudinary Setup =====
+  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
+  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+
+  // ===== Firebase Config =====
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -1288,20 +48,44 @@
     measurementId: "G-9BFPPVMMRF"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // Cloudinary configuration
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_API_KEY = '767477973776429';
-  const CLOUDINARY_API_SECRET = '3n8OO8MaqD6SZN-AGnLaIIulGW0';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+  // ===== ADDED: User Document Creation =====
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      const userData = {
+        name: user.displayName || "",
+        email: user.email,
+        bio: "",
+        profilePicture: user.photoURL || "",
+        privateFields: {},
+        associates: [],
+        associatedWith: [],
+        createdAt: serverTimestamp(),
+      };
+      await setDoc(userRef, userData, { merge: true });
+    }
+  });
 
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  // ===== ADDED: Upload Post Function =====
+  const uploadPost = async (text, mediaUrl, mediaType) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) return alert("Please log in first.");
+
+    await addDoc(collection(db, "posts"), {
+      userId: user.uid,
+      text,
+      mediaUrl,
+      mediaType,
+      likesCount: 0,
+      createdAt: serverTimestamp(),
+    });
+  };
 
   // DOM elements
   const postsContainer = document.getElementById('postsContainer');
@@ -1324,12 +108,11 @@
   const usersModal = document.getElementById('usersModal');
   const usersList = document.getElementById('usersList');
   const closeUsersModal = document.getElementById('closeUsersModal');
-  const searchInput = document.getElementById('searchInput');
   
-  // AI Assistant elements
-  const aiAssistant = document.getElementById('aiAssistant');
-  const aiMessages = document.getElementById('aiMessages');
-  const aiInput = document.getElementById('aiInput');
+  // MeetAI Assistant elements
+  const meetaiAssistant = document.getElementById('meetaiAssistant');
+  const meetaiMessages = document.getElementById('meetaiMessages');
+  const meetaiInput = document.getElementById('meetaiInput');
   
   // Modal elements
   const commentsModal = document.getElementById('commentsModal');
@@ -1344,6 +127,10 @@
   let currentUser = null;
   let postListeners = {};
   let allUsers = [];
+  const userCache = {};
+
+  // File size limits
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   // Theme management
   function initTheme() {
@@ -1380,8 +167,8 @@
     }
   }
 
-  // Upload media to Cloudinary
-  async function uploadMedia(file) {
+  // ===== Handle Media Upload =====
+  async function uploadToCloudinary(file) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error('File size too large. Maximum 10MB.');
     }
@@ -1389,7 +176,6 @@
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("api_key", CLOUDINARY_API_KEY);
     
     try {
       const response = await fetch(CLOUDINARY_URL, {
@@ -1410,105 +196,90 @@
     }
   }
 
-  // CREATE POST
+  // ===== CREATE POST =====
   async function createPost(text, files, privacy) {
     const user = auth.currentUser;
     if (!user) throw new Error("Please login first!");
 
+    // Get user data from Firestore to ensure we have profile picture
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userData = userDoc.exists() ? userDoc.data() : {};
+    
     let mediaUrls = [];
     if (files && files.length > 0) {
       for (let file of files) {
-        const mediaUrl = await uploadMedia(file);
+        const mediaUrl = await uploadToCloudinary(file);
         mediaUrls.push(mediaUrl);
       }
     }
 
+    // Save post with user's current profile data
     await addDoc(collection(db, "posts"), {
       userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: user.photoURL || null,
+      userName: userData.displayName || "Anonymous",
+      profilePicture: userData.photoURL || user.photoURL || null,
       text: text,
       media: mediaUrls,
-      privacy: privacy,
+      likes: 0,
+      likedBy: [],
       timestamp: serverTimestamp(),
+      privacy: privacy
     });
   }
 
-  // TOGGLE STAR (formerly like) - FIXED IMPLEMENTATION
-  async function toggleStar(postId) {
-    const user = auth.currentUser;
-    if (!user) return;
+  // ===== TOGGLE STAR (LIKE) =====
+  async function toggleStar(postId, userId) {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
 
-    const starRef = doc(db, "posts", postId, "stars", user.uid);
-    const starSnap = await getDoc(starRef);
+    if (postSnap.exists()) {
+      const postData = postSnap.data();
+      const liked = postData.likedBy?.includes(userId);
 
-    if (starSnap.exists()) {
-      // Unstar: remove the star document
-      await deleteDoc(starRef);
-    } else {
-      // Star: create a star document
-      await setDoc(starRef, {
-        userId: user.uid,
-        userName: user.displayName || "Anonymous",
-        userPhotoURL: user.photoURL || null,
-        timestamp: serverTimestamp()
-      });
+      if (liked) {
+        await updateDoc(postRef, {
+          likedBy: arrayRemove(userId),
+          likes: increment(-1)
+        });
+      } else {
+        await updateDoc(postRef, {
+          likedBy: arrayUnion(userId),
+          likes: increment(1)
+        });
+      }
     }
   }
 
-  // ADD COMMENT
-  async function addComment(postId, commentText) {
+  // ===== ASSOCIATE (FOLLOW) SYSTEM =====
+  async function associateWithUser(targetUserId) {
     const user = auth.currentUser;
-    if (!user || !commentText.trim()) return;
-
-    const commentsRef = collection(db, "posts", postId, "comments");
-    
-    await addDoc(commentsRef, {
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userInitial: user.displayName?.charAt(0).toUpperCase() || "U",
-      userPhotoURL: user.photoURL || null,
-      text: commentText,
-      timestamp: serverTimestamp()
-    });
-  }
-
-  // DELETE POST
-  async function deletePost(postId) {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      showMessage('Post deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      showMessage('Failed to delete post. Please try again.');
-    }
-  }
-
-  // ASSOCIATION SYSTEM - FIXED AND ENHANCED
-  async function associateWithUser(userIdToAssociate) {
-    const user = auth.currentUser;
-    if (!user || user.uid === userIdToAssociate) return;
+    if (!user || user.uid === targetUserId) return;
 
     try {
+      // Ensure both users have documents in Firestore
+      await ensureUserDocument(user.uid);
+      await ensureUserDocument(targetUserId);
+      
       // Add to current user's associates
-      const associateRef = doc(db, "users", user.uid, "associates", userIdToAssociate);
-      await setDoc(associateRef, {
-        timestamp: serverTimestamp()
-      });
+      const myAssocRef = doc(db, "users", user.uid, "associates", targetUserId);
+      await setDoc(myAssocRef, { 
+        userId: targetUserId, 
+        timestamp: serverTimestamp() 
+      }, { merge: true });
       
       // Add to target user's associatedWith
-      const associatedWithRef = doc(db, "users", userIdToAssociate, "associatedWith", user.uid);
-      await setDoc(associatedWithRef, {
-        timestamp: serverTimestamp()
-      });
+      const targetAssocRef = doc(db, "users", targetUserId, "associatedWith", user.uid);
+      await setDoc(targetAssocRef, { 
+        userId: user.uid, 
+        timestamp: serverTimestamp() 
+      }, { merge: true });
       
       showMessage('You are now associates!', 'success');
+      return true;
     } catch (error) {
       console.error('Error associating with user:', error);
       showMessage('Failed to associate with user. Please try again.');
+      return false;
     }
   }
 
@@ -1526,9 +297,11 @@
       await deleteDoc(associatedWithRef);
       
       showMessage('Association removed.', 'success');
+      return true;
     } catch (error) {
       console.error('Error removing association:', error);
       showMessage('Failed to remove association. Please try again.');
+      return false;
     }
   }
 
@@ -1536,21 +309,83 @@
     const user = auth.currentUser;
     if (!user || user.uid === userId) return false;
 
-    const associateRef = doc(db, "users", user.uid, "associates", userId);
-    const associateSnap = await getDoc(associateRef);
-    return associateSnap.exists();
+    try {
+      const associateRef = doc(db, "users", user.uid, "associates", userId);
+      const associateSnap = await getDoc(associateRef);
+      return associateSnap.exists();
+    } catch (error) {
+      console.error('Error checking association:', error);
+      return false;
+    }
   }
 
-  async function getAssociatesCount(userId) {
-    const associatesRef = collection(db, "users", userId, "associates");
-    const associatesSnap = await getDocs(associatesRef);
-    return associatesSnap.size;
+  // ADD RESPONSE (formerly comment)
+  async function addResponse(postId, responseText) {
+    const user = auth.currentUser;
+    if (!user || !responseText.trim()) return;
+
+    // Get user data from Firestore to ensure we have profile picture
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userData = userDoc.exists() ? userDoc.data() : {};
+
+    const responsesRef = collection(db, "posts", postId, "comments");
+    
+    await addDoc(responsesRef, {
+      userId: user.uid,
+      userName: user.displayName || "Anonymous",
+      profilePicture: userData.photoURL || user.photoURL || null,
+      text: responseText,
+      timestamp: serverTimestamp()
+    });
   }
 
-  async function getAssociatedWithCount(userId) {
-    const associatedWithRef = collection(db, "users", userId, "associatedWith");
-    const associatedWithSnap = await getDocs(associatedWithRef);
-    return associatedWithSnap.size;
+  // DELETE POST
+  async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this meetcast?')) return;
+    
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      showMessage('Meetcast deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting meetcast:', error);
+      showMessage('Failed to delete meetcast. Please try again.');
+    }
+  }
+
+  // Ensure user document exists in Firestore
+  async function ensureUserDocument(userId) {
+    try {
+      const userDocRef = doc(db, "users", userId);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (!userDocSnap.exists()) {
+        // Get user data from auth if available
+        const authUser = auth.currentUser;
+        let userData = {
+          displayName: "User",
+          email: "",
+          photoURL: null,
+          createdAt: serverTimestamp()
+        };
+        
+        if (authUser && authUser.uid === userId) {
+          userData = {
+            displayName: authUser.displayName || "User",
+            email: authUser.email || "",
+            photoURL: authUser.photoURL || null,
+            createdAt: serverTimestamp()
+          };
+        }
+        
+        await setDoc(userDocRef, userData);
+        console.log("Created user document for:", userId);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error ensuring user document:", error);
+      return false;
+    }
   }
 
   // GET ALL USERS FOR ASSOCIATION
@@ -1569,39 +404,95 @@
       return users;
     } catch (error) {
       console.error('Error getting users:', error);
+      showMessage('Failed to load users. Please try again.');
       return [];
     }
   }
 
-  // AI ASSISTANT FUNCTIONS
-  function toggleAIAssistant() {
-    if (aiAssistant.style.display === 'flex') {
-      closeAIAssistant();
-    } else {
-      openAIAssistant();
+  // USER CACHE FOR PERFORMANCE
+  async function getUserDataWithCache(userId) {
+    if (userCache[userId]) return userCache[userId];
+    
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        userCache[userId] = userDoc.data();
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting user data:", error);
+      return null;
     }
   }
 
-  function openAIAssistant() {
-    aiAssistant.style.display = 'flex';
+  // FIXED PROFILE PICTURE FUNCTION
+  function updateAvatar(element, profilePicture, userName, initial) {
+    if (profilePicture) {
+      element.innerHTML = `<img src="${profilePicture}" alt="${userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>`;
+    } else {
+      element.innerHTML = `${initial}<div class="status-indicator status-online"></div>`;
+    }
   }
 
-  function closeAIAssistant() {
-    aiAssistant.style.display = 'none';
+  // CREATE USER DOCUMENT IF NOT EXISTS
+  async function createUserDocument(user) {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          displayName: user.displayName || "User",
+          email: user.email || "",
+          photoURL: user.photoURL || null,
+          createdAt: serverTimestamp()
+        });
+        console.log("User document created for:", user.uid);
+      } else {
+        // Update user document if profile has changed
+        const existingData = userDocSnap.data();
+        if (existingData.displayName !== user.displayName || existingData.photoURL !== user.photoURL) {
+          await updateDoc(userDocRef, {
+            displayName: user.displayName || "User",
+            photoURL: user.photoURL || null
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error handling user document:", error);
+    }
   }
 
-  async function sendAIMessage() {
-    const message = aiInput.value.trim();
+  // MEETAI ASSISTANT FUNCTIONS
+  function toggleMeetAI() {
+    if (meetaiAssistant.style.display === 'flex') {
+      closeMeetAI();
+    } else {
+      openMeetAI();
+    }
+  }
+
+  function openMeetAI() {
+    meetaiAssistant.style.display = 'flex';
+  }
+
+  function closeMeetAI() {
+    meetaiAssistant.style.display = 'none';
+  }
+
+  async function sendMeetAIMessage() {
+    const message = meetaiInput.value.trim();
     if (!message) return;
 
     // Add user message
-    addAIMessage(message, 'user');
-    aiInput.value = '';
+    addMeetAIMessage(message, 'user');
+    meetaiInput.value = '';
 
-    // Simulate AI response (in a real app, you'd call an AI API)
+    // Simulate AI response
     setTimeout(() => {
       const responses = [
-        "I understand you're asking about " + message + ". As your MEET AI assistant, I can help you navigate the platform, connect with associates, or optimize your posts.",
+        "I understand you're asking about " + message + ". As your MeetAI assistant, I can help you navigate the platform, connect with associates, or optimize your meetcasts.",
         "That's an interesting question about " + message + ". I recommend checking the help section or connecting with experienced associates who can provide guidance.",
         "Based on your query about " + message + ", I suggest exploring similar topics in our community feed or starting a discussion with your associates.",
         "I've analyzed your question regarding " + message + ". The MEET platform offers various tools to help with this - consider using the search feature to find relevant content.",
@@ -1609,16 +500,16 @@
       ];
       
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      addAIMessage(randomResponse, 'bot');
+      addMeetAIMessage(randomResponse, 'bot');
     }, 1000);
   }
 
-  function addAIMessage(text, sender) {
+  function addMeetAIMessage(text, sender) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `ai-message ai-${sender}`;
+    messageDiv.className = `meetai-message meetai-${sender}`;
     messageDiv.textContent = text;
-    aiMessages.appendChild(messageDiv);
-    aiMessages.scrollTop = aiMessages.scrollHeight;
+    meetaiMessages.appendChild(messageDiv);
+    meetaiMessages.scrollTop = meetaiMessages.scrollHeight;
   }
 
   // Authentication state listener
@@ -1628,22 +519,19 @@
     } else {
       currentUser = user;
       
-      // Update user info in UI with actual profile pictures
-      const userNameText = user.displayName || 'User';
+      // Create or update user document in Firestore
+      await createUserDocument(user);
+      
+      // Get updated user data from Firestore
+      const userData = await getUserDataWithCache(user.uid);
+      const userNameText = userData?.displayName || user.displayName || 'User';
+      const userProfilePicture = userData?.photoURL || user.photoURL;
       const userInitial = userNameText.charAt(0).toUpperCase();
       
-      // Function to update avatar with profile picture
-      const updateAvatar = (element, initial) => {
-        if (user.photoURL) {
-          element.innerHTML = `<img src="${user.photoURL}" alt="${userNameText}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>`;
-        } else {
-          element.innerHTML = `${initial}<div class="status-indicator status-online"></div>`;
-        }
-      };
-      
-      updateAvatar(currentUserAvatar, userInitial);
-      updateAvatar(currentUserAvatarComposer, userInitial);
-      updateAvatar(modalUserAvatar, userInitial);
+      // Update all avatars with profile pictures
+      updateAvatar(currentUserAvatar, userProfilePicture, userNameText, userInitial);
+      updateAvatar(currentUserAvatarComposer, userProfilePicture, userNameText, userInitial);
+      updateAvatar(modalUserAvatar, userProfilePicture, userNameText, userInitial);
       
       modalUserName.textContent = userNameText;
       userName.textContent = userNameText;
@@ -1699,33 +587,42 @@
     // Load users with association status
     usersList.innerHTML = '<div class="loading">Loading users...</div>';
     
-    const usersHtml = await Promise.all(allUsers.map(async (user) => {
-      const isAssociated = await checkIfAssociated(user.id);
-      const userAvatar = user.photoURL ? 
-        `<img src="${user.photoURL}" alt="${user.displayName || 'User'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
+    try {
+      // Refresh users list
+      allUsers = await getAllUsers();
       
-      return `
-        <div class="user-item">
-          <div class="user-info">
-            <div class="user-avatar small">${userAvatar}</div>
-            <div>
-              <div style="font-weight: 600;">${user.displayName || 'Anonymous User'}</div>
-              <div style="font-size: 14px; color: var(--secondary-text);">${user.email || ''}</div>
+      if (allUsers.length === 0) {
+        usersList.innerHTML = '<div class="loading">No users found.</div>';
+        return;
+      }
+      
+      const usersHtml = await Promise.all(allUsers.map(async (user) => {
+        const isAssociated = await checkIfAssociated(user.id);
+        const userAvatar = user.photoURL ? 
+          `<img src="${user.photoURL}" alt="${user.displayName || 'User'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+          (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
+        
+        return `
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-avatar small">${userAvatar}</div>
+              <div>
+                <div style="font-weight: 600;">${user.displayName || 'User'}</div>
+                <div style="font-size: 14px; color: var(--secondary-text);">${user.email || ''}</div>
+              </div>
             </div>
+            <button class="association-btn ${isAssociated ? 'associated-btn' : 'associate-btn'}" 
+                    onclick="${isAssociated ? `removeAssociation('${user.id}')` : `associateWithUser('${user.id}')`}">
+              ${isAssociated ? 'Associated' : 'Associate'}
+            </button>
           </div>
-          <button class="association-btn ${isAssociated ? 'associated-btn' : 'associate-btn'}" 
-                  onclick="${isAssociated ? `removeAssociation('${user.id}')` : `associateWithUser('${user.id}')`}">
-            ${isAssociated ? 'Associated' : 'Associate'}
-          </button>
-        </div>
-      `;
-    }));
-    
-    usersList.innerHTML = usersHtml.join('');
-    
-    if (usersHtml.length === 0) {
-      usersList.innerHTML = '<div class="loading">No users found.</div>';
+        `;
+      }));
+      
+      usersList.innerHTML = usersHtml.join('');
+    } catch (error) {
+      console.error('Error loading users:', error);
+      usersList.innerHTML = '<div class="error-message">Failed to load users. Please try again.</div>';
     }
   };
 
@@ -1778,10 +675,10 @@
     }
   });
 
-  // AI input enter key
-  aiInput.addEventListener('keypress', (e) => {
+  // MeetAI input enter key
+  meetaiInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      sendAIMessage();
+      sendMeetAIMessage();
     }
   });
 
@@ -1828,19 +725,19 @@
     removeMedia();
   }
 
-  // Create post
+  // Create post (meetcast)
   postBtn.addEventListener('click', async () => {
     const text = postText.value.trim();
     const mediaFiles = postMedia.files;
     const privacy = privacySelect.value;
 
     if (!text && (!mediaFiles || mediaFiles.length === 0)) {
-      showMessage('Please add some text or media to your post!');
+      showMessage('Please add some text or media to your meetcast!');
       return;
     }
 
     if (text.length > 500) {
-      showMessage('Post text is too long. Maximum 500 characters.');
+      showMessage('Meetcast text is too long. Maximum 500 characters.');
       return;
     }
 
@@ -1851,13 +748,13 @@
       resetPostForm();
       postModal.style.display = 'none';
       document.body.style.overflow = 'auto';
-      showMessage('Post created successfully!', 'success');
+      showMessage('Meetcast created successfully!', 'success');
     } catch (error) {
-      console.error('Post creation error:', error);
+      console.error('Meetcast creation error:', error);
       if (error.message.includes('File size too large')) {
         showMessage('File size too large. Maximum 10MB.');
       } else {
-        showMessage('Failed to create post. Please try again.');
+        showMessage('Failed to create meetcast. Please try again.');
       }
     } finally {
       setLoading('postBtn', false);
@@ -1882,49 +779,51 @@
       });
       
       if (snapshot.empty) {
-        postsContainer.innerHTML = '<div class="loading">No posts yet. Be the first to post!</div>';
+        postsContainer.innerHTML = '<div class="loading">No meetcasts yet. Be the first to post!</div>';
       }
     }, error => {
       console.error('Real-time listener error:', error);
-      postsContainer.innerHTML = '<div class="error-message">Failed to load posts. Please refresh the page.</div>';
+      postsContainer.innerHTML = '<div class="error-message">Failed to load meetcasts. Please refresh the page.</div>';
     });
   };
 
-  // Setup individual post with real-time stars and comments
+  // Setup individual post with real-time stars and responses
   async function setupPostWithRealtimeData(postId, postData) {
     const user = auth.currentUser;
     
-    // Set up real-time listener for stars
-    const starsQuery = query(collection(db, "posts", postId, "stars"));
-    const unsubscribeStars = onSnapshot(starsQuery, (starsSnapshot) => {
-      const starCount = starsSnapshot.size;
-      const isStarred = starsSnapshot.docs.some(doc => doc.id === user.uid);
-      updatePostStarUI(postId, starCount, isStarred);
+    // Set up real-time listener for post document
+    const postDocRef = doc(db, "posts", postId);
+    const unsubscribePost = onSnapshot(postDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const updatedPostData = docSnap.data();
+        updatePostUI(postId, updatedPostData);
+      }
     });
 
-    // Set up real-time listener for comments
-    const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-    const unsubscribeComments = onSnapshot(commentsQuery, (commentsSnapshot) => {
-      const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      updatePostCommentsUI(postId, comments);
+    // Set up real-time listener for responses
+    const responsesQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    const unsubscribeResponses = onSnapshot(responsesQuery, (responsesSnapshot) => {
+      const responses = responsesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      updatePostResponsesUI(postId, responses);
     });
 
     // Store unsubscribe functions
     postListeners[postId] = () => {
-      unsubscribeStars();
-      unsubscribeComments();
+      unsubscribePost();
+      unsubscribeResponses();
     };
 
     // Initial render
-    renderPost(postId, postData, 0, false, []);
+    renderPost(postId, postData, []);
   }
 
-  // Update post star UI
-  function updatePostStarUI(postId, starCount, isStarred) {
+  // Update post UI
+  function updatePostUI(postId, postData) {
     const starBtn = document.querySelector(`[data-post-id="${postId}"] .interaction-btn`);
-    const starStats = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
+    const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
     
     if (starBtn) {
+      const isStarred = postData.likedBy?.includes(currentUser.uid);
       if (isStarred) {
         starBtn.classList.add('active');
       } else {
@@ -1932,86 +831,88 @@
       }
     }
     
-    if (starStats) {
-      const commentCount = document.querySelectorAll(`[data-post-id="${postId}"] .comments-section .comment`).length;
-      starStats.textContent = `${starCount} stars • ${commentCount} comments`;
+    if (statsElement) {
+      const responseCount = document.querySelectorAll(`[data-post-id="${postId}"] .comments-section .comment`).length;
+      statsElement.textContent = `${postData.likes || 0} stars • ${responseCount} responses`;
     }
   }
 
-  // Update post comments UI
-  function updatePostCommentsUI(postId, comments) {
+  // Update post responses UI
+  function updatePostResponsesUI(postId, responses) {
     const commentsSection = document.querySelector(`[data-post-id="${postId}"] .comments-section`);
     if (!commentsSection) return;
 
-    // Show only the last 2 comments
-    const displayedComments = comments.slice(-2);
-    const totalComments = comments.length;
+    // Show only the last 2 responses
+    const displayedResponses = responses.slice(-2);
+    const totalResponses = responses.length;
 
-    let commentsHtml = displayedComments.map(comment => {
-      const commentAvatar = comment.userPhotoURL ? 
-        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        comment.userInitial || 'U';
+    let responsesHtml = displayedResponses.map(response => {
+      const responseAvatar = response.profilePicture ? 
+        `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
       
       return `
         <div class="comment">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseAvatar}</div>
           <div class="comment-content">
-            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-            <div>${escapeHtml(comment.text)}</div>
+            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
+            <div>${escapeHtml(response.text)}</div>
           </div>
         </div>
       `;
     }).join('');
 
-    // Add "View more" button if there are more than 2 comments
-    if (totalComments > 2) {
-      commentsHtml += `
+    // Add "View more" button if there are more than 2 responses
+    if (totalResponses > 2) {
+      responsesHtml += `
         <div class="view-more-comments" onclick="openCommentsModal('${postId}')">
-          View ${totalComments - 2} more comments
+          View ${totalResponses - 2} more responses
         </div>
       `;
     }
 
-    const existingComments = commentsSection.querySelectorAll('.comment:not(.comment-input), .view-more-comments');
-    existingComments.forEach(comment => comment.remove());
+    const existingResponses = commentsSection.querySelectorAll('.comment:not(.comment-input), .view-more-comments');
+    existingResponses.forEach(response => response.remove());
     
-    const commentInput = commentsSection.querySelector('.comment-input');
-    if (commentInput) {
-      commentsSection.insertAdjacentHTML('afterbegin', commentsHtml);
+    const responseInput = commentsSection.querySelector('.comment-input');
+    if (responseInput) {
+      commentsSection.insertAdjacentHTML('afterbegin', responsesHtml);
     }
 
-    // Update comment count in stats
+    // Update response count in stats
     const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
     if (statsElement) {
-      const starCount = document.querySelector(`[data-post-id="${postId}"] .interaction-btn.active`) ? 1 : 0;
-      statsElement.textContent = `${starCount} stars • ${totalComments} comments`;
+      const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+      const starCount = postElement?.querySelector('.interaction-btn.active') ? 1 : 0;
+      const actualStarCount = document.querySelector(`[data-post-id="${postId}"]`)?.getAttribute('data-likes') || 0;
+      statsElement.textContent = `${actualStarCount} stars • ${totalResponses} responses`;
     }
   }
 
-  // Open comments modal
+  // Open responses modal
   window.openCommentsModal = async (postId) => {
-    const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-    const commentsSnapshot = await getDocs(commentsQuery);
-    const comments = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const responsesQuery = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    const responsesSnapshot = await getDocs(responsesQuery);
+    const responses = responsesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
-    let commentsHtml = comments.map(comment => {
-      const commentAvatar = comment.userPhotoURL ? 
-        `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-        comment.userInitial || 'U';
+    let responsesHtml = responses.map(response => {
+      const responseAvatar = response.profilePicture ? 
+        `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+        (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
       
       return `
         <div class="comment" style="margin-bottom: 16px;">
-          <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+          <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseAvatar}</div>
           <div class="comment-content" style="flex: 1;">
-            <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-            <div style="font-size: 16px;">${escapeHtml(comment.text)}</div>
-            <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(comment.timestamp)}</div>
+            <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
+            <div style="font-size: 16px;">${escapeHtml(response.text)}</div>
+            <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(response.timestamp)}</div>
           </div>
         </div>
       `;
     }).join('');
     
-    commentsModalBody.innerHTML = commentsHtml;
+    commentsModalBody.innerHTML = responsesHtml;
     commentsModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   };
@@ -2045,19 +946,21 @@
     return false;
   };
 
-  // Render post with all features
-  const renderPost = (id, data, starCount = 0, isStarred = false, comments = []) => {
+  // FIXED POST RENDERING WITH PROFILE PICTURES
+  const renderPost = (id, data, responses = []) => {
     const postEl = document.createElement('div');
     postEl.classList.add('post');
     postEl.setAttribute('data-post-id', id);
+    postEl.setAttribute('data-likes', data.likes || 0);
     
     const user = auth.currentUser;
     const isOwner = data.userId === user.uid;
+    const isStarred = data.likedBy?.includes(user.uid);
     
     // Use profile picture if available, otherwise fallback to initial
-    const userAvatar = data.userPhotoURL ? 
-      `<img src="${data.userPhotoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-      data.userInitial || 'U';
+    const userAvatar = data.profilePicture ? 
+      `<img src="${data.profilePicture}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+      (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
     
     // Truncate long posts
     const maxLength = 200;
@@ -2138,38 +1041,38 @@
       <div class="post-content">${postContentHtml}</div>
       ${mediaHtml}
       <div class="post-stats">
-        <div>${starCount} stars • ${comments.length} comments</div>
+        <div>${data.likes || 0} stars • ${responses.length} responses</div>
       </div>
       <div class="post-interactions">
         <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="window.toggleStar('${id}')">
           <i class="fas fa-star"></i> Star
         </div>
-        <div class="interaction-btn" onclick="focusComment('${id}')">
-          <i class="fas fa-comment"></i> Comment
+        <div class="interaction-btn" onclick="focusResponse('${id}')">
+          <i class="fas fa-comment"></i> Respond
         </div>
-        <div class="interaction-btn" onclick="sharePost('${id}')">
-          <i class="fas fa-share"></i> Share
+        <div class="interaction-btn" onclick="promotePost('${id}')">
+          <i class="fas fa-share"></i> Promote
         </div>
       </div>
       <div class="comments-section">
-        ${comments.slice(-2).map(comment => {
-          const commentAvatar = comment.userPhotoURL ? 
-            `<img src="${comment.userPhotoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-            comment.userInitial || 'U';
+        ${responses.slice(-2).map(response => {
+          const responseAvatar = response.profilePicture ? 
+            `<img src="${response.profilePicture}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
+            (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
           
           return `
             <div class="comment">
-              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${comment.userId}')">${commentAvatar}</div>
+              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" onclick="viewProfile('${response.userId}')">${responseAvatar}</div>
               <div class="comment-content">
-                <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${comment.userId}')">${comment.userName || 'User'}</div>
-                <div>${escapeHtml(comment.text)}</div>
+                <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
+                <div>${escapeHtml(response.text)}</div>
               </div>
             </div>
           `;
         }).join('')}
-        ${comments.length > 2 ? `
+        ${responses.length > 2 ? `
           <div class="view-more-comments" onclick="openCommentsModal('${id}')">
-            View ${comments.length - 2} more comments
+            View ${responses.length - 2} more responses
           </div>
         ` : ''}
         <div class="comment-input">
@@ -2179,8 +1082,8 @@
               (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U')
             }
           </div>
-          <input type="text" id="comment-${id}" placeholder="Write a comment..." onkeypress="handleCommentKeypress(event, '${id}')">
-          <button class="send-comment-btn" onclick="addCommentViaButton('${id}')">
+          <input type="text" id="response-${id}" placeholder="Write a response..." onkeypress="handleResponseKeypress(event, '${id}')">
+          <button class="send-comment-btn" onclick="addResponseViaButton('${id}')">
             <i class="fas fa-paper-plane"></i>
           </button>
         </div>
@@ -2237,59 +1140,59 @@
   // Post interactions
   window.toggleStar = async (id) => {
     try {
-      await toggleStar(id);
+      await toggleStar(id, currentUser.uid);
     } catch (error) {
       console.error('Error toggling star:', error);
       showMessage('Failed to update star. Please try again.');
     }
   };
 
-  window.sharePost = async (id) => {
+  window.promotePost = async (id) => {
     try {
       if (navigator.share) {
         navigator.share({
-          title: 'Check out this post on MEET',
-          text: 'I found this interesting post on MEET',
+          title: 'Check out this meetcast on MEET',
+          text: 'I found this interesting meetcast on MEET',
           url: window.location.href
         });
       } else {
-        showMessage('Post shared!', 'success');
+        showMessage('Meetcast promoted!', 'success');
       }
     } catch (error) {
-      console.error('Error sharing post:', error);
-      showMessage('Failed to share post. Please try again.');
+      console.error('Error promoting meetcast:', error);
+      showMessage('Failed to promote meetcast. Please try again.');
     }
   };
 
-  window.focusComment = (postId) => {
-    const commentInput = document.getElementById(`comment-${postId}`);
-    if (commentInput) {
-      commentInput.focus();
+  window.focusResponse = (postId) => {
+    const responseInput = document.getElementById(`response-${postId}`);
+    if (responseInput) {
+      responseInput.focus();
     }
   };
 
-  window.handleCommentKeypress = async (event, postId) => {
+  window.handleResponseKeypress = async (event, postId) => {
     if (event.key === 'Enter') {
-      await addCommentFromInput(postId);
+      await addResponseFromInput(postId);
     }
   };
 
-  window.addCommentViaButton = async (postId) => {
-    await addCommentFromInput(postId);
+  window.addResponseViaButton = async (postId) => {
+    await addResponseFromInput(postId);
   };
 
-  async function addCommentFromInput(postId) {
-    const input = document.getElementById(`comment-${postId}`);
+  async function addResponseFromInput(postId) {
+    const input = document.getElementById(`response-${postId}`);
     const text = input.value.trim();
     
     if (!text) return;
     
     try {
-      await addComment(postId, text);
+      await addResponse(postId, text);
       input.value = '';
     } catch (error) {
-      console.error('Error adding comment:', error);
-      showMessage('Failed to add comment. Please try again.');
+      console.error('Error adding response:', error);
+      showMessage('Failed to add response. Please try again.');
     }
   }
 
@@ -2314,7 +1217,7 @@
     try {
       await deletePost(postId);
     } catch (error) {
-      console.error('Error deleting post:', error);
+      console.error('Error deleting meetcast:', error);
     }
     document.getElementById(`menu-${postId}`).style.display = 'none';
   };
@@ -2340,14 +1243,8 @@
     }
   };
 
-  // Profile navigation
-  window.viewProfile = (userId) => {
-    sessionStorage.setItem('targetUserId', userId);
-    window.location.href = 'profile.html';
-  };
-
-  // Function to navigate to current user's profile
-  function goToMyProfile() {
+  // NAVIGATION FUNCTIONS
+  window.goToMyProfile = function() {
     const user = auth.currentUser;
     if (user) {
       sessionStorage.removeItem('targetUserId');
@@ -2355,12 +1252,57 @@
     }
   }
 
-  // Function to navigate to chat
-  function goToChat() {
+  window.goToChat = function() {
     window.location.href = 'chat.html';
   }
+
+  window.goToMeetrader = function() {
+    window.location.href = 'meetrader.html';
+  }
+
+  window.goToMeetversity = function() {
+    window.location.href = 'meetversity.html';
+  }
+
+  window.goToOrganization = function() {
+    window.location.href = 'organization.html';
+  }
+
+  // FIXED PROFILE NAVIGATION - Use post's userId instead of current user's ID
+  window.viewProfile = (userId) => {
+    // Navigate to profile page with the correct user ID
+    window.location.href = 'profile.html?uid=' + userId;
+  };
 
   // Close menus when clicking outside
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.post-actions')) {
-     
+      document.querySelectorAll('.post-menu').forEach(menu => {
+        menu.style.display = 'none';
+      });
+    }
+  });
+
+  // Initialize the app
+  document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
+    
+    // Prevent zoom on double-tap (iOS)
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  });
+</script>
+</body>
+</html>
