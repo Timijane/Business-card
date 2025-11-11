@@ -247,6 +247,7 @@
     gap: 8px;
     font-size: 16px;
     min-height: 44px;
+    position: relative;
   }
 
   .btn:hover {
@@ -274,6 +275,18 @@
     font-size: 14px;
     border-radius: 6px;
     min-height: 36px;
+  }
+
+  .unread-badge {
+    background: var(--error);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: none;
+    min-width: 18px;
+    justify-content: center;
+    align-items: center;
   }
 
   /* Post Composer */
@@ -380,7 +393,7 @@
     color: white;
     border-radius: 12px 12px 0 0;
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
   }
 
@@ -468,6 +481,21 @@
     color: var(--secondary-text);
     min-width: 44px;
     min-height: 44px;
+  }
+
+  .notification-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .notification-item:hover {
+    background: var(--bg-color);
+  }
+
+  .notification-item.unread {
+    background: rgba(var(--primary), 0.1);
   }
 
   /* Enhanced Post Form */
@@ -1101,6 +1129,10 @@
             </div>
             <span id="userName">User</span>
           </div>
+          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
+            <i class="fas fa-bell"></i> <span>Notifications</span>
+            <span class="unread-badge" id="unreadBadge"></span>
+          </button>
           <button class="btn" id="nightToggleBtn">
             <i class="fas fa-moon"></i> <span>Night Mode</span>
           </button>
@@ -1229,6 +1261,21 @@
   </div>
 </div>
 
+<!-- Notifications Modal -->
+<div class="modal" id="notificationsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Notifications</h3>
+      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="notificationsList">
+        <div class="loading">Loading notifications...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Comments Modal -->
 <div class="comments-modal" id="commentsModal">
   <div class="comments-modal-content">
@@ -1261,7 +1308,8 @@
 
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, 
-    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, arrayUnion, arrayRemove, increment 
+    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, arrayUnion, arrayRemove, increment,
+    writeBatch 
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
   import { 
@@ -1324,6 +1372,13 @@
   const closeMediaModal = document.getElementById('closeMediaModal');
   const mediaModalImage = document.getElementById('mediaModalImage');
   const mediaModalVideo = document.getElementById('mediaModalVideo');
+  
+  // Notifications elements
+  const notificationsModal = document.getElementById('notificationsModal');
+  const closeNotificationsModal = document.getElementById('closeNotificationsModal');
+  const notificationsList = document.getElementById('notificationsList');
+  const unreadBadge = document.getElementById('unreadBadge');
+  const notificationsBtn = document.getElementById('notificationsBtn');
 
   // Global variables
   let currentUser = null;
@@ -1333,6 +1388,8 @@
   let postDataMap = {};
   let starsCountMap = {};
   let promotesCountMap = {};
+  let notificationsListener;
+  let unreadListener;
 
   // File size limits
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -1372,6 +1429,16 @@
     }
   }
 
+  // Update unread badge
+  function updateUnreadBadge(count) {
+    if (count > 0) {
+      unreadBadge.textContent = count;
+      unreadBadge.style.display = 'flex';
+    } else {
+      unreadBadge.style.display = 'none';
+    }
+  }
+
   // ===== Handle Media Upload =====
   async function uploadToCloudinary(file) {
     if (file.size > MAX_FILE_SIZE) {
@@ -1401,7 +1468,7 @@
     }
   }
 
-  // ===== CREATE POST (Updated Structure) =====
+  // ===== CREATE POST (Updated Structure with associate notifications) =====
   async function createPost(text, files, privacy) {
     const user = auth.currentUser;
     if (!user) throw new Error("Please login first!");
@@ -1427,7 +1494,7 @@
     }
 
     // Save post with new structure
-    await addDoc(collection(db, "posts"), {
+    const postRef = await addDoc(collection(db, "posts"), {
       userId: user.uid,
       userName: userData.displayName || user.displayName || "Anonymous",
       userInitial: (userData.displayName || user.displayName || "U").charAt(0).toUpperCase(),
@@ -1438,9 +1505,29 @@
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
+    const newPostId = postRef.id;
+
+    // Notify associates
+    const associatesRef = collection(db, `users/${user.uid}/associates`);
+    const associatesSnap = await getDocs(associatesRef);
+    for (const assocDoc of associatesSnap.docs) {
+      const assocId = assocDoc.id;
+      if (assocId !== user.uid) {
+        await addDoc(collection(db, "notifications"), {
+          type: "associate_post",
+          fromUserId: user.uid,
+          fromUserName: userData.displayName || user.displayName || "Anonymous",
+          targetUserId: assocId,
+          postId: newPostId,
+          text: `${userData.displayName || user.displayName || "Anonymous"} posted a new meetcast`,
+          createdAt: serverTimestamp(),
+          read: false
+        });
+      }
+    }
   }
 
-  // ===== TOGGLE STAR (Updated Structure) =====
+  // ===== TOGGLE STAR (Updated with fromUserName in notification) =====
   async function toggleStar(postId) {
     const user = auth.currentUser;
     if (!user) return;
@@ -1466,9 +1553,10 @@
             await addDoc(collection(db, "notifications"), {
               type: "star",
               fromUserId: user.uid,
+              fromUserName: user.displayName || "Someone",
               targetUserId: postData.userId,
               postId: postId,
-              text: `${user.displayName || 'Someone'} starred your post`,
+              text: `${user.displayName || "Someone"} starred your post`,
               createdAt: serverTimestamp(),
               read: false
             });
@@ -1481,7 +1569,7 @@
     }
   }
 
-  // ===== ADD RESPONSE (Updated Structure) =====
+  // ===== ADD RESPONSE (Updated with fromUserName in notification) =====
   async function addResponse(postId, responseText) {
     const user = auth.currentUser;
     if (!user || !responseText.trim()) return;
@@ -1512,9 +1600,10 @@
         await addDoc(collection(db, "notifications"), {
           type: "response",
           fromUserId: user.uid,
+          fromUserName: userData.displayName || user.displayName || "Someone",
           targetUserId: postData.userId,
           postId: postId,
-          text: `${user.displayName || 'Someone'} responded to your post`,
+          text: `${userData.displayName || user.displayName || "Someone"} responded to your post`,
           createdAt: serverTimestamp(),
           read: false
         });
@@ -1522,7 +1611,7 @@
     }
   }
 
-  // ===== PROMOTE POST (Updated Structure) =====
+  // ===== PROMOTE POST (Updated with fromUserName in notification) =====
   async function promotePost(postId) {
     const user = auth.currentUser;
     if (!user) return;
@@ -1548,9 +1637,10 @@
             await addDoc(collection(db, "notifications"), {
               type: "promote",
               fromUserId: user.uid,
+              fromUserName: user.displayName || "Someone",
               targetUserId: postData.userId,
               postId: postId,
-              text: `${user.displayName || 'Someone'} promoted your post`,
+              text: `${user.displayName || "Someone"} promoted (shared) your post`,
               createdAt: serverTimestamp(),
               read: false
             });
@@ -1563,7 +1653,7 @@
     }
   }
 
-  // ===== ASSOCIATE SYSTEM (Updated Structure) =====
+  // ===== ASSOCIATE SYSTEM (Updated with disassociate notification) =====
   async function associateWithUser(targetUserId) {
     const user = auth.currentUser;
     if (!user || user.uid === targetUserId) return;
@@ -1585,8 +1675,9 @@
       await addDoc(collection(db, "notifications"), {
         type: "associate",
         fromUserId: user.uid,
+        fromUserName: user.displayName || "Someone",
         targetUserId: targetUserId,
-        text: `${user.displayName || 'Someone'} associated with you`,
+        text: `${user.displayName || "Someone"} associated with you`,
         createdAt: serverTimestamp(),
         read: false
       });
@@ -1610,6 +1701,17 @@
       
       // Remove from target user's associatedWith
       await deleteDoc(doc(db, "users", targetUserId, "associatedWith", user.uid));
+      
+      // Create disassociate notification for target user
+      await addDoc(collection(db, "notifications"), {
+        type: "disassociate",
+        fromUserId: user.uid,
+        fromUserName: user.displayName || "Someone",
+        targetUserId: targetUserId,
+        text: `${user.displayName || "Someone"} disassociated with you`,
+        createdAt: serverTimestamp(),
+        read: false
+      });
       
       showMessage('Association removed.', 'success');
       return true;
@@ -1759,7 +1861,129 @@
     }
   }
 
-  // MEETAI ASSISTANT FUNCTIONS
+  // ===== NOTIFICATIONS FUNCTIONS =====
+  function setupNotificationsListener() {
+    if (!currentUser) return;
+
+    // Unread count listener
+    const unreadQ = query(
+      collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid), 
+      where("read", "==", false)
+    );
+    unreadListener = onSnapshot(unreadQ, (snap) => {
+      updateUnreadBadge(snap.size);
+    });
+
+    // Full notifications listener for modal
+    const notifsQ = query(
+      collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid), 
+      orderBy("createdAt", "desc")
+    );
+    notificationsListener = onSnapshot(notifsQ, (snap) => {
+      // Update modal if open
+      if (notificationsModal.style.display === 'flex') {
+        loadNotifications();
+      }
+    });
+  }
+
+  async function loadNotifications() {
+    if (!currentUser) return;
+
+    try {
+      const q = query(
+        collection(db, "notifications"), 
+        where("targetUserId", "==", currentUser.uid), 
+        orderBy("createdAt", "desc")
+      );
+      const snap = await getDocs(q);
+      let html = '';
+      snap.docs.forEach((d) => {
+        const n = d.data();
+        const isUnread = !n.read;
+        let displayText = n.text;
+        if (n.type === 'associate_post' && n.postId) {
+          displayText += ` <a href="#" onclick="scrollToPost('${n.postId}'); return false;" style="color: var(--primary);">View post</a>`;
+        } else if (n.postId) {
+          displayText += ` <a href="#" onclick="scrollToPost('${n.postId}'); return false;" style="color: var(--primary);">View post</a>`;
+        }
+        html += `
+          <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="viewNotification('${d.id}', '${n.type}', '${n.postId || ''}', '${n.fromUserId}')" style="padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+            <div style="font-weight: 600;">${displayText}</div>
+            <div style="font-size: 12px; color: var(--secondary-text);">${formatTimestamp(n.createdAt)}</div>
+          </div>
+        `;
+      });
+      notificationsList.innerHTML = html || '<div style="text-align: center; color: var(--secondary-text);">No notifications yet.</div>';
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications.</div>';
+    }
+  }
+
+  async function markAllRead() {
+    if (!currentUser) return;
+
+    try {
+      const q = query(
+        collection(db, "notifications"), 
+        where("targetUserId", "==", currentUser.uid), 
+        where("read", "==", false)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return;
+
+      const batch = writeBatch(db);
+      snap.docs.forEach((d) => {
+        batch.update(d.ref, { read: true });
+      });
+      await batch.commit();
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  }
+
+  window.openNotificationsModal = async () => {
+    notificationsModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    await loadNotifications();
+    await markAllRead();
+  };
+
+  window.viewNotification = (notifId, type, postId, fromUserId) => {
+    // Handle navigation based on type
+    if (postId) {
+      scrollToPost(postId);
+    } else if (fromUserId && fromUserId !== currentUser.uid) {
+      viewProfile(fromUserId);
+    }
+    // Mark single as read if needed, but since all marked on open, skip
+    notificationsModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  };
+
+  function scrollToPost(postId) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (postEl) {
+      postEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  closeNotificationsModal.addEventListener('click', () => {
+    notificationsModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  });
+
+  notificationsModal.addEventListener('click', (e) => {
+    if (e.target === notificationsModal) {
+      notificationsModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  });
+
+  // MEETAI ASSISTANT FUNCTIONS (Mocked)
   function toggleMeetAI() {
     if (meetaiAssistant.style.display === 'flex') {
       closeMeetAI();
@@ -1904,6 +2128,8 @@
       // Load all users for association
       allUsers = await getAllUsers();
       
+      // Setup listeners
+      setupNotificationsListener();
       setupRealTimeListener();
     }
   });
@@ -1978,7 +2204,7 @@
             </div>
             <button class="association-btn ${isAssociated ? 'associated-btn' : 'associate-btn'}" 
                     onclick="${isAssociated ? `removeAssociation('${user.id}')` : `associateWithUser('${user.id}')`}">
-              ${isAssociated ? 'Associated' : 'Associate'}
+              ${isAssociated ? 'Disassociate' : 'Associate'}
             </button>
           </div>
         `;
@@ -2557,6 +2783,15 @@
         menu.style.display = 'none';
       });
     }
+  });
+
+  // Cleanup listeners on unload
+  window.addEventListener('beforeunload', () => {
+    if (notificationsListener) notificationsListener();
+    if (unreadListener) unreadListener();
+    Object.values(postListeners).forEach(obj => {
+      Object.values(obj).forEach(unsub => unsub());
+    });
   });
 
   // Initialize the app
