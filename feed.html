@@ -1257,7 +1257,7 @@
   // Firebase imports
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, arrayUnion, arrayRemove
+    query, orderBy, where, setDoc, increment
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -1330,6 +1330,7 @@
   let currentUser = null;
   let postListeners = {};
   let allUsers = [];
+  const userCache = {};
 
   // Theme management
   function initTheme() {
@@ -1421,11 +1422,12 @@
       text: text,
       media: mediaUrls,
       privacy: privacy,
+      starCount: 0, // Initialize star count
       timestamp: serverTimestamp(),
     });
   }
 
-  // FIXED STAR COUNTING SYSTEM
+  // FIXED STAR COUNTING SYSTEM WITH ATOMIC INCREMENT
   async function toggleStar(postId) {
     try {
       const user = auth.currentUser;
@@ -1434,19 +1436,26 @@
       }
 
       const starRef = doc(db, "posts", postId, "likes", user.uid);
+      const postRef = doc(db, "posts", postId);
       const starSnap = await getDoc(starRef);
 
       if (starSnap.exists()) {
-        // Unstar: remove the star document
+        // Unstar: remove the star document and decrement count
         await deleteDoc(starRef);
+        await updateDoc(postRef, {
+          starCount: increment(-1)
+        });
         return false;
       } else {
-        // Star: create a star document
+        // Star: create a star document and increment count
         await setDoc(starRef, {
           userId: user.uid,
           userName: user.displayName || "Anonymous",
           userPhotoURL: user.photoURL || null,
           timestamp: serverTimestamp()
+        });
+        await updateDoc(postRef, {
+          starCount: increment(1)
         });
         return true;
       }
@@ -1490,7 +1499,7 @@
     }
   }
 
-  // ASSOCIATION SYSTEM - COMPLETELY FIXED
+  // FIXED ASSOCIATION SYSTEM WITH MERGE: TRUE
   async function associateWithUser(userIdToAssociate) {
     const user = auth.currentUser;
     if (!user || user.uid === userIdToAssociate) return;
@@ -1500,17 +1509,17 @@
       await ensureUserDocument(user.uid);
       await ensureUserDocument(userIdToAssociate);
       
-      // Add to current user's associates
+      // Add to current user's associates with merge: true
       const associateRef = doc(db, "users", user.uid, "associates", userIdToAssociate);
       await setDoc(associateRef, {
         timestamp: serverTimestamp()
-      });
+      }, { merge: true });
       
-      // Add to target user's associatedWith
+      // Add to target user's associatedWith with merge: true
       const associatedWithRef = doc(db, "users", userIdToAssociate, "associatedWith", user.uid);
       await setDoc(associatedWithRef, {
         timestamp: serverTimestamp()
-      });
+      }, { merge: true });
       
       showMessage('You are now associates!', 'success');
       return true;
@@ -1614,6 +1623,23 @@
     }
   }
 
+  // USER CACHE FOR PERFORMANCE
+  async function getUserDataWithCache(userId) {
+    if (userCache[userId]) return userCache[userId];
+    
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        userCache[userId] = userDoc.data();
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting user data:", error);
+      return null;
+    }
+  }
+
   // FIXED PROFILE PICTURE FUNCTION
   function updateAvatar(element, profilePicture, userName, initial) {
     if (profilePicture) {
@@ -1649,49 +1675,6 @@
       }
     } catch (error) {
       console.error("Error handling user document:", error);
-    }
-  }
-
-  // ENHANCED USER DATA FETCHING
-  async function getUserDataWithFallback(userId) {
-    try {
-      // First try to get from Firestore
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        // If user has no photoURL but we have auth data, use that
-        if (!userData.photoURL && auth.currentUser && auth.currentUser.uid === userId) {
-          userData.photoURL = auth.currentUser.photoURL;
-        }
-        return userData;
-      }
-      
-      // Fallback to auth data if available
-      if (auth.currentUser && auth.currentUser.uid === userId) {
-        return {
-          displayName: auth.currentUser.displayName || "User",
-          photoURL: auth.currentUser.photoURL || null
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
-    }
-  }
-
-  // GET USER DATA FOR DISPLAY
-  async function getUserData(userId) {
-    try {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        return userDoc.data();
-      }
-      return null;
-    } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
     }
   }
 
@@ -1754,7 +1737,7 @@
       await createUserDocument(user);
       
       // Get updated user data from Firestore
-      const userData = await getUserDataWithFallback(user.uid);
+      const userData = await getUserDataWithCache(user.uid);
       const userNameText = userData?.displayName || user.displayName || 'User';
       const userProfilePicture = userData?.photoURL || user.photoURL;
       const userInitial = userNameText.charAt(0).toUpperCase();
@@ -2022,12 +2005,20 @@
   async function setupPostWithRealtimeData(postId, postData) {
     const user = auth.currentUser;
     
-    // Set up real-time listener for stars
+    // Set up real-time listener for post document (for starCount)
+    const postDocRef = doc(db, "posts", postId);
+    const unsubscribePost = onSnapshot(postDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const updatedPostData = docSnap.data();
+        updatePostStarCountUI(postId, updatedPostData.starCount || 0);
+      }
+    });
+
+    // Set up real-time listener for stars subcollection (for current user's star status)
     const starsQuery = query(collection(db, "posts", postId, "likes"));
     const unsubscribeStars = onSnapshot(starsQuery, (starsSnapshot) => {
-      const starCount = starsSnapshot.size;
       const isStarred = starsSnapshot.docs.some(doc => doc.id === user.uid);
-      updatePostStarUI(postId, starCount, isStarred);
+      updatePostStarButtonUI(postId, isStarred);
     });
 
     // Set up real-time listener for responses
@@ -2039,24 +2030,28 @@
 
     // Store unsubscribe functions
     postListeners[postId] = () => {
+      unsubscribePost();
       unsubscribeStars();
       unsubscribeResponses();
     };
 
     // Initial render
-    renderPost(postId, postData, 0, false, []);
+    renderPost(postId, postData, postData.starCount || 0, false, []);
   }
 
-  // FIXED POST STATS DISPLAY
-  function updatePostStats(postId, starCount, responseCount) {
+  // Update post star count UI
+  function updatePostStarCountUI(postId, starCount) {
     const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
     if (statsElement) {
+      const currentText = statsElement.textContent;
+      const responseMatch = currentText.match(/(\d+) responses/);
+      const responseCount = responseMatch ? responseMatch[1] : 0;
       statsElement.textContent = `${starCount} stars • ${responseCount} responses`;
     }
   }
 
-  // Update post star UI
-  function updatePostStarUI(postId, starCount, isStarred) {
+  // Update post star button UI
+  function updatePostStarButtonUI(postId, isStarred) {
     const starBtn = document.querySelector(`[data-post-id="${postId}"] .interaction-btn`);
     if (starBtn) {
       if (isStarred) {
@@ -2065,10 +2060,6 @@
         starBtn.classList.remove('active');
       }
     }
-    
-    // Update stats with current response count
-    const responseCount = document.querySelectorAll(`[data-post-id="${postId}"] .comments-section .comment`).length;
-    updatePostStats(postId, starCount, responseCount);
   }
 
   // Update post responses UI
@@ -2114,10 +2105,13 @@
     }
 
     // Update response count in stats
-    updatePostStats(postId, 
-      document.querySelector(`[data-post-id="${postId}"] .interaction-btn.active`) ? 1 : 0, 
-      totalResponses
-    );
+    const statsElement = document.querySelector(`[data-post-id="${postId}"] .post-stats div`);
+    if (statsElement) {
+      const starCount = document.querySelector(`[data-post-id="${postId}"] .interaction-btn.active`) ? 1 : 0;
+      const starCountMatch = statsElement.textContent.match(/(\d+) stars/);
+      const actualStarCount = starCountMatch ? parseInt(starCountMatch[1]) : 0;
+      statsElement.textContent = `${actualStarCount} stars • ${totalResponses} responses`;
+    }
   }
 
   // Open responses modal
@@ -2497,10 +2491,12 @@
     window.location.href = 'organization.html';
   }
 
-  // Profile navigation
+  // FIXED PROFILE NAVIGATION - Use post's userId instead of current user's ID
   window.viewProfile = (userId) => {
+    // Store the target user ID in session storage
     sessionStorage.setItem('targetUserId', userId);
-    window.location.href = 'profile.html';
+    // Navigate to profile page
+    window.location.href = 'profile.html?uid=' + userId;
   };
 
   // Close menus when clicking outside
