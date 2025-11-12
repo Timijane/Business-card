@@ -398,6 +398,7 @@
             margin-bottom: 15px;
             padding-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
         }
 
         .info-item:last-child {
@@ -414,6 +415,18 @@
 
         .info-value {
             font-size: 16px;
+        }
+
+        .privacy-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
+        .privacy-lock {
+            color: #EF4444;
         }
 
         .skill-tag {
@@ -776,6 +789,9 @@
                     </div>
                     <span id="userName">User</span>
                 </div>
+                <button class="btn" id="settingsBtn">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </button>
                 <button class="btn" id="nightToggleBtn">
                     <i class="fas fa-moon"></i> <span>Night Mode</span>
                 </button>
@@ -846,14 +862,17 @@
                 <div class="info-item">
                     <div class="info-label">Introduction</div>
                     <div class="info-value" id="introText">No introduction added yet</div>
+                    <div class="privacy-indicator" id="introPrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Current City</div>
                     <div class="info-value" id="currentCity">Not specified</div>
+                    <div class="privacy-indicator" id="currentCityPrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Hometown</div>
                     <div class="info-value" id="hometown">Not specified</div>
+                    <div class="privacy-indicator" id="hometownPrivacyIndicator"></div>
                 </div>
             </div>
 
@@ -867,14 +886,17 @@
                 <div class="info-item">
                     <div class="info-label">Work</div>
                     <div class="info-value" id="workInfo">Not specified</div>
+                    <div class="privacy-indicator" id="workPrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Position</div>
                     <div class="info-value" id="positionInfo">Not specified</div>
+                    <div class="privacy-indicator" id="positionPrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Education</div>
                     <div class="info-value" id="educationInfo">Not specified</div>
+                    <div class="privacy-indicator" id="educationPrivacyIndicator"></div>
                 </div>
             </div>
 
@@ -887,6 +909,7 @@
                 </div>
                 <div id="skillsContainer">
                     <span class="skill-tag">No skills added</span>
+                    <div class="privacy-indicator" id="skillsPrivacyIndicator"></div>
                 </div>
             </div>
 
@@ -900,14 +923,17 @@
                 <div class="info-item">
                     <div class="info-label">Email</div>
                     <div class="info-value" id="emailInfo">Not specified</div>
+                    <div class="privacy-indicator" id="emailPrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Phone</div>
                     <div class="info-value" id="phoneInfo">Not specified</div>
+                    <div class="privacy-indicator" id="phonePrivacyIndicator"></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Website</div>
                     <div class="info-value" id="websiteInfo">Not specified</div>
+                    <div class="privacy-indicator" id="websitePrivacyIndicator"></div>
                 </div>
             </div>
 
@@ -928,14 +954,15 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">Edit Profile Information</h3>
+            <h3 id="modalTitle">Privacy & Settings</h3>
             <button class="close-modal" id="closeModal">&times;</button>
         </div>
         <div class="modal-body">
+            <p style="color: var(--secondary-text); margin-bottom: 20px;">These settings control who can see your profile information. Only you can access this panel.</p>
             <form id="profileForm">
                 <div id="aboutSection" class="form-section">
                     <div class="form-group">
-                        <label class="form-label" for="introInput">Know Me (Introduction)</label>
+                        <label class="form-label" for="introInput">Introduction</label>
                         <textarea class="form-control" id="introInput" rows="3" placeholder="Tell people about yourself"></textarea>
                         <div class="privacy-toggle">
                             <span class="toggle-label">Public</span>
@@ -1124,6 +1151,7 @@
     // DOM elements
     const settingsModal = document.getElementById('settingsModal');
     const closeModal = document.getElementById('closeModal');
+    const settingsBtn = document.getElementById('settingsBtn');
     const editProfileBtn = document.getElementById('editProfileBtn');
     const profileForm = document.getElementById('profileForm');
     const changePicBtn = document.getElementById('changePicBtn');
@@ -1181,6 +1209,16 @@
         } catch (error) {
             console.error("Error uploading to Cloudinary:", error);
             throw error;
+        }
+    }
+
+    // Update privacy indicator
+    function updatePrivacyIndicator(elementId, privacy) {
+        const indicator = document.getElementById(elementId);
+        if (privacy === 'private') {
+            indicator.innerHTML = '<i class="fas fa-lock privacy-lock"></i>';
+        } else {
+            indicator.innerHTML = '<i class="fas fa-globe"></i>';
         }
     }
 
@@ -1264,15 +1302,21 @@
         // About section
         if (data.about) {
             document.getElementById('introText').textContent = data.about.introduction || 'No introduction added yet';
+            updatePrivacyIndicator('introPrivacyIndicator', data.about.introductionPrivacy || 'public');
             document.getElementById('currentCity').textContent = data.about.currentCity || 'Not specified';
+            updatePrivacyIndicator('currentCityPrivacyIndicator', data.about.currentCityPrivacy || 'public');
             document.getElementById('hometown').textContent = data.about.hometown || 'Not specified';
+            updatePrivacyIndicator('hometownPrivacyIndicator', data.about.hometownPrivacy || 'public');
         }
         
         // Work & Education
         if (data.work) {
             document.getElementById('workInfo').textContent = data.work.workplace || 'Not specified';
+            updatePrivacyIndicator('workPrivacyIndicator', data.work.workplacePrivacy || 'public');
             document.getElementById('positionInfo').textContent = data.work.position || 'Not specified';
+            updatePrivacyIndicator('positionPrivacyIndicator', data.work.positionPrivacy || 'public');
             document.getElementById('educationInfo').textContent = data.work.education || 'Not specified';
+            updatePrivacyIndicator('educationPrivacyIndicator', data.work.educationPrivacy || 'public');
         }
         
         // Skills
@@ -1296,16 +1340,21 @@
                 profileSkillTag.textContent = skill.name;
                 skillsTags.appendChild(profileSkillTag);
             });
+            updatePrivacyIndicator('skillsPrivacyIndicator', data.skills.privacy || 'public');
         } else {
             skillsContainer.innerHTML = '<span class="skill-tag">No skills added</span>';
+            updatePrivacyIndicator('skillsPrivacyIndicator', 'public');
             skillsTags.innerHTML = '';
         }
         
         // Contact Info
         if (data.contact) {
             document.getElementById('emailInfo').textContent = data.contact.email || 'Not specified';
+            updatePrivacyIndicator('emailPrivacyIndicator', data.contact.emailPrivacy || 'public');
             document.getElementById('phoneInfo').textContent = data.contact.phone || 'Not specified';
+            updatePrivacyIndicator('phonePrivacyIndicator', data.contact.phonePrivacy || 'public');
             document.getElementById('websiteInfo').textContent = data.contact.website || 'Not specified';
+            updatePrivacyIndicator('websitePrivacyIndicator', data.contact.websitePrivacy || 'public');
         }
     }
 
@@ -1379,6 +1428,11 @@
     }
 
     // Event listeners
+    settingsBtn.addEventListener('click', () => {
+        currentSection = 'about';
+        showSettingsModal('about');
+    });
+
     editProfileBtn.addEventListener('click', () => {
         currentSection = 'about';
         showSettingsModal('about');
@@ -1450,7 +1504,8 @@
                         profilePicture: url,
                         updatedAt: new Date()
                     });
-                    alert("Profile picture updated!");
+                    // Note: This updated profilePicture can now be fetched and displayed in feed.html or other pages by querying the user's document.
+                    alert("Profile picture updated! It will appear in your feed and other parts of the site.");
                 }
             } catch (error) {
                 console.error("Error uploading profile picture:", error);
@@ -1522,14 +1577,20 @@
             if (currentSection === 'about') {
                 updateData.about = {
                     introduction: document.getElementById('introInput').value,
+                    introductionPrivacy: document.getElementById('introPrivacy').checked ? 'private' : 'public',
                     currentCity: document.getElementById('currentCityInput').value,
-                    hometown: document.getElementById('hometownInput').value
+                    currentCityPrivacy: document.getElementById('currentCityPrivacy').checked ? 'private' : 'public',
+                    hometown: document.getElementById('hometownInput').value,
+                    hometownPrivacy: document.getElementById('hometownPrivacy').checked ? 'private' : 'public'
                 };
             } else if (currentSection === 'work') {
                 updateData.work = {
                     workplace: document.getElementById('workInput').value,
+                    workplacePrivacy: document.getElementById('workPrivacy').checked ? 'private' : 'public',
                     position: document.getElementById('positionInput').value,
-                    education: document.getElementById('educationInput').value
+                    positionPrivacy: document.getElementById('positionPrivacy').checked ? 'private' : 'public',
+                    education: document.getElementById('educationInput').value,
+                    educationPrivacy: document.getElementById('educationPrivacy').checked ? 'private' : 'public'
                 };
             } else if (currentSection === 'skills') {
                 const skillEntries = skillsFormContainer.querySelectorAll('.skill-entry');
@@ -1550,13 +1611,17 @@
                 });
                 
                 updateData.skills = {
-                    list: skills
+                    list: skills,
+                    privacy: document.getElementById('skillsPrivacy').checked ? 'private' : 'public'
                 };
             } else if (currentSection === 'contact') {
                 updateData.contact = {
                     email: document.getElementById('emailInput').value,
+                    emailPrivacy: document.getElementById('emailPrivacy').checked ? 'private' : 'public',
                     phone: document.getElementById('phoneInput').value,
-                    website: document.getElementById('websiteInput').value
+                    phonePrivacy: document.getElementById('phonePrivacy').checked ? 'private' : 'public',
+                    website: document.getElementById('websiteInput').value,
+                    websitePrivacy: document.getElementById('websitePrivacy').checked ? 'private' : 'public'
                 };
             }
             
@@ -1566,10 +1631,10 @@
             
             settingsModal.style.display = 'none';
             loadUserProfile();
-            alert("Profile updated successfully!");
+            alert("Settings updated successfully! Privacy changes will be respected when others view your profile.");
         } catch (error) {
-            console.error("Error updating profile:", error);
-            alert("Failed to update profile. Please try again.");
+            console.error("Error updating settings:", error);
+            alert("Failed to update settings. Please try again.");
         }
     });
 
@@ -1597,7 +1662,7 @@
 
     // Show settings modal for specific section
     function showSettingsModal(section) {
-        document.getElementById('modalTitle').textContent = `Edit ${section.charAt(0).toUpperCase() + section.slice(1)}`;
+        document.getElementById('modalTitle').textContent = `Privacy & Settings - ${section.charAt(0).toUpperCase() + section.slice(1)}`;
         
         // Hide all sections
         document.querySelectorAll('.form-section').forEach(el => {
@@ -1627,12 +1692,18 @@
                 
                 if (section === 'about' && data.about) {
                     document.getElementById('introInput').value = data.about.introduction || '';
+                    document.getElementById('introPrivacy').checked = data.about.introductionPrivacy === 'private';
                     document.getElementById('currentCityInput').value = data.about.currentCity || '';
+                    document.getElementById('currentCityPrivacy').checked = data.about.currentCityPrivacy === 'private';
                     document.getElementById('hometownInput').value = data.about.hometown || '';
+                    document.getElementById('hometownPrivacy').checked = data.about.hometownPrivacy === 'private';
                 } else if (section === 'work' && data.work) {
                     document.getElementById('workInput').value = data.work.workplace || '';
+                    document.getElementById('workPrivacy').checked = data.work.workplacePrivacy === 'private';
                     document.getElementById('positionInput').value = data.work.position || '';
+                    document.getElementById('positionPrivacy').checked = data.work.positionPrivacy === 'private';
                     document.getElementById('educationInput').value = data.work.education || '';
+                    document.getElementById('educationPrivacy').checked = data.work.educationPrivacy === 'private';
                 } else if (section === 'skills' && data.skills) {
                     skillsFormContainer.innerHTML = '';
                     
@@ -1649,6 +1720,7 @@
                             `;
                             skillsFormContainer.appendChild(skillEntry);
                         });
+                        document.getElementById('skillsPrivacy').checked = data.skills.privacy === 'private';
                     } else {
                         // Add one empty skill entry
                         const skillEntry = document.createElement('div');
@@ -1661,11 +1733,15 @@
                             </div>
                         `;
                         skillsFormContainer.appendChild(skillEntry);
+                        document.getElementById('skillsPrivacy').checked = false;
                     }
                 } else if (section === 'contact' && data.contact) {
                     document.getElementById('emailInput').value = data.contact.email || '';
+                    document.getElementById('emailPrivacy').checked = data.contact.emailPrivacy === 'private';
                     document.getElementById('phoneInput').value = data.contact.phone || '';
+                    document.getElementById('phonePrivacy').checked = data.contact.phonePrivacy === 'private';
                     document.getElementById('websiteInput').value = data.contact.website || '';
+                    document.getElementById('websitePrivacy').checked = data.contact.websitePrivacy === 'private';
                 }
             }
         } catch (error) {
