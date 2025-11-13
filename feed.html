@@ -25,7 +25,7 @@
   body.dark-mode {
     --bg-color: #18191a;
     --card-bg: #242526;
-    --text-color: #e4e6eb;
+    --text-color: #e4e6ea;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
   }
@@ -119,21 +119,33 @@
 
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px;
+    padding: 8px 20px; /* Reduced height from 15px */
     border-radius: 12px;
     margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,128,255,0.3); /* Enhanced shadow for beauty */
     color: white;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px; /* Slightly reduced gap */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   }
 
   .nav-controls {
     display: flex;
-    gap: 10px;
+    gap: 8px; /* Reduced gap */
     align-items: center;
     flex-wrap: wrap;
   }
@@ -170,6 +182,11 @@
     cursor: pointer;
     position: relative;
     min-height: 44px;
+    transition: background 0.3s; /* Smooth hover */
+  }
+
+  .user-profile-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 
   .user-avatar {
@@ -187,6 +204,7 @@
     min-width: 40px;
     font-size: 18px;
     overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3); /* Added border for beauty */
   }
 
   .user-avatar.small {
@@ -237,21 +255,23 @@
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 6px 12px; /* Slightly reduced padding */
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.3s;
+    transition: all 0.3s ease; /* Smooth transition */
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 18px;
-    min-height: 44px;
+    font-size: 16px; /* Slightly smaller font */
+    min-height: 40px; /* Reduced min-height */
     position: relative;
+    backdrop-filter: blur(10px); /* Added for modern glass effect */
   }
 
   .btn:hover {
     background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px); /* Subtle lift on hover */
   }
 
   .btn-primary {
@@ -1008,10 +1028,10 @@
     }
     
     .navbar {
-      padding: 12px;
+      padding: 8px 12px; /* Reduced for mobile */
       flex-direction: column;
       align-items: flex-start;
-      gap: 15px;
+      gap: 12px;
     }
     
     .search-bar {
@@ -1146,7 +1166,7 @@
   <div class="main-content">
     <!-- Navbar -->
     <div class="navbar">
-      <h2 style="color: white;">MEET Feed</h2>
+      <h2 style="color: white; margin: 0; font-size: 20px;">MEET Feed</h2> <!-- Slightly larger for beauty -->
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div class="search-bar">
           <i class="fas fa-search"></i>
@@ -1480,9 +1500,17 @@
     });
   }
 
-  // Updated avatar update function
+  // Updated avatar update function - Ensured img loads and falls back
   function updateAvatar(element, photoURL, userName, initial, isOnline = true) {
-    const imgHtml = photoURL ? `<img src="${photoURL}" alt="${userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : initial;
+    let imgHtml = initial;
+    if (photoURL) {
+      const img = document.createElement('img');
+      img.src = photoURL;
+      img.alt = userName || 'User';
+      img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
+      img.onerror = () => { element.innerHTML = initial; }; // Fallback if image fails
+      imgHtml = img.outerHTML;
+    }
     const statusClass = isOnline ? 'status-online' : 'status-offline';
     element.innerHTML = `${imgHtml}<div class="status-indicator ${statusClass}"></div>`;
   }
@@ -1716,13 +1744,13 @@
         return false;
       }
 
-      // Add to current user's associates
+      // Add to current user's associates (field: associateUserId = target)
       await setDoc(doc(db, "users", user.uid, "associates", targetUserId), { 
         associateUserId: targetUserId,
         timestamp: serverTimestamp()
       });
       
-      // Add to target user's associatedWith
+      // Add to target user's associatedWith (field: associatedUserId = current user)
       await setDoc(doc(db, "users", targetUserId, "associatedWith", user.uid), { 
         associatedUserId: user.uid,
         timestamp: serverTimestamp()
@@ -1890,9 +1918,15 @@
       
       const usersHtml = await Promise.all(allUsers.map(async (user) => {
         const isAssociated = await checkIfAssociated(user.id);
-        const userAvatar = user.photoURL ? 
-          `<img src="${user.photoURL}" alt="${user.displayName || 'User'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : 
-          (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
+        let userAvatar = (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
+        if (user.photoURL) {
+          const img = document.createElement('img');
+          img.src = user.photoURL;
+          img.alt = user.displayName || 'User';
+          img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
+          img.onerror = () => { userAvatar = (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'); };
+          userAvatar = img.outerHTML;
+        }
         
         return `
           <div class="user-item">
@@ -1957,6 +1991,7 @@
         const updates = {};
         if (existingData.displayName !== user.displayName) updates.displayName = user.displayName || "User";
         if (existingData.photoURL !== user.photoURL) updates.photoURL = user.photoURL || null;
+        if (existingData.email !== user.email) updates.email = user.email || "";
         if (Object.keys(updates).length > 0) {
           await updateDoc(userDocRef, updates);
         }
@@ -1982,6 +2017,8 @@
     );
     unreadListener = onSnapshot(unreadQ, (snap) => {
       updateUnreadBadge(snap.size);
+    }, (error) => {
+      console.error('Unread notifications listener error:', error);
     });
   }
 
@@ -2008,11 +2045,15 @@
   }
 
   window.openNotificationsModal = async () => {
+    if (!currentUser) {
+      showMessage('Please log in to view notifications.', 'error');
+      return;
+    }
     notificationsModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     await markAllRead();
 
-    // Setup real-time listener for modal
+    // Setup real-time listener for modal with better error handling
     if (notificationsModalListener) notificationsModalListener();
 
     const notifsQ = query(
@@ -2045,7 +2086,7 @@
       notificationsList.innerHTML = html;
     }, (error) => {
       console.error('Notifications listener error:', error);
-      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications. Please try again.</div>';
+      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications. Please check your connection and try again.</div>';
     });
   };
 
@@ -2087,7 +2128,7 @@
     }
   });
 
-  // MEETAI ASSISTANT FUNCTIONS (Mocked)
+  // MEETAI ASSISTANT FUNCTIONS (Enhanced with better mock responses for functionality)
   function toggleMeetAI() {
     if (meetaiAssistant.style.display === 'flex') {
       closeMeetAI();
@@ -2112,19 +2153,34 @@
     addMeetAIMessage(message, 'user');
     meetaiInput.value = '';
 
-    // Simulate AI response
+    // Enhanced AI response logic (simple keyword-based for now; can integrate real API later)
     setTimeout(() => {
-      const responses = [
-        "I understand you're asking about " + message + ". As your MeetAI assistant, I can help you navigate the platform, connect with associates, or optimize your meetcasts.",
-        "That's an interesting question about " + message + ". I recommend checking the help section or connecting with experienced associates who can provide guidance.",
-        "Based on your query about " + message + ", I suggest exploring similar topics in our community feed or starting a discussion with your associates.",
-        "I've analyzed your question regarding " + message + ". The MEET platform offers various tools to help with this - consider using the search feature to find relevant content.",
-        "Regarding " + message + ", our AI system can help you connect with users who have similar interests. Would you like me to suggest some potential associates?"
-      ];
+      let response = '';
+      const lowerMsg = message.toLowerCase();
+      if (lowerMsg.includes('associate') || lowerMsg.includes('connect')) {
+        response = "To associate with someone, go to 'Find Associates' in the sidebar and select a user. It's mutual and enables post notifications!";
+      } else if (lowerMsg.includes('post') || lowerMsg.includes('meetcast')) {
+        response = "Create a meetcast by clicking 'What's on your mind?' and share text, images, or videos. Privacy options: Public, Friends, or Private.";
+      } else if (lowerMsg.includes('profile')) {
+        response = "View profiles by clicking usernames in posts. Edit your own in the Profile tab with public/private toggles coming soon.";
+      } else if (lowerMsg.includes('chat')) {
+        response = "Chat is in beta—type usernames to start. Voice notes, calls, and AI auto-replies are on the way!";
+      } else if (lowerMsg.includes('market') || lowerMsg.includes('meetrader')) {
+        response = "Meetrader lets you buy/sell with likes and direct seller chats. Post items and connect securely.";
+      } else {
+        // Fallback random helpful response
+        const responses = [
+          "I understand you're asking about " + message + ". As your MeetAI assistant, I can help you navigate the platform, connect with associates, or optimize your meetcasts.",
+          "That's an interesting question about " + message + ". I recommend checking the help section or connecting with experienced associates who can provide guidance.",
+          "Based on your query about " + message + ", I suggest exploring similar topics in our community feed or starting a discussion with your associates.",
+          "I've analyzed your question regarding " + message + ". The MEET platform offers various tools to help with this - consider using the search feature to find relevant content.",
+          "Regarding " + message + ", our AI system can help you connect with users who have similar interests. Would you like me to suggest some potential associates?"
+        ];
+        response = responses[Math.floor(Math.random() * responses.length)];
+      }
       
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      addMeetAIMessage(randomResponse, 'bot');
-    }, 1000);
+      addMeetAIMessage(response, 'bot');
+    }, 800); // Slightly faster response
   }
 
   function addMeetAIMessage(text, sender) {
@@ -2181,8 +2237,16 @@
     recent.forEach(async (response) => {
       const userData = await getUserDataWithCache(response.userId);
       const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-      const photoURL = userData?.photoURL || response.photoURL;
-      const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>` : `${responseInitial}<div class="status-indicator status-online"></div>`;
+      let photoURL = userData?.photoURL || response.photoURL;
+      let avatarHtml = `${responseInitial}<div class="status-indicator status-online"></div>`;
+      if (photoURL) {
+        const img = document.createElement('img');
+        img.src = photoURL;
+        img.alt = response.userName;
+        img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
+        img.onerror = () => { avatarHtml = `${responseInitial}<div class="status-indicator status-online"></div>`; };
+        avatarHtml = `${img.outerHTML}<div class="status-indicator status-online"></div>`;
+      }
       const commentHtml = `
         <div class="comment">
           <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" data-user-id="${response.userId}" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
@@ -2256,6 +2320,8 @@
           userCache[doc.id] = data;
           updateUserAvatars(doc.id, data);
         });
+      }, (error) => {
+        console.error('Users snapshot error:', error);
       });
       
       // Load all users for association
@@ -2580,10 +2646,18 @@
     
     // Get user data for avatar
     const userData = await getUserDataWithCache(data.userId);
-    const photoURL = userData?.photoURL || data.photoURL;
+    let photoURL = userData?.photoURL || data.photoURL;
     const userInitial = data.userInitial || (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
     const isOnline = userData?.isOnline || true;
-    const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${data.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>` : `${userInitial}<div class="status-indicator status-online"></div>`;
+    let avatarHtml = `${userInitial}<div class="status-indicator status-online"></div>`;
+    if (photoURL) {
+      const img = document.createElement('img');
+      img.src = photoURL;
+      img.alt = data.userName;
+      img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
+      img.onerror = () => { avatarHtml = `${userInitial}<div class="status-indicator status-online"></div>`; };
+      avatarHtml = `${img.outerHTML}<div class="status-indicator status-online"></div>`;
+    }
     
     // Truncate long posts
     const maxLength = 200;
@@ -2690,10 +2764,18 @@
       for (const response of responses) {
         const userData = await getUserDataWithCache(response.userId);
         const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-        const photoURL = userData?.photoURL || response.photoURL;
+        let photoURL = userData?.photoURL || response.photoURL;
         const isOnline = userData?.isOnline || true;
         const statusClass = isOnline ? 'status-online' : 'status-offline';
-        const avatarHtml = photoURL ? `<img src="${photoURL}" alt="${response.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator ${statusClass}"></div>` : `${responseInitial}<div class="status-indicator ${statusClass}"></div>`;
+        let avatarHtml = `${responseInitial}<div class="status-indicator ${statusClass}"></div>`;
+        if (photoURL) {
+          const img = document.createElement('img');
+          img.src = photoURL;
+          img.alt = response.userName;
+          img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
+          img.onerror = () => { avatarHtml = `${responseInitial}<div class="status-indicator ${statusClass}"></div>`; };
+          avatarHtml = `${img.outerHTML}<div class="status-indicator ${statusClass}"></div>`;
+        }
         responsesHtml += `
           <div class="comment" style="margin-bottom: 16px;">
             <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" data-user-id="${response.userId}" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
