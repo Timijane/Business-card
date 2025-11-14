@@ -18,8 +18,10 @@
     --text-color: #111;
     --secondary-text: #65676b;
     --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
+    --online: #10B981; /* Green for online/associated */
+    --offline: #EF4444; /* Red for offline/disassociated */
+    --associated: #10B981; /* Green for associated */
+    --disassociated: #EF4444; /* Red for disassociated */
   }
 
   body.dark-mode {
@@ -498,16 +500,270 @@
     border: none;
     font-size: 24px;
     cursor: pointer;
+  }
+
+  /* Post Styles */
+  .post {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .post-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .post-meta {
+    font-size: 14px;
     color: var(--secondary-text);
-    min-width: 44px;
-    min-height: 44px;
+  }
+
+  .post-content {
+    margin-bottom: 12px;
+    font-size: 18px;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Preserve formatting */
+  }
+
+  .post-text-truncated {
+    display: block;
+  }
+
+  .post-text-full {
+    display: none;
+  }
+
+  .read-more, .read-less {
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .post-media {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-color);
+    cursor: pointer;
+  }
+
+  .post-media img, .post-media video {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .post-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--secondary-text);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .post-interactions {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .interaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    color: var(--secondary-text);
+    font-weight: 600;
+  }
+
+  .interaction-btn:hover {
+    background: var(--bg-color);
+  }
+
+  .interaction-btn.starred {
+    color: var(--warning);
+  }
+
+  .comments-section {
+    padding-top: 12px;
+  }
+
+  .comment-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .comment-input input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-size: 16px;
+    outline: none;
+  }
+
+  .send-comment-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  .send-comment-btn:hover {
+    background: var(--primary-dark);
+  }
+
+  .comment {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .comment-content {
+    background: var(--bg-color);
+    padding: 8px 12px;
+    border-radius: 18px;
+    max-width: 85%;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+    margin-bottom: 2px;
+  }
+
+  .comment-text {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .comment-meta {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-top: 4px;
+  }
+
+  .view-more-comments {
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 8px;
+    display: block;
+    text-align: center;
+  }
+
+  /* Professional Comment Modal Styles */
+  #commentsModal .modal-content {
+    width: 600px;
+    max-width: 95%;
+  }
+
+  #commentsModal .modal-body {
+    padding: 0;
+  }
+
+  .all-comments-list {
+    padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .all-comments-list .comment {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .all-comments-list .comment:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .all-comments-list .comment-content {
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 10px 15px;
+    max-width: 100%;
+  }
+
+  .all-comments-list .comment-author {
+    font-size: 16px;
+  }
+
+  .all-comments-list .comment-text {
+    font-size: 16px;
+  }
+
+  /* Notification Styles */
+  .notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    display: none;
+    margin-top: 10px;
+  }
+
+  .notification-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 18px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .notification-list {
+    max-height: 400px;
+    overflow-y: auto;
   }
 
   .notification-item {
-    padding: 12px;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.2s;
   }
 
   .notification-item:hover {
@@ -515,2028 +771,490 @@
   }
 
   .notification-item.unread {
-    background: rgba(var(--primary), 0.1);
+    background: rgba(0, 128, 255, 0.05);
   }
 
-  .notification-item a {
-    text-decoration: none;
-  }
-
-  /* Enhanced Post Form */
-  .post-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post-user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .post-textarea {
-    width: 100%;
-    min-height: 120px;
-    border: 2px solid #0080FF;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 18px;
-    resize: none;
-    outline: none;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .media-preview {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .media-preview img,
-  .media-preview video {
-    width: 100%;
-    max-height: 400px;
-    object-fit: contain;
-    background: var(--bg-color);
-  }
-
-  .remove-media {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
+  .notification-avatar {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .post-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  /* Posts */
-  .posts {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .post {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .post-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .post-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-  }
-
-  .post-user:hover .user-name {
-    text-decoration: underline;
-  }
-
-  .post-meta {
-    font-size: 15px;
-    color: var(--secondary-text);
-  }
-
-  .post-actions {
-    position: relative;
-  }
-
-  .post-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    padding: 8px;
-    min-width: 150px;
-    z-index: 10;
-    display: none;
-  }
-
-  .post-menu-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    font-size: 16px;
-  }
-
-  .post-menu-item:hover {
-    background: var(--bg-color);
-  }
-
-  .post-menu-item.delete {
-    color: var(--error);
-  }
-
-  .post-content {
-    margin-bottom: 12px;
-    font-size: 18px;
-    line-height: 1.5;
-  }
-
-  .post-text-truncated {
-    margin-bottom: 8px;
-  }
-
-  .read-more {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .post-media {
-    margin-top: 12px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .post-media img,
-  .post-media video {
-    width: 100%;
-    max-height: 600px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  .post-media img:hover,
-  .post-media video:hover {
-    transform: scale(1.02);
-  }
-
-  .post-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--secondary-text);
-    font-size: 16px;
-  }
-
-  .post-interactions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 20px;
-    padding: 8px 0;
-    flex-wrap: wrap;
-  }
-
-  .interaction-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    font-weight: 600;
-    min-height: 44px;
-    font-size: 16px;
-    border: none;
-    background: none;
-  }
-
-  .interaction-btn:hover {
-    background: var(--bg-color);
-  }
-
-  .interaction-btn.active {
-    color: var(--warning);
-  }
-
-  .comments-section {
-    margin-top: 12px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
-  }
-
-  .comment {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .comment-content {
-    flex: 1;
-    background: var(--bg-color);
-    padding: 8px 12px;
-    border-radius: 18px;
-  }
-
-  .comment-input {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    align-items: center;
-  }
-
-  .comment-input input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 18px;
-    color: var(--text-color);
-    font-size: 16px;
-  }
-
-  .send-comment-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s;
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  .send-comment-btn:hover {
-    background: var(--primary-dark);
-  }
-
-  .send-comment-btn:disabled {
-    background: var(--secondary-text);
-    cursor: not-allowed;
-  }
-
-  .view-more-comments {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-    text-align: center;
-    padding: 8px 0;
-    margin-top: 8px;
-  }
-
-  .comments-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .comments-modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .comments-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
+    margin-right: 10px;
     flex-shrink: 0;
   }
 
-  .comments-modal-body {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 0 16px 16px;
-  }
-
-  .media-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .media-modal-content {
-    max-width: 90%;
-    max-height: 90vh;
-    position: relative;
-  }
-
-  .media-modal-content img,
-  .media-modal-content video {
-    max-width: 100%;
-    max-height: 90vh;
-    object-fit: contain;
-  }
-
-  .close-media-modal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: var(--secondary-text);
-  }
-
-  .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .success-message {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  #postBtn {
-    width: 120px;
-    margin: 0 auto;
-  }
-
-  /* Association System */
-  .association-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
+  .notification-content {
+    flex: 1;
     font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
-    min-height: 36px;
   }
 
-  .associate-btn {
-    background: var(--primary);
-    color: white;
+  .notification-time {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-top: 4px;
   }
 
-  .disassociate-btn {
-    background: var(--error);
-    color: white;
+  .notification-footer {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
   }
 
-  /* Users List */
-  .users-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .user-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  /* IMPROVED RESPONSIVE DESIGN */
-  @media (max-width: 1200px) {
+  /* Responsive Design */
+  @media (max-width: 1024px) {
     .sidebar {
-      width: 260px;
+      width: 240px;
     }
-    .sidebar span {
-      display: inline;
-    }
+
     .main-content {
-      margin-left: 260px;
+      margin-left: 240px;
     }
   }
 
   @media (max-width: 768px) {
     .sidebar {
-      width: 70px;
-      padding: 10px 5px;
-      height: 100vh;
-    }
-    
-    .sidebar-header {
-      display: none;
-    }
-    
-    .sidebar-menu a {
-      flex-direction: column;
-      padding: 10px 5px;
-      font-size: 14px;
-      justify-content: center;
-      text-align: center;
-    }
-    
-    .sidebar-menu i {
-      margin-right: 0;
-      margin-bottom: 5px;
-      font-size: 20px;
-    }
-    
-    .main-content {
-      margin-left: 70px;
+      width: 100%;
+      height: auto;
+      position: relative;
+      border-right: none;
       padding: 10px;
-      width: calc(100% - 70px);
     }
-    
+
+    .sidebar-menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .sidebar-menu li {
+      margin: 5px;
+    }
+
+    .sidebar-menu a {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    .main-content {
+      margin-left: 0;
+      padding: 10px;
+    }
+
     .navbar {
-      padding: 8px 12px; /* Reduced for mobile */
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
+      padding: 10px;
     }
-    
+
     .search-bar {
       display: none;
     }
-    
-    .user-profile-nav span {
-      display: none;
-    }
-    
-    .nav-controls {
-      gap: 5px;
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .btn span {
-      display: none;
-    }
-    
-    .btn {
-      padding: 8px;
-      flex: 1;
-      justify-content: center;
-    }
 
-    .composer-actions {
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .action-btn {
-      justify-content: center;
-    }
-
-    .post-interactions {
-      justify-content: flex-start;
-      gap: 10px;
-    }
-
-    .interaction-btn {
-      padding: 6px 8px;
-      font-size: 14px;
-    }
-
-    .modal {
-      padding: 10px;
-    }
-
-    .modal-content {
-      width: 100%;
-      max-width: 100%;
-      margin: 0;
-    }
-
-    .comments-modal {
-      padding: 10px;
-    }
-
-    .comments-modal-content {
-      width: 100%;
-      max-width: 100%;
-    }
-
-    .meetai-assistant {
-      width: calc(100% - 40px);
-      right: 20px;
-      left: 20px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sidebar {
-      width: 60px;
-    }
-    
-    .main-content {
-      margin-left: 60px;
-      padding: 8px;
-    }
-
-    .navbar h2 {
-      font-size: 18px;
-    }
-
-    .post-composer {
-      padding: 12px;
-    }
-
-    .post {
-      padding: 12px;
-    }
-
-    .post-interactions {
-      gap: 5px;
-    }
-
-    .interaction-btn {
-      padding: 4px 6px;
-      font-size: 12px;
-    }
-  }
-
-  @media (min-height: 1000px) {
-    .sidebar {
-      height: 100vh;
-      position: fixed;
+    .notification-dropdown {
+      width: 90%;
+      right: 5%;
     }
   }
 </style>
 </head>
 <body>
 
+<!-- Modals -->
+<div class="modal" id="postModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create Meetcast</h2>
+      <button class="close-modal" onclick="postModal.style.display='none'; document.body.style.overflow='auto';">&times;</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="postText" placeholder="What's on your mind?" rows="5"></textarea>
+      <input type="file" id="postMedia" accept="image/*,video/*">
+      <select id="privacySelect">
+        <option value="public">Public</option>
+        <option value="friends">Friends</option>
+        <option value="private">Only Me</option>
+      </select>
+      <button id="postBtn" class="btn btn-primary" style="margin-top: 10px;">Post</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mediaModal">
+  <div class="modal-content" style="width: 90%; max-width: 800px; padding: 0;">
+    <div class="modal-header" style="border-bottom: none;">
+      <button class="close-modal" onclick="mediaModal.style.display='none'; document.body.style.overflow='auto';">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align: center;">
+      <img id="mediaModalImage" style="max-width: 100%; max-height: 80vh; display: none;">
+      <video id="mediaModalVideo" controls style="max-width: 100%; max-height: 80vh; display: none;"></video>
+    </div>
+  </div>
+</div>
+
+<!-- Professional Comments Modal -->
+<div class="modal" id="commentsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Responses</h2>
+      <button class="close-modal" onclick="commentsModal.style.display='none'; document.body.style.overflow='auto';">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="all-comments-list" id="allCommentsList">
+        <!-- All comments will be rendered here -->
+      </div>
+      <div class="comment-input" style="padding: 16px; border-top: 1px solid var(--border-color);">
+        <div class="user-avatar small" id="modalUserAvatar"></div>
+        <input type="text" id="modalResponseInput" placeholder="Write a response..." onkeypress="handleModalResponseKeypress(event)">
+        <button class="send-comment-btn" onclick="addResponseFromModalButton()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="app-container">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2 style="color: white;">MEET</h2>
+      <h2>MEET</h2>
     </div>
     <ul class="sidebar-menu">
-      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="profile.html" onclick="goToMyProfile()"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="chat.html" onclick="goToChat()"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
+      <li><a href="#" onclick="window.location.reload()"><i class="fas fa-home"></i> Feed</a></li>
+      <li><a href="#" onclick="goToChat()"><i class="fas fa-comments"></i> Chat</a></li>
+      <li><a href="#" onclick="goToMeetrader()"><i class="fas fa-chart-line"></i> Meetrader</a></li>
+      <li><a href="#" onclick="goToMeetversity()"><i class="fas fa-graduation-cap"></i> Meetversity</a></li>
+      <li><a href="#" onclick="goToOrganization()"><i class="fas fa-building"></i> Organization</a></li>
+      <li><a href="#" onclick="goToMyProfile()"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Navbar -->
     <div class="navbar">
-      <h2 style="color: white; margin: 0; font-size: 20px;">MEET Feed</h2> <!-- Slightly larger for beauty -->
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div class="nav-controls">
         <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search..." id="searchInput">
+          <i class="fas fa-search" style="margin-right: 10px;"></i>
+          <input type="text" placeholder="Search...">
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">
-              U
-              <div class="status-indicator status-online"></div>
+        <button class="btn" onclick="toggleTheme()">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="btn" id="notificationBtn" style="position: relative;">
+          <i class="fas fa-bell"></i>
+          <span class="unread-badge" id="notificationBadge"></span>
+          <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">Notifications</div>
+            <div class="notification-list" id="notificationList">
+              <!-- Notifications load here -->
+              <div style="text-align: center; padding: 20px; color: var(--secondary-text);" id="notificationLoading">Loading notifications...</div>
             </div>
-            <span id="userName">User</span>
+            <div class="notification-footer">
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 14px;">View All</a>
+            </div>
           </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i> <span>Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span>Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </button>
         </div>
+      </div>
+      <div class="user-profile-nav" onclick="goToMyProfile()">
+        <div class="user-avatar" id="navUserAvatar">
+          <!-- Avatar and status indicator -->
+        </div>
+        <span id="navUserName">Loading...</span>
       </div>
     </div>
 
-    <!-- Post Composer -->
     <div class="post-composer">
       <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">
-          U
-          <div class="status-indicator status-online"></div>
-        </div>
-        <div class="composer-input" id="openComposer">
+        <div class="user-avatar small" id="composerUserAvatar"></div>
+        <div class="composer-input" onclick="postModal.style.display='flex'; document.body.style.overflow='hidden';">
           What's on your mind?
         </div>
       </div>
       <div class="composer-divider"></div>
       <div class="composer-actions">
-        <!-- Removed all action buttons as requested -->
+        <div class="action-btn" onclick="document.getElementById('postMedia').click()">
+          <i class="fas fa-image" style="color: #4CAF50;"></i> Photo/Video
+        </div>
+        <div class="action-btn">
+          <i class="fas fa-video" style="color: #F44336;"></i> Live Video
+        </div>
+        <div class="action-btn">
+          <i class="fas fa-calendar-alt" style="color: #FF9800;"></i> Event
+        </div>
       </div>
     </div>
 
-    <!-- MeetAI Assistant -->
+    <div id="postsContainer">
+      <div class="loading" style="text-align: center; padding: 20px;">Loading meetcasts...</div>
+    </div>
+
+    <div class="meetai-button" onclick="toggleMeetAI()">
+      <i class="fas fa-robot"></i>
+    </div>
+
     <div class="meetai-assistant" id="meetaiAssistant">
       <div class="meetai-header">
-        <h4>MeetAI Assistant</h4>
-        <button class="close-modal" onclick="closeMeetAI()">&times;</button>
+        <span>MeetAI Assistant</span>
+        <button class="close-modal" onclick="toggleMeetAI()">&times;</button>
       </div>
       <div class="meetai-messages" id="meetaiMessages">
-        <div class="meetai-message meetai-bot">
-          Hello! I'm your MeetAI assistant. How can I help you today?
-        </div>
+        <!-- AI messages here -->
       </div>
       <div class="meetai-input">
-        <input type="text" id="meetaiInput" placeholder="Ask me anything...">
-        <button class="send-comment-btn" onclick="sendMeetAIMessage()">
-          <i class="fas fa-paper-plane"></i>
-        </button>
+        <input type="text" id="meetaiInput" placeholder="Ask MeetAI anything...">
+        <button class="send-comment-btn"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
-
-    <!-- MeetAI Button -->
-    <div class="meetai-button" onclick="toggleMeetAI()">
-      <span>M</span>
-    </div>
-
-    <!-- Messages -->
-    <div id="messageContainer"></div>
-
-    <!-- Posts Container -->
-    <div class="posts" id="postsContainer">
-      <div class="loading">Loading posts...</div>
-    </div>
-  </div>
-</div>
-
-<!-- Post Modal -->
-<div class="modal" id="postModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Meetcast</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="post-form">
-        <div class="post-user-info">
-          <div class="user-avatar" id="modalUserAvatar">
-            U
-            <div class="status-indicator status-online"></div>
-          </div>
-          <div>
-            <div class="user-name" id="modalUserName">User Name</div>
-            <select id="privacy" style="border: none; background: var(--bg-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; font-size: 14px;">
-              <option value="public">🌍 Public</option>
-              <option value="friends">👥 Friends</option>
-              <option value="private">🔒 Only Me</option>
-            </select>
-          </div>
-        </div>
-        <textarea class="post-textarea" id="postText" placeholder="What's on your mind?"></textarea>
-        <div class="media-preview" id="mediaPreview"></div>
-        <div class="post-options">
-          <div style="color: var(--secondary-text);">Add to your meetcast</div>
-          <div style="display: flex; gap: 8px;">
-            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;" multiple>
-            <div class="action-btn" onclick="document.getElementById('postMedia').click()">
-              <i class="fas fa-images" style="color: #45bd62;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-user-tag" style="color: #1877f2;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-laugh" style="color: #f7b928;"></i>
-            </div>
-            <div class="action-btn">
-              <i class="fas fa-map-marker-alt" style="color: #f5533d;"></i>
-            </div>
-          </div>
-        </div>
-        <button class="btn" id="postBtn" style="background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);">
-          <span id="postBtnText">Meetcast</span>
-          <span id="postBtnSpinner" class="spinner" style="display: none;"></span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Users Modal -->
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="users-list" id="usersList">
-        <div class="loading">Loading users...</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Notifications Modal -->
-<div class="modal" id="notificationsModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="notificationsList">
-        <div class="loading">Loading notifications...</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Comments Modal -->
-<div class="comments-modal" id="commentsModal">
-  <div class="comments-modal-content">
-    <div class="comments-modal-header">
-      <h3>Responses</h3>
-      <button class="close-modal" id="closeCommentsModal">&times;</button>
-    </div>
-    <div class="comments-modal-body" id="commentsModalBody">
-      <!-- Comments will be loaded here -->
-    </div>
-  </div>
-</div>
-
-<!-- Media Modal -->
-<div class="media-modal" id="mediaModal">
-  <div class="media-modal-content">
-    <button class="close-media-modal" id="closeMediaModal">&times;</button>
-    <img id="mediaModalImage" src="" alt="Enlarged media">
-    <video id="mediaModalVideo" controls style="display: none;">
-      Your browser does not support the video tag.
-    </video>
   </div>
 </div>
 
 <script type="module">
-  // ===== Firebase Imports =====
-  import { 
-    initializeApp 
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getFirestore, collection, doc, addDoc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, updateDoc, deleteDoc, serverTimestamp, arrayUnion, arrayRemove, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 
-  import { 
-    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, 
-    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, arrayUnion, arrayRemove, increment,
-    writeBatch 
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-
-  import { 
-    getAuth, onAuthStateChanged, signOut 
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-
-  // ===== Cloudinary Setup =====
-  const CLOUDINARY_CLOUD_NAME = 'dcwof2ngn';
-  const CLOUDINARY_UPLOAD_PRESET = 'Meet_video';
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
-
-  // ===== Firebase Config =====
+  // Firebase Configuration (Replace with your actual config)
   const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c",
-    measurementId: "G-9BFPPVMMRF"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
   const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-  // DOM elements
+  // DOM Elements
   const postsContainer = document.getElementById('postsContainer');
-  const postBtn = document.getElementById('postBtn');
+  const postModal = document.getElementById('postModal');
   const postText = document.getElementById('postText');
   const postMedia = document.getElementById('postMedia');
-  const privacySelect = document.getElementById('privacy');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const messageContainer = document.getElementById('messageContainer');
-  const nightToggleBtn = document.getElementById('nightToggleBtn');
-  const postModal = document.getElementById('postModal');
-  const openComposer = document.getElementById('openComposer');
-  const closeModal = document.getElementById('closeModal');
-  const mediaPreview = document.getElementById('mediaPreview');
-  const currentUserAvatar = document.getElementById('currentUserAvatar');
-  const currentUserAvatarComposer = document.getElementById('currentUserAvatarComposer');
-  const modalUserAvatar = document.getElementById('modalUserAvatar');
-  const modalUserName = document.getElementById('modalUserName');
-  const userName = document.getElementById('userName');
-  const usersModal = document.getElementById('usersModal');
-  const usersList = document.getElementById('usersList');
-  const closeUsersModal = document.getElementById('closeUsersModal');
-  
-  // MeetAI Assistant elements
-  const meetaiAssistant = document.getElementById('meetaiAssistant');
-  const meetaiMessages = document.getElementById('meetaiMessages');
-  const meetaiInput = document.getElementById('meetaiInput');
-  
-  // Modal elements
-  const commentsModal = document.getElementById('commentsModal');
-  const closeCommentsModal = document.getElementById('closeCommentsModal');
-  const commentsModalBody = document.getElementById('commentsModalBody');
+  const privacySelect = document.getElementById('privacySelect');
+  const postBtn = document.getElementById('postBtn');
   const mediaModal = document.getElementById('mediaModal');
-  const closeMediaModal = document.getElementById('closeMediaModal');
   const mediaModalImage = document.getElementById('mediaModalImage');
   const mediaModalVideo = document.getElementById('mediaModalVideo');
-  
-  // Notifications elements
-  const notificationsModal = document.getElementById('notificationsModal');
-  const closeNotificationsModal = document.getElementById('closeNotificationsModal');
-  const notificationsList = document.getElementById('notificationsList');
-  const unreadBadge = document.getElementById('unreadBadge');
-  const notificationsBtn = document.getElementById('notificationsBtn');
+  const commentsModal = document.getElementById('commentsModal');
+  const allCommentsList = document.getElementById('allCommentsList');
+  const modalResponseInput = document.getElementById('modalResponseInput');
+  const modalUserAvatar = document.getElementById('modalUserAvatar');
+  const navUserAvatar = document.getElementById('navUserAvatar');
+  const navUserName = document.getElementById('navUserName');
+  const composerUserAvatar = document.getElementById('composerUserAvatar');
+  const notificationBtn = document.getElementById('notificationBtn');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  const notificationList = document.getElementById('notificationList');
+  const notificationBadge = document.getElementById('notificationBadge');
+  const notificationLoading = document.getElementById('notificationLoading');
 
-  // Global variables
+  // Global State
   let currentUser = null;
   let postListeners = {};
-  let allUsers = [];
-  const userCache = {};
   let postDataMap = {};
   let starsCountMap = {};
-  let notificationsListener;
-  let unreadListener;
-  let notificationsModalListener;
-  let usersSnapshotListener;
-  let statusInterval;
+  let userCache = {};
+  let currentModalPostId = null; // To track which post's comments are open
 
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  // ===== UTILITY FUNCTIONS =====
 
-  // Theme management
-  function initTheme() {
-    const savedTheme = localStorage.getItem('meet_theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-mode');
-      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
-    } else {
-      document.body.classList.remove('dark-mode');
-      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
-    }
-  }
-
-  // Message display
   function showMessage(message, type = 'error') {
-    messageContainer.innerHTML = `<div class="${type === 'success' ? 'success-message' : 'error-message'}">${message}</div>`;
-    setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
+    // Simple message display (replace with a proper toast/snackbar implementation)
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    alert(message);
   }
 
-  // Loading state
-  function setLoading(buttonId, isLoading) {
-    const button = document.getElementById(buttonId);
-    const text = button.querySelector('span:first-child');
-    const spinner = button.querySelector('.spinner');
+  function setLoading(elementId, isLoading) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.disabled = isLoading;
+      element.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : element.dataset.originalText || element.innerText;
+      if (!element.dataset.originalText) {
+        element.dataset.originalText = element.innerText;
+      }
+    }
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatTimestamp(timestamp) {
+    if (!timestamp) return 'Just now';
     
-    if (isLoading) {
-      button.disabled = true;
-      text.style.display = 'none';
-      spinner.style.display = 'inline-block';
-    } else {
-      button.disabled = false;
-      text.style.display = 'inline-block';
-      spinner.style.display = 'none';
-    }
+    const date = timestamp.toDate();
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString();
   }
 
-  // Update unread badge
-  function updateUnreadBadge(count) {
-    if (count > 0) {
-      unreadBadge.textContent = count;
-      unreadBadge.style.display = 'flex';
-    } else {
-      unreadBadge.style.display = 'none';
+  // ===== USER DATA & AVATAR HANDLING =====
+
+  async function getUserData(userId) {
+    if (userCache[userId]) {
+      return userCache[userId];
     }
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      userCache[userId] = userDoc.data();
+      return userCache[userId];
+    }
+    return null;
   }
 
-  // Update user avatars and status globally
-  function updateUserAvatars(userId, userData) {
-    const initial = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U';
-    document.querySelectorAll(`.user-avatar[data-user-id="${userId}"]`).forEach(el => {
-      updateAvatar(el, userData.photoURL, userData.displayName, initial, userData.isOnline);
+  async function getUserDataWithCache(userId) {
+    if (userCache[userId]) {
+      return userCache[userId];
+    }
+    return getUserData(userId);
+  }
+
+  function updateAvatar(avatarEl, photoURL, userName, initial, isOnline) {
+    const statusClass = isOnline ? 'status-online' : 'status-offline';
+    let avatarHtml = `${initial}<div class="status-indicator ${statusClass}"></div>`;
+
+    if (photoURL) {
+      avatarHtml = `<img src="${photoURL}" alt="${userName}" onerror="this.onerror=null; this.src='';" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    }
+    
+    // Add the status indicator wrapper
+    avatarHtml += `<div class="status-indicator ${statusClass}"></div>`;
+    avatarEl.innerHTML = avatarHtml;
+  }
+
+  function updateAllUserAvatars(userId, photoURL, userName, isOnline) {
+    const initial = userName ? userName.charAt(0).toUpperCase() : 'U';
+    const avatarElements = document.querySelectorAll(`[data-user-id="${userId}"]`);
+    avatarElements.forEach(el => {
+      updateAvatar(el, photoURL, userName, initial, isOnline);
     });
   }
 
-  // Updated avatar update function - Ensured img loads and falls back
-  function updateAvatar(element, photoURL, userName, initial, isOnline = true) {
-    let imgHtml = initial;
-    if (photoURL) {
-      const img = document.createElement('img');
-      img.src = photoURL;
-      img.alt = userName || 'User';
-      img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
-      img.onerror = () => { element.innerHTML = initial; }; // Fallback if image fails
-      imgHtml = img.outerHTML;
-    }
-    const statusClass = isOnline ? 'status-online' : 'status-offline';
-    element.innerHTML = `${imgHtml}<div class="status-indicator ${statusClass}"></div>`;
-  }
-
-  // Update online status
-  async function updateOnlineStatus(isOnline) {
-    if (!currentUser) return;
-    try {
-      await updateDoc(doc(db, 'users', currentUser.uid), { 
-        isOnline, 
-        lastSeen: serverTimestamp() 
-      });
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  }
-
-  // ===== Handle Media Upload =====
-  async function uploadToCloudinary(file) {
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('File size too large. Maximum 10MB.');
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    
-    try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed. Please try again.');
+  // Real-time listener for current user's profile (for avatar updates across the app)
+  function setupCurrentUserProfileListener(userId) {
+    const userDocRef = doc(db, 'users', userId);
+    onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        userCache[userId] = userData; // Update cache
+        
+        // Update navigation bar
+        navUserName.textContent = userData.displayName || 'User';
+        updateAvatar(navUserAvatar, userData.photoURL, userData.displayName, userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U', userData.isOnline);
+        updateAvatar(composerUserAvatar, userData.photoURL, userData.displayName, userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U', userData.isOnline);
+        
+        // Update all other instances of the user's avatar/name
+        updateAllUserAvatars(userId, userData.photoURL, userData.displayName, userData.isOnline);
       }
-      
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload media. Please try again.');
-    }
+    }, error => {
+      console.error("Error listening to current user profile:", error);
+    });
   }
 
-  // ===== CREATE POST (Updated Structure with associate notifications) =====
-  async function createPost(text, files, privacy) {
-    const user = auth.currentUser;
-    if (!user) throw new Error("Please login first!");
+  // Real-time listener for other users' profiles (for avatar/status updates in posts)
+  function setupUserProfileListener(userId) {
+    const userDocRef = doc(db, 'users', userId);
+    onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        userCache[userId] = userData; // Update cache
+        updateAllUserAvatars(userId, userData.photoURL, userData.displayName, userData.isOnline);
+      }
+    }, error => {
+      console.error(`Error listening to user ${userId} profile:`, error);
+    });
+  }
 
-    // Get user data from Firestore
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.exists() ? userDoc.data() : {};
-    
-    let mediaUrls = [];
+  // ===== POST CRUD & INTERACTIONS =====
+
+  async function uploadMedia(file) {
+    const storageRef = ref(storage, `posts/${currentUser.uid}/${Date.now()}_${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
+  }
+
+  async function createPost(text, mediaFiles, privacy) {
+    let mediaUrl = null;
     let mediaType = null;
-    
-    if (files && files.length > 0) {
-      for (let file of files) {
-        const mediaUrl = await uploadToCloudinary(file);
-        mediaUrls.push(mediaUrl);
-        // Determine media type
-        if (file.type.startsWith('video/')) {
-          mediaType = 'video';
-        } else if (file.type.startsWith('image/')) {
-          mediaType = 'image';
-        }
+
+    if (mediaFiles && mediaFiles.length > 0) {
+      const file = mediaFiles[0];
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        throw new Error('File size too large');
       }
+      mediaUrl = await uploadMedia(file);
+      mediaType = file.type.startsWith('video') ? 'video' : 'image';
     }
 
-    // Save post with new structure
-    const postRef = await addDoc(collection(db, "posts"), {
-      userId: user.uid,
-      userName: userData.displayName || user.displayName || "Anonymous",
-      userInitial: (userData.displayName || user.displayName || "U").charAt(0).toUpperCase(),
-      photoURL: userData.photoURL || user.photoURL || null,
+    const newPost = {
+      userId: currentUser.uid,
+      userName: currentUser.displayName || 'Anonymous',
+      photoURL: currentUser.photoURL || null,
       text: text,
-      media: mediaUrls.length > 0 ? mediaUrls[0] : null, // Single URL as per response
+      media: mediaUrl,
       mediaType: mediaType,
-      privacy: privacy || 'public',
+      privacy: privacy,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    });
-    const newPostId = postRef.id;
+    };
 
-    // Notify associates
-    const associatesRef = collection(db, `users/${user.uid}/associates`);
-    const associatesSnap = await getDocs(associatesRef);
-    for (const assocDoc of associatesSnap.docs) {
-      const assocId = assocDoc.id;
-      if (assocId !== user.uid) {
-        await addDoc(collection(db, "notifications"), {
-          type: "associate_post",
-          fromUserId: user.uid,
-          fromUserName: userData.displayName || user.displayName || "Anonymous",
-          targetUserId: assocId,
-          postId: newPostId,
-          text: `${userData.displayName || user.displayName || "Anonymous"} posted a new meetcast`,
-          createdAt: serverTimestamp(),
-          read: false
-        });
-      }
-    }
+    await addDoc(collection(db, 'posts'), newPost);
   }
 
-  // ===== TOGGLE STAR (Updated with fromUserName in notification) =====
   async function toggleStar(postId) {
-    const user = auth.currentUser;
-    if (!user) return;
+    const starRef = doc(db, `posts/${postId}/stars`, currentUser.uid);
+    const starDoc = await getDoc(starRef);
 
-    const postRef = doc(db, "posts", postId);
-    const starRef = doc(db, "posts", postId, "stars", user.uid);
-    
-    try {
-      const starSnap = await getDoc(starRef);
-      
-      if (starSnap.exists()) {
-        // Remove star
-        await deleteDoc(starRef);
-      } else {
-        // Add star
-        await setDoc(starRef, { userId: user.uid });
-
-        // Create notification
-        const postSnap = await getDoc(postRef);
-        if (postSnap.exists()) {
-          const postData = postSnap.data();
-          if (postData.userId !== user.uid) {
-            await addDoc(collection(db, "notifications"), {
-              type: "star",
-              fromUserId: user.uid,
-              fromUserName: user.displayName || "Someone",
-              targetUserId: postData.userId,
-              postId: postId,
-              text: `${user.displayName || "Someone"} starred your post`,
-              createdAt: serverTimestamp(),
-              read: false
-            });
-          }
-        }
+    if (starDoc.exists()) {
+      await deleteDoc(starRef);
+    } else {
+      await setDoc(starRef, {
+        userId: currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+      // Send notification to post owner
+      const postData = postDataMap[postId];
+      if (postData && postData.userId !== currentUser.uid) {
+        await sendNotification(postData.userId, 'like', postId, postData.text);
       }
-    } catch (error) {
-      console.error('Error toggling star:', error);
-      throw error;
     }
   }
 
-  // ===== ADD RESPONSE (Updated with fromUserName in notification) =====
-  async function addResponse(postId, responseText) {
-    const user = auth.currentUser;
-    if (!user || !responseText.trim()) return;
-
-    // Get user data from Firestore
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.exists() ? userDoc.data() : {};
-
-    // Create response object
-    const response = {
-      userId: user.uid,
-      userName: userData.displayName || user.displayName || "Anonymous",
-      userInitial: (userData.displayName || user.displayName || "U").charAt(0).toUpperCase(),
-      photoURL: userData.photoURL || user.photoURL || null,
-      text: responseText,
+  async function addResponse(postId, text) {
+    const responseRef = doc(collection(db, `posts/${postId}/responses`));
+    await setDoc(responseRef, {
+      responseId: responseRef.id,
+      userId: currentUser.uid,
+      userName: currentUser.displayName || 'Anonymous',
+      photoURL: currentUser.photoURL || null,
+      text: text,
       createdAt: serverTimestamp()
-    };
-
-    // Add to responses subcollection
-    const responsesRef = collection(db, `posts/${postId}/responses`);
-    await addDoc(responsesRef, response);
-
-    // Create notification
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
-    if (postSnap.exists()) {
-      const postData = postSnap.data();
-      if (postData.userId !== user.uid) {
-        await addDoc(collection(db, "notifications"), {
-          type: "response",
-          fromUserId: user.uid,
-          fromUserName: userData.displayName || user.displayName || "Someone",
-          targetUserId: postData.userId,
-          postId: postId,
-          text: `${userData.displayName || user.displayName || "Someone"} responded to your post`,
-          createdAt: serverTimestamp(),
-          read: false
-        });
-      }
-    }
-  }
-
-  // ===== SHARE POST =====
-  async function sharePost(postId) {
-    const post = postDataMap[postId];
-    if (!post) return;
-
-    const shareText = post.text ? `${post.userName}: ${post.text.substring(0, 100)}...` : `${post.userName} shared a post on MEET!`;
-    const shareUrl = `${window.location.origin}/feed.html#post-${postId}`;
-
-    const shareData = {
-      title: 'MEET Post',
-      text: shareText,
-      url: shareUrl
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-        showMessage('Link copied to clipboard! Share it on WhatsApp, Gmail, or anywhere.', 'success');
-      }
-    } catch (err) {
-      console.error('Share failed:', err);
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&to=&su=Check%20this%20MEET%20post&body=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  }
-
-  // ===== ASSOCIATE SYSTEM (Updated with disassociate notification) =====
-  async function associateWithUser(targetUserId) {
-    const user = auth.currentUser;
-    if (!user || user.uid === targetUserId) return false;
-
-    try {
-      // Check if already associated
-      const existingAssociate = await getDoc(doc(db, "users", user.uid, "associates", targetUserId));
-      if (existingAssociate.exists()) {
-        showMessage('Already associated with this user.', 'warning');
-        return false;
-      }
-
-      // Add to current user's associates (field: associateUserId = target)
-      await setDoc(doc(db, "users", user.uid, "associates", targetUserId), { 
-        associateUserId: targetUserId,
-        timestamp: serverTimestamp()
-      });
-      
-      // Add to target user's associatedWith (field: associatedUserId = current user)
-      await setDoc(doc(db, "users", targetUserId, "associatedWith", user.uid), { 
-        associatedUserId: user.uid,
-        timestamp: serverTimestamp()
-      });
-      
-      // Create notification for target user
-      await addDoc(collection(db, "notifications"), {
-        type: "associate",
-        fromUserId: user.uid,
-        fromUserName: user.displayName || "Someone",
-        targetUserId: targetUserId,
-        text: `${user.displayName || "Someone"} associated with you`,
-        createdAt: serverTimestamp(),
-        read: false
-      });
-      
-      showMessage('You are now associates!', 'success');
-      return true;
-    } catch (error) {
-      console.error('Error associating with user:', error);
-      showMessage('Failed to associate with user. Please try again.');
-      return false;
-    }
-  }
-
-  async function removeAssociation(targetUserId) {
-    const user = auth.currentUser;
-    if (!user) return false;
-
-    try {
-      // Check if associated
-      const existingAssociate = await getDoc(doc(db, "users", user.uid, "associates", targetUserId));
-      if (!existingAssociate.exists()) {
-        showMessage('Not associated with this user.', 'warning');
-        return false;
-      }
-
-      // Remove from current user's associates
-      await deleteDoc(doc(db, "users", user.uid, "associates", targetUserId)).catch(e => {
-        console.warn('Associate doc not found or already deleted:', e);
-      });
-      
-      // Remove from target user's associatedWith
-      await deleteDoc(doc(db, "users", targetUserId, "associatedWith", user.uid)).catch(e => {
-        console.warn('AssociatedWith doc not found or already deleted:', e);
-      });
-      
-      // Create disassociate notification for target user
-      await addDoc(collection(db, "notifications"), {
-        type: "disassociate",
-        fromUserId: user.uid,
-        fromUserName: user.displayName || "Someone",
-        targetUserId: targetUserId,
-        text: `${user.displayName || "Someone"} disassociated with you`,
-        createdAt: serverTimestamp(),
-        read: false
-      });
-      
-      showMessage('Association removed successfully.', 'success');
-      return true;
-    } catch (error) {
-      console.error('Error removing association:', error);
-      showMessage('Failed to remove association. Please try again.');
-      return false;
-    }
-  }
-
-  async function checkIfAssociated(userId) {
-    const user = auth.currentUser;
-    if (!user || user.uid === userId) return false;
-
-    try {
-      const associateRef = doc(db, "users", user.uid, "associates", userId);
-      const associateSnap = await getDoc(associateRef);
-      return associateSnap.exists();
-    } catch (error) {
-      console.error('Error checking association:', error);
-      return false;
-    }
-  }
-
-  // DELETE POST
-  async function deletePost(postId) {
-    if (!confirm('Are you sure you want to delete this meetcast?')) return;
-    
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      showMessage('Meetcast deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting meetcast:', error);
-      showMessage('Failed to delete meetcast. Please try again.');
-    }
-  }
-
-  // Ensure user document exists in Firestore
-  async function ensureUserDocument(userId) {
-    try {
-      const userDocRef = doc(db, "users", userId);
-      const userDocSnap = await getDoc(userDocRef);
-      
-      if (!userDocSnap.exists()) {
-        // Get user data from auth if available
-        const authUser = auth.currentUser;
-        let userData = {
-          displayName: "User",
-          email: "",
-          photoURL: null,
-          isOnline: true,
-          lastSeen: serverTimestamp(),
-          createdAt: serverTimestamp()
-        };
-        
-        if (authUser && authUser.uid === userId) {
-          userData = {
-            displayName: authUser.displayName || "User",
-            email: authUser.email || "",
-            photoURL: authUser.photoURL || null,
-            isOnline: true,
-            lastSeen: serverTimestamp(),
-            createdAt: serverTimestamp()
-          };
-        }
-        
-        await setDoc(userDocRef, userData);
-        console.log("Created user document for:", userId);
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Error ensuring user document:", error);
-      return false;
-    }
-  }
-
-  // GET ALL USERS FOR ASSOCIATION
-  async function getAllUsers() {
-    try {
-      const usersRef = collection(db, "users");
-      const usersSnap = await getDocs(usersRef);
-      const users = [];
-      
-      usersSnap.forEach(doc => {
-        if (doc.id !== currentUser?.uid) {
-          users.push({ id: doc.id, ...doc.data() });
-        }
-      });
-      
-      return users;
-    } catch (error) {
-      console.error('Error getting users:', error);
-      showMessage('Failed to load users. Please try again.');
-      return [];
-    }
-  }
-
-  // Load users list for modal
-  async function loadUsersList() {
-    try {
-      allUsers = await getAllUsers();
-      
-      if (allUsers.length === 0) {
-        usersList.innerHTML = '<div class="loading">No users found.</div>';
-        return;
-      }
-      
-      const usersHtml = await Promise.all(allUsers.map(async (user) => {
-        const isAssociated = await checkIfAssociated(user.id);
-        let userAvatar = (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
-        if (user.photoURL) {
-          const img = document.createElement('img');
-          img.src = user.photoURL;
-          img.alt = user.displayName || 'User';
-          img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
-          img.onerror = () => { userAvatar = (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'); };
-          userAvatar = img.outerHTML;
-        }
-        
-        return `
-          <div class="user-item">
-            <div class="user-info">
-              <div class="user-avatar small" data-user-id="${user.id}">${userAvatar}</div>
-              <div>
-                <div style="font-weight: 600;">${user.displayName || 'User'}</div>
-                <div style="font-size: 14px; color: var(--secondary-text);">${user.email || ''}</div>
-              </div>
-            </div>
-            <button class="association-btn ${isAssociated ? 'disassociate-btn' : 'associate-btn'}" 
-                    onclick="window.handleAssociation('${user.id}', ${isAssociated})">
-              ${isAssociated ? 'Disassociate' : 'Associate'}
-            </button>
-          </div>
-        `;
-      }));
-      
-      usersList.innerHTML = usersHtml.join('');
-    } catch (error) {
-      console.error('Error loading users:', error);
-      usersList.innerHTML = '<div class="error-message">Failed to load users. Please try again.</div>';
-    }
-  }
-
-  // USER CACHE FOR PERFORMANCE
-  async function getUserDataWithCache(userId) {
-    if (userCache[userId]) return userCache[userId];
-    
-    try {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        userCache[userId] = userDoc.data();
-        return userDoc.data();
-      }
-      return null;
-    } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
-    }
-  }
-
-  // CREATE USER DOCUMENT IF NOT EXISTS
-  async function createUserDocument(user) {
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, {
-          displayName: user.displayName || "User",
-          email: user.email || "",
-          photoURL: user.photoURL || null,
-          isOnline: true,
-          lastSeen: serverTimestamp(),
-          createdAt: serverTimestamp()
-        });
-        console.log("User document created for:", user.uid);
-      } else {
-        // Update user document if profile has changed
-        const existingData = userDocSnap.data();
-        const updates = {};
-        if (existingData.displayName !== user.displayName) updates.displayName = user.displayName || "User";
-        if (existingData.photoURL !== user.photoURL) updates.photoURL = user.photoURL || null;
-        if (existingData.email !== user.email) updates.email = user.email || "";
-        if (Object.keys(updates).length > 0) {
-          await updateDoc(userDocRef, updates);
-        }
-        // Ensure isOnline field
-        if (existingData.isOnline === undefined) {
-          await updateDoc(userDocRef, { isOnline: true, lastSeen: serverTimestamp() });
-        }
-      }
-    } catch (error) {
-      console.error("Error handling user document:", error);
-    }
-  }
-
-  // ===== NOTIFICATIONS FUNCTIONS =====
-  function setupNotificationsListener() {
-    if (!currentUser) return;
-
-    // Unread count listener
-    const unreadQ = query(
-      collection(db, "notifications"), 
-      where("targetUserId", "==", currentUser.uid), 
-      where("read", "==", false)
-    );
-    unreadListener = onSnapshot(unreadQ, (snap) => {
-      updateUnreadBadge(snap.size);
-    }, (error) => {
-      console.error('Unread notifications listener error:', error);
-    });
-  }
-
-  async function markAllRead() {
-    if (!currentUser) return;
-
-    try {
-      const q = query(
-        collection(db, "notifications"), 
-        where("targetUserId", "==", currentUser.uid), 
-        where("read", "==", false)
-      );
-      const snap = await getDocs(q);
-      if (snap.empty) return;
-
-      const batch = writeBatch(db);
-      snap.docs.forEach((d) => {
-        batch.update(d.ref, { read: true });
-      });
-      await batch.commit();
-    } catch (error) {
-      console.error('Error marking notifications as read:', error);
-    }
-  }
-
-  window.openNotificationsModal = async () => {
-    if (!currentUser) {
-      showMessage('Please log in to view notifications.', 'error');
-      return;
-    }
-    notificationsModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    await markAllRead();
-
-    // Setup real-time listener for modal with better error handling
-    if (notificationsModalListener) notificationsModalListener();
-
-    const notifsQ = query(
-      collection(db, "notifications"), 
-      where("targetUserId", "==", currentUser.uid), 
-      orderBy("createdAt", "desc")
-    );
-    notificationsModalListener = onSnapshot(notifsQ, (snap) => {
-      let html = '';
-      if (snap.empty) {
-        html = '<div style="text-align: center; color: var(--secondary-text);">No notifications yet.</div>';
-      } else {
-        snap.docs.forEach((d) => {
-          const n = d.data();
-          const isUnread = !n.read;
-          let displayText = n.text;
-          if (n.type === 'associate_post' && n.postId) {
-            displayText += ` <a href="#" onclick="scrollToPost('${n.postId}'); return false;" style="color: var(--primary);">View post</a>`;
-          } else if (n.postId) {
-            displayText += ` <a href="#" onclick="scrollToPost('${n.postId}'); return false;" style="color: var(--primary);">View post</a>`;
-          }
-          html += `
-            <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="viewNotification('${d.id}', '${n.type}', '${n.postId || ''}', '${n.fromUserId}')" style="padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer;">
-              <div style="font-weight: 600;">${displayText}</div>
-              <div style="font-size: 12px; color: var(--secondary-text);">${formatTimestamp(n.createdAt)}</div>
-            </div>
-          `;
-        });
-      }
-      notificationsList.innerHTML = html;
-    }, (error) => {
-      console.error('Notifications listener error:', error);
-      notificationsList.innerHTML = '<div class="error-message">Failed to load notifications. Please check your connection and try again.</div>';
-    });
-  };
-
-  window.viewNotification = (notifId, type, postId, fromUserId) => {
-    // Handle navigation based on type
-    if (postId) {
-      scrollToPost(postId);
-    } else if (fromUserId && fromUserId !== currentUser?.uid) {
-      viewProfile(fromUserId);
-    }
-    notificationsModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  };
-
-  function scrollToPost(postId) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (postEl) {
-      postEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-
-  closeNotificationsModal.addEventListener('click', () => {
-    notificationsModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    if (notificationsModalListener) {
-      notificationsModalListener();
-      notificationsModalListener = null;
-    }
-  });
-
-  notificationsModal.addEventListener('click', (e) => {
-    if (e.target === notificationsModal) {
-      notificationsModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      if (notificationsModalListener) {
-        notificationsModalListener();
-        notificationsModalListener = null;
-      }
-    }
-  });
-
-  // MEETAI ASSISTANT FUNCTIONS (Enhanced with better mock responses for functionality)
-  function toggleMeetAI() {
-    if (meetaiAssistant.style.display === 'flex') {
-      closeMeetAI();
-    } else {
-      openMeetAI();
-    }
-  }
-
-  function openMeetAI() {
-    meetaiAssistant.style.display = 'flex';
-  }
-
-  function closeMeetAI() {
-    meetaiAssistant.style.display = 'none';
-  }
-
-  async function sendMeetAIMessage() {
-    const message = meetaiInput.value.trim();
-    if (!message) return;
-
-    // Add user message
-    addMeetAIMessage(message, 'user');
-    meetaiInput.value = '';
-
-    // Enhanced AI response logic (simple keyword-based for now; can integrate real API later)
-    setTimeout(() => {
-      let response = '';
-      const lowerMsg = message.toLowerCase();
-      if (lowerMsg.includes('associate') || lowerMsg.includes('connect')) {
-        response = "To associate with someone, go to 'Find Associates' in the sidebar and select a user. It's mutual and enables post notifications!";
-      } else if (lowerMsg.includes('post') || lowerMsg.includes('meetcast')) {
-        response = "Create a meetcast by clicking 'What's on your mind?' and share text, images, or videos. Privacy options: Public, Friends, or Private.";
-      } else if (lowerMsg.includes('profile')) {
-        response = "View profiles by clicking usernames in posts. Edit your own in the Profile tab with public/private toggles coming soon.";
-      } else if (lowerMsg.includes('chat')) {
-        response = "Chat is in beta—type usernames to start. Voice notes, calls, and AI auto-replies are on the way!";
-      } else if (lowerMsg.includes('market') || lowerMsg.includes('meetrader')) {
-        response = "Meetrader lets you buy/sell with likes and direct seller chats. Post items and connect securely.";
-      } else {
-        // Fallback random helpful response
-        const responses = [
-          "I understand you're asking about " + message + ". As your MeetAI assistant, I can help you navigate the platform, connect with associates, or optimize your meetcasts.",
-          "That's an interesting question about " + message + ". I recommend checking the help section or connecting with experienced associates who can provide guidance.",
-          "Based on your query about " + message + ", I suggest exploring similar topics in our community feed or starting a discussion with your associates.",
-          "I've analyzed your question regarding " + message + ". The MEET platform offers various tools to help with this - consider using the search feature to find relevant content.",
-          "Regarding " + message + ", our AI system can help you connect with users who have similar interests. Would you like me to suggest some potential associates?"
-        ];
-        response = responses[Math.floor(Math.random() * responses.length)];
-      }
-      
-      addMeetAIMessage(response, 'bot');
-    }, 800); // Slightly faster response
-  }
-
-  function addMeetAIMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `meetai-message meetai-${sender}`;
-    messageDiv.textContent = text;
-    meetaiMessages.appendChild(messageDiv);
-    meetaiMessages.scrollTop = meetaiMessages.scrollHeight;
-  }
-
-  // Update stats
-  function updateStats(postId) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postEl) return;
-    const statsEl = postEl.querySelector('.post-stats div');
-    if (!statsEl) return;
-
-    const starsC = starsCountMap[postId] || 0;
-    const postD = postDataMap[postId] || { responses: [] };
-    const resC = postD.responses ? postD.responses.length : 0;
-
-    statsEl.textContent = `${starsC} stars • ${resC} responses`;
-  }
-
-  // Update star status
-  function updateStarStatus(postId, isActive) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postEl) return;
-    const starBtn = postEl.querySelector('.interaction-btn:nth-child(1)');
-    if (!starBtn) return;
-
-    if (isActive) {
-      starBtn.classList.add('active');
-    } else {
-      starBtn.classList.remove('active');
-    }
-  }
-
-  // Update comments section - show 3 latest
-  function updateCommentsSection(postId, responses) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postEl) return;
-    const commentsSection = postEl.querySelector(`#comments-${postId}`);
-    if (!commentsSection) return;
-
-    // Clear existing comments except input
-    const inputDiv = commentsSection.querySelector('.comment-input');
-    if (!inputDiv) return;
-    commentsSection.innerHTML = '';
-    commentsSection.appendChild(inputDiv);
-
-    // Add recent 3 (latest first since ordered desc)
-    const recent = responses.slice(0, 3);
-    recent.forEach(async (response) => {
-      const userData = await getUserDataWithCache(response.userId);
-      const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-      let photoURL = userData?.photoURL || response.photoURL;
-      let avatarHtml = `${responseInitial}<div class="status-indicator status-online"></div>`;
-      if (photoURL) {
-        const img = document.createElement('img');
-        img.src = photoURL;
-        img.alt = response.userName;
-        img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
-        img.onerror = () => { avatarHtml = `${responseInitial}<div class="status-indicator status-online"></div>`; };
-        avatarHtml = `${img.outerHTML}<div class="status-indicator status-online"></div>`;
-      }
-      const commentHtml = `
-        <div class="comment">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px; cursor: pointer;" data-user-id="${response.userId}" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
-          <div class="comment-content">
-            <div style="font-weight: 600; font-size: 14px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
-            <div>${escapeHtml(response.text)}</div>
-          </div>
-        </div>
-      `;
-      const commentEl = document.createElement('div');
-      commentEl.innerHTML = commentHtml;
-      commentsSection.insertBefore(commentEl.firstChild, inputDiv);
     });
 
-    // View more
-    if (responses.length > 3) {
-      const viewMoreEl = document.createElement('div');
-      viewMoreEl.className = 'view-more-comments';
-      viewMoreEl.onclick = () => openResponsesModal(postId);
-      viewMoreEl.innerHTML = `View ${responses.length - 3} more responses`;
-      commentsSection.insertBefore(viewMoreEl, inputDiv);
+    // Send notification to post owner
+    const postData = postDataMap[postId];
+    if (postData && postData.userId !== currentUser.uid) {
+      await sendNotification(postData.userId, 'comment', postId, text);
     }
   }
 
-  // Authentication state listener
-  onAuthStateChanged(auth, async user => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
-      currentUser = user;
-      
-      // Create or update user document in Firestore
-      await createUserDocument(user);
-      
-      // Set online status
-      await updateOnlineStatus(true);
-      
-      // Status interval
-      statusInterval = setInterval(() => updateOnlineStatus(true), 30000);
-      
-      // Visibility change for status
-      document.addEventListener('visibilitychange', () => {
-        updateOnlineStatus(!document.hidden);
-      });
+  // ===== REAL-TIME UPDATES & RENDERING =====
 
-      // Get updated user data from Firestore
-      const userData = await getUserDataWithCache(user.uid);
-      const userNameText = userData?.displayName || user.displayName || 'User';
-      const userProfilePicture = userData?.photoURL || user.photoURL;
-      const userInitial = userNameText.charAt(0).toUpperCase();
-      const isOnline = userData?.isOnline || true;
-      
-      // Set data-user-id on current user avatars
-      currentUserAvatar.dataset.userId = user.uid;
-      currentUserAvatarComposer.dataset.userId = user.uid;
-      modalUserAvatar.dataset.userId = user.uid;
-      
-      // Update all avatars with profile pictures and status
-      updateAvatar(currentUserAvatar, userProfilePicture, userNameText, userInitial, isOnline);
-      updateAvatar(currentUserAvatarComposer, userProfilePicture, userNameText, userInitial, isOnline);
-      updateAvatar(modalUserAvatar, userProfilePicture, userNameText, userInitial, isOnline);
-      
-      modalUserName.textContent = userNameText;
-      userName.textContent = userNameText;
-      
-      // Setup users real-time listener for avatars and status
-      const usersQuery = query(collection(db, 'users'));
-      usersSnapshotListener = onSnapshot(usersQuery, (snap) => {
-        snap.docs.forEach((doc) => {
-          const data = doc.data();
-          userCache[doc.id] = data;
-          updateUserAvatars(doc.id, data);
-        });
-      }, (error) => {
-        console.error('Users snapshot error:', error);
-      });
-      
-      // Load all users for association
-      allUsers = await getAllUsers();
-      
-      // Setup listeners
-      setupNotificationsListener();
-      setupRealTimeListener();
-    }
-  });
-
-  // Cleanup on unload
-  window.addEventListener('beforeunload', () => {
-    if (currentUser) {
-      updateOnlineStatus(false);
-    }
-    if (statusInterval) clearInterval(statusInterval);
-    if (notificationsListener) notificationsListener();
-    if (unreadListener) unreadListener();
-    if (notificationsModalListener) notificationsModalListener();
-    if (usersSnapshotListener) usersSnapshotListener();
-    Object.values(postListeners).forEach(obj => {
-      Object.values(obj).forEach(unsub => unsub());
-    });
-  });
-
-  // Logout functionality
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      window.location.href = 'login.html';
-    } catch (error) {
-      console.error('Logout error:', error);
-      showMessage('Failed to logout. Please try again.');
-    }
-  });
-
-  // Theme toggle
-  nightToggleBtn.addEventListener('click', () => {
-    if (document.body.classList.contains('dark-mode')) {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('meet_theme', 'light');
-      nightToggleBtn.innerHTML = '<i class="fas fa-moon"></i> <span>Night Mode</span>';
-    } else {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('meet_theme', 'dark');
-      nightToggleBtn.innerHTML = '<i class="fas fa-sun"></i> <span>Day Mode</span>';
-    }
-  });
-
-  // Modal controls
-  openComposer.addEventListener('click', () => {
-    postModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  });
-
-  closeModal.addEventListener('click', () => {
-    postModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    resetPostForm();
-  });
-
-  // Users modal controls
-  window.openUsersModal = async () => {
-    usersModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    await loadUsersList();
-  };
-
-  window.handleAssociation = async (userId, isAssociated) => {
-    if (isAssociated) {
-      const success = await removeAssociation(userId);
-      if (success) await loadUsersList();
-    } else {
-      const success = await associateWithUser(userId);
-      if (success) await loadUsersList();
-    }
-  };
-
-  closeUsersModal.addEventListener('click', () => {
-    usersModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  // Close modal when clicking outside
-  postModal.addEventListener('click', (e) => {
-    if (e.target === postModal) {
-      postModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      resetPostForm();
-    }
-  });
-
-  usersModal.addEventListener('click', (e) => {
-    if (e.target === usersModal) {
-      usersModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-  });
-
-  // Comments modal controls
-  closeCommentsModal.addEventListener('click', () => {
-    commentsModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  });
-
-  commentsModal.addEventListener('click', (e) => {
-    if (e.target === commentsModal) {
-      commentsModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-  });
-
-  // Media modal controls
-  closeMediaModal.addEventListener('click', () => {
-    mediaModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    mediaModalVideo.pause();
-  });
-
-  mediaModal.addEventListener('click', (e) => {
-    if (e.target === mediaModal) {
-      mediaModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      mediaModalVideo.pause();
-    }
-  });
-
-  // MeetAI input enter key
-  meetaiInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      sendMeetAIMessage();
-    }
-  });
-
-  // Media preview
-  postMedia.addEventListener('change', function(e) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    mediaPreview.innerHTML = '';
-    
-    for (let file of files) {
-      if (file.size > MAX_FILE_SIZE) {
-        showMessage('File size too large. Maximum 10MB.');
-        postMedia.value = '';
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const isVideo = file.type.startsWith('video/');
-        const mediaElement = document.createElement('div');
-        mediaElement.style.position = 'relative';
-        mediaElement.style.marginBottom = '10px';
-        mediaElement.innerHTML = `
-          ${isVideo ? 
-            `<video controls style="width: 100%; max-height: 300px; object-fit: contain; background: var(--bg-color);"><source src="${e.target.result}" type="${file.type}"></video>` : 
-            `<img src="${e.target.result}" alt="Preview" style="width: 100%; max-height: 300px; object-fit: contain; background: var(--bg-color);">`
-          }
-          <button class="remove-media" onclick="this.parentElement.remove()">&times;</button>
-        `;
-        mediaPreview.appendChild(mediaElement);
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function removeMedia() {
-    mediaPreview.innerHTML = '';
-    postMedia.value = '';
-  }
-
-  function resetPostForm() {
-    postText.value = '';
-    removeMedia();
-  }
-
-  // Create post (meetcast)
-  postBtn.addEventListener('click', async () => {
-    const text = postText.value.trim();
-    const mediaFiles = postMedia.files;
-    const privacy = privacySelect.value;
-
-    if (!text && (!mediaFiles || mediaFiles.length === 0)) {
-      showMessage('Please add some text or media to your meetcast!');
-      return;
-    }
-
-    if (text.length > 500) {
-      showMessage('Meetcast text is too long. Maximum 500 characters.');
-      return;
-    }
-
-    setLoading('postBtn', true);
-
-    try {
-      await createPost(text, mediaFiles, privacy);
-      resetPostForm();
-      postModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      showMessage('Meetcast created successfully!', 'success');
-    } catch (error) {
-      console.error('Meetcast creation error:', error);
-      if (error.message.includes('File size too large')) {
-        showMessage('File size too large. Maximum 10MB.');
-      } else {
-        showMessage('Failed to create meetcast. Please try again.');
-      }
-    } finally {
-      setLoading('postBtn', false);
-    }
-  });
-
-  // ===== REAL-TIME UPDATES =====
   function setupRealTimeListener() {
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     
@@ -2553,8 +1271,10 @@
       const postPromises = snapshot.docs.map(async (doc) => {
         const post = doc.data();
         if (canViewPost(post)) {
-          const userData = await getUserDataWithCache(post.userId);
-          postDataMap[doc.id] = { ...post, responses: [], authorPhotoURL: userData?.photoURL || post.photoURL };
+          // Ensure user data is in cache for initial render
+          await getUserDataWithCache(post.userId);
+          
+          postDataMap[doc.id] = { ...post, responses: [], authorPhotoURL: userCache[post.userId]?.photoURL || post.photoURL };
           setupPostWithRealtimeData(doc.id, post);
         }
       });
@@ -2569,25 +1289,24 @@
     });
   }
 
-  // Update individual post with real-time data
   function setupPostWithRealtimeData(postId, initialPostData) {
     const postDocRef = doc(db, "posts", postId);
     
-    // Post document listener
+    // Post document listener (for text/media updates)
     const unsubscribePost = onSnapshot(postDocRef, async (docSnap) => {
       if (docSnap.exists()) {
         const updated = docSnap.data();
-        const userData = await getUserDataWithCache(updated.userId);
-        postDataMap[postId] = { ...updated, responses: postDataMap[postId]?.responses || [], authorPhotoURL: userData?.photoURL || updated.photoURL };
-        updatePostAvatars(postId);
-        updateStats(postId);
+        // Update post data in map
+        postDataMap[postId] = { ...postDataMap[postId], ...updated };
+        // Re-render the post content
+        renderPostContent(postId, postDataMap[postId]);
       }
     });
 
     // Responses listener
     const responsesQuery = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'desc'));
     const unsubscribeResponses = onSnapshot(responsesQuery, (snap) => {
-      const responses = snap.docs.map(d => d.data());
+      const responses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       postDataMap[postId].responses = responses;
       updateStats(postId);
       updateCommentsSection(postId, responses);
@@ -2615,68 +1334,88 @@
 
     // Initial render
     renderPost(postId, initialPostData);
+    // Setup listener for the post owner's profile
+    setupUserProfileListener(initialPostData.userId);
   }
 
-  // Update post avatars
-  async function updatePostAvatars(postId) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postEl) return;
-    const postData = postDataMap[postId];
-    if (!postData) return;
-
-    // Update post header avatar
-    const headerAvatar = postEl.querySelector('.post-header .user-avatar');
-    if (headerAvatar) {
-      const userData = await getUserDataWithCache(postData.userId);
-      const photoURL = userData?.photoURL || postData.authorPhotoURL;
-      const initial = postData.userInitial || (postData.userName ? postData.userName.charAt(0).toUpperCase() : 'U');
-      const isOnline = userData?.isOnline || true;
-      updateAvatar(headerAvatar, photoURL, postData.userName, initial, isOnline);
+  function renderPost(id, data) {
+    let postEl = document.querySelector(`[data-post-id="${id}"]`);
+    if (postEl) {
+      // If post already exists, just update its content (handled by renderPostContent)
+      return;
     }
-  }
 
-  // ===== ENHANCED POST RENDERING =====
-  const renderPost = async (id, data) => {
-    const postEl = document.createElement('div');
+    postEl = document.createElement('div');
     postEl.classList.add('post');
     postEl.setAttribute('data-post-id', id);
-    
-    const user = auth.currentUser;
-    const isOwner = data.userId === user.uid;
-    
-    // Get user data for avatar
-    const userData = await getUserDataWithCache(data.userId);
-    let photoURL = userData?.photoURL || data.photoURL;
-    const userInitial = data.userInitial || (data.userName ? data.userName.charAt(0).toUpperCase() : 'U');
-    const isOnline = userData?.isOnline || true;
-    let avatarHtml = `${userInitial}<div class="status-indicator status-online"></div>`;
-    if (photoURL) {
-      const img = document.createElement('img');
-      img.src = photoURL;
-      img.alt = data.userName;
-      img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
-      img.onerror = () => { avatarHtml = `${userInitial}<div class="status-indicator status-online"></div>`; };
-      avatarHtml = `${img.outerHTML}<div class="status-indicator status-online"></div>`;
+    postsContainer.prepend(postEl); // Prepend to show newest first
+
+    // Initial structure render (content will be filled by renderPostContent)
+    postEl.innerHTML = `
+      <div class="post-header">
+        <div class="post-user" onclick="viewProfile('${data.userId}')">
+          <div class="user-avatar" data-user-id="${data.userId}"></div>
+          <div>
+            <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
+            <div class="post-meta">
+              <span class="timestamp">${formatTimestamp(data.createdAt)}</span> • 
+              <span class="privacy">${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="post-actions">
+          <i class="fas fa-ellipsis-h" style="cursor: pointer;" onclick="togglePostMenu('${id}')"></i>
+          <div class="post-menu" id="menu-${id}" style="display: none; position: absolute; right: 0; top: 30px; background: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 10;">
+            <div class="post-menu-item" onclick="editPost('${id}')" style="padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-edit"></i> Edit
+            </div>
+            <div class="post-menu-item delete" onclick="deletePost('${id}')" style="padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: var(--error);">
+              <i class="fas fa-trash"></i> Delete
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="post-content-wrapper">
+        <!-- Content, media, stats, interactions, comments will be injected here -->
+      </div>
+    `;
+
+    // Initial avatar update
+    const userData = userCache[data.userId];
+    if (userData) {
+      updateAllUserAvatars(data.userId, userData.photoURL, userData.displayName, userData.isOnline);
     }
-    
+
+    renderPostContent(id, data);
+  }
+
+  function renderPostContent(id, data) {
+    const postEl = document.querySelector(`[data-post-id="${id}"]`);
+    if (!postEl) return;
+
+    const contentWrapper = postEl.querySelector('.post-content-wrapper');
+    const isOwner = data.userId === currentUser.uid;
+
     // Truncate long posts
     const maxLength = 200;
     let postContentHtml = '';
     if (data.text && data.text.length > maxLength) {
       postContentHtml = `
-        <div class="post-text-truncated">
-          ${escapeHtml(data.text.substring(0, maxLength))}...
-          <span class="read-more" onclick="toggleReadMore(this)">Read more</span>
-        </div>
-        <div class="post-text-full" style="display: none;">
-          ${escapeHtml(data.text)}
-          <span class="read-less" onclick="toggleReadLess(this)" style="color: var(--primary); cursor: pointer; font-weight: 600;"> Read less</span>
+        <div class="post-content">
+          <div class="post-text-truncated">
+            ${escapeHtml(data.text.substring(0, maxLength))}...
+            <span class="read-more" onclick="toggleReadMore(this)">Read more</span>
+          </div>
+          <div class="post-text-full" style="display: none;">
+            ${escapeHtml(data.text)}
+            <span class="read-less" onclick="toggleReadLess(this)"> Read less</span>
+          </div>
         </div>
       `;
     } else {
-      postContentHtml = escapeHtml(data.text || '');
+      postContentHtml = `<div class="post-content">${escapeHtml(data.text || '')}</div>`;
     }
-    
+
     // Media HTML
     let mediaHtml = '';
     if (data.media) {
@@ -2690,141 +1429,453 @@
         </div>
       `;
     }
-    
-    postEl.innerHTML = `
-      <div class="post-header">
-        <div class="post-user" onclick="viewProfile('${data.userId}')">
-          <div class="user-avatar" data-user-id="${data.userId}">${avatarHtml}</div>
-          <div>
-            <div class="user-name" style="cursor: pointer; color: var(--primary);">${data.userName || 'Anonymous'}</div>
-            <div class="post-meta">
-              ${formatTimestamp(data.createdAt)} • 
-              ${data.privacy === 'public' ? '🌍 Public' : data.privacy === 'friends' ? '👥 Friends' : '🔒 Only Me'}
-            </div>
-          </div>
-        </div>
-        ${isOwner ? `
-          <div class="post-actions">
-            <i class="fas fa-ellipsis-h" style="cursor: pointer;" onclick="togglePostMenu('${id}')"></i>
-            <div class="post-menu" id="menu-${id}">
-              <div class="post-menu-item" onclick="editPost('${id}')">
-                <i class="fas fa-edit"></i> Edit
-              </div>
-              <div class="post-menu-item delete" onclick="deletePost('${id}')">
-                <i class="fas fa-trash"></i> Delete
-              </div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-      <div class="post-content">${postContentHtml}</div>
+
+    contentWrapper.innerHTML = `
+      ${postContentHtml}
       ${mediaHtml}
       <div class="post-stats">
-        <div>0 stars • 0 responses</div>
+        <div class="stats-text">0 stars • 0 responses</div>
       </div>
       <div class="post-interactions">
-        <div class="interaction-btn" onclick="window.toggleStar('${id}')">
+        <div class="interaction-btn star-btn" onclick="window.toggleStar('${id}')">
           <i class="fas fa-star"></i> <span>Star</span>
         </div>
         <div class="interaction-btn" onclick="focusResponse('${id}')">
           <i class="fas fa-comment"></i> <span>Respond</span>
         </div>
-        <div class="interaction-btn" onclick="sharePost('${id}')">
-          <i class="fas fa-share"></i> <span>Share</span>
+        <div class="interaction-btn" onclick="sharePost('${id}', '${escapeHtml(data.text || '')}')">
+          <i class="fas fa-share"></i> <span>Promote</span>
         </div>
       </div>
       <div class="comments-section" id="comments-${id}">
-        <div class="comment-input">
-          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;" data-user-id="${user.uid}">
-            ${user.photoURL ? 
-              `<img src="${user.photoURL}" alt="${user.displayName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator status-online"></div>` : 
-              `${(user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U')}<div class="status-indicator status-online"></div>`
-            }
-          </div>
-          <input type="text" id="response-${id}" placeholder="Write a response..." onkeypress="handleResponseKeypress(event, '${id}')">
-          <button class="send-comment-btn" onclick="addResponseViaButton('${id}')">
-            <i class="fas fa-paper-plane"></i>
-          </button>
+        <!-- Comments and input will be updated here -->
+      </div>
+    `;
+
+    // Update visibility of post menu
+    const menu = document.getElementById(`menu-${id}`);
+    if (menu) {
+      menu.style.display = isOwner ? menu.style.display : 'none';
+    }
+
+    updateStats(id);
+    updateCommentsSection(id, postDataMap[id].responses || []);
+  }
+
+  function updateStats(postId) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+
+    const statsEl = postEl.querySelector('.stats-text');
+    const starsCount = starsCountMap[postId] || 0;
+    const responsesCount = postDataMap[postId]?.responses?.length || 0;
+
+    if (statsEl) {
+      statsEl.textContent = `${starsCount} star${starsCount === 1 ? '' : 's'} • ${responsesCount} response${responsesCount === 1 ? '' : 's'}`;
+    }
+  }
+
+  function updateStarStatus(postId, isStarred) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+
+    const starBtn = postEl.querySelector('.star-btn');
+    if (starBtn) {
+      starBtn.classList.toggle('starred', isStarred);
+      starBtn.querySelector('span').textContent = isStarred ? 'Starred' : 'Star';
+    }
+  }
+
+  function renderComment(comment) {
+    const userData = userCache[comment.userId] || {};
+    const responseInitial = userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U';
+    const photoURL = userData.photoURL || comment.photoURL;
+    const isOnline = userData.isOnline || false;
+    const statusClass = isOnline ? 'status-online' : 'status-offline';
+    
+    let avatarHtml = `${responseInitial}<div class="status-indicator ${statusClass}"></div>`;
+    if (photoURL) {
+      avatarHtml = `<img src="${photoURL}" alt="${comment.userName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    }
+    avatarHtml += `<div class="status-indicator ${statusClass}"></div>`;
+
+    return `
+      <div class="comment" data-comment-id="${comment.id}">
+        <div class="user-avatar small" data-user-id="${comment.userId}" onclick="viewProfile('${comment.userId}')" style="flex-shrink: 0;">
+          ${avatarHtml}
+        </div>
+        <div class="comment-content">
+          <div class="comment-author" onclick="viewProfile('${comment.userId}')" style="cursor: pointer;">${comment.userName || 'User'}</div>
+          <div class="comment-text">${escapeHtml(comment.text)}</div>
+          <div class="comment-meta">${formatTimestamp(comment.createdAt)}</div>
         </div>
       </div>
     `;
+  }
+
+  function updateCommentsSection(postId, responses) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    if (!commentsSection) return;
+
+    // 1. Render visible comments (max 3)
+    const visibleResponses = responses.slice(0, 3);
+    let commentsHtml = visibleResponses.map(renderComment).join('');
+
+    // 2. Add "View More" button if more than 3 comments exist
+    if (responses.length > 3) {
+      commentsHtml += `<span class="view-more-comments" onclick="openResponsesModal('${postId}')">View all ${responses.length} responses</span>`;
+    }
+
+    // 3. Add the comment input box
+    const user = auth.currentUser;
+    const userInitial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+    const userPhotoURL = user.photoURL;
+    const isOnline = userCache[user.uid]?.isOnline || false;
+    const statusClass = isOnline ? 'status-online' : 'status-offline';
+
+    let userAvatarHtml = `${userInitial}<div class="status-indicator ${statusClass}"></div>`;
+    if (userPhotoURL) {
+      userAvatarHtml = `<img src="${userPhotoURL}" alt="${user.displayName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator ${statusClass}"></div>`;
+    }
+
+    const inputHtml = `
+      <div class="comment-input">
+        <div class="user-avatar small" data-user-id="${user.uid}">
+          ${userAvatarHtml}
+        </div>
+        <input type="text" id="response-${postId}" placeholder="Write a response..." onkeypress="handleResponseKeypress(event, '${postId}')">
+        <button class="send-comment-btn" onclick="addResponseViaButton('${postId}')">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    `;
+
+    commentsSection.innerHTML = commentsHtml + inputHtml;
+
+    // Pre-cache all comment authors' data
+    responses.forEach(response => {
+      if (!userCache[response.userId]) {
+        setupUserProfileListener(response.userId);
+      }
+    });
+  }
+
+  // ===== RESPONSES MODAL (PROFESSIONAL INTERFACE) =====
+
+  window.openResponsesModal = async (postId) => {
+    currentModalPostId = postId;
+    const responses = postDataMap[postId]?.responses || [];
     
-    postsContainer.appendChild(postEl);
+    // Render all comments
+    const responsesHtml = responses.map(renderComment).join('');
+    allCommentsList.innerHTML = responsesHtml || '<div style="text-align: center; color: var(--secondary-text); padding: 20px;">No responses yet.</div>';
+    
+    // Update modal user avatar
+    const user = auth.currentUser;
+    const userInitial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+    const userPhotoURL = user.photoURL;
+    const isOnline = userCache[user.uid]?.isOnline || false;
+    const statusClass = isOnline ? 'status-online' : 'status-offline';
+
+    let userAvatarHtml = `${userInitial}<div class="status-indicator ${statusClass}"></div>`;
+    if (userPhotoURL) {
+      userAvatarHtml = `<img src="${userPhotoURL}" alt="${user.displayName}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div class="status-indicator ${statusClass}"></div>`;
+    }
+    modalUserAvatar.innerHTML = userAvatarHtml;
+    
+    commentsModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    modalResponseInput.focus();
   };
 
-  // ===== RESPONSES MODAL =====
-  window.openResponsesModal = async (postId) => {
-    try {
-      const responsesRef = collection(db, `posts/${postId}/responses`);
-      const q = query(responsesRef, orderBy("createdAt", "desc"));
-      const snapshot = await getDocs(q);
-      const responses = snapshot.docs.map(doc => doc.data());
-      
-      let responsesHtml = '';
-      for (const response of responses) {
-        const userData = await getUserDataWithCache(response.userId);
-        const responseInitial = response.userInitial || (response.userName ? response.userName.charAt(0).toUpperCase() : 'U');
-        let photoURL = userData?.photoURL || response.photoURL;
-        const isOnline = userData?.isOnline || true;
-        const statusClass = isOnline ? 'status-online' : 'status-offline';
-        let avatarHtml = `${responseInitial}<div class="status-indicator ${statusClass}"></div>`;
-        if (photoURL) {
-          const img = document.createElement('img');
-          img.src = photoURL;
-          img.alt = response.userName;
-          img.style.cssText = 'width:100%; height:100%; border-radius:50%; object-fit:cover;';
-          img.onerror = () => { avatarHtml = `${responseInitial}<div class="status-indicator ${statusClass}"></div>`; };
-          avatarHtml = `${img.outerHTML}<div class="status-indicator ${statusClass}"></div>`;
-        }
-        responsesHtml += `
-          <div class="comment" style="margin-bottom: 16px;">
-            <div class="user-avatar" style="width: 40px; height: 40px; font-size: 16px; cursor: pointer;" data-user-id="${response.userId}" onclick="viewProfile('${response.userId}')">${avatarHtml}</div>
-            <div class="comment-content" style="flex: 1;">
-              <div style="font-weight: 600; font-size: 16px; cursor: pointer; color: var(--primary);" onclick="viewProfile('${response.userId}')">${response.userName || 'User'}</div>
-              <div style="font-size: 16px;">${escapeHtml(response.text)}</div>
-              <div style="font-size: 12px; color: var(--secondary-text); margin-top: 4px;">${formatTimestamp(response.createdAt)}</div>
-            </div>
-          </div>
-        `;
-      }
-      
-      commentsModalBody.innerHTML = responsesHtml || '<div style="text-align: center; color: var(--secondary-text);">No responses yet.</div>';
-      commentsModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    } catch (error) {
-      console.error('Error loading responses:', error);
-      commentsModalBody.innerHTML = '<div class="error-message">Failed to load responses.</div>';
+  window.handleModalResponseKeypress = async (event) => {
+    if (event.key === 'Enter' && currentModalPostId) {
+      await addResponseFromModalInput(currentModalPostId);
     }
   };
 
-  // Helper functions
-  function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  window.addResponseFromModalButton = async () => {
+    if (currentModalPostId) {
+      await addResponseFromModalInput(currentModalPostId);
+    }
+  };
+
+  async function addResponseFromModalInput(postId) {
+    const text = modalResponseInput.value.trim();
+    
+    if (!text) return;
+    
+    try {
+      await addResponse(postId, text);
+      modalResponseInput.value = '';
+      // The real-time listener will automatically update the comments list in the modal
+    } catch (error) {
+      console.error('Error adding response from modal:', error);
+      showMessage('Failed to add response. Please try again.');
+    }
   }
 
-  function formatTimestamp(timestamp) {
-    if (!timestamp) return 'Just now';
-    
-    const date = timestamp.toDate();
-    const now = new Date();
-    const diff = now - date;
-    
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    
-    return date.toLocaleDateString();
+  // ===== NOTIFICATIONS =====
+
+  async function sendNotification(targetUserId, type, postId, content) {
+    if (targetUserId === currentUser.uid) return; // Don't notify self
+
+    let message = '';
+    switch (type) {
+      case 'like':
+        message = `${currentUser.displayName} starred your post.`;
+        break;
+      case 'comment':
+        message = `${currentUser.displayName} responded to your post: "${content.substring(0, 30)}..."`;
+        break;
+      case 'share':
+        message = `${currentUser.displayName} promoted your post.`;
+        break;
+      case 'associate':
+        message = `${currentUser.displayName} is now associated with you.`;
+        break;
+      default:
+        message = `${currentUser.displayName} interacted with your content.`;
+    }
+
+    await addDoc(collection(db, 'notifications'), {
+      targetUserId: targetUserId,
+      sourceUserId: currentUser.uid,
+      type: type,
+      postId: postId,
+      message: message,
+      read: false,
+      createdAt: serverTimestamp()
+    });
   }
 
-  // Toggle read more/less
+  function renderNotification(notification) {
+    const isUnread = !notification.read;
+    const user = userCache[notification.sourceUserId] || {};
+    const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+    const photoURL = user.photoURL;
+
+    let avatarHtml = `<div class="user-avatar small notification-avatar" data-user-id="${notification.sourceUserId}">${initial}</div>`;
+    if (photoURL) {
+      avatarHtml = `<img src="${photoURL}" alt="${user.displayName}" class="notification-avatar">`;
+    }
+
+    return `
+      <div class="notification-item ${isUnread ? 'unread' : ''}" data-notification-id="${notification.id}" onclick="handleNotificationClick('${notification.id}', '${notification.postId}')">
+        ${avatarHtml}
+        <div class="notification-content">
+          <div>${notification.message}</div>
+          <div class="notification-time">${formatTimestamp(notification.createdAt)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function markNotificationAsRead(notificationId) {
+    try {
+      await updateDoc(doc(db, 'notifications', notificationId), {
+        read: true
+      });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  }
+
+  window.handleNotificationClick = (notificationId, postId) => {
+    markNotificationAsRead(notificationId);
+    // Navigate to the post or open the post in a modal/view
+    // For now, we'll just scroll to the post if it's on the page
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (postEl) {
+      postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    notificationDropdown.style.display = 'none';
+  };
+
+  function setupNotificationListener(userId) {
+    const notificationsQuery = query(
+      collection(db, 'notifications'),
+      where('targetUserId', '==', userId),
+      orderBy('createdAt', 'desc'),
+      limit(10)
+    );
+
+    onSnapshot(notificationsQuery, async (snapshot) => {
+      notificationLoading.style.display = 'none';
+      let unreadCount = 0;
+      let notificationsHtml = '';
+
+      // Pre-cache all source users
+      const sourceUserIds = snapshot.docs.map(doc => doc.data().sourceUserId);
+      await Promise.all(sourceUserIds.map(id => getUserDataWithCache(id)));
+
+      snapshot.docs.forEach(doc => {
+        const notification = { id: doc.id, ...doc.data() };
+        if (!notification.read) {
+          unreadCount++;
+        }
+        notificationsHtml += renderNotification(notification);
+      });
+
+      notificationList.innerHTML = notificationsHtml || '<div style="text-align: center; padding: 20px; color: var(--secondary-text);">No new notifications.</div>';
+      notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+      notificationBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+    }, error => {
+      console.error('Error loading notifications:', error);
+      notificationList.innerHTML = '<div class="error-message" style="text-align: center; padding: 20px; color: var(--error);">Failed to load notifications. Please refresh the page.</div>';
+    });
+  }
+
+  window.toggleNotificationDropdown = () => {
+    const isVisible = notificationDropdown.style.display === 'block';
+    notificationDropdown.style.display = isVisible ? 'none' : 'block';
+  };
+
+  notificationBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleNotificationDropdown();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!notificationBtn.contains(e.target)) {
+      notificationDropdown.style.display = 'none';
+    }
+  });
+
+  // ===== ASSOCIATION LOGIC FIX =====
+
+  async function isAssociated(targetUserId) {
+    const associateRef = doc(db, `users/${currentUser.uid}/associates`, targetUserId);
+    const docSnap = await getDoc(associateRef);
+    return docSnap.exists();
+  }
+
+  window.associateWithUser = async (targetUserId) => {
+    try {
+      // 1. Add to my 'associates' list
+      await setDoc(doc(db, `users/${currentUser.uid}/associates`, targetUserId), {
+        userId: targetUserId,
+        createdAt: serverTimestamp()
+      });
+
+      // 2. Add to target user's 'associatedWith' list
+      await setDoc(doc(db, `users/${targetUserId}/associatedWith`, currentUser.uid), {
+        associatedUserId: currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+
+      showMessage('User associated successfully!', 'success');
+      // Send notification to target user
+      await sendNotification(targetUserId, 'associate', null, null);
+      
+      // Reload the users list or update the button state
+      if (window.loadUsersList) window.loadUsersList();
+    } catch (error) {
+      console.error('Error associating user:', error);
+      showMessage('Failed to associate user. Please try again.');
+    }
+  };
+
+  window.removeAssociation = async (targetUserId) => {
+    try {
+      // 1. Remove from my 'associates' list
+      await deleteDoc(doc(db, `users/${currentUser.uid}/associates`, targetUserId));
+
+      // 2. Remove from target user's 'associatedWith' list
+      await deleteDoc(doc(db, `users/${targetUserId}/associatedWith`, currentUser.uid));
+
+      showMessage('User disassociated successfully!', 'success');
+      
+      // Reload the users list or update the button state
+      if (window.loadUsersList) window.loadUsersList();
+    } catch (error) {
+      console.error('Error removing association:', error);
+      showMessage('Failed to disassociate user. Please try again.');
+    }
+  };
+
+  // ===== PROMOTION/SHARE FEATURE =====
+
+  window.sharePost = (postId, postText) => {
+    const postUrl = window.location.href.split('?')[0] + `?post=${postId}`;
+    const encodedText = encodeURIComponent(`Check out this post on MEET: "${postText}"\n\n${postUrl}`);
+
+    const shareOptions = [
+      { name: 'WhatsApp', url: `https://wa.me/?text=${encodedText}` },
+      { name: 'Twitter', url: `https://twitter.com/intent/tweet?text=${encodedText}` },
+      { name: 'Facebook', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&quote=${encodeURIComponent(postText)}` },
+      { name: 'Email', url: `mailto:?subject=Check out this post on MEET&body=${encodedText}` },
+      { name: 'LinkedIn', url: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(postUrl)}&title=MEET%20Post&summary=${encodedText}` }
+    ];
+
+    let shareHtml = '<h2>Promote Post</h2><p>Share this post on:</p><div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">';
+    
+    shareOptions.forEach(option => {
+      shareHtml += `
+        <a href="${option.url}" target="_blank" style="text-decoration: none; color: var(--text-color); background: var(--bg-color); padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+          <i class="fab fa-${option.name.toLowerCase() === 'email' ? 'envelope' : option.name.toLowerCase() === 'twitter' ? 'twitter' : option.name.toLowerCase() === 'linkedin' ? 'linkedin' : option.name.toLowerCase() === 'whatsapp' ? 'whatsapp' : 'share-alt'}"></i>
+          ${option.name}
+        </a>
+      `;
+    });
+    shareHtml += '</div>';
+
+    // Use a generic modal for sharing (assuming one exists or creating a temporary one)
+    const shareModal = document.getElementById('shareModal') || document.createElement('div');
+    shareModal.id = 'shareModal';
+    shareModal.className = 'modal';
+    shareModal.innerHTML = `
+      <div class="modal-content" style="width: 400px;">
+        <div class="modal-header">
+          <h2>Promote Post</h2>
+          <button class="close-modal" onclick="document.getElementById('shareModal').style.display='none'; document.body.style.overflow='auto';">&times;</button>
+        </div>
+        <div class="modal-body">
+          ${shareHtml}
+        </div>
+      </div>
+    `;
+    if (!document.getElementById('shareModal')) {
+      document.body.appendChild(shareModal);
+    }
+    
+    shareModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  // ===== NAVIGATION FUNCTIONS (FIXED PROFILE LINKING) =====
+
+  window.viewProfile = (userId) => {
+    // Navigate to profile page with the correct user ID
+    window.location.href = 'profile.html?uid=' + userId;
+  };
+
+  // Other navigation functions (kept for completeness)
+  window.goToMyProfile = function() {
+    const user = auth.currentUser;
+    if (user) {
+      window.location.href = 'profile.html?uid=' + user.uid;
+    }
+  }
+
+  window.goToChat = function() {
+    window.location.href = 'chat.html';
+  }
+
+  window.goToMeetrader = function() {
+    window.location.href = 'meetrader.html';
+  }
+
+  window.goToMeetversity = function() {
+    window.location.href = 'meetversity.html';
+  }
+
+  window.goToOrganization = function() {
+    window.location.href = 'organization.html';
+  }
+
+  // ===== OTHER FUNCTIONS (KEPT FROM ORIGINAL) =====
+
   window.toggleReadMore = (element) => {
     const truncated = element.parentElement;
     const full = truncated.nextElementSibling;
@@ -2841,17 +1892,34 @@
     truncated.style.display = 'block';
   };
 
-  // Post interactions
-  window.toggleStar = async (id) => {
-    try {
-      await toggleStar(id);
-    } catch (error) {
-      console.error('Error toggling star:', error);
-      showMessage('Failed to update star. Please try again.');
+  window.togglePostMenu = (postId) => {
+    const menu = document.getElementById(`menu-${postId}`);
+    const isVisible = menu.style.display === 'block';
+    
+    document.querySelectorAll('.post-menu').forEach(m => {
+      m.style.display = 'none';
+    });
+    
+    if (menu) {
+      menu.style.display = isVisible ? 'none' : 'block';
     }
   };
 
-  window.sharePost = sharePost;
+  window.editPost = async (postId) => {
+    showMessage('Edit feature coming soon!', 'success');
+    document.getElementById(`menu-${postId}`).style.display = 'none';
+  };
+
+  window.deletePost = async (postId) => {
+    try {
+      await deleteDoc(doc(db, 'posts', postId));
+      showMessage('Post deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting meetcast:', error);
+      showMessage('Failed to delete post. Please try again.');
+    }
+    document.getElementById(`menu-${postId}`).style.display = 'none';
+  };
 
   window.focusResponse = (postId) => {
     const responseInput = document.getElementById(`response-${postId}`);
@@ -2885,75 +1953,6 @@
     }
   }
 
-  // Post management
-  window.togglePostMenu = (postId) => {
-    const menu = document.getElementById(`menu-${postId}`);
-    const isVisible = menu.style.display === 'block';
-    
-    document.querySelectorAll('.post-menu').forEach(m => {
-      m.style.display = 'none';
-    });
-    
-    menu.style.display = isVisible ? 'none' : 'block';
-  };
-
-  window.editPost = async (postId) => {
-    showMessage('Edit feature coming soon!', 'success');
-    document.getElementById(`menu-${postId}`).style.display = 'none';
-  };
-
-  window.deletePost = async (postId) => {
-    try {
-      await deletePost(postId);
-    } catch (error) {
-      console.error('Error deleting meetcast:', error);
-    }
-    document.getElementById(`menu-${postId}`).style.display = 'none';
-  };
-
-  // Association functions
-  window.associateWithUser = async (userId) => {
-    const success = await associateWithUser(userId);
-    if (success) await loadUsersList();
-  };
-
-  window.removeAssociation = async (userId) => {
-    const success = await removeAssociation(userId);
-    if (success) await loadUsersList();
-  };
-
-  // NAVIGATION FUNCTIONS
-  window.goToMyProfile = function() {
-    const user = auth.currentUser;
-    if (user) {
-      sessionStorage.removeItem('targetUserId');
-      window.location.href = 'profile.html';
-    }
-  }
-
-  window.goToChat = function() {
-    window.location.href = 'chat.html';
-  }
-
-  window.goToMeetrader = function() {
-    window.location.href = 'meetrader.html';
-  }
-
-  window.goToMeetversity = function() {
-    window.location.href = 'meetversity.html';
-  }
-
-  window.goToOrganization = function() {
-    window.location.href = 'organization.html';
-  }
-
-  // FIXED PROFILE NAVIGATION - Use post's userId instead of current user's ID
-  window.viewProfile = (userId) => {
-    // Navigate to profile page with the correct user ID
-    window.location.href = 'profile.html?uid=' + userId;
-  };
-
-  // Open media modal
   window.openMediaModal = (mediaUrl, isVideo = false) => {
     if (isVideo) {
       mediaModalImage.style.display = 'none';
@@ -2969,31 +1968,83 @@
     document.body.style.overflow = 'hidden';
   };
 
-  // Check post privacy
   const canViewPost = (post) => {
     const user = auth.currentUser;
     if (!user) return false;
     
     if (post.privacy === 'public') return true;
     if (post.privacy === 'friends') {
+      // This logic needs to be implemented based on your association system
+      // For now, we'll assume 'friends' means public for simplicity until the full logic is available
       return true; 
     }
     if (post.privacy === 'private' && post.userId === user.uid) return true;
     return false;
   };
 
-  // Close menus when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.post-actions')) {
-      document.querySelectorAll('.post-menu').forEach(menu => {
-        menu.style.display = 'none';
-      });
+  // Theme Toggle
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+    document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  }
+
+  window.toggleTheme = () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    const theme = isDark ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+    document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  };
+
+  // MeetAI Toggle
+  window.toggleMeetAI = () => {
+    const assistant = document.getElementById('meetaiAssistant');
+    assistant.style.display = assistant.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  // Logout
+  window.logout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = 'login.html'; // Redirect to login page
+    } catch (error) {
+      console.error('Logout error:', error);
+      showMessage('Logout failed. Please try again.');
+    }
+  };
+
+  // ===== INITIALIZATION =====
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      // 1. Setup real-time listeners
+      setupCurrentUserProfileListener(user.uid);
+      setupRealTimeListener();
+      setupNotificationListener(user.uid);
+      
+      // 2. Initial UI update
+      navUserName.textContent = user.displayName || 'User';
+      // The avatar update is handled by the real-time listener, but a quick initial update is good
+      updateAllUserAvatars(user.uid, user.photoURL, user.displayName, true); 
+      
+    } else {
+      // User is signed out
+      window.location.href = 'login.html';
     }
   });
 
-  // Initialize the app
   document.addEventListener('DOMContentLoaded', function() {
     initTheme();
+    
+    // Close menus when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.post-actions')) {
+        document.querySelectorAll('.post-menu').forEach(menu => {
+          menu.style.display = 'none';
+        });
+      }
+    });
     
     // Prevent zoom on double-tap (iOS)
     document.addEventListener('touchstart', function(e) {
