@@ -1,976 +1,1389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MEET | Profile</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0080FF;
-            --primary-dark: #0066CC;
-            --error: #EF4444;
-            --success: #10B981;
-            --bg-color: #f0f2f5;
-            --card-bg: #fff;
-            --text-color: #111;
-            --secondary-text: #65676b;
-            --border-color: #dddfe2;
-            --online: #10B981;
-            --offline: #EF4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MEET | Feed</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #0080FF;
+    --primary-dark: #0066CC;
+    --error: #EF4444;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --bg-color: #f0f2f5;
+    --card-bg: #fff;
+    --text-color: #111;
+    --secondary-text: #65676b;
+    --border-color: #dddfe2;
+    --online: #10B981;
+    --offline: #EF4444;
+  }
 
-        body.dark-mode {
-            --bg-color: #18191a;
-            --card-bg: #242526;
-            --text-color: #e4e6eb;
-            --secondary-text: #b0b3b8;
-            --border-color: #3e4042;
-        }
+  body.dark-mode {
+    --bg-color: #18191a;
+    --card-bg: #242526;
+    --text-color: #e4e6eb;
+    --secondary-text: #b0b3b8;
+    --border-color: #3e4042;
+  }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            min-height: 100vh;
-            font-size: 16px;
-        }
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    /* 3. Reduced global size for compacter bars */
+    font-size: 16px; 
+  }
 
-        .app-container { display: flex; min-height: 100vh; }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    min-height: 100vh;
+  }
 
-        /* Sidebar */
-        .sidebar {
-            position: fixed; left: 0; top: 0; height: 100vh; width: 280px;
-            background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto; z-index: 100; padding: 20px; color: white;
-        }
-        .sidebar-menu { list-style: none; margin-top: 20px; }
-        .sidebar-menu li { margin-bottom: 8px; }
-        .sidebar-menu a {
-            display: flex; align-items: center; padding: 12px;
-            text-decoration: none; color: white; border-radius: 8px;
-            transition: background 0.3s; font-size: 18px;
-        }
-        .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-        .sidebar-menu i { margin-right: 12px; font-size: 20px; }
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+  }
 
-        /* Main Content */
-        .main-content {
-            flex: 1; margin-left: 280px; padding: 20px;
-            width: calc(100% - 280px);
-        }
+  /* 3. Reduced Sidebar Width & Padding */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 180px; /* Reduced from 220px */
+    background: var(--card-bg); /* Changed to clean bg to show colored icons */
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 15px 10px;
+    color: var(--text-color);
+  }
 
-        .navbar {
-            background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-            padding: 15px 20px; border-radius: 12px; margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            color: white;
-        }
+  .sidebar-header {
+    padding: 5px 0 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .sidebar-header h2 {
+      color: var(--primary);
+      font-size: 24px;
+  }
 
-        .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .sidebar-menu {
+    list-style: none;
+  }
 
-        .btn {
-            background: rgba(255, 255, 255, 0.2); color: white; border: none;
-            padding: 8px 16px; border-radius: 8px; cursor: pointer;
-            font-weight: 600; display: flex; align-items: center; gap: 8px;
-            font-size: 14px; transition: 0.3s;
-        }
-        .btn:hover { background: rgba(255, 255, 255, 0.3); }
+  .sidebar-menu li {
+    margin-bottom: 5px;
+  }
 
-        /* Profile Header */
-        .profile-header {
-            position: relative; margin-bottom: 20px; border-radius: 12px;
-            overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+  .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px; /* Reduced padding */
+    text-decoration: none;
+    color: var(--secondary-text);
+    border-radius: 8px;
+    transition: background 0.3s;
+    min-height: 40px;
+    font-size: 15px;
+    font-weight: 600;
+  }
 
-        .profile-background {
-            height: 250px;
-            background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%);
-            position: relative; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .profile-background img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar-menu a:hover {
+    background: var(--bg-color);
+    color: var(--primary);
+  }
 
-        .change-bg-btn {
-            position: absolute; bottom: 20px; right: 20px;
-            background: rgba(0,0,0,0.6); color: white; border: none;
-            padding: 8px 16px; border-radius: 20px; cursor: pointer;
-            display: none; z-index: 10;
-        }
+  /* 2. Realistic Coloured Icons Logic */
+  .sidebar-menu i {
+    margin-right: 10px;
+    font-size: 22px;
+    width: 28px;
+    text-align: center;
+    /* Gradient Text Logic for realistic effect */
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+    /* Fallback for browsers that don't support text fill */
+    color: var(--primary); 
+  }
 
-        .profile-info {
-            background: var(--card-bg); padding: 20px;
-            display: flex; align-items: flex-start; gap: 20px;
-            position: relative; flex-wrap: wrap;
-        }
+  /* Specific Colors for Realistic Icons */
+  .icon-feed { background-image: linear-gradient(135deg, #0080FF, #00C6FF); }
+  .icon-profile { background-image: linear-gradient(135deg, #10B981, #34D399); }
+  .icon-chat { background-image: linear-gradient(135deg, #8B5CF6, #A78BFA); }
+  .icon-market { background-image: linear-gradient(135deg, #F59E0B, #FBBF24); }
+  .icon-edu { background-image: linear-gradient(135deg, #EF4444, #F87171); }
+  .icon-org { background-image: linear-gradient(135deg, #6366F1, #818CF8); }
+  .icon-users { background-image: linear-gradient(135deg, #EC4899, #F472B6); }
 
-        .profile-picture-container {
-            margin-top: -80px; position: relative;
-            width: 160px; height: 160px; flex-shrink: 0;
-        }
+  .main-content {
+    flex: 1;
+    margin-left: 180px; /* Matches sidebar width */
+    padding: 15px;
+    min-height: 100vh;
+    font-size: 16px;
+  }
 
-        .profile-picture {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 5px solid var(--card-bg); overflow: hidden;
-            background: white; display: flex; align-items: center; justify-content: center;
-            font-size: 60px; color: var(--primary); font-weight: bold;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
+  /* 3. Reduced Navbar */
+  .navbar {
+    background: var(--card-bg); /* Cleaner look matching sidebar */
+    padding: 10px 15px; /* Reduced padding */
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    color: var(--text-color);
+    flex-wrap: wrap;
+    gap: 10px;
+    border: 1px solid var(--border-color);
+  }
 
-        .change-pic-btn {
-            position: absolute; bottom: 10px; right: 10px;
-            background: var(--primary); color: white; border: none;
-            width: 36px; height: 36px; border-radius: 50%;
-            cursor: pointer; display: none;
-            align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
+  .navbar h2 { color: var(--primary); font-size: 20px; }
 
-        .profile-details { flex: 1; min-width: 200px; padding-top: 10px; }
+  .nav-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-        .profile-name-row {
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
-        }
-        .profile-name { font-size: 28px; font-weight: 700; }
-        
-        .profile-bio { color: var(--secondary-text); margin-bottom: 15px; font-size: 16px; line-height: 1.5; }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--bg-color);
+    border-radius: 20px;
+    padding: 6px 12px;
+    margin-right: 10px;
+  }
 
-        .profile-stats { display: flex; gap: 30px; margin-bottom: 15px; }
-        .stat { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .stat-value { font-weight: 700; font-size: 18px; }
-        .stat-label { font-size: 14px; color: var(--secondary-text); }
+  .search-bar input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    outline: none;
+    width: 180px;
+    font-size: 15px;
+  }
 
-        .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
-        .associate-btn {
-            background: var(--primary); color: white; padding: 8px 24px;
-            border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
-        }
-        .associate-btn.following { background: var(--secondary-text); }
+  .search-bar input::placeholder { color: var(--secondary-text); }
+  .search-bar i { color: var(--secondary-text); }
 
-        /* Sections */
-        .profile-section {
-            background: var(--card-bg); border-radius: 12px;
-            padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-        .section-title { font-size: 18px; font-weight: 600; }
-        .edit-section-btn {
-            background: none; border: none; color: var(--primary);
-            cursor: pointer; display: none; font-size: 16px;
-        }
+  .user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: var(--bg-color);
+    cursor: pointer;
+    position: relative;
+    min-height: 36px;
+  }
 
-        .info-item { margin-bottom: 15px; }
-        .info-label { font-size: 13px; color: var(--secondary-text); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-size: 16px; display: flex; align-items: center; gap: 8px; word-break: break-word; }
-        .private-info { color: var(--secondary-text); font-style: italic; display: flex; align-items: center; gap: 5px; }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    min-width: 36px;
+    font-size: 16px;
+    overflow: hidden;
+  }
 
-        .skill-tag {
-            display: inline-block; background: rgba(0, 128, 255, 0.1);
-            color: var(--primary); padding: 6px 14px; border-radius: 20px;
-            margin-right: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 500;
-        }
+  .user-avatar.small {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    min-width: 28px;
+  }
 
-        /* Post Grid */
-        .post-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        .post-item {
-            aspect-ratio: 1; background: var(--bg-color); border-radius: 8px;
-            overflow: hidden; position: relative; cursor: pointer;
-            border: 1px solid var(--border-color);
-        }
-        .post-item img, .post-item video { width: 100%; height: 100%; object-fit: cover; }
-        .post-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: rgba(0,0,0,0.6); color: white; padding: 8px;
-            font-size: 12px; transform: translateY(100%); transition: 0.3s;
-        }
-        .post-item:hover .post-overlay { transform: translateY(0); }
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
-        /* Modal Styles */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .modal-content {
-            background: var(--card-bg); border-radius: 12px;
-            width: 800px; max-width: 100%; max-height: 90vh;
-            overflow-y: auto; display: flex; flex-direction: column;
-        }
-        .modal-header {
-            padding: 16px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); position: sticky; top: 0; z-index: 10;
-        }
-        .modal-body { padding: 20px; }
-        
-        /* Form Styles */
-        .form-section { margin-bottom: 25px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; }
-        .form-section h4 { color: var(--primary); margin-bottom: 15px; font-size: 18px; }
-        
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-full { grid-column: 1 / -1; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        .form-control {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; background: var(--bg-color); color: var(--text-color);
-            font-family: inherit;
-        }
-        textarea.form-control { resize: vertical; min-height: 80px; }
-        
-        .skills-input-container { display: flex; gap: 10px; margin-bottom: 10px; }
-        .add-skill-btn { background: var(--success); color: white; border: none; width: 40px; border-radius: 8px; cursor: pointer; }
-        .active-skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
-        .active-skill-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; gap: 5px; font-size: 14px; }
-        .remove-skill { color: var(--error); cursor: pointer; }
-        
-        .file-upload-box { 
-            border: 2px dashed var(--border-color); padding: 20px; text-align: center; 
-            border-radius: 8px; cursor: pointer; background: var(--bg-color);
-        }
-        .file-upload-box:hover { border-color: var(--primary); }
+  .btn {
+    background: var(--bg-color);
+    color: var(--secondary-text);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    min-height: 36px;
+  }
 
-        .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-color); }
+  .btn:hover { background: #e4e6eb; color: var(--text-color); }
+  body.dark-mode .btn:hover { background: #3a3b3c; }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 10px 5px; }
-            .sidebar-header, .sidebar-menu span, .navbar h2, .btn span, .user-profile-nav span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); padding: 10px; }
-            .profile-info { flex-direction: column; text-align: center; }
-            .profile-picture-container { margin: -60px auto 10px; }
-            .profile-details { width: 100%; }
-            .profile-name-row { justify-content: center; flex-direction: column; }
-            .profile-stats { justify-content: center; }
-            .action-buttons { justify-content: center; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+  .unread-badge {
+    background: var(--error);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    display: none;
+    min-width: 18px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Post Composer */
+  .post-composer {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .composer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .composer-input {
+    flex: 1;
+    background: var(--bg-color);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 25px;
+    color: var(--text-color);
+    font-size: 16px;
+    cursor: pointer;
+    min-height: 40px;
+  }
+
+  /* MeetAI */
+  .meetai-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 99;
+  }
+
+  .meetai-assistant {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 300px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 98;
+    display: none;
+    flex-direction: column;
+    max-height: 400px;
+  }
+
+  .meetai-header {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .meetai-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    max-height: 300px;
+  }
+
+  .meetai-message {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .meetai-user { background: var(--primary); color: white; margin-left: 20px; }
+  .meetai-bot { background: var(--bg-color); margin-right: 20px; }
+
+  .meetai-input {
+    display: flex;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .meetai-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  /* Modals */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body { padding: 16px; }
+  
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--secondary-text);
+  }
+
+  /* Posts */
+  .posts { display: flex; flex-direction: column; gap: 16px; }
+
+  .post {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .post-user { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .post-meta { font-size: 14px; color: var(--secondary-text); }
+  
+  .post-content { margin-bottom: 12px; font-size: 16px; line-height: 1.5; }
+
+  .post-media {
+    margin-top: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .post-media img, .post-media video {
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+  }
+
+  .post-interactions {
+    display: flex;
+    justify-content: space-between; /* Spread out */
+    padding: 8px 0;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-color);
+    margin-top: 10px;
+  }
+
+  .interaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    font-weight: 600;
+    min-height: 40px;
+    font-size: 15px;
+    flex: 1;
+    justify-content: center;
+  }
+  .interaction-btn:hover { background: var(--bg-color); }
+  .interaction-btn.active { color: var(--warning); } /* Star active color */
+  
+  /* 1. Real time count style */
+  .count-span {
+      margin-left: 5px;
+      font-size: 14px;
+      color: var(--secondary-text);
+      font-weight: normal;
+  }
+
+  /* Dropdown for Post Options (3 dots) */
+  .post-options {
+    position: relative;
+  }
+  .post-options-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    z-index: 10;
+    width: 150px;
+    overflow: hidden;
+  }
+  .post-options-menu.show { display: block; }
+  .post-option-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .post-option-item:hover { background: var(--bg-color); }
+
+  /* Comments */
+  .comments-section {
+    margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+  }
+  .comment { display: flex; gap: 12px; margin-bottom: 12px; }
+  .comment-content { flex: 1; background: var(--bg-color); padding: 8px 12px; border-radius: 18px; font-size: 14px; }
+  
+  .view-more-comments {
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .comment-input { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  .comment-input input {
+    flex: 1;
+    background: var(--bg-color);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 18px;
+    color: var(--text-color);
+    font-size: 14px;
+  }
+
+  .send-comment-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Modal Specifics */
+  .comments-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 2000;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .comments-modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 600px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0;
+    display: flex; flex-direction: column;
+  }
+  .comments-modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .comments-modal-body { padding: 16px; overflow-y: auto; }
+
+  .post-textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #0080FF;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 16px;
+    resize: none;
+    outline: none;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  /* Users List */
+  .user-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 10px;
+  }
+  .association-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .associate-btn { background: var(--primary); color: white; }
+  .disassociate-btn { background: var(--error); color: white; }
+
+  /* Notification Actions */
+  .notif-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .notif-unread { background: #f0f9ff; }
+  .notif-actions { display: flex; gap: 10px; }
+  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 14px; }
+  .notif-btn:hover { color: var(--primary); }
+  .notif-btn.delete:hover { color: var(--error); }
+
+  .loading { text-align: center; padding: 20px; color: var(--secondary-text); }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { width: 70px; padding: 10px 5px; }
+    .sidebar-header { display: none; }
+    .sidebar-menu a { flex-direction: column; padding: 10px 5px; font-size: 12px; text-align: center; }
+    .sidebar-menu i { margin-right: 0; margin-bottom: 5px; font-size: 24px; }
+    .main-content { margin-left: 70px; padding: 10px; width: calc(100% - 70px); }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .search-bar, .user-profile-nav span, .btn span { display: none; }
+    .nav-controls { width: 100%; justify-content: space-between; }
+    .btn { padding: 8px; flex: 1; justify-content: center; }
+  }
+</style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="sidebar">
-        <div class="sidebar-header"><h2>MEET</h2></div>
-        <ul class="sidebar-menu">
-            <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-            <li><a href="#" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-            <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-            <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-        </ul>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>MEET</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="feed.html"><i class="fas fa-home icon-feed"></i> <span>Feed</span></a></li>
+      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user icon-profile"></i> <span>Profile</span></a></li>
+      <li><a href="chat.html"><i class="fas fa-comment icon-chat"></i> <span>Chat</span></a></li>
+      <li><a href="meetrader.html"><i class="fas fa-chart-line icon-market"></i> <span>Meetrader</span></a></li>
+      <li><a href="meetversity.html"><i class="fas fa-graduation-cap icon-edu"></i> <span>Meetversity</span></a></li>
+      <li><a href="organization.html"><i class="fas fa-sitemap icon-org"></i> <span>Organization</span></a></li>
+      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users icon-users"></i> <span>Find Associates</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div class="navbar">
+      <h2>Feed</h2>
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search...">
+        </div>
+        <div class="nav-controls">
+          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
+            <div class="user-avatar small" id="currentUserAvatar">U</div>
+            <span id="userName">User</span>
+          </div>
+          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
+            <i class="fas fa-bell"></i> <span>Notifications</span>
+            <span class="unread-badge" id="unreadBadge"></span>
+          </button>
+          <button class="btn" id="nightToggleBtn">
+            <i class="fas fa-moon"></i> <span>Night Mode</span>
+          </button>
+          <button class="btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="main-content">
-        <div class="navbar">
-            <h2>Profile</h2>
-            <div class="nav-controls">
-                <button class="btn" id="editProfileBtn" style="display:none;" onclick="openSettings()"><i class="fas fa-edit"></i> <span>Edit Portfolio</span></button>
-                <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
-                <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
-        </div>
-
-        <div class="profile-header">
-            <div class="profile-background" id="profileCover">
-                <button class="change-bg-btn" id="changeCoverBtn"><i class="fas fa-camera"></i> Change Cover</button>
-            </div>
-            <div class="profile-info">
-                <div class="profile-picture-container">
-                    <div class="profile-picture" id="profileAvatar">U</div>
-                    <button class="change-pic-btn" id="changeAvatarBtn"><i class="fas fa-camera"></i></button>
-                </div>
-                <div class="profile-details">
-                    <div class="profile-name-row">
-                        <div class="profile-name" id="displayName">Loading...</div>
-                        <div class="action-buttons" id="actionButtons"></div>
-                    </div>
-                    <div class="profile-bio" id="bio"></div>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <span class="stat-value" id="postsCount">0</span>
-                            <span class="stat-label">Posts</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="associatesCount">0</span>
-                            <span class="stat-label">Associates</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="associatedWithCount">0</span>
-                            <span class="stat-label">Associated With</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Professional Portfolio</div>
-                <button class="edit-section-btn" onclick="openSettings()"><i class="fas fa-edit"></i> Edit</button>
-            </div>
-            
-            <div class="form-grid">
-                <div class="info-item">
-                    <div class="info-label">Role</div>
-                    <div id="profRoleVal" class="info-value">...</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Industry</div>
-                    <div id="profIndustryVal" class="info-value">...</div>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-label">Work Experience</div>
-                <div id="profExpVal" class="info-value">...</div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-label">Education</div>
-                <div id="profEduVal" class="info-value">...</div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-label">Skills</div>
-                <div id="skillsList" class="info-value"></div>
-            </div>
-
-             <div class="info-item">
-                <div class="info-label">Documents</div>
-                <div id="docsList" class="info-value">No documents uploaded.</div>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Contact & Personal</div>
-                <button class="edit-section-btn" onclick="openSettings()"><i class="fas fa-edit"></i> Edit</button>
-            </div>
-            <div class="form-grid">
-                 <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div id="emailVal" class="info-value">...</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Phone</div>
-                    <div id="phoneVal" class="info-value">...</div>
-                </div>
-                 <div class="info-item form-full">
-                    <div class="info-label">Website</div>
-                    <div id="websiteVal" class="info-value">...</div>
-                </div>
-                 <div class="info-item">
-                    <div class="info-label">Nationality</div>
-                    <div id="nationalityVal" class="info-value">...</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Country of Residence</div>
-                    <div id="residenceVal" class="info-value">...</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Post History</div>
-            </div>
-            <div class="post-grid" id="userPostsGrid">
-                <div style="padding:20px; color:var(--secondary-text);">Loading posts...</div>
-            </div>
-        </div>
+    <div class="post-composer">
+      <div class="composer-header">
+        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
+        <div class="composer-input" id="openComposer">Surprise the world</div>
+      </div>
     </div>
+
+    <div class="meetai-button" onclick="toggleMeetAI()"><span>M</span></div>
+    <div class="meetai-assistant" id="meetaiAssistant">
+      <div class="meetai-header">
+        <h4>MeetAI Assistant</h4>
+        <button class="close-modal" onclick="closeMeetAI()">&times;</button>
+      </div>
+      <div class="meetai-messages" id="meetaiMessages">
+        <div class="meetai-message meetai-bot">Hello! I'm MeetAI. How can I help?</div>
+      </div>
+      <div class="meetai-input">
+        <input type="text" id="meetaiInput" placeholder="Ask me anything...">
+        <button class="send-comment-btn" onclick="sendMeetAIMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <div id="messageContainer"></div>
+
+    <div class="posts" id="postsContainer">
+      <div class="loading">Loading meetcasts...</div>
+    </div>
+  </div>
 </div>
 
-<div class="modal" id="settingsModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Update Portfolio</h3>
-            <button class="close-modal" onclick="closeSettings()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="settingsForm">
-                <div class="form-section">
-                    <h4>1. Personal Information</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Full Name (Official)</label>
-                            <input type="text" id="editOfficialName" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Date of Birth</label>
-                            <input type="date" id="editDob" class="form-control">
-                        </div>
-                        <div class="form-group form-full">
-                            <label class="form-label">About / Introduction</label>
-                            <textarea id="editAbout" class="form-control"></textarea>
-                        </div>
-                         <div class="form-group form-full">
-                            <label class="form-label">Bio (Short)</label>
-                            <input type="text" id="editBio" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nationality / Citizenship</label>
-                            <input type="text" id="editNationality" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Current Country of Residence</label>
-                            <input type="text" id="editResidence" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phone Number</label>
-                            <input type="text" id="editPhone" class="form-control" placeholder="+1 234...">
-                        </div>
-                         <div class="form-group">
-                            <label class="form-label">Personal Website</label>
-                            <input type="text" id="editWebsite" class="form-control" placeholder="https://...">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>2. Job Preferences</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Desired Job Title / Role</label>
-                            <input type="text" id="editJobTitle" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Preferred Industry</label>
-                            <input type="text" id="editIndustry" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Preferred Work Country</label>
-                            <input type="text" id="editPrefCountry" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Employment Type</label>
-                            <select id="editEmpType" class="form-control">
-                                <option value="">Select...</option>
-                                <option value="Full-time">Full-time</option>
-                                <option value="Part-time">Part-time</option>
-                                <option value="Contract">Contract</option>
-                                <option value="Remote">Remote</option>
-                                <option value="Internship">Internship</option>
-                            </select>
-                        </div>
-                         <div class="form-group">
-                            <label class="form-label">Expected Salary (Optional)</label>
-                            <input type="text" id="editSalary" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Availability / Start Date</label>
-                            <input type="date" id="editStartDate" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>3. Education</h4>
-                    <div class="form-grid">
-                         <div class="form-group">
-                            <label class="form-label">Highest Level</label>
-                            <select id="editEduLevel" class="form-control">
-                                <option value="">Select...</option>
-                                <option value="High School">High School</option>
-                                <option value="Bachelor's">Bachelor's</option>
-                                <option value="Master's">Master's</option>
-                                <option value="PhD">PhD</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Field of Study / Major</label>
-                            <input type="text" id="editMajor" class="form-control">
-                        </div>
-                        <div class="form-group form-full">
-                            <label class="form-label">Name of Institution</label>
-                            <input type="text" id="editInstitution" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Graduation Year</label>
-                            <input type="number" id="editGradYear" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>4. Work Experience (Most Recent)</h4>
-                     <div class="form-grid">
-                        <div class="form-group form-full">
-                            <label class="form-label">Employer</label>
-                            <input type="text" id="editEmployer" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Job Title</label>
-                            <input type="text" id="editWorkTitle" class="form-control">
-                        </div>
-                         <div class="form-group">
-                            <label class="form-label">Dates (Start - End)</label>
-                            <input type="text" id="editWorkDates" class="form-control" placeholder="e.g. 2020 - Present">
-                        </div>
-                        <div class="form-group form-full">
-                            <label class="form-label">Key Responsibilities / Skills Used</label>
-                            <textarea id="editResponsibilities" class="form-control"></textarea>
-                        </div>
-                        <div class="form-group form-full">
-                            <label class="form-label">Previous Experience Details</label>
-                            <textarea id="editPrevExp" class="form-control" placeholder="Briefly list previous roles..."></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>5. Skills</h4>
-                    <div class="skills-input-container">
-                        <input type="text" id="newSkillInput" class="form-control" placeholder="Add a skill...">
-                        <button type="button" class="add-skill-btn" onclick="addSkill()"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <div id="activeSkillsEdit" class="active-skills-list"></div>
-                </div>
-
-                <div class="form-section">
-                    <h4>6. Documents</h4>
-                    <div class="form-group">
-                        <label class="form-label">Resume / CV</label>
-                        <div class="file-upload-box" onclick="document.getElementById('resumeInput').click()">
-                            <i class="fas fa-file-pdf"></i> <span id="resumeStatus">Click to Upload Resume</span>
-                        </div>
-                        <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Cover Letter (Optional)</label>
-                        <div class="file-upload-box" onclick="document.getElementById('coverLetterInput').click()">
-                            <i class="fas fa-file-alt"></i> <span id="coverLetterStatus">Click to Upload Cover Letter</span>
-                        </div>
-                         <input type="file" id="coverLetterInput" accept=".pdf,.doc,.docx" style="display:none;">
-                    </div>
-                </div>
-
-                <div class="form-section" style="border:none;">
-                    <h4>7. Additional Information</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Willingness to Relocate</label>
-                            <select id="editRelocate" class="form-control">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Willingness to Travel</label>
-                            <select id="editTravel" class="form-control">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-            <button class="btn" style="background:var(--primary); width:100%; margin-top:10px;" onclick="saveSettings()">Save Changes</button>
-        </div>
+<div class="modal" id="postModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Create Meetcast</h3>
+      <button class="close-modal" id="closeModal">&times;</button>
     </div>
+    <div class="modal-body">
+      <div style="display:flex; gap:12px; margin-bottom:16px;">
+        <div class="user-avatar" id="modalUserAvatar">U</div>
+        <div>
+          <div id="modalUserName" style="font-weight:600;">User Name</div>
+          <select id="privacy" style="border:none; background:var(--bg-color); padding:4px;">
+            <option value="public">🌍 Public</option>
+            <option value="friends">👥 Associates</option>
+            <option value="private">🔒 Only Me</option>
+          </select>
+        </div>
+      </div>
+      <textarea class="post-textarea" id="postText" placeholder="Surprise the world"></textarea>
+      <div class="media-preview" id="mediaPreview"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <div style="display:flex; gap:10px;">
+            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
+            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size: 20px; cursor: pointer;"></i>
+        </div>
+        <button class="btn" id="postBtn" style="background:var(--primary); color: white;">Post</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<input type="file" id="avatarInput" accept="image/*" style="display:none;">
-<input type="file" id="coverInput" accept="image/*" style="display:none;">
+<div class="modal" id="usersModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Find Associates</h3>
+      <button class="close-modal" id="closeUsersModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="usersList"><div class="loading">Loading users...</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="notificationsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Notifications</h3>
+      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="comments-modal" id="commentsModal">
+  <div class="comments-modal-content">
+    <div class="comments-modal-header">
+      <h3>All Responses</h3>
+      <button class="close-modal" id="closeCommentsModal">&times;</button>
+    </div>
+    <div class="comments-modal-body" id="commentsModalBody">
+      </div>
+  </div>
+</div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { 
-        getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, getDocs, onSnapshot, deleteDoc, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
+    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, writeBatch, updateDoc
+  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-    // Using the Feed's logic (Meet_video preset which works for files)
-    const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-    const CLOUDINARY_PRESET = 'Meet_video'; 
+  // Cloudinary Config
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video';
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-        authDomain: "meet-6e159.firebaseapp.com",
-        databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-        projectId: "meet-6e159",
-        storageBucket: "meet-6e159.firebasestorage.app",
-        messagingSenderId: "252353608421",
-        appId: "1:252353608421:web:6706056048e9a8f12db20c"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.firebasestorage.app",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-    let currentUser = null;
-    let targetProfileId = null;
-    let isOwnProfile = false;
-    let profileData = {};
-    let tempSkills = []; // For editing
-    let tempResumeURL = null;
-    let tempCoverURL = null;
+  // Global State
+  let currentUser = null;
+  let editingPostId = null; // Track edit state
+  const userCache = {};
+  
+  // DOM Elements
+  const postsContainer = document.getElementById('postsContainer');
+  
+  // Helper: Show Messages
+  function showMessage(msg, type = 'success') {
+    const el = document.getElementById('messageContainer');
+    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:10px; margin:10px; border-radius:8px; text-align:center;">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 3000);
+  }
 
-    // Theme Init
-    if(localStorage.getItem('meet_theme') === 'dark') document.body.classList.add('dark-mode');
+  // Helper: Upload Media
+  async function uploadMedia(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_PRESET);
+    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+    const data = await res.json();
+    return data.secure_url;
+  }
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window.location.href = 'login.html';
+  // Helper: Get User Data
+  async function getUserDataWithCache(userId) {
+    if (userCache[userId] && (Date.now() - userCache[userId].timestamp < 60000)) {
+        return userCache[userId].data;
+    }
+    try {
+      const docSnap = await getDoc(doc(db, "users", userId));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        userCache[userId] = { data, timestamp: Date.now() };
+        return data;
+      }
+    } catch (e) { console.error(e); }
+    return null;
+  }
+
+  // Helper: Render Avatar
+  function getAvatarHTML(photoURL, name, size = 'medium') {
+    const initial = name ? name.charAt(0).toUpperCase() : 'U';
+    const style = size === 'small' ? 'width:28px;height:28px;font-size:14px;' : 'width:36px;height:36px;font-size:16px;';
+    
+    if (photoURL) {
+      return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
+    }
+    return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+  }
+
+  window.viewProfile = (targetId) => {
+    if(!targetId) return;
+    window.location.href = `profile.html?uid=${targetId}`;
+  };
+
+  // AUTH STATE
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+    } else {
+      currentUser = user;
+      const userData = await getUserDataWithCache(user.uid);
+      const photo = userData?.photoURL || user.photoURL;
+      const name = userData?.displayName || user.displayName || 'User';
+      
+      document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
+      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
+      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
+      document.getElementById('userName').textContent = name;
+      document.getElementById('modalUserName').textContent = name;
+      
+      setupFeedListener();
+      setupNotificationsCount();
+    }
+  });
+
+  // =================== FEED LOGIC ===================
+  function setupFeedListener() {
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, async (snapshot) => {
+      postsContainer.innerHTML = "";
+      if (snapshot.empty) {
+        postsContainer.innerHTML = '<div class="loading">No meetcasts yet.</div>';
+        return;
+      }
+
+      for (const docSnap of snapshot.docs) {
+        const post = docSnap.data();
+        const postId = docSnap.id;
+        
+        const authorData = await getUserDataWithCache(post.userId);
+        const authorName = authorData?.displayName || post.userName || 'Anonymous';
+        const authorPhoto = authorData?.photoURL || post.photoURL;
+
+        // Star Check
+        const starSnap = await getDoc(doc(db, `posts/${postId}/stars/${currentUser.uid}`));
+        const isStarred = starSnap.exists();
+
+        const postEl = document.createElement('div');
+        postEl.className = 'post';
+        postEl.dataset.postId = postId;
+        
+        // 1. Added Real-time Count Spans
+        postEl.innerHTML = `
+          <div class="post-header">
+            <div class="post-user" onclick="viewProfile('${post.userId}')">
+              <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
+              <div>
+                <div style="font-weight:600; color:var(--primary);">${authorName}</div>
+                <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
+              </div>
+            </div>
+            ${post.userId === currentUser.uid ? `
+              <div class="post-options">
+                <i class="fas fa-ellipsis-h" onclick="togglePostMenu('${postId}')" style="cursor:pointer; color:var(--secondary-text);"></i>
+                <div class="post-options-menu" id="menu-${postId}">
+                  <div class="post-option-item" onclick="editPost('${postId}', '${post.text?.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit Post</div>
+                  <div class="post-option-item" onclick="deletePost('${postId}')" style="color:var(--error);"><i class="fas fa-trash"></i> Delete Post</div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          <div class="post-content" id="content-${postId}">${post.text}</div>
+          ${post.media ? `<div class="post-media" onclick="openMediaModal('${post.media}')">
+             ${post.mediaType === 'video' ? `<video src="${post.media}" controls></video>` : `<img src="${post.media}">`}
+          </div>` : ''}
+          
+          <div class="post-interactions">
+             <div class="interaction-btn ${isStarred ? 'active' : ''}" onclick="toggleStar('${postId}')">
+                <i class="${isStarred ? 'fas' : 'far'} fa-star"></i> Star <span id="star-count-${postId}" class="count-span"></span>
+             </div>
+             <div class="interaction-btn" onclick="focusComment('${postId}')">
+                <i class="fas fa-comment"></i> Respond <span id="resp-count-${postId}" class="count-span"></span>
+             </div>
+             <div class="interaction-btn" onclick="sharePost('${postId}')">
+                <i class="fas fa-share"></i> Share <span id="share-count-${postId}" class="count-span"></span>
+             </div>
+          </div>
+
+          <div class="comments-section" id="comments-${postId}"></div>
+          
+          <div class="comment-input">
+            ${getAvatarHTML(document.getElementById('currentUserAvatar').querySelector('img')?.src, 'Me', 'small')}
+            <input type="text" id="input-${postId}" placeholder="Write a response...">
+            <button class="send-comment-btn" onclick="sendResponse('${postId}')"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        `;
+
+        postsContainer.appendChild(postEl);
+        loadComments(postId);
+
+        // 1. Real-time Listeners for Counts
+        onSnapshot(collection(db, "posts", postId, "stars"), (snap) => {
+            document.getElementById(`star-count-${postId}`).innerText = snap.size > 0 ? snap.size : '';
+        });
+        onSnapshot(collection(db, "posts", postId, "responses"), (snap) => {
+            document.getElementById(`resp-count-${postId}`).innerText = snap.size > 0 ? snap.size : '';
+        });
+        onSnapshot(collection(db, "posts", postId, "shares"), (snap) => {
+            document.getElementById(`share-count-${postId}`).innerText = snap.size > 0 ? snap.size : '';
+        });
+      }
+    });
+  }
+
+  // =================== FEED ACTIONS (Star, Share, Delete/Edit) ===================
+  
+  // A.2 Star Functionality
+  window.toggleStar = async (postId) => {
+    try {
+      const starRef = doc(db, `posts/${postId}/stars/${currentUser.uid}`);
+      const starSnap = await getDoc(starRef);
+      
+      if (starSnap.exists()) {
+        await deleteDoc(starRef);
+      } else {
+        await setDoc(starRef, { timestamp: serverTimestamp() });
+        // Notify author if not self
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.data().userId !== currentUser.uid) {
+           await addDoc(collection(db, "notifications"), {
+             targetUserId: postSnap.data().userId,
+             type: 'star',
+             text: `Someone starred your meetcast`,
+             read: false,
+             createdAt: serverTimestamp()
+           });
+        }
+      }
+      // Listener auto-updates UI
+    } catch (e) { console.error(e); }
+  };
+
+  // A.3 Share Functionality
+  window.sharePost = async (postId) => {
+    const postUrl = window.location.origin + `/post.html?id=${postId}`;
+    const postText = document.getElementById(`content-${postId}`).innerText;
+    
+    // Update Database for Real-time Count
+    try {
+        await addDoc(collection(db, "posts", postId, "shares"), {
+            userId: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+    } catch(e) { console.error(e); }
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this Meetcast',
+        text: postText,
+        url: postUrl
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(postUrl);
+      showMessage("Link copied to clipboard!");
+    }
+  };
+
+  // A.4 Post Menu & Delete/Edit
+  window.togglePostMenu = (id) => {
+    const menu = document.getElementById(`menu-${id}`);
+    // Close others
+    document.querySelectorAll('.post-options-menu').forEach(el => {
+        if(el.id !== `menu-${id}`) el.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  };
+  
+  // Close menus when clicking outside
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.post-options')) {
+        document.querySelectorAll('.post-options-menu').forEach(el => el.classList.remove('show'));
+    }
+  });
+
+  window.deletePost = async (postId) => {
+    if(!confirm("Are you sure you want to delete this meetcast?")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      showMessage("Meetcast deleted");
+    } catch (e) { console.error(e); }
+  };
+
+  window.editPost = (postId, currentText) => {
+    editingPostId = postId;
+    document.getElementById('postText').value = currentText;
+    document.getElementById('modalTitle').innerText = "Edit Meetcast";
+    document.getElementById('postBtn').innerText = "Update";
+    document.getElementById('postModal').style.display = 'flex';
+    // Hide media input for edit simplicity in this version
+    document.getElementById('postMedia').parentElement.style.display = 'none';
+  };
+
+  // =================== COMMENTS LOGIC ===================
+  function loadComments(postId) {
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    onSnapshot(q, async (snapshot) => {
+      const container = document.getElementById(`comments-${postId}`);
+      const allComments = [];
+      for (const d of snapshot.docs) {
+        const c = d.data();
+        const cUser = await getUserDataWithCache(c.userId);
+        allComments.push({
+            id: d.id,
+            ...c,
+            freshPhoto: cUser?.photoURL || c.photoURL,
+            freshName: cUser?.displayName || c.userName
+        });
+      }
+
+      let html = '';
+      const displayCount = 2;
+      const total = allComments.length;
+
+      allComments.slice(0, displayCount).forEach(c => {
+        html += `
+          <div class="comment">
+             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(c.freshPhoto, c.freshName, 'small')}</div>
+             <div class="comment-content">
+                <div style="font-weight:600; font-size:14px; cursor:pointer" onclick="viewProfile('${c.userId}')">${c.freshName}</div>
+                <div>${c.text}</div>
+             </div>
+          </div>
+        `;
+      });
+
+      if (total > displayCount) {
+        html += `<div class="view-more-comments" onclick="openFullComments('${postId}')">View ${total - displayCount} more responses...</div>`;
+      }
+      container.innerHTML = html;
+    });
+  }
+
+  window.openFullComments = async (postId) => {
+    document.getElementById('commentsModal').style.display = 'flex';
+    const body = document.getElementById('commentsModalBody');
+    body.innerHTML = '<div class="loading">Loading responses...</div>';
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    const snap = await getDocs(q);
+    let html = '';
+    for (const d of snap.docs) {
+       const c = d.data();
+       const cUser = await getUserDataWithCache(c.userId);
+       html += `
+          <div class="comment">
+             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(cUser?.photoURL, cUser?.displayName, 'small')}</div>
+             <div class="comment-content">
+                <div style="font-weight:600;">${cUser?.displayName || c.userName}</div>
+                <div>${c.text}</div>
+             </div>
+          </div>
+       `;
+    }
+    body.innerHTML = html;
+  };
+
+  window.sendResponse = async (postId) => {
+    const input = document.getElementById(`input-${postId}`);
+    const text = input.value.trim();
+    if(!text) return;
+    try {
+        const userDoc = await getUserDataWithCache(currentUser.uid);
+        await addDoc(collection(db, `posts/${postId}/responses`), {
+            userId: currentUser.uid,
+            userName: userDoc?.displayName || currentUser.displayName,
+            photoURL: userDoc?.photoURL || currentUser.photoURL,
+            text: text,
+            createdAt: serverTimestamp()
+        });
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
+            await addDoc(collection(db, "notifications"), {
+                targetUserId: postSnap.data().userId,
+                type: 'response',
+                text: `${userDoc?.displayName || 'Someone'} responded to your meetcast`,
+                read: false,
+                createdAt: serverTimestamp()
+            });
+        }
+        input.value = '';
+    } catch(e) { console.error(e); }
+  };
+
+  // =================== NOTIFICATIONS (Instruction A.1) ===================
+  function setupNotificationsCount() {
+    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
+    onSnapshot(q, (snap) => {
+        const badge = document.getElementById('unreadBadge');
+        if(!snap.empty) {
+            badge.style.display = 'flex';
+            badge.innerText = snap.size;
+        } else {
+            badge.style.display = 'none';
+        }
+    });
+  }
+
+  window.openNotificationsModal = () => {
+    const modal = document.getElementById('notificationsModal');
+    const list = document.getElementById('notificationsList');
+    modal.style.display = 'flex';
+    list.innerHTML = '<div class="loading">Loading...</div>';
+    
+    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+    
+    onSnapshot(q, (snap) => {
+        list.innerHTML = '';
+        if (snap.empty) {
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No notifications.</div>';
             return;
         }
-        currentUser = user;
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const uidParam = urlParams.get('uid');
-        
-        targetProfileId = uidParam || currentUser.uid;
-        isOwnProfile = (targetProfileId === currentUser.uid);
-
-        if (isOwnProfile) {
-            document.getElementById('editProfileBtn').style.display = 'flex';
-            document.getElementById('changeAvatarBtn').style.display = 'flex';
-            document.getElementById('changeCoverBtn').style.display = 'block';
-            document.querySelectorAll('.edit-section-btn').forEach(btn => btn.style.display = 'block');
-        } else {
-            setupAssociateButton(); 
-        }
-
-        await loadProfileData();
-        setupRealtimeStats();
-        loadUserPosts();
-    });
-
-    // --- Data Loading ---
-    async function loadProfileData() {
-        try {
-            const docSnap = await getDoc(doc(db, "users", targetProfileId));
-            if (docSnap.exists()) {
-                profileData = docSnap.data();
-                renderProfile(profileData);
-            } else if(isOwnProfile) {
-                profileData = {
-                    displayName: currentUser.displayName,
-                    photoURL: currentUser.photoURL,
-                    email: currentUser.email
-                };
-                await setDoc(doc(db, "users", currentUser.uid), profileData, {merge:true});
-                renderProfile(profileData);
-            }
-        } catch (e) { console.error("Error loading profile:", e); }
-    }
-
-    function renderProfile(data) {
-        // Basic Header
-        document.getElementById('displayName').textContent = data.displayName || data.officialName || "User";
-        document.getElementById('bio').textContent = data.bio || (isOwnProfile ? "Add a bio..." : "");
-        
-        if (data.photoURL) document.getElementById('profileAvatar').innerHTML = `<img src="${data.photoURL}">`;
-        else document.getElementById('profileAvatar').innerText = (data.displayName||"U").charAt(0).toUpperCase();
-        
-        if (data.coverURL) {
-            document.getElementById('profileCover').innerHTML = `<img src="${data.coverURL}">` + (isOwnProfile ? `<button class="change-bg-btn" id="changeCoverBtn" style="display:block"><i class="fas fa-camera"></i> Change Cover</button>` : '');
-            if(isOwnProfile) bindImageUploads(); 
-        }
-
-        // Contact
-        document.getElementById('emailVal').textContent = data.email || "Not set";
-        document.getElementById('phoneVal').textContent = data.phone || "Not set";
-        document.getElementById('websiteVal').innerHTML = data.website ? `<a href="${data.website}" target="_blank" style="color:var(--primary);">${data.website}</a>` : "Not set";
-        document.getElementById('nationalityVal').textContent = data.nationality || "Not set";
-        document.getElementById('residenceVal').textContent = data.residence || "Not set";
-
-        // Portfolio / Professional
-        document.getElementById('profRoleVal').textContent = data.jobTitle || "Not set";
-        document.getElementById('profIndustryVal').textContent = data.industry || "Not set";
-        
-        let expText = "Not set";
-        if(data.employer) expText = `${data.jobTitle} at ${data.employer} (${data.workDates || ''})`;
-        document.getElementById('profExpVal').textContent = expText;
-
-        let eduText = "Not set";
-        if(data.institution) eduText = `${data.eduLevel} in ${data.major} at ${data.institution}`;
-        document.getElementById('profEduVal').textContent = eduText;
-
-        // Skills
-        const skillsContainer = document.getElementById('skillsList');
-        skillsContainer.innerHTML = '';
-        if (data.skills && Array.isArray(data.skills) && data.skills.length > 0) {
-            data.skills.forEach(skill => {
-                skillsContainer.innerHTML += `<span class="skill-tag">${skill}</span>`;
-            });
-        } else {
-            skillsContainer.innerHTML = '<span style="color:var(--secondary-text)">No skills listed</span>';
-        }
-
-        // Docs
-        const docsContainer = document.getElementById('docsList');
-        docsContainer.innerHTML = '';
-        if(data.resumeURL) docsContainer.innerHTML += `<a href="${data.resumeURL}" target="_blank" class="skill-tag" style="background:#ffebeb; color:#d32f2f;"><i class="fas fa-file-pdf"></i> Resume</a>`;
-        if(data.coverLetterURL) docsContainer.innerHTML += `<a href="${data.coverLetterURL}" target="_blank" class="skill-tag" style="background:#e3f2fd; color:#1976d2;"><i class="fas fa-file-alt"></i> Cover Letter</a>`;
-        if(!data.resumeURL && !data.coverLetterURL) docsContainer.innerHTML = "No documents.";
-    }
-
-    // --- Realtime Stats ---
-    function setupRealtimeStats() {
-        onSnapshot(collection(db, `users/${targetProfileId}/associates`), (snap) => document.getElementById('associatesCount').innerText = snap.size);
-        onSnapshot(collection(db, `users/${targetProfileId}/associatedWith`), (snap) => document.getElementById('associatedWithCount').innerText = snap.size);
-        onSnapshot(query(collection(db, "posts"), where("userId", "==", targetProfileId)), (snap) => document.getElementById('postsCount').innerText = snap.size);
-    }
-
-    async function loadUserPosts() {
-        const grid = document.getElementById('userPostsGrid');
-        const q = query(collection(db, "posts"), where("userId", "==", targetProfileId), orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
-        grid.innerHTML = '';
-        if(snap.empty) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>'; return; }
-
-        snap.forEach(doc => {
-            const post = doc.data();
-            if (post.privacy === 'private' && !isOwnProfile) return;
-            const div = document.createElement('div');
-            div.className = 'post-item';
-            let mediaContent = post.media ? (post.mediaType === 'video' ? `<video src="${post.media}"></video>` : `<img src="${post.media}">`) : `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
-            div.innerHTML = `${mediaContent}<div class="post-overlay">${post.privacy==='private'?'<i class="fas fa-lock"></i> ':''}${post.createdAt?.toDate().toLocaleDateString()}</div>`;
-            grid.appendChild(div);
-        });
-    }
-
-    // --- Follow Logic ---
-    async function setupAssociateButton() {
-        const container = document.getElementById('actionButtons');
-        const docRef = doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`);
-        const snap = await getDoc(docRef);
-        const isFollowing = snap.exists();
-
-        container.innerHTML = `<button class="associate-btn ${isFollowing ? 'following' : ''}" id="assocActionBtn">${isFollowing ? 'Disassociate' : 'Associate'}</button>`;
-        
-        document.getElementById('assocActionBtn').onclick = async () => {
-            if (isFollowing) {
-                await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`));
-                await deleteDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`));
-            } else {
-                await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`), { timestamp: serverTimestamp() });
-                await setDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
-                await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js").then(({ addDoc, collection }) => {
-                    addDoc(collection(db, "notifications"), { targetUserId: targetProfileId, type: 'associate', text: `${currentUser.displayName} associated with you.`, read: false, createdAt: serverTimestamp() });
-                });
-            }
-            setupAssociateButton();
-        };
-    }
-
-    // --- SETTINGS & FORM LOGIC ---
-    window.openSettings = () => {
-        if(!isOwnProfile) return;
-        
-        // Pre-fill Form
-        document.getElementById('editOfficialName').value = profileData.officialName || profileData.displayName || '';
-        document.getElementById('editDob').value = profileData.dob || '';
-        document.getElementById('editAbout').value = profileData.introduction || '';
-        document.getElementById('editBio').value = profileData.bio || '';
-        document.getElementById('editNationality').value = profileData.nationality || '';
-        document.getElementById('editResidence').value = profileData.residence || '';
-        document.getElementById('editPhone').value = profileData.phone || '';
-        document.getElementById('editWebsite').value = profileData.website || '';
-
-        document.getElementById('editJobTitle').value = profileData.jobTitle || '';
-        document.getElementById('editIndustry').value = profileData.industry || '';
-        document.getElementById('editPrefCountry').value = profileData.prefCountry || '';
-        document.getElementById('editEmpType').value = profileData.empType || '';
-        document.getElementById('editSalary').value = profileData.salary || '';
-        document.getElementById('editStartDate').value = profileData.startDate || '';
-
-        document.getElementById('editEduLevel').value = profileData.eduLevel || '';
-        document.getElementById('editMajor').value = profileData.major || '';
-        document.getElementById('editInstitution').value = profileData.institution || '';
-        document.getElementById('editGradYear').value = profileData.gradYear || '';
-
-        document.getElementById('editEmployer').value = profileData.employer || '';
-        document.getElementById('editWorkTitle').value = profileData.workTitle || '';
-        document.getElementById('editWorkDates').value = profileData.workDates || '';
-        document.getElementById('editResponsibilities').value = profileData.responsibilities || '';
-        document.getElementById('editPrevExp').value = profileData.prevExp || '';
-
-        document.getElementById('editRelocate').value = profileData.relocate || 'No';
-        document.getElementById('editTravel').value = profileData.travel || 'No';
-
-        // Skills Init
-        tempSkills = profileData.skills ? [...profileData.skills] : [];
-        renderEditSkills();
-
-        // Resume Init
-        tempResumeURL = profileData.resumeURL || null;
-        tempCoverURL = profileData.coverLetterURL || null;
-        updateDocStatus();
-
-        document.getElementById('settingsModal').style.display = 'flex';
-    };
-
-    window.closeSettings = () => document.getElementById('settingsModal').style.display = 'none';
-
-    // Skills Logic
-    window.addSkill = () => {
-        const input = document.getElementById('newSkillInput');
-        const val = input.value.trim();
-        if(val && !tempSkills.includes(val)) {
-            tempSkills.push(val);
-            renderEditSkills();
-            input.value = '';
-        }
-    };
-
-    window.removeSkill = (idx) => {
-        tempSkills.splice(idx, 1);
-        renderEditSkills();
-    };
-
-    function renderEditSkills() {
-        const container = document.getElementById('activeSkillsEdit');
-        container.innerHTML = '';
-        tempSkills.forEach((skill, idx) => {
-            container.innerHTML += `
-                <div class="active-skill-item">
-                    ${skill} <i class="fas fa-times remove-skill" onclick="removeSkill(${idx})"></i>
+        snap.forEach(d => {
+            const n = d.data();
+            const id = d.id;
+            list.innerHTML += `
+                <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
+                    <div style="flex:1;">
+                        ${n.text}
+                        <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div>
+                    </div>
+                    <div class="notif-actions">
+                        ${!n.read ? `<i class="fas fa-check notif-btn" title="Mark as read" onclick="markNotifRead('${id}')"></i>` : ''}
+                        <i class="fas fa-trash notif-btn delete" title="Delete" onclick="deleteNotif('${id}')"></i>
+                    </div>
                 </div>
             `;
         });
-    }
+    });
+  };
 
-    // Document Upload Logic
-    async function uploadDocument(file, type) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_PRESET);
-        const statusId = type === 'resume' ? 'resumeStatus' : 'coverLetterStatus';
-        document.getElementById(statusId).innerText = "Uploading...";
+  window.markNotifRead = async (id) => {
+      await updateDoc(doc(db, "notifications", id), { read: true });
+  };
+
+  window.deleteNotif = async (id) => {
+      await deleteDoc(doc(db, "notifications", id));
+  };
+
+  // =================== ASSOCIATES ===================
+  window.openUsersModal = async () => {
+    document.getElementById('usersModal').style.display = 'flex';
+    const list = document.getElementById('usersList');
+    list.innerHTML = '<div class="loading">Loading users...</div>';
+    
+    const snap = await getDocs(collection(db, "users"));
+    let html = '';
+    
+    for (const userDoc of snap.docs) {
+        if (userDoc.id === currentUser.uid) continue;
+        const user = userDoc.data();
         
-        try {
-            const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-            const data = await res.json();
-            if(type === 'resume') tempResumeURL = data.secure_url;
-            else tempCoverURL = data.secure_url;
-            updateDocStatus();
-        } catch(e) { console.error(e); alert("Upload failed"); }
+        const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
+        const isAssoc = assocSnap.exists();
+
+        html += `
+          <div class="user-item">
+             <div style="display:flex; align-items:center; gap:10px;">
+                ${getAvatarHTML(user.photoURL, user.displayName, 'small')}
+                <span onclick="viewProfile('${userDoc.id}')" style="cursor:pointer; font-weight:600;">${user.displayName || 'User'}</span>
+             </div>
+             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
+                onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
+                ${isAssoc ? 'Disassociate' : 'Associate'}
+             </button>
+          </div>
+        `;
     }
+    list.innerHTML = html;
+  };
 
-    function updateDocStatus() {
-        document.getElementById('resumeStatus').innerText = tempResumeURL ? "Resume Uploaded (Ready to Save)" : "Click to Upload Resume";
-        document.getElementById('coverLetterStatus').innerText = tempCoverURL ? "Cover Letter Uploaded (Ready to Save)" : "Click to Upload Cover Letter";
-    }
-
-    document.getElementById('resumeInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'resume'); };
-    document.getElementById('coverLetterInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'cover'); };
-
-    // Save Logic
-    window.saveSettings = async () => {
-        const updates = {
-            officialName: document.getElementById('editOfficialName').value,
-            displayName: document.getElementById('editOfficialName').value || profileData.displayName, // Sync display name
-            dob: document.getElementById('editDob').value,
-            introduction: document.getElementById('editAbout').value,
-            bio: document.getElementById('editBio').value,
-            nationality: document.getElementById('editNationality').value,
-            residence: document.getElementById('editResidence').value,
-            phone: document.getElementById('editPhone').value,
-            website: document.getElementById('editWebsite').value,
-
-            jobTitle: document.getElementById('editJobTitle').value,
-            industry: document.getElementById('editIndustry').value,
-            prefCountry: document.getElementById('editPrefCountry').value,
-            empType: document.getElementById('editEmpType').value,
-            salary: document.getElementById('editSalary').value,
-            startDate: document.getElementById('editStartDate').value,
-
-            eduLevel: document.getElementById('editEduLevel').value,
-            major: document.getElementById('editMajor').value,
-            institution: document.getElementById('editInstitution').value,
-            gradYear: document.getElementById('editGradYear').value,
-
-            employer: document.getElementById('editEmployer').value,
-            workTitle: document.getElementById('editWorkTitle').value,
-            workDates: document.getElementById('editWorkDates').value,
-            responsibilities: document.getElementById('editResponsibilities').value,
-            prevExp: document.getElementById('editPrevExp').value,
-
-            relocate: document.getElementById('editRelocate').value,
-            travel: document.getElementById('editTravel').value,
-
-            skills: tempSkills,
-            resumeURL: tempResumeURL,
-            coverLetterURL: tempCoverURL,
-            updatedAt: serverTimestamp()
-        };
-
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), updates);
-            closeSettings();
-            loadProfileData();
-            alert("Profile updated successfully!");
-        } catch(e) { console.error(e); alert("Error saving profile."); }
-    };
-
-    // --- Image Uploads (Fixing the "Failed to post" issue) ---
-    function bindImageUploads() {
-        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-        const changeCoverBtn = document.getElementById('changeCoverBtn');
-        if(changeAvatarBtn) changeAvatarBtn.onclick = () => document.getElementById('avatarInput').click();
-        if(changeCoverBtn) changeCoverBtn.onclick = () => document.getElementById('coverInput').click();
-    }
-
-    async function uploadImage(file, field) {
-        const formData = new FormData();
-        formData.append("file", file);
-        // Explicitly using Meet_video preset as requested to match feed functionality
-        formData.append("upload_preset", CLOUDINARY_PRESET); 
-        
-        try {
-            const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-            const data = await res.json();
-            if(data.error) throw new Error(data.error.message);
+  window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
+    try {
+        if (isCurrentlyAssociated) {
+            await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
+            await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
+            showMessage('Disassociated successfully');
+        } else {
+            await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), {
+                timestamp: serverTimestamp()
+            });
+            await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), {
+                followerId: currentUser.uid,
+                timestamp: serverTimestamp()
+            });
             
-            await updateDoc(doc(db, "users", currentUser.uid), { [field]: data.secure_url });
-            loadProfileData();
-        } catch(e) { console.error("Upload failed", e); alert("Image upload failed: " + e.message); }
+            await addDoc(collection(db, "notifications"), {
+                targetUserId: targetId,
+                type: 'associate',
+                text: `${currentUser.displayName || 'Someone'} associated with you.`,
+                read: false,
+                createdAt: serverTimestamp()
+            });
+            showMessage('Associate added!');
+        }
+        window.openUsersModal(); 
+    } catch (e) {
+        console.error(e);
+        showMessage('Action failed', 'error');
+    }
+  };
+
+  // =================== POST CREATION & EDITING ===================
+  document.getElementById('postBtn').addEventListener('click', async () => {
+    const text = document.getElementById('postText').value;
+    const privacy = document.getElementById('privacy').value;
+    
+    if (!text && !editingPostId) return;
+
+    // EDIT MODE
+    if(editingPostId) {
+        try {
+            await updateDoc(doc(db, "posts", editingPostId), {
+                text: text,
+                privacy: privacy
+            });
+            showMessage('Meetcast updated!');
+            closeComposer();
+        } catch(e) { console.error(e); }
+        return;
     }
 
-    document.getElementById('avatarInput').onchange = (e) => { 
-        if(e.target.files[0]) {
-            uploadImage(e.target.files[0], 'photoURL');
-            e.target.value = ''; // Reset to allow re-upload
-        }
-    };
-    document.getElementById('coverInput').onchange = (e) => { 
-        if(e.target.files[0]) {
-            uploadImage(e.target.files[0], 'coverURL');
-            e.target.value = ''; 
-        }
-    };
+    // CREATE MODE
+    const fileInput = document.getElementById('postMedia');
+    let mediaUrl = null;
+    let mediaType = null;
 
-    bindImageUploads();
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
-    document.getElementById('nightToggleBtn').onclick = () => {
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('meet_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    };
+    if (fileInput.files.length) {
+        showMessage('Uploading media...', 'success');
+        mediaUrl = await uploadMedia(fileInput.files[0]);
+        mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
+    }
 
-    // Expose functions for HTML onclicks
-    window.removeSkill = removeSkill;
-    window.addSkill = addSkill;
+    try {
+        const userData = await getUserDataWithCache(currentUser.uid);
+        await addDoc(collection(db, "posts"), {
+            userId: currentUser.uid,
+            userName: userData?.displayName || currentUser.displayName,
+            photoURL: userData?.photoURL || currentUser.photoURL,
+            text: text,
+            media: mediaUrl,
+            mediaType: mediaType,
+            privacy: privacy,
+            createdAt: serverTimestamp()
+        });
+        showMessage('Meetcast posted!');
+        closeComposer();
+    } catch (e) {
+        console.error(e);
+        showMessage('Error posting', 'error');
+    }
+  });
+
+  // Media Preview
+  document.getElementById('postMedia').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(file) {
+          const url = URL.createObjectURL(file);
+          const preview = document.getElementById('mediaPreview');
+          if(file.type.startsWith('video')) {
+              preview.innerHTML = `<video src="${url}" controls style="width:100%; max-height:200px;"></video>`;
+          } else {
+              preview.innerHTML = `<img src="${url}" style="width:100%; max-height:200px; object-fit:contain;">`;
+          }
+      }
+  });
+
+  // Helper to reset and close modal
+  function closeComposer() {
+      document.getElementById('postModal').style.display = 'none';
+      document.getElementById('postText').value = '';
+      document.getElementById('postMedia').value = '';
+      document.getElementById('mediaPreview').innerHTML = '';
+      // Reset to Create Mode
+      editingPostId = null;
+      document.getElementById('modalTitle').innerText = "Create Meetcast";
+      document.getElementById('postBtn').innerText = "Post";
+      document.getElementById('postMedia').parentElement.style.display = 'flex';
+  }
+
+  // Modal Toggle Logic
+  document.getElementById('openComposer').onclick = () => {
+      editingPostId = null;
+      document.getElementById('modalTitle').innerText = "Create Meetcast";
+      document.getElementById('postBtn').innerText = "Post";
+      document.getElementById('postMedia').parentElement.style.display = 'flex';
+      document.getElementById('postModal').style.display = 'flex';
+  };
+
+  document.getElementById('closeModal').onclick = closeComposer;
+  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
+  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
+  document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
+  
+  document.getElementById('nightToggleBtn').onclick = () => {
+      document.body.classList.toggle('dark-mode');
+  };
+  
+  document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+  window.toggleMeetAI = () => {
+      const el = document.getElementById('meetaiAssistant');
+      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+  }
+  window.closeMeetAI = () => document.getElementById('meetaiAssistant').style.display = 'none';
+  window.sendMeetAIMessage = () => {
+      const input = document.getElementById('meetaiInput');
+      const container = document.getElementById('meetaiMessages');
+      if(!input.value) return;
+      container.innerHTML += `<div class="meetai-message meetai-user">${input.value}</div>`;
+      setTimeout(() => {
+          container.innerHTML += `<div class="meetai-message meetai-bot">I can help you connect with associates or improve your profile!</div>`;
+          container.scrollTop = container.scrollHeight;
+      }, 1000);
+      input.value = '';
+  }
+
+  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
+  window.auth = auth;
 
 </script>
 </body>
