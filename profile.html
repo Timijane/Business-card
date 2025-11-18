@@ -42,7 +42,7 @@
 
         .app-container { display: flex; min-height: 100vh; }
 
-        /* Sidebar (Same as Feed) */
+        /* Sidebar */
         .sidebar {
             position: fixed; left: 0; top: 0; height: 100vh; width: 280px;
             background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
@@ -100,7 +100,7 @@
             position: absolute; bottom: 20px; right: 20px;
             background: rgba(0,0,0,0.6); color: white; border: none;
             padding: 8px 16px; border-radius: 20px; cursor: pointer;
-            display: none; /* Hidden by default, shown for owner */
+            display: none; z-index: 10;
         }
 
         .profile-info {
@@ -127,9 +127,10 @@
             position: absolute; bottom: 10px; right: 10px;
             background: var(--primary); color: white; border: none;
             width: 36px; height: 36px; border-radius: 50%;
-            cursor: pointer; display: none; /* Hidden by default */
+            cursor: pointer; display: none;
             align-items: center; justify-content: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
         }
 
         .profile-details { flex: 1; min-width: 200px; padding-top: 10px; }
@@ -168,12 +169,12 @@
         .section-title { font-size: 18px; font-weight: 600; }
         .edit-section-btn {
             background: none; border: none; color: var(--primary);
-            cursor: pointer; display: none; /* Hidden by default */
+            cursor: pointer; display: none; font-size: 16px;
         }
 
         .info-item { margin-bottom: 15px; }
         .info-label { font-size: 13px; color: var(--secondary-text); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .info-value { font-size: 16px; display: flex; align-items: center; gap: 8px; word-break: break-word; }
         .private-info { color: var(--secondary-text); font-style: italic; display: flex; align-items: center; gap: 5px; }
 
         .skill-tag {
@@ -208,22 +209,43 @@
         }
         .modal-content {
             background: var(--card-bg); border-radius: 12px;
-            width: 600px; max-width: 100%; max-height: 90vh;
+            width: 800px; max-width: 100%; max-height: 90vh;
             overflow-y: auto; display: flex; flex-direction: column;
         }
         .modal-header {
             padding: 16px; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg); position: sticky; top: 0; z-index: 10;
         }
         .modal-body { padding: 20px; }
         
+        /* Form Styles */
+        .form-section { margin-bottom: 25px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; }
+        .form-section h4 { color: var(--primary); margin-bottom: 15px; font-size: 18px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-full { grid-column: 1 / -1; }
+        
         .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         .form-control {
             width: 100%; padding: 10px; border: 1px solid var(--border-color);
             border-radius: 8px; background: var(--bg-color); color: var(--text-color);
+            font-family: inherit;
         }
-        .privacy-select { margin-top: 5px; font-size: 12px; padding: 4px; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        
+        .skills-input-container { display: flex; gap: 10px; margin-bottom: 10px; }
+        .add-skill-btn { background: var(--success); color: white; border: none; width: 40px; border-radius: 8px; cursor: pointer; }
+        .active-skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .active-skill-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .remove-skill { color: var(--error); cursor: pointer; }
+        
+        .file-upload-box { 
+            border: 2px dashed var(--border-color); padding: 20px; text-align: center; 
+            border-radius: 8px; cursor: pointer; background: var(--bg-color);
+        }
+        .file-upload-box:hover { border-color: var(--primary); }
 
         .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-color); }
 
@@ -238,6 +260,7 @@
             .profile-name-row { justify-content: center; flex-direction: column; }
             .profile-stats { justify-content: center; }
             .action-buttons { justify-content: center; }
+            .form-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -258,7 +281,7 @@
         <div class="navbar">
             <h2>Profile</h2>
             <div class="nav-controls">
-                <button class="btn" id="settingsBtn" style="display:none;"><i class="fas fa-cog"></i> <span>Settings</span></button>
+                <button class="btn" id="editProfileBtn" style="display:none;" onclick="openSettings()"><i class="fas fa-edit"></i> <span>Edit Portfolio</span></button>
                 <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
                 <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
             </div>
@@ -276,8 +299,7 @@
                 <div class="profile-details">
                     <div class="profile-name-row">
                         <div class="profile-name" id="displayName">Loading...</div>
-                        <div class="action-buttons" id="actionButtons">
-                            </div>
+                        <div class="action-buttons" id="actionButtons"></div>
                     </div>
                     <div class="profile-bio" id="bio"></div>
                     <div class="profile-stats">
@@ -300,50 +322,68 @@
 
         <div class="profile-section">
             <div class="section-header">
-                <div class="section-title">About</div>
-                <button class="edit-section-btn" onclick="openSettings('about')"><i class="fas fa-edit"></i></button>
+                <div class="section-title">Professional Portfolio</div>
+                <button class="edit-section-btn" onclick="openSettings()"><i class="fas fa-edit"></i> Edit</button>
             </div>
-            <div class="info-item">
-                <div class="info-label">Introduction</div>
-                <div id="introVal" class="info-value">...</div>
+            
+            <div class="form-grid">
+                <div class="info-item">
+                    <div class="info-label">Role</div>
+                    <div id="profRoleVal" class="info-value">...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Industry</div>
+                    <div id="profIndustryVal" class="info-value">...</div>
+                </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Location</div>
-                <div id="locationVal" class="info-value">...</div>
-            </div>
-        </div>
 
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Professional</div>
-                <button class="edit-section-btn" onclick="openSettings('work')"><i class="fas fa-edit"></i></button>
-            </div>
             <div class="info-item">
-                <div class="info-label">Workplace</div>
-                <div id="workVal" class="info-value">...</div>
+                <div class="info-label">Work Experience</div>
+                <div id="profExpVal" class="info-value">...</div>
             </div>
+
             <div class="info-item">
-                <div class="info-label">Position</div>
-                <div id="posVal" class="info-value">...</div>
+                <div class="info-label">Education</div>
+                <div id="profEduVal" class="info-value">...</div>
             </div>
-             <div class="info-item">
+
+            <div class="info-item">
                 <div class="info-label">Skills</div>
                 <div id="skillsList" class="info-value"></div>
             </div>
+
+             <div class="info-item">
+                <div class="info-label">Documents</div>
+                <div id="docsList" class="info-value">No documents uploaded.</div>
+            </div>
         </div>
 
         <div class="profile-section">
             <div class="section-header">
-                <div class="section-title">Contact</div>
-                <button class="edit-section-btn" onclick="openSettings('contact')"><i class="fas fa-edit"></i></button>
+                <div class="section-title">Contact & Personal</div>
+                <button class="edit-section-btn" onclick="openSettings()"><i class="fas fa-edit"></i> Edit</button>
             </div>
-            <div class="info-item">
-                <div class="info-label">Email</div>
-                <div id="emailVal" class="info-value">...</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Phone</div>
-                <div id="phoneVal" class="info-value">...</div>
+            <div class="form-grid">
+                 <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div id="emailVal" class="info-value">...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div id="phoneVal" class="info-value">...</div>
+                </div>
+                 <div class="info-item form-full">
+                    <div class="info-label">Website</div>
+                    <div id="websiteVal" class="info-value">...</div>
+                </div>
+                 <div class="info-item">
+                    <div class="info-label">Nationality</div>
+                    <div id="nationalityVal" class="info-value">...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Country of Residence</div>
+                    <div id="residenceVal" class="info-value">...</div>
+                </div>
             </div>
         </div>
 
@@ -361,13 +401,190 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Edit Profile</h3>
+            <h3>Update Portfolio</h3>
             <button class="close-modal" onclick="closeSettings()">&times;</button>
         </div>
         <div class="modal-body">
             <form id="settingsForm">
-                </form>
-            <button class="btn" style="background:var(--primary); width:100%; margin-top:20px;" onclick="saveSettings()">Save Changes</button>
+                <div class="form-section">
+                    <h4>1. Personal Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name (Official)</label>
+                            <input type="text" id="editOfficialName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" id="editDob" class="form-control">
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">About / Introduction</label>
+                            <textarea id="editAbout" class="form-control"></textarea>
+                        </div>
+                         <div class="form-group form-full">
+                            <label class="form-label">Bio (Short)</label>
+                            <input type="text" id="editBio" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nationality / Citizenship</label>
+                            <input type="text" id="editNationality" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current Country of Residence</label>
+                            <input type="text" id="editResidence" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" id="editPhone" class="form-control" placeholder="+1 234...">
+                        </div>
+                         <div class="form-group">
+                            <label class="form-label">Personal Website</label>
+                            <input type="text" id="editWebsite" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>2. Job Preferences</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Desired Job Title / Role</label>
+                            <input type="text" id="editJobTitle" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Preferred Industry</label>
+                            <input type="text" id="editIndustry" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Preferred Work Country</label>
+                            <input type="text" id="editPrefCountry" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Employment Type</label>
+                            <select id="editEmpType" class="form-control">
+                                <option value="">Select...</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Remote">Remote</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label class="form-label">Expected Salary (Optional)</label>
+                            <input type="text" id="editSalary" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Availability / Start Date</label>
+                            <input type="date" id="editStartDate" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>3. Education</h4>
+                    <div class="form-grid">
+                         <div class="form-group">
+                            <label class="form-label">Highest Level</label>
+                            <select id="editEduLevel" class="form-control">
+                                <option value="">Select...</option>
+                                <option value="High School">High School</option>
+                                <option value="Bachelor's">Bachelor's</option>
+                                <option value="Master's">Master's</option>
+                                <option value="PhD">PhD</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Field of Study / Major</label>
+                            <input type="text" id="editMajor" class="form-control">
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Name of Institution</label>
+                            <input type="text" id="editInstitution" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Graduation Year</label>
+                            <input type="number" id="editGradYear" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>4. Work Experience (Most Recent)</h4>
+                     <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label class="form-label">Employer</label>
+                            <input type="text" id="editEmployer" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" id="editWorkTitle" class="form-control">
+                        </div>
+                         <div class="form-group">
+                            <label class="form-label">Dates (Start - End)</label>
+                            <input type="text" id="editWorkDates" class="form-control" placeholder="e.g. 2020 - Present">
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Key Responsibilities / Skills Used</label>
+                            <textarea id="editResponsibilities" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Previous Experience Details</label>
+                            <textarea id="editPrevExp" class="form-control" placeholder="Briefly list previous roles..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>5. Skills</h4>
+                    <div class="skills-input-container">
+                        <input type="text" id="newSkillInput" class="form-control" placeholder="Add a skill...">
+                        <button type="button" class="add-skill-btn" onclick="addSkill()"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div id="activeSkillsEdit" class="active-skills-list"></div>
+                </div>
+
+                <div class="form-section">
+                    <h4>6. Documents</h4>
+                    <div class="form-group">
+                        <label class="form-label">Resume / CV</label>
+                        <div class="file-upload-box" onclick="document.getElementById('resumeInput').click()">
+                            <i class="fas fa-file-pdf"></i> <span id="resumeStatus">Click to Upload Resume</span>
+                        </div>
+                        <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cover Letter (Optional)</label>
+                        <div class="file-upload-box" onclick="document.getElementById('coverLetterInput').click()">
+                            <i class="fas fa-file-alt"></i> <span id="coverLetterStatus">Click to Upload Cover Letter</span>
+                        </div>
+                         <input type="file" id="coverLetterInput" accept=".pdf,.doc,.docx" style="display:none;">
+                    </div>
+                </div>
+
+                <div class="form-section" style="border:none;">
+                    <h4>7. Additional Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Willingness to Relocate</label>
+                            <select id="editRelocate" class="form-control">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Willingness to Travel</label>
+                            <select id="editTravel" class="form-control">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+            <button class="btn" style="background:var(--primary); width:100%; margin-top:10px;" onclick="saveSettings()">Save Changes</button>
         </div>
     </div>
 </div>
@@ -382,8 +599,9 @@
     } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
+    // Using the Feed's logic (Meet_video preset which works for files)
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-    const CLOUDINARY_PRESET = 'Meet_profile'; // Ensure this preset exists in Cloudinary
+    const CLOUDINARY_PRESET = 'Meet_video'; 
 
     const firebaseConfig = {
         apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
@@ -403,6 +621,9 @@
     let targetProfileId = null;
     let isOwnProfile = false;
     let profileData = {};
+    let tempSkills = []; // For editing
+    let tempResumeURL = null;
+    let tempCoverURL = null;
 
     // Theme Init
     if(localStorage.getItem('meet_theme') === 'dark') document.body.classList.add('dark-mode');
@@ -414,301 +635,299 @@
         }
         currentUser = user;
         
-        // Determine whose profile we are viewing based on URL param
         const urlParams = new URLSearchParams(window.location.search);
         const uidParam = urlParams.get('uid');
         
         targetProfileId = uidParam || currentUser.uid;
         isOwnProfile = (targetProfileId === currentUser.uid);
 
-        // Setup UI based on ownership
         if (isOwnProfile) {
-            document.getElementById('settingsBtn').style.display = 'flex';
+            document.getElementById('editProfileBtn').style.display = 'flex';
             document.getElementById('changeAvatarBtn').style.display = 'flex';
             document.getElementById('changeCoverBtn').style.display = 'block';
             document.querySelectorAll('.edit-section-btn').forEach(btn => btn.style.display = 'block');
         } else {
-            setupAssociateButton(); // Logic for "Follow" button
+            setupAssociateButton(); 
         }
 
-        // Load Data
         await loadProfileData();
         setupRealtimeStats();
         loadUserPosts();
     });
 
     // --- Data Loading ---
-
     async function loadProfileData() {
         try {
             const docSnap = await getDoc(doc(db, "users", targetProfileId));
             if (docSnap.exists()) {
                 profileData = docSnap.data();
                 renderProfile(profileData);
-            } else {
-                // If profile doesn't exist yet (new user), use Auth data
-                if(isOwnProfile) {
-                    profileData = {
-                        displayName: currentUser.displayName,
-                        photoURL: currentUser.photoURL,
-                        email: currentUser.email
-                    };
-                    await setDoc(doc(db, "users", currentUser.uid), profileData, {merge:true});
-                    renderProfile(profileData);
-                }
+            } else if(isOwnProfile) {
+                profileData = {
+                    displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL,
+                    email: currentUser.email
+                };
+                await setDoc(doc(db, "users", currentUser.uid), profileData, {merge:true});
+                renderProfile(profileData);
             }
         } catch (e) { console.error("Error loading profile:", e); }
     }
 
     function renderProfile(data) {
-        // Basic Info
-        document.getElementById('displayName').textContent = data.displayName || "User";
+        // Basic Header
+        document.getElementById('displayName').textContent = data.displayName || data.officialName || "User";
         document.getElementById('bio').textContent = data.bio || (isOwnProfile ? "Add a bio..." : "");
         
-        // Images
-        if (data.photoURL) {
-            document.getElementById('profileAvatar').innerHTML = `<img src="${data.photoURL}">`;
-        } else {
-            document.getElementById('profileAvatar').innerText = (data.displayName||"U").charAt(0).toUpperCase();
-        }
+        if (data.photoURL) document.getElementById('profileAvatar').innerHTML = `<img src="${data.photoURL}">`;
+        else document.getElementById('profileAvatar').innerText = (data.displayName||"U").charAt(0).toUpperCase();
         
         if (data.coverURL) {
             document.getElementById('profileCover').innerHTML = `<img src="${data.coverURL}">` + (isOwnProfile ? `<button class="change-bg-btn" id="changeCoverBtn" style="display:block"><i class="fas fa-camera"></i> Change Cover</button>` : '');
-            if(isOwnProfile) bindImageUploads(); // Re-bind listener to new button
+            if(isOwnProfile) bindImageUploads(); 
         }
 
-        // Privacy Check Helper
-        const showField = (field, privacyKey) => {
-            if (isOwnProfile) return data[field] || "Not set";
-            if (data[privacyKey] === 'private') return `<span class="private-info"><i class="fas fa-lock"></i> Private</span>`;
-            return data[field] || "Not set";
-        };
+        // Contact
+        document.getElementById('emailVal').textContent = data.email || "Not set";
+        document.getElementById('phoneVal').textContent = data.phone || "Not set";
+        document.getElementById('websiteVal').innerHTML = data.website ? `<a href="${data.website}" target="_blank" style="color:var(--primary);">${data.website}</a>` : "Not set";
+        document.getElementById('nationalityVal').textContent = data.nationality || "Not set";
+        document.getElementById('residenceVal').textContent = data.residence || "Not set";
 
-        // Render Fields
-        document.getElementById('introVal').innerHTML = showField('introduction', 'introPrivacy');
-        document.getElementById('locationVal').innerHTML = showField('location', 'locationPrivacy');
-        document.getElementById('workVal').innerHTML = showField('workplace', 'workPrivacy');
-        document.getElementById('posVal').innerHTML = showField('position', 'posPrivacy');
-        document.getElementById('emailVal').innerHTML = showField('email', 'emailPrivacy');
-        document.getElementById('phoneVal').innerHTML = showField('phone', 'phonePrivacy');
+        // Portfolio / Professional
+        document.getElementById('profRoleVal').textContent = data.jobTitle || "Not set";
+        document.getElementById('profIndustryVal').textContent = data.industry || "Not set";
+        
+        let expText = "Not set";
+        if(data.employer) expText = `${data.jobTitle} at ${data.employer} (${data.workDates || ''})`;
+        document.getElementById('profExpVal').textContent = expText;
+
+        let eduText = "Not set";
+        if(data.institution) eduText = `${data.eduLevel} in ${data.major} at ${data.institution}`;
+        document.getElementById('profEduVal').textContent = eduText;
 
         // Skills
         const skillsContainer = document.getElementById('skillsList');
         skillsContainer.innerHTML = '';
-        if (data.skills && Array.isArray(data.skills)) {
+        if (data.skills && Array.isArray(data.skills) && data.skills.length > 0) {
             data.skills.forEach(skill => {
                 skillsContainer.innerHTML += `<span class="skill-tag">${skill}</span>`;
             });
         } else {
             skillsContainer.innerHTML = '<span style="color:var(--secondary-text)">No skills listed</span>';
         }
+
+        // Docs
+        const docsContainer = document.getElementById('docsList');
+        docsContainer.innerHTML = '';
+        if(data.resumeURL) docsContainer.innerHTML += `<a href="${data.resumeURL}" target="_blank" class="skill-tag" style="background:#ffebeb; color:#d32f2f;"><i class="fas fa-file-pdf"></i> Resume</a>`;
+        if(data.coverLetterURL) docsContainer.innerHTML += `<a href="${data.coverLetterURL}" target="_blank" class="skill-tag" style="background:#e3f2fd; color:#1976d2;"><i class="fas fa-file-alt"></i> Cover Letter</a>`;
+        if(!data.resumeURL && !data.coverLetterURL) docsContainer.innerHTML = "No documents.";
     }
 
-    // --- Realtime Stats & Posts ---
-
+    // --- Realtime Stats ---
     function setupRealtimeStats() {
-        // Associates (Following)
-        onSnapshot(collection(db, `users/${targetProfileId}/associates`), (snap) => {
-            document.getElementById('associatesCount').innerText = snap.size;
-        });
-        // Associated With (Followers)
-        onSnapshot(collection(db, `users/${targetProfileId}/associatedWith`), (snap) => {
-            document.getElementById('associatedWithCount').innerText = snap.size;
-        });
-        // Posts
-        const q = query(collection(db, "posts"), where("userId", "==", targetProfileId));
-        onSnapshot(q, (snap) => {
-            document.getElementById('postsCount').innerText = snap.size;
-        });
+        onSnapshot(collection(db, `users/${targetProfileId}/associates`), (snap) => document.getElementById('associatesCount').innerText = snap.size);
+        onSnapshot(collection(db, `users/${targetProfileId}/associatedWith`), (snap) => document.getElementById('associatedWithCount').innerText = snap.size);
+        onSnapshot(query(collection(db, "posts"), where("userId", "==", targetProfileId)), (snap) => document.getElementById('postsCount').innerText = snap.size);
     }
 
     async function loadUserPosts() {
         const grid = document.getElementById('userPostsGrid');
         const q = query(collection(db, "posts"), where("userId", "==", targetProfileId), orderBy("createdAt", "desc"));
-        
         const snap = await getDocs(q);
         grid.innerHTML = '';
-        
-        if(snap.empty) {
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>';
-            return;
-        }
+        if(snap.empty) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>'; return; }
 
         snap.forEach(doc => {
             const post = doc.data();
-            // Check Post Privacy logic here if needed
             if (post.privacy === 'private' && !isOwnProfile) return;
-
             const div = document.createElement('div');
             div.className = 'post-item';
-            let mediaContent = '';
-            
-            if(post.media) {
-                if(post.mediaType === 'video') {
-                    mediaContent = `<video src="${post.media}"></video>`;
-                } else {
-                    mediaContent = `<img src="${post.media}">`;
-                }
-            } else {
-                mediaContent = `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
-            }
-
-            div.innerHTML = `
-                ${mediaContent}
-                <div class="post-overlay">
-                    ${post.privacy === 'private' ? '<i class="fas fa-lock"></i> ' : ''} 
-                    ${post.createdAt?.toDate().toLocaleDateString()}
-                </div>
-            `;
+            let mediaContent = post.media ? (post.mediaType === 'video' ? `<video src="${post.media}"></video>` : `<img src="${post.media}">`) : `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
+            div.innerHTML = `${mediaContent}<div class="post-overlay">${post.privacy==='private'?'<i class="fas fa-lock"></i> ':''}${post.createdAt?.toDate().toLocaleDateString()}</div>`;
             grid.appendChild(div);
         });
     }
 
-    // --- Interaction (Associate/Follow) ---
-
+    // --- Follow Logic ---
     async function setupAssociateButton() {
         const container = document.getElementById('actionButtons');
-        // Check if I am already following this target
         const docRef = doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`);
         const snap = await getDoc(docRef);
         const isFollowing = snap.exists();
 
-        container.innerHTML = `
-            <button class="associate-btn ${isFollowing ? 'following' : ''}" id="assocActionBtn">
-                ${isFollowing ? 'Disassociate' : 'Associate'}
-            </button>
-        `;
-
+        container.innerHTML = `<button class="associate-btn ${isFollowing ? 'following' : ''}" id="assocActionBtn">${isFollowing ? 'Disassociate' : 'Associate'}</button>`;
+        
         document.getElementById('assocActionBtn').onclick = async () => {
             if (isFollowing) {
-                // Unfollow
                 await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`));
                 await deleteDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`));
-                setupAssociateButton(); // refresh button state
             } else {
-                // Follow
                 await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`), { timestamp: serverTimestamp() });
-                await setDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`), { 
-                    followerId: currentUser.uid,
-                    timestamp: serverTimestamp() 
-                });
-                
-                // Notify Target
+                await setDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
                 await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js").then(({ addDoc, collection }) => {
-                    addDoc(collection(db, "notifications"), {
-                        targetUserId: targetProfileId,
-                        type: 'associate',
-                        text: `${currentUser.displayName} associated with you.`,
-                        read: false,
-                        createdAt: serverTimestamp()
-                    });
+                    addDoc(collection(db, "notifications"), { targetUserId: targetProfileId, type: 'associate', text: `${currentUser.displayName} associated with you.`, read: false, createdAt: serverTimestamp() });
                 });
-                setupAssociateButton(); // refresh button state
             }
+            setupAssociateButton();
         };
     }
 
-    // --- Settings & Editing (Owner Only) ---
-
-    let activeSettingsSection = '';
-
-    window.openSettings = (section) => {
+    // --- SETTINGS & FORM LOGIC ---
+    window.openSettings = () => {
         if(!isOwnProfile) return;
-        activeSettingsSection = section;
-        const form = document.getElementById('settingsForm');
         
-        // Generate Form HTML based on section
-        if (section === 'about') {
-            form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Display Name</label>
-                    <input type="text" id="editName" class="form-control" value="${profileData.displayName || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Bio</label>
-                    <textarea id="editBio" class="form-control">${profileData.bio || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Introduction</label>
-                    <textarea id="editIntro" class="form-control">${profileData.introduction || ''}</textarea>
-                    <select id="introPrivacy" class="privacy-select">
-                        <option value="public" ${profileData.introPrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.introPrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <input type="text" id="editLoc" class="form-control" value="${profileData.location || ''}">
-                    <select id="locPrivacy" class="privacy-select">
-                        <option value="public" ${profileData.locationPrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.locationPrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-            `;
-        } else if (section === 'work') {
-            form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Workplace</label>
-                    <input type="text" id="editWork" class="form-control" value="${profileData.workplace || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Position</label>
-                    <input type="text" id="editPos" class="form-control" value="${profileData.position || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Skills (Comma separated)</label>
-                    <input type="text" id="editSkills" class="form-control" value="${(profileData.skills || []).join(', ')}">
-                </div>
-            `;
-        } else if (section === 'contact') {
-             form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Phone</label>
-                    <input type="text" id="editPhone" class="form-control" value="${profileData.phone || ''}">
-                    <select id="phonePrivacy" class="privacy-select">
-                        <option value="public" ${profileData.phonePrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.phonePrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-            `;
-        }
+        // Pre-fill Form
+        document.getElementById('editOfficialName').value = profileData.officialName || profileData.displayName || '';
+        document.getElementById('editDob').value = profileData.dob || '';
+        document.getElementById('editAbout').value = profileData.introduction || '';
+        document.getElementById('editBio').value = profileData.bio || '';
+        document.getElementById('editNationality').value = profileData.nationality || '';
+        document.getElementById('editResidence').value = profileData.residence || '';
+        document.getElementById('editPhone').value = profileData.phone || '';
+        document.getElementById('editWebsite').value = profileData.website || '';
+
+        document.getElementById('editJobTitle').value = profileData.jobTitle || '';
+        document.getElementById('editIndustry').value = profileData.industry || '';
+        document.getElementById('editPrefCountry').value = profileData.prefCountry || '';
+        document.getElementById('editEmpType').value = profileData.empType || '';
+        document.getElementById('editSalary').value = profileData.salary || '';
+        document.getElementById('editStartDate').value = profileData.startDate || '';
+
+        document.getElementById('editEduLevel').value = profileData.eduLevel || '';
+        document.getElementById('editMajor').value = profileData.major || '';
+        document.getElementById('editInstitution').value = profileData.institution || '';
+        document.getElementById('editGradYear').value = profileData.gradYear || '';
+
+        document.getElementById('editEmployer').value = profileData.employer || '';
+        document.getElementById('editWorkTitle').value = profileData.workTitle || '';
+        document.getElementById('editWorkDates').value = profileData.workDates || '';
+        document.getElementById('editResponsibilities').value = profileData.responsibilities || '';
+        document.getElementById('editPrevExp').value = profileData.prevExp || '';
+
+        document.getElementById('editRelocate').value = profileData.relocate || 'No';
+        document.getElementById('editTravel').value = profileData.travel || 'No';
+
+        // Skills Init
+        tempSkills = profileData.skills ? [...profileData.skills] : [];
+        renderEditSkills();
+
+        // Resume Init
+        tempResumeURL = profileData.resumeURL || null;
+        tempCoverURL = profileData.coverLetterURL || null;
+        updateDocStatus();
 
         document.getElementById('settingsModal').style.display = 'flex';
     };
 
     window.closeSettings = () => document.getElementById('settingsModal').style.display = 'none';
 
-    window.saveSettings = async () => {
-        const updates = { updatedAt: serverTimestamp() };
-        
-        if (activeSettingsSection === 'about') {
-            updates.displayName = document.getElementById('editName').value;
-            updates.bio = document.getElementById('editBio').value;
-            updates.introduction = document.getElementById('editIntro').value;
-            updates.introPrivacy = document.getElementById('introPrivacy').value;
-            updates.location = document.getElementById('editLoc').value;
-            updates.locationPrivacy = document.getElementById('locPrivacy').value;
-        } else if (activeSettingsSection === 'work') {
-            updates.workplace = document.getElementById('editWork').value;
-            updates.position = document.getElementById('editPos').value;
-            updates.skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(s=>s);
-        } else if (activeSettingsSection === 'contact') {
-            updates.phone = document.getElementById('editPhone').value;
-            updates.phonePrivacy = document.getElementById('phonePrivacy').value;
+    // Skills Logic
+    window.addSkill = () => {
+        const input = document.getElementById('newSkillInput');
+        const val = input.value.trim();
+        if(val && !tempSkills.includes(val)) {
+            tempSkills.push(val);
+            renderEditSkills();
+            input.value = '';
         }
+    };
+
+    window.removeSkill = (idx) => {
+        tempSkills.splice(idx, 1);
+        renderEditSkills();
+    };
+
+    function renderEditSkills() {
+        const container = document.getElementById('activeSkillsEdit');
+        container.innerHTML = '';
+        tempSkills.forEach((skill, idx) => {
+            container.innerHTML += `
+                <div class="active-skill-item">
+                    ${skill} <i class="fas fa-times remove-skill" onclick="removeSkill(${idx})"></i>
+                </div>
+            `;
+        });
+    }
+
+    // Document Upload Logic
+    async function uploadDocument(file, type) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_PRESET);
+        const statusId = type === 'resume' ? 'resumeStatus' : 'coverLetterStatus';
+        document.getElementById(statusId).innerText = "Uploading...";
+        
+        try {
+            const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+            const data = await res.json();
+            if(type === 'resume') tempResumeURL = data.secure_url;
+            else tempCoverURL = data.secure_url;
+            updateDocStatus();
+        } catch(e) { console.error(e); alert("Upload failed"); }
+    }
+
+    function updateDocStatus() {
+        document.getElementById('resumeStatus').innerText = tempResumeURL ? "Resume Uploaded (Ready to Save)" : "Click to Upload Resume";
+        document.getElementById('coverLetterStatus').innerText = tempCoverURL ? "Cover Letter Uploaded (Ready to Save)" : "Click to Upload Cover Letter";
+    }
+
+    document.getElementById('resumeInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'resume'); };
+    document.getElementById('coverLetterInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'cover'); };
+
+    // Save Logic
+    window.saveSettings = async () => {
+        const updates = {
+            officialName: document.getElementById('editOfficialName').value,
+            displayName: document.getElementById('editOfficialName').value || profileData.displayName, // Sync display name
+            dob: document.getElementById('editDob').value,
+            introduction: document.getElementById('editAbout').value,
+            bio: document.getElementById('editBio').value,
+            nationality: document.getElementById('editNationality').value,
+            residence: document.getElementById('editResidence').value,
+            phone: document.getElementById('editPhone').value,
+            website: document.getElementById('editWebsite').value,
+
+            jobTitle: document.getElementById('editJobTitle').value,
+            industry: document.getElementById('editIndustry').value,
+            prefCountry: document.getElementById('editPrefCountry').value,
+            empType: document.getElementById('editEmpType').value,
+            salary: document.getElementById('editSalary').value,
+            startDate: document.getElementById('editStartDate').value,
+
+            eduLevel: document.getElementById('editEduLevel').value,
+            major: document.getElementById('editMajor').value,
+            institution: document.getElementById('editInstitution').value,
+            gradYear: document.getElementById('editGradYear').value,
+
+            employer: document.getElementById('editEmployer').value,
+            workTitle: document.getElementById('editWorkTitle').value,
+            workDates: document.getElementById('editWorkDates').value,
+            responsibilities: document.getElementById('editResponsibilities').value,
+            prevExp: document.getElementById('editPrevExp').value,
+
+            relocate: document.getElementById('editRelocate').value,
+            travel: document.getElementById('editTravel').value,
+
+            skills: tempSkills,
+            resumeURL: tempResumeURL,
+            coverLetterURL: tempCoverURL,
+            updatedAt: serverTimestamp()
+        };
 
         try {
             await updateDoc(doc(db, "users", currentUser.uid), updates);
             closeSettings();
-            loadProfileData(); // Reload UI
-        } catch(e) { alert('Error saving'); console.error(e); }
+            loadProfileData();
+            alert("Profile updated successfully!");
+        } catch(e) { console.error(e); alert("Error saving profile."); }
     };
 
-    // --- Image Uploads ---
+    // --- Image Uploads (Fixing the "Failed to post" issue) ---
     function bindImageUploads() {
         const changeAvatarBtn = document.getElementById('changeAvatarBtn');
         const changeCoverBtn = document.getElementById('changeCoverBtn');
-        
         if(changeAvatarBtn) changeAvatarBtn.onclick = () => document.getElementById('avatarInput').click();
         if(changeCoverBtn) changeCoverBtn.onclick = () => document.getElementById('coverInput').click();
     }
@@ -716,35 +935,42 @@
     async function uploadImage(file, field) {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_PRESET);
+        // Explicitly using Meet_video preset as requested to match feed functionality
+        formData.append("upload_preset", CLOUDINARY_PRESET); 
         
         try {
             const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
             const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
             
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                [field]: data.secure_url
-            });
+            await updateDoc(doc(db, "users", currentUser.uid), { [field]: data.secure_url });
             loadProfileData();
-        } catch(e) { console.error("Upload failed", e); alert("Image upload failed"); }
+        } catch(e) { console.error("Upload failed", e); alert("Image upload failed: " + e.message); }
     }
 
-    document.getElementById('avatarInput').onchange = (e) => {
-        if(e.target.files[0]) uploadImage(e.target.files[0], 'photoURL');
+    document.getElementById('avatarInput').onchange = (e) => { 
+        if(e.target.files[0]) {
+            uploadImage(e.target.files[0], 'photoURL');
+            e.target.value = ''; // Reset to allow re-upload
+        }
     };
-    document.getElementById('coverInput').onchange = (e) => {
-        if(e.target.files[0]) uploadImage(e.target.files[0], 'coverURL');
+    document.getElementById('coverInput').onchange = (e) => { 
+        if(e.target.files[0]) {
+            uploadImage(e.target.files[0], 'coverURL');
+            e.target.value = ''; 
+        }
     };
 
-    // --- Global Utils ---
     bindImageUploads();
-    
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
     document.getElementById('nightToggleBtn').onclick = () => {
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('meet_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     };
-    document.getElementById('settingsBtn').onclick = () => openSettings('about'); // Default to about
+
+    // Expose functions for HTML onclicks
+    window.removeSkill = removeSkill;
+    window.addSkill = addSkill;
 
 </script>
 </body>
