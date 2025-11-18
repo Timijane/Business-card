@@ -598,9 +598,16 @@
         getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, getDocs, onSnapshot, deleteDoc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js"; // Added for completeness
 
-    // Using the Feed's logic (Meet_video preset which works for files)
+    /**
+     * @fileoverview Professionalized script for MEET Profile page, managing profile data,
+     * settings, and file uploads using Firebase and Cloudinary.
+     */
+
+    // --- Configuration Constants ---
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+    // Using the Feed's logic (Meet_video preset which works for files)
     const CLOUDINARY_PRESET = 'Meet_video'; 
 
     const firebaseConfig = {
@@ -613,21 +620,31 @@
         appId: "1:252353608421:web:6706056048e9a8f12db20c"
     };
 
+    // --- Firebase Initialization ---
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    // const storage = getStorage(app); // Included if storage were to be used instead of Cloudinary
 
+    // --- State Variables ---
     let currentUser = null;
     let targetProfileId = null;
     let isOwnProfile = false;
     let profileData = {};
-    let tempSkills = []; // For editing
-    let tempResumeURL = null;
-    let tempCoverURL = null;
+    let tempSkills = []; // State for settings modal
+    let tempResumeURL = null; // State for resume URL in modal
+    let tempCoverURL = null; // State for cover letter URL in modal
 
-    // Theme Init
-    if(localStorage.getItem('meet_theme') === 'dark') document.body.classList.add('dark-mode');
+    // --- Utility Functions ---
 
+    /** Initializes the theme based on local storage. */
+    const initTheme = () => {
+        if(localStorage.getItem('meet_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    };
+
+    /** Handles the main authentication state change and routing. */
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = 'login.html';
@@ -647,44 +664,57 @@
             document.getElementById('changeCoverBtn').style.display = 'block';
             document.querySelectorAll('.edit-section-btn').forEach(btn => btn.style.display = 'block');
         } else {
-            setupAssociateButton(); 
+            await setupAssociateButton(); 
         }
 
         await loadProfileData();
         setupRealtimeStats();
-        loadUserPosts();
+        await loadUserPosts();
+        bindImageUploads(); // Re-bind after cover element might have been replaced
     });
 
-    // --- Data Loading ---
+    // --- Data Loading & Rendering ---
+
+    /** Loads and updates the primary profile data from Firestore. */
     async function loadProfileData() {
         try {
-            const docSnap = await getDoc(doc(db, "users", targetProfileId));
+            const docRef = doc(db, "users", targetProfileId);
+            const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 profileData = docSnap.data();
                 renderProfile(profileData);
             } else if(isOwnProfile) {
+                // Initialize user document if it doesn't exist
                 profileData = {
                     displayName: currentUser.displayName,
                     photoURL: currentUser.photoURL,
                     email: currentUser.email
                 };
-                await setDoc(doc(db, "users", currentUser.uid), profileData, {merge:true});
+                await setDoc(docRef, profileData, {merge:true});
                 renderProfile(profileData);
             }
-        } catch (e) { console.error("Error loading profile:", e); }
+        } catch (e) { 
+            console.error("Error loading profile:", e); 
+        }
     }
 
+    /** Renders the profile data onto the HTML elements. */
     function renderProfile(data) {
         // Basic Header
         document.getElementById('displayName').textContent = data.displayName || data.officialName || "User";
         document.getElementById('bio').textContent = data.bio || (isOwnProfile ? "Add a bio..." : "");
         
-        if (data.photoURL) document.getElementById('profileAvatar').innerHTML = `<img src="${data.photoURL}">`;
-        else document.getElementById('profileAvatar').innerText = (data.displayName||"U").charAt(0).toUpperCase();
+        const avatarEl = document.getElementById('profileAvatar');
+        if (data.photoURL) avatarEl.innerHTML = `<img src="${data.photoURL}">`;
+        else avatarEl.innerText = (data.displayName||"U").charAt(0).toUpperCase();
         
+        const coverEl = document.getElementById('profileCover');
+        const coverBtn = isOwnProfile ? `<button class="change-bg-btn" id="changeCoverBtn" style="display:block"><i class="fas fa-camera"></i> Change Cover</button>` : '';
         if (data.coverURL) {
-            document.getElementById('profileCover').innerHTML = `<img src="${data.coverURL}">` + (isOwnProfile ? `<button class="change-bg-btn" id="changeCoverBtn" style="display:block"><i class="fas fa-camera"></i> Change Cover</button>` : '');
-            if(isOwnProfile) bindImageUploads(); 
+            coverEl.innerHTML = `<img src="${data.coverURL}">` + coverBtn;
+        } else {
+            // Keep original fallback background
+            coverEl.innerHTML = coverBtn; 
         }
 
         // Contact
@@ -703,8 +733,8 @@
         document.getElementById('profExpVal').textContent = expText;
 
         let eduText = "Not set";
-        if(data.institution) eduText = `${data.eduLevel} in ${data.major} at ${data.institution}`;
-        document.getElementById('profEduVal').textContent = eduText;
+        if(data.institution) eduText = `${data.eduLevel || ''} in ${data.major || ''} at ${data.institution}`;
+        document.getElementById('profEduVal').textContent = eduText.trim() === 'in  at' ? 'Not set' : eduText;
 
         // Skills
         const skillsContainer = document.getElementById('skillsList');
@@ -725,32 +755,43 @@
         if(!data.resumeURL && !data.coverLetterURL) docsContainer.innerHTML = "No documents.";
     }
 
-    // --- Realtime Stats ---
+    /** Sets up real-time listeners for profile statistics. */
     function setupRealtimeStats() {
+        // Stats
         onSnapshot(collection(db, `users/${targetProfileId}/associates`), (snap) => document.getElementById('associatesCount').innerText = snap.size);
         onSnapshot(collection(db, `users/${targetProfileId}/associatedWith`), (snap) => document.getElementById('associatedWithCount').innerText = snap.size);
-        onSnapshot(query(collection(db, "posts"), where("userId", "==", targetProfileId)), (snap) => document.getElementById('postsCount').innerText = snap.size);
+        
+        // Posts count
+        const postsQuery = query(collection(db, "posts"), where("userId", "==", targetProfileId));
+        onSnapshot(postsQuery, (snap) => document.getElementById('postsCount').innerText = snap.size);
     }
 
+    /** Loads and renders user's posts. */
     async function loadUserPosts() {
         const grid = document.getElementById('userPostsGrid');
         const q = query(collection(db, "posts"), where("userId", "==", targetProfileId), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
         grid.innerHTML = '';
-        if(snap.empty) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>'; return; }
+        if(snap.empty) { 
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>'; 
+            return; 
+        }
 
         snap.forEach(doc => {
             const post = doc.data();
             if (post.privacy === 'private' && !isOwnProfile) return;
             const div = document.createElement('div');
             div.className = 'post-item';
-            let mediaContent = post.media ? (post.mediaType === 'video' ? `<video src="${post.media}"></video>` : `<img src="${post.media}">`) : `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
-            div.innerHTML = `${mediaContent}<div class="post-overlay">${post.privacy==='private'?'<i class="fas fa-lock"></i> ':''}${post.createdAt?.toDate().toLocaleDateString()}</div>`;
+            const mediaContent = post.media ? (post.mediaType === 'video' ? `<video src="${post.media}"></video>` : `<img src="${post.media}">`) : `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
+            const dateStr = post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'N/A';
+            div.innerHTML = `${mediaContent}<div class="post-overlay">${post.privacy==='private'?'<i class="fas fa-lock"></i> ':''}${dateStr}</div>`;
             grid.appendChild(div);
         });
     }
 
-    // --- Follow Logic ---
+    // --- Association Logic ---
+
+    /** Sets up the Associate/Disassociate button for other profiles. */
     async function setupAssociateButton() {
         const container = document.getElementById('actionButtons');
         const docRef = doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`);
@@ -766,19 +807,29 @@
             } else {
                 await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`), { timestamp: serverTimestamp() });
                 await setDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
+                // Notification for the associated user
                 await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js").then(({ addDoc, collection }) => {
-                    addDoc(collection(db, "notifications"), { targetUserId: targetProfileId, type: 'associate', text: `${currentUser.displayName} associated with you.`, read: false, createdAt: serverTimestamp() });
+                    addDoc(collection(db, "notifications"), { 
+                        targetUserId: targetProfileId, 
+                        type: 'associate', 
+                        text: `${currentUser.displayName} associated with you.`, 
+                        read: false, 
+                        createdAt: serverTimestamp() 
+                    });
                 });
             }
-            setupAssociateButton();
+            // Re-run to update button state
+            await setupAssociateButton();
         };
     }
 
-    // --- SETTINGS & FORM LOGIC ---
+    // --- SETTINGS Modal Logic ---
+
+    /** Opens the settings modal and pre-fills the form with current profile data. */
     window.openSettings = () => {
         if(!isOwnProfile) return;
         
-        // Pre-fill Form
+        // Personal Information
         document.getElementById('editOfficialName').value = profileData.officialName || profileData.displayName || '';
         document.getElementById('editDob').value = profileData.dob || '';
         document.getElementById('editAbout').value = profileData.introduction || '';
@@ -788,6 +839,7 @@
         document.getElementById('editPhone').value = profileData.phone || '';
         document.getElementById('editWebsite').value = profileData.website || '';
 
+        // Job Preferences
         document.getElementById('editJobTitle').value = profileData.jobTitle || '';
         document.getElementById('editIndustry').value = profileData.industry || '';
         document.getElementById('editPrefCountry').value = profileData.prefCountry || '';
@@ -795,17 +847,20 @@
         document.getElementById('editSalary').value = profileData.salary || '';
         document.getElementById('editStartDate').value = profileData.startDate || '';
 
+        // Education
         document.getElementById('editEduLevel').value = profileData.eduLevel || '';
         document.getElementById('editMajor').value = profileData.major || '';
         document.getElementById('editInstitution').value = profileData.institution || '';
         document.getElementById('editGradYear').value = profileData.gradYear || '';
 
+        // Work Experience
         document.getElementById('editEmployer').value = profileData.employer || '';
         document.getElementById('editWorkTitle').value = profileData.workTitle || '';
         document.getElementById('editWorkDates').value = profileData.workDates || '';
         document.getElementById('editResponsibilities').value = profileData.responsibilities || '';
         document.getElementById('editPrevExp').value = profileData.prevExp || '';
 
+        // Additional Information
         document.getElementById('editRelocate').value = profileData.relocate || 'No';
         document.getElementById('editTravel').value = profileData.travel || 'No';
 
@@ -813,7 +868,7 @@
         tempSkills = profileData.skills ? [...profileData.skills] : [];
         renderEditSkills();
 
-        // Resume Init
+        // Documents Init
         tempResumeURL = profileData.resumeURL || null;
         tempCoverURL = profileData.coverLetterURL || null;
         updateDocStatus();
@@ -821,9 +876,11 @@
         document.getElementById('settingsModal').style.display = 'flex';
     };
 
+    /** Closes the settings modal. */
     window.closeSettings = () => document.getElementById('settingsModal').style.display = 'none';
 
     // Skills Logic
+    /** Adds a skill to the temporary skills list. */
     window.addSkill = () => {
         const input = document.getElementById('newSkillInput');
         const val = input.value.trim();
@@ -834,53 +891,84 @@
         }
     };
 
+    /** Removes a skill from the temporary skills list. */
     window.removeSkill = (idx) => {
         tempSkills.splice(idx, 1);
         renderEditSkills();
     };
 
+    /** Renders the temporary skills list in the modal. */
     function renderEditSkills() {
         const container = document.getElementById('activeSkillsEdit');
         container.innerHTML = '';
         tempSkills.forEach((skill, idx) => {
             container.innerHTML += `
                 <div class="active-skill-item">
-                    ${skill} <i class="fas fa-times remove-skill" onclick="removeSkill(${idx})"></i>
+                    ${skill} <i class="fas fa-times remove-skill" onclick="window.removeSkill(${idx})"></i>
                 </div>
             `;
         });
     }
 
     // Document Upload Logic
+    /** * Uploads a file (CV/Cover Letter) to Cloudinary.
+     * @param {File} file The file to upload.
+     * @param {string} type The type of document ('resume' or 'cover').
+     */
     async function uploadDocument(file, type) {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", CLOUDINARY_PRESET);
+
         const statusId = type === 'resume' ? 'resumeStatus' : 'coverLetterStatus';
         document.getElementById(statusId).innerText = "Uploading...";
         
         try {
             const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
             const data = await res.json();
+            if(data.error) throw new Error(data.error.message || "Cloudinary upload error.");
+
+            // Update the temporary state URL
             if(type === 'resume') tempResumeURL = data.secure_url;
             else tempCoverURL = data.secure_url;
+
             updateDocStatus();
-        } catch(e) { console.error(e); alert("Upload failed"); }
+        } catch(e) { 
+            console.error("Document upload failed:", e); 
+            alert(`Document upload failed for ${type}: ${e.message}`); 
+            document.getElementById(statusId).innerText = `Upload Failed! Click to retry.`;
+        }
     }
 
+    /** Updates the status text for document upload boxes. */
     function updateDocStatus() {
         document.getElementById('resumeStatus').innerText = tempResumeURL ? "Resume Uploaded (Ready to Save)" : "Click to Upload Resume";
         document.getElementById('coverLetterStatus').innerText = tempCoverURL ? "Cover Letter Uploaded (Ready to Save)" : "Click to Upload Cover Letter";
     }
 
-    document.getElementById('resumeInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'resume'); };
-    document.getElementById('coverLetterInput').onchange = (e) => { if(e.target.files[0]) uploadDocument(e.target.files[0], 'cover'); };
+    // --- Document Input Change Handlers (FIXED) ---
+    document.getElementById('resumeInput').onchange = (e) => { 
+        const file = e.target.files[0];
+        if(file) {
+            uploadDocument(file, 'resume');
+            e.target.value = ''; // Reset input
+        }
+    };
+    document.getElementById('coverLetterInput').onchange = (e) => { 
+        const file = e.target.files[0];
+        if(file) {
+            uploadDocument(file, 'cover');
+            e.target.value = ''; // Reset input
+        }
+    };
 
     // Save Logic
+    /** Gathers form data, updates the user document in Firestore, and reloads profile. */
     window.saveSettings = async () => {
         const updates = {
+            // Personal Information
             officialName: document.getElementById('editOfficialName').value,
-            displayName: document.getElementById('editOfficialName').value || profileData.displayName, // Sync display name
+            displayName: document.getElementById('editOfficialName').value || profileData.displayName,
             dob: document.getElementById('editDob').value,
             introduction: document.getElementById('editAbout').value,
             bio: document.getElementById('editBio').value,
@@ -889,6 +977,7 @@
             phone: document.getElementById('editPhone').value,
             website: document.getElementById('editWebsite').value,
 
+            // Job Preferences
             jobTitle: document.getElementById('editJobTitle').value,
             industry: document.getElementById('editIndustry').value,
             prefCountry: document.getElementById('editPrefCountry').value,
@@ -896,22 +985,26 @@
             salary: document.getElementById('editSalary').value,
             startDate: document.getElementById('editStartDate').value,
 
+            // Education
             eduLevel: document.getElementById('editEduLevel').value,
             major: document.getElementById('editMajor').value,
             institution: document.getElementById('editInstitution').value,
             gradYear: document.getElementById('editGradYear').value,
 
+            // Work Experience
             employer: document.getElementById('editEmployer').value,
             workTitle: document.getElementById('editWorkTitle').value,
             workDates: document.getElementById('editWorkDates').value,
             responsibilities: document.getElementById('editResponsibilities').value,
             prevExp: document.getElementById('editPrevExp').value,
 
+            // Additional
             relocate: document.getElementById('editRelocate').value,
             travel: document.getElementById('editTravel').value,
 
+            // Skills and Documents (Using the temporary state)
             skills: tempSkills,
-            resumeURL: tempResumeURL,
+            resumeURL: tempResumeURL, 
             coverLetterURL: tempCoverURL,
             updatedAt: serverTimestamp()
         };
@@ -919,23 +1012,39 @@
         try {
             await updateDoc(doc(db, "users", currentUser.uid), updates);
             closeSettings();
-            loadProfileData();
-            alert("Profile updated successfully!");
-        } catch(e) { console.error(e); alert("Error saving profile."); }
+            await loadProfileData();
+            alert("Portfolio updated successfully!");
+        } catch(e) { 
+            console.error("Error saving profile:", e); 
+            alert("Error saving portfolio. Please try again."); 
+        }
     };
 
-    // --- Image Uploads (Fixing the "Failed to post" issue) ---
+    // --- Image Uploads (Avatar/Cover) ---
+
+    /** Binds click handlers to the Change Avatar/Cover buttons. */
     function bindImageUploads() {
         const changeAvatarBtn = document.getElementById('changeAvatarBtn');
         const changeCoverBtn = document.getElementById('changeCoverBtn');
-        if(changeAvatarBtn) changeAvatarBtn.onclick = () => document.getElementById('avatarInput').click();
-        if(changeCoverBtn) changeCoverBtn.onclick = () => document.getElementById('coverInput').click();
+        if(changeAvatarBtn) {
+            // Remove previous listener to avoid duplicates
+            changeAvatarBtn.onclick = null; 
+            changeAvatarBtn.onclick = () => document.getElementById('avatarInput').click();
+        }
+        if(changeCoverBtn) {
+            // Remove previous listener to avoid duplicates
+            changeCoverBtn.onclick = null;
+            changeCoverBtn.onclick = () => document.getElementById('coverInput').click();
+        }
     }
 
+    /** * Uploads an image (Avatar/Cover) to Cloudinary and updates Firestore.
+     * @param {File} file The image file to upload.
+     * @param {string} field The Firestore field name ('photoURL' or 'coverURL').
+     */
     async function uploadImage(file, field) {
         const formData = new FormData();
         formData.append("file", file);
-        // Explicitly using Meet_video preset as requested to match feed functionality
         formData.append("upload_preset", CLOUDINARY_PRESET); 
         
         try {
@@ -943,15 +1052,19 @@
             const data = await res.json();
             if(data.error) throw new Error(data.error.message);
             
-            await updateDoc(doc(db, "users", currentUser.uid), { [field]: data.secure_url });
-            loadProfileData();
-        } catch(e) { console.error("Upload failed", e); alert("Image upload failed: " + e.message); }
+            await updateDoc(doc(db, "users", currentUser.uid), { [field]: data.secure_url, updatedAt: serverTimestamp() });
+            await loadProfileData(); // Reload to refresh the UI
+        } catch(e) { 
+            console.error("Image upload failed:", e); 
+            alert("Image upload failed: " + e.message); 
+        }
     }
 
+    // --- Image Input Change Handlers ---
     document.getElementById('avatarInput').onchange = (e) => { 
         if(e.target.files[0]) {
             uploadImage(e.target.files[0], 'photoURL');
-            e.target.value = ''; // Reset to allow re-upload
+            e.target.value = ''; 
         }
     };
     document.getElementById('coverInput').onchange = (e) => { 
@@ -961,14 +1074,17 @@
         }
     };
 
-    bindImageUploads();
+    // --- Global Event Listeners ---
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
     document.getElementById('nightToggleBtn').onclick = () => {
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('meet_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     };
 
-    // Expose functions for HTML onclicks
+    // Initialize Theme
+    initTheme();
+
+    // The functions below are exposed globally for use in HTML 'onclick' attributes.
     window.removeSkill = removeSkill;
     window.addSkill = addSkill;
 
