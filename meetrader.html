@@ -404,10 +404,20 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   }
 
+  /* Image Swapping Preview */
+  .item-image-container {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      cursor: pointer;
+      overflow: hidden;
+  }
+
   .item-image {
     width: 100%;
     height: 200px;
     object-fit: cover;
+    transition: opacity 0.3s;
   }
 
   .item-details {
@@ -450,6 +460,15 @@
     overflow: hidden;
   }
 
+  .item-delivery, .item-payment {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--secondary-text);
+    margin-bottom: 5px;
+  }
+  
   .item-location {
     display: flex;
     align-items: center;
@@ -519,7 +538,80 @@
     border-color: rgba(255,71,87,0.2);
   }
 
-  /* Post Item Modal */
+  .review-count {
+      font-size: 12px;
+      color: var(--secondary-text);
+      margin-left: 5px;
+  }
+
+  /* Image Upload Grid */
+  .image-upload-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .image-upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .image-upload-box:hover {
+    border-color: var(--primary);
+  }
+
+  .image-preview-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .remove-image-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+  }
+
+  /* Checkbox Group Styles */
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Modal */
   .modal {
     display: none;
     position: fixed;
@@ -543,6 +635,11 @@
     overflow-y: auto;
     width: 100%;
   }
+  
+  /* Full Image/Review Modal */
+  #imageSwapModal .modal-content, #reviewsModal .modal-content {
+      width: 600px;
+  }
 
   .modal-header {
     padding: 16px;
@@ -550,6 +647,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--card-bg);
+    z-index: 10;
   }
 
   .modal-body {
@@ -603,43 +704,6 @@
   .form-textarea {
     resize: vertical;
     min-height: 100px;
-  }
-
-  .image-upload {
-    border: 2px dashed var(--border-color);
-    border-radius: 8px;
-    padding: 30px;
-    text-align: center;
-    cursor: pointer;
-    transition: border 0.2s;
-  }
-
-  .image-upload:hover {
-    border-color: var(--primary);
-  }
-
-  .image-upload-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-    color: var(--secondary-text);
-  }
-
-  .image-upload-text {
-    font-size: 14px;
-    color: var(--secondary-text);
-  }
-
-  .image-preview {
-    display: none;
-    margin-top: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .image-preview img {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
   }
 
   .modal-actions {
@@ -762,6 +826,130 @@
       transform: translateX(0);
       opacity: 1;
     }
+  }
+  
+  /* Image Swapping Modal Specific Styles */
+  .image-swap-container {
+      position: relative;
+      overflow: hidden;
+  }
+
+  .full-image-display {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+  }
+
+  .swap-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 10;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .prev-btn {
+      left: 10px;
+  }
+
+  .next-btn {
+      right: 10px;
+  }
+
+  .image-indicators {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      gap: 5px;
+  }
+
+  .indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-color);
+      cursor: pointer;
+      transition: background 0.3s;
+  }
+
+  .indicator-dot.active {
+      background: var(--primary);
+  }
+
+  /* Review Modal Specific Styles */
+  .reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+  }
+
+  .review-card {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-color);
+  }
+
+  .review-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+  }
+
+  .review-author {
+      font-weight: 600;
+  }
+
+  .review-date {
+      font-size: 12px;
+      color: var(--secondary-text);
+  }
+
+  .review-rating {
+      color: gold;
+      font-size: 14px;
+  }
+
+  .review-text {
+      font-size: 14px;
+      margin-top: 5px;
+      line-height: 1.4;
+  }
+  
+  .add-review-form {
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+  }
+  
+  .rating-stars {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+  }
+  
+  .rating-stars i {
+      color: var(--secondary-text);
+      cursor: pointer;
+      transition: color 0.2s;
+  }
+  
+  .rating-stars i.rated {
+      color: gold;
   }
 
   /* Responsive */
@@ -896,7 +1084,6 @@
 <body>
 
 <div class="app-container">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <h2 style="color: white;">MEET</h2>
@@ -912,9 +1099,7 @@
     </ul>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Navbar -->
     <div class="navbar">
       <h2 style="color: white;">MEET Meetrader</h2>
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -940,12 +1125,9 @@
       </div>
     </div>
 
-    <!-- Message Container -->
     <div class="message-container" id="messageContainer"></div>
 
-    <!-- Meetrader Container -->
     <div class="meetrader-container">
-      <!-- Meetrader Header -->
       <div class="meetrader-header">
         <h1 class="meetrader-title">Meetrader</h1>
         <div class="meetrader-actions">
@@ -961,7 +1143,6 @@
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="meetrader-filters" id="meetraderFilters">
         <div class="filters-header">
           <h3 class="filters-title">Filter Items</h3>
@@ -1006,12 +1187,9 @@
         <button class="apply-filters-btn" id="applyFilters">Apply Filters</button>
       </div>
 
-      <!-- Items Grid -->
       <div class="meetrader-items" id="meetraderItems">
-        <!-- Items will be populated by JavaScript -->
-      </div>
+        </div>
 
-      <!-- Empty State -->
       <div class="empty-state" id="emptyState" style="display: none;">
         <div class="empty-icon"><i class="fas fa-store"></i></div>
         <h3 class="empty-title">No items found</h3>
@@ -1022,7 +1200,6 @@
   </div>
 </div>
 
-<!-- Post Item Modal -->
 <div class="modal" id="postItemModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -1037,6 +1214,11 @@
         </div>
         
         <div class="form-group">
+          <label class="form-label" for="itemDescription">Description (Like Jumia)</label>
+          <textarea class="form-textarea" id="itemDescription" placeholder="Provide a detailed description of your item, service, or skill..." required></textarea>
+        </div>
+        
+        <div class="form-group">
           <label class="form-label">Price</label>
           <div class="currency-price-group">
             <select class="currency-select" id="itemCurrency" required>
@@ -1048,13 +1230,49 @@
               <option value="JPY">JPY (¥)</option>
               <option value="CNY">CNY (¥)</option>
               <option value="INR">INR (₹)</option>
-              <option value="NGN">NGN (₦)</option>
+              <option value="NGN" selected>NGN (₦)</option>
               <option value="GHS">GHS (₵)</option>
               <option value="KES">KES (KSh)</option>
               <option value="ZAR">ZAR (R)</option>
             </select>
             <input type="number" class="form-input price-input-full" id="itemPrice" placeholder="0.00" min="0" step="0.01" required>
           </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Payment Means Options</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="payAtDelivery" name="paymentMeans" value="Pay at Delivery" checked>
+                    <label for="payAtDelivery">Pay at Delivery</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="payBeforeDelivery" name="paymentMeans" value="Pay Before Delivery">
+                    <label for="payBeforeDelivery">Pay Before Delivery (Requires Secure Escrow)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="payThroughMeetpay" name="paymentMeans" value="Pay Through Meetpay">
+                    <label for="payThroughMeetpay">Pay Through Meetpay (Recommended)</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Delivery Options</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="sellerDelivery" name="deliveryMeans" value="Seller Delivery">
+                    <label for="sellerDelivery">Seller Delivery (Specify Costs)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="buyerPickup" name="deliveryMeans" value="Buyer Pickup" checked>
+                    <label for="buyerPickup">Buyer Pickup</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="courierService" name="deliveryMeans" value="Courier Service">
+                    <label for="courierService">Courier/Third-party Service</label>
+                </div>
+            </div>
         </div>
         
         <div class="form-group">
@@ -1087,20 +1305,14 @@
         </div>
         
         <div class="form-group">
-          <label class="form-label" for="itemDescription">Description</label>
-          <textarea class="form-textarea" id="itemDescription" placeholder="Describe your item, service, or skill..." required></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Item Image</label>
-          <div class="image-upload" id="imageUpload">
-            <div class="image-upload-icon"><i class="fas fa-camera"></i></div>
-            <div class="image-upload-text">Click to upload an image</div>
-            <input type="file" id="itemImage" accept="image/*" style="display: none">
+          <label class="form-label">Item Images (Min 1, Max 5)</label>
+          <div class="image-upload-grid" id="imageUploadGrid">
+              <div class="image-upload-box add-image-box" id="addImageBox">
+                <div class="image-upload-icon"><i class="fas fa-camera"></i></div>
+                <div class="image-upload-text" style="font-size: 12px; color: var(--secondary-text);">Add Image</div>
+              </div>
           </div>
-          <div class="image-preview" id="imagePreview">
-            <img id="previewImage" src="" alt="Preview">
-          </div>
+          <input type="file" id="itemImages" accept="image/*" multiple style="display: none">
         </div>
         
         <div class="modal-actions">
@@ -1112,11 +1324,67 @@
   </div>
 </div>
 
+<div class="modal" id="imageSwapModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="imageSwapTitle">Item Images</h3>
+            <button class="close-modal" id="closeImageSwapModal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="image-swap-container">
+                <img id="fullImageDisplay" class="full-image-display" src="" alt="Full Item Image">
+                <button class="swap-btn prev-btn" id="prevImageBtn"><i class="fas fa-chevron-left"></i></button>
+                <button class="swap-btn next-btn" id="nextImageBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="image-indicators" id="imageIndicators">
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="reviewsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="reviewsModalTitle">Reviews for [Item Title]</h3>
+            <button class="close-modal" id="closeReviewsModal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="reviews-list" id="reviewsList">
+                <p id="noReviewsMessage">No reviews yet. Be the first!</p>
+            </div>
+            
+            <div class="add-review-form">
+                <h4>Add Your Review</h4>
+                <form id="addReviewForm">
+                    <div class="form-group">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-stars" id="ratingStars">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="reviewRating" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reviewText">Your Comment</label>
+                        <textarea class="form-textarea" id="reviewText" placeholder="Share your experience..." required></textarea>
+                    </div>
+                    <div class="modal-actions" style="margin-top: 10px;">
+                        <button type="submit" class="submit-btn">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="module">
   // Firebase imports
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc
+    query, orderBy, where, setDoc, arrayUnion, arrayRemove
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -1138,8 +1406,9 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
   
-  // File size limits
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  // File size limits (5MB per file)
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const MAX_IMAGES = 5; 
 
   // DOM Elements
   const meetraderItems = document.getElementById('meetraderItems');
@@ -1153,10 +1422,9 @@
   const closePostItemModal = document.getElementById('closePostItemModal');
   const cancelPostItem = document.getElementById('cancelPostItem');
   const postItemForm = document.getElementById('postItemForm');
-  const imageUpload = document.getElementById('imageUpload');
-  const itemImage = document.getElementById('itemImage');
-  const imagePreview = document.getElementById('imagePreview');
-  const previewImage = document.getElementById('previewImage');
+  const imageUploadGrid = document.getElementById('imageUploadGrid');
+  const addImageBox = document.getElementById('addImageBox');
+  const itemImagesInput = document.getElementById('itemImages');
   const searchInput = document.getElementById('searchInput');
   const logoutBtn = document.getElementById('logoutBtn');
   const nightToggleBtn = document.getElementById('nightToggleBtn');
@@ -1165,10 +1433,34 @@
   const messageContainer = document.getElementById('messageContainer');
   const emptyStatePostBtn = document.getElementById('emptyStatePostBtn');
 
+  // Image Swapping Modal Elements
+  const imageSwapModal = document.getElementById('imageSwapModal');
+  const closeImageSwapModal = document.getElementById('closeImageSwapModal');
+  const fullImageDisplay = document.getElementById('fullImageDisplay');
+  const prevImageBtn = document.getElementById('prevImageBtn');
+  const nextImageBtn = document.getElementById('nextImageBtn');
+  const imageIndicators = document.getElementById('imageIndicators');
+  let currentImageUrls = [];
+  let currentImageIndex = 0;
+
+  // Reviews Modal Elements
+  const reviewsModal = document.getElementById('reviewsModal');
+  const closeReviewsModal = document.getElementById('closeReviewsModal');
+  const reviewsModalTitle = document.getElementById('reviewsModalTitle');
+  const reviewsList = document.getElementById('reviewsList');
+  const noReviewsMessage = document.getElementById('noReviewsMessage');
+  const addReviewForm = document.getElementById('addReviewForm');
+  const ratingStars = document.getElementById('ratingStars');
+  const reviewRatingInput = document.getElementById('reviewRating');
+  const reviewText = document.getElementById('reviewText');
+  let currentItemIdForReview = null;
+
+
   // State
   let currentUser = null;
   let items = [];
   let filteredItems = [];
+  let uploadedImageFiles = []; // Array to hold base64 strings of uploaded images
 
   // Currency symbols
   const currencySymbols = {
@@ -1196,6 +1488,14 @@
     courses: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
     other: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
   };
+  
+  // Utility to get image URL (first in array or default)
+  function getItemImage(item) {
+      if (item.images && item.images.length > 0) {
+          return item.images[0];
+      }
+      return defaultImages[item.category] || defaultImages.other;
+  }
 
   // Theme management
   function initTheme() {
@@ -1246,8 +1546,24 @@
       return null;
     }
   }
+  
+  // Calculate average rating
+  function calculateAvgRating(reviews) {
+      if (!reviews || reviews.length === 0) return 0;
+      const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+      return (total / reviews.length).toFixed(1);
+  }
+  
+  // Render star rating
+  function renderRating(rating, size = '14px') {
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+          stars += `<i class="fas fa-star" style="color: ${i <= rating ? 'gold' : 'var(--border-color)'}; font-size: ${size};"></i>`;
+      }
+      return stars;
+  }
 
-  // CREATE ITEM - FIXED VERSION
+  // CREATE ITEM
   async function createItem(itemData) {
     const user = auth.currentUser;
     if (!user) throw new Error("Please login first!");
@@ -1257,8 +1573,8 @@
     const userName = user.displayName || userProfile?.name || "Anonymous";
     const userInitial = userName.charAt(0).toUpperCase();
 
-    // Use the provided image or a default image based on category
-    const imageUrl = itemData.image || defaultImages[itemData.category] || defaultImages.other;
+    // Use the provided images or a default image based on category
+    const images = itemData.images.length > 0 ? itemData.images : [defaultImages[itemData.category] || defaultImages.other];
 
     // Create the item in Firestore
     const docRef = await addDoc(collection(db, "meetrader"), {
@@ -1272,9 +1588,12 @@
       description: itemData.description,
       category: itemData.category,
       condition: itemData.condition,
-      image: imageUrl,
+      images: images, // Store array of image base64 strings
+      paymentMeans: itemData.paymentMeans, // Store array of payment means
+      deliveryOptions: itemData.deliveryOptions, // Store array of delivery options
       timestamp: serverTimestamp(),
       likes: 0,
+      reviews: [], // Initialize reviews array
       status: 'active'
     });
 
@@ -1284,35 +1603,34 @@
   // TOGGLE LIKE
   async function toggleLike(itemId) {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        showMessage('You must be logged in to like an item.');
+        return;
+    }
 
     const itemRef = doc(db, "meetrader", itemId);
     const likeRef = doc(db, "meetrader", itemId, "likes", user.uid);
     
     try {
       const likeSnap = await getDoc(likeRef);
-      
+      const itemDoc = await getDoc(itemRef);
+      if (!itemDoc.exists()) return;
+
       if (likeSnap.exists()) {
         // Unlike: remove the like document and decrement likes count
         await deleteDoc(likeRef);
-        const itemDoc = await getDoc(itemRef);
-        if (itemDoc.exists()) {
-          await updateDoc(itemRef, {
+        await updateDoc(itemRef, {
             likes: (itemDoc.data().likes || 1) - 1
-          });
-        }
+        });
       } else {
         // Like: create a like document and increment likes count
         await setDoc(likeRef, {
           userId: user.uid,
           timestamp: serverTimestamp()
         });
-        const itemDoc = await getDoc(itemRef);
-        if (itemDoc.exists()) {
-          await updateDoc(itemRef, {
+        await updateDoc(itemRef, {
             likes: (itemDoc.data().likes || 0) + 1
-          });
-        }
+        });
       }
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -1331,6 +1649,57 @@
       console.error('Error deleting item:', error);
       showMessage('Failed to delete item. Please try again.');
     }
+  }
+  
+  // SUBMIT REVIEW
+  async function submitReview(e) {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) {
+          showMessage('You must be logged in to leave a review.');
+          return;
+      }
+      if (!currentItemIdForReview) return;
+      
+      const rating = parseInt(reviewRatingInput.value);
+      const comment = reviewText.value.trim();
+      
+      if (rating === 0 || !comment) {
+          showMessage('Please provide a rating and a comment.');
+          return;
+      }
+      
+      try {
+          const itemRef = doc(db, "meetrader", currentItemIdForReview);
+          const userProfile = await getUserProfile(user.uid);
+          const reviewerName = user.displayName || userProfile?.name || "Anonymous";
+
+          const newReview = {
+              userId: user.uid,
+              userName: reviewerName,
+              rating: rating,
+              comment: comment,
+              timestamp: new Date().toISOString()
+          };
+          
+          await updateDoc(itemRef, {
+              reviews: arrayUnion(newReview)
+          });
+          
+          showMessage('Review submitted successfully!', 'success');
+          // Update the reviews list in the modal
+          const item = items.find(i => i.id === currentItemIdForReview);
+          if (item) {
+              item.reviews.push(newReview);
+              renderReviews(item);
+          }
+          addReviewForm.reset();
+          reviewRatingInput.value = 0;
+          document.querySelectorAll('#ratingStars i').forEach(star => star.classList.remove('rated'));
+      } catch (error) {
+          console.error('Error submitting review:', error);
+          showMessage('Failed to submit review. Please try again.');
+      }
   }
 
   // Authentication state listener
@@ -1354,19 +1723,32 @@
   const setupRealTimeListener = () => {
     const itemsQuery = query(collection(db, "meetrader"), orderBy("timestamp", "desc"));
     
-    onSnapshot(itemsQuery, (snapshot) => {
+    onSnapshot(itemsQuery, async (snapshot) => {
       items = [];
+      const likePromises = [];
       snapshot.docs.forEach((doc) => {
         const item = doc.data();
-        // Convert Firestore timestamp to Date if it exists
         const timestamp = item.timestamp ? item.timestamp.toDate() : new Date();
-        items.push({
+        const itemData = {
           id: doc.id,
           ...item,
-          timestamp: timestamp
-        });
+          timestamp: timestamp,
+          isLiked: false // Temporary state for rendering
+        };
+        items.push(itemData);
+
+        // Fetch like status for the current user
+        if (currentUser) {
+            const likeRef = doc(db, "meetrader", doc.id, "likes", currentUser.uid);
+            likePromises.push(getDoc(likeRef).then(snap => {
+                if (snap.exists()) itemData.isLiked = true;
+            }).catch(e => console.error('Error fetching like status:', e)));
+        }
       });
       
+      // Wait for all like status checks to complete
+      await Promise.all(likePromises);
+
       filteredItems = [...items];
       renderItems();
     }, error => {
@@ -1374,6 +1756,37 @@
       showMessage('Failed to load items. Please refresh the page.');
     });
   };
+
+  // Render reviews in the modal
+  function renderReviews(item) {
+      reviewsModalTitle.textContent = `Reviews for ${item.title}`;
+      reviewsList.innerHTML = '';
+      const reviews = item.reviews || [];
+
+      if (reviews.length === 0) {
+          noReviewsMessage.style.display = 'block';
+      } else {
+          noReviewsMessage.style.display = 'none';
+          reviews.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(review => {
+              const reviewCard = document.createElement('div');
+              reviewCard.className = 'review-card';
+              
+              const date = review.timestamp ? new Date(review.timestamp).toLocaleDateString() : 'N/A';
+              
+              reviewCard.innerHTML = `
+                  <div class="review-header">
+                      <div class="seller-avatar small">${review.userName.charAt(0).toUpperCase()}</div>
+                      <span class="review-author">${review.userName}</span>
+                      <span class="review-date">${date}</span>
+                      <span class="review-rating">${renderRating(review.rating)}</span>
+                  </div>
+                  <p class="review-text">${review.comment}</p>
+              `;
+              reviewsList.appendChild(reviewCard);
+          });
+      }
+      reviewsModal.style.display = 'flex';
+  }
 
   // Render items
   function renderItems() {
@@ -1394,15 +1807,25 @@
       
       const currencySymbol = currencySymbols[item.currency] || item.currency;
       const isOwner = currentUser && currentUser.uid === item.userId;
+      const firstImage = getItemImage(item);
+      const avgRating = calculateAvgRating(item.reviews);
       
       itemCard.innerHTML = `
-        <img src="${item.image}" alt="${item.title}" class="item-image" onerror="this.src='${defaultImages.other}'">
+        <div class="item-image-container" data-id="${item.id}">
+            <img src="${firstImage}" alt="${item.title}" class="item-image" onerror="this.src='${defaultImages.other}'">
+        </div>
         <div class="item-details">
           <div class="item-header">
             <h3 class="item-title">${item.title}</h3>
             <div class="item-price">${currencySymbol}${item.price}</div>
           </div>
           <p class="item-description">${item.description}</p>
+          <div class="item-payment">
+              <i class="fas fa-money-check-alt"></i> ${item.paymentMeans.join(', ')}
+          </div>
+          <div class="item-delivery">
+              <i class="fas fa-shipping-fast"></i> ${item.deliveryOptions.join(', ')}
+          </div>
           <div class="item-location">
             <i class="fas fa-map-marker-alt"></i> ${item.location}
           </div>
@@ -1412,8 +1835,13 @@
               <span class="seller-name">${item.userName}</span>
             </div>
             <div class="item-actions">
-              <button class="action-btn like-btn" data-id="${item.id}" title="Like">
+              <button class="action-btn like-btn ${item.isLiked ? 'liked' : ''}" data-id="${item.id}" title="${item.isLiked ? 'Unlike' : 'Like'}">
                 <i class="fas fa-heart"></i>
+                <span class="review-count">${item.likes || 0}</span>
+              </button>
+              <button class="action-btn review-btn" data-id="${item.id}" title="Reviews (${item.reviews.length || 0})">
+                <i class="fas fa-star"></i>
+                <span class="review-count">${avgRating} (${item.reviews.length || 0})</span>
               </button>
               <button class="action-btn message-btn" data-id="${item.id}" title="Message Seller">
                 <i class="fas fa-comment"></i>
@@ -1431,28 +1859,128 @@
       meetraderItems.appendChild(itemCard);
     });
     
-    // Add event listeners
-    document.querySelectorAll('.like-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const itemId = e.currentTarget.getAttribute('data-id');
-        toggleLike(itemId);
-      });
-    });
-    
-    document.querySelectorAll('.message-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const itemId = e.currentTarget.getAttribute('data-id');
-        messageSeller(itemId);
-      });
-    });
-    
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const itemId = e.currentTarget.getAttribute('data-id');
-        deleteItem(itemId);
-      });
-    });
+    // Add event listeners for new elements
+    attachItemActionListeners();
   }
+  
+  // Attach listeners to dynamically generated items
+  function attachItemActionListeners() {
+      // Like button
+      document.querySelectorAll('.like-btn').forEach(btn => {
+          btn.removeEventListener('click', handleLikeClick);
+          btn.addEventListener('click', handleLikeClick);
+      });
+      
+      // Message button
+      document.querySelectorAll('.message-btn').forEach(btn => {
+          btn.removeEventListener('click', handleMessageClick);
+          btn.addEventListener('click', handleMessageClick);
+      });
+      
+      // Delete button
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.removeEventListener('click', handleDeleteClick);
+          btn.addEventListener('click', handleDeleteClick);
+      });
+
+      // Review button
+      document.querySelectorAll('.review-btn').forEach(btn => {
+          btn.removeEventListener('click', handleReviewClick);
+          btn.addEventListener('click', handleReviewClick);
+      });
+
+      // Image click (for swapping)
+      document.querySelectorAll('.item-image-container').forEach(container => {
+          container.removeEventListener('click', handleImageContainerClick);
+          container.addEventListener('click', handleImageContainerClick);
+      });
+  }
+
+  function handleLikeClick(e) {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      toggleLike(itemId);
+  }
+
+  function handleMessageClick(e) {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      messageSeller(itemId);
+  }
+
+  function handleDeleteClick(e) {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      deleteItem(itemId);
+  }
+
+  function handleReviewClick(e) {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      const item = items.find(i => i.id === itemId);
+      if (item) {
+          currentItemIdForReview = itemId;
+          renderReviews(item);
+      }
+  }
+
+  function handleImageContainerClick(e) {
+      const itemId = e.currentTarget.getAttribute('data-id');
+      const item = items.find(i => i.id === itemId);
+      if (item && item.images && item.images.length > 0) {
+          currentImageUrls = item.images;
+          currentImageIndex = 0;
+          updateImageSwapModal();
+          imageSwapModal.style.display = 'flex';
+      } else {
+          showMessage('No additional images to display.', 'error');
+      }
+  }
+
+  // Image Swapping Logic
+  function updateImageSwapModal() {
+      if (currentImageUrls.length === 0) return;
+
+      fullImageDisplay.src = currentImageUrls[currentImageIndex];
+      prevImageBtn.disabled = currentImageIndex === 0;
+      nextImageBtn.disabled = currentImageIndex === currentImageUrls.length - 1;
+      
+      // Update indicators
+      imageIndicators.innerHTML = '';
+      currentImageUrls.forEach((url, index) => {
+          const dot = document.createElement('div');
+          dot.className = `indicator-dot ${index === currentImageIndex ? 'active' : ''}`;
+          dot.dataset.index = index;
+          dot.addEventListener('click', () => {
+              currentImageIndex = index;
+              updateImageSwapModal();
+          });
+          imageIndicators.appendChild(dot);
+      });
+  }
+
+  prevImageBtn.addEventListener('click', () => {
+      if (currentImageIndex > 0) {
+          currentImageIndex--;
+          updateImageSwapModal();
+      }
+  });
+
+  nextImageBtn.addEventListener('click', () => {
+      if (currentImageIndex < currentImageUrls.length - 1) {
+          currentImageIndex++;
+          updateImageSwapModal();
+      }
+  });
+
+  closeImageSwapModal.addEventListener('click', () => {
+      imageSwapModal.style.display = 'none';
+  });
+  
+  // Close Reviews Modal
+  closeReviewsModal.addEventListener('click', () => {
+      reviewsModal.style.display = 'none';
+      currentItemIdForReview = null;
+      addReviewForm.reset();
+      reviewRatingInput.value = 0;
+      document.querySelectorAll('#ratingStars i').forEach(star => star.classList.remove('rated'));
+  });
 
   // Message seller
   function messageSeller(itemId) {
@@ -1523,14 +2051,28 @@
     // Post item form
     postItemForm.addEventListener('submit', submitItemForm);
 
-    // Image upload
-    imageUpload.addEventListener('click', () => {
-      itemImage.click();
+    // Image upload (Click handler for the 'Add Image' box)
+    addImageBox.addEventListener('click', () => {
+      itemImagesInput.click();
     });
-    itemImage.addEventListener('change', handleImageUpload);
+    itemImagesInput.addEventListener('change', handleImageUpload);
 
     // Search
     searchInput.addEventListener('input', handleSearch);
+    
+    // Review form submission
+    addReviewForm.addEventListener('submit', submitReview);
+    
+    // Rating star clicks
+    ratingStars.querySelectorAll('i').forEach(star => {
+        star.addEventListener('click', (e) => {
+            const rating = parseInt(e.currentTarget.dataset.rating);
+            reviewRatingInput.value = rating;
+            ratingStars.querySelectorAll('i').forEach(s => {
+                s.classList.toggle('rated', parseInt(s.dataset.rating) <= rating);
+            });
+        });
+    });
   }
 
   // Apply filters
@@ -1571,46 +2113,102 @@
   function closePostItemModalHandler() {
     postItemModal.style.display = 'none';
     postItemForm.reset();
-    imagePreview.style.display = 'none';
+    itemImagesInput.value = ''; // Clear file input
+    uploadedImageFiles = []; // Clear state
+    renderUploadedImages(); // Clear previews
+    // Reset checkboxes
+    document.querySelectorAll('#postItemForm input[type="checkbox"]').forEach(cb => {
+        cb.checked = (cb.id === 'payAtDelivery' || cb.id === 'buyerPickup');
+    });
+  }
+
+  // Render uploaded images in the modal
+  function renderUploadedImages() {
+      // Clear all existing previews (but keep the 'Add Image' box)
+      document.querySelectorAll('.image-upload-box:not(.add-image-box)').forEach(box => box.remove());
+
+      // Append previews before the 'Add Image' box
+      uploadedImageFiles.forEach((base64String, index) => {
+          const box = document.createElement('div');
+          box.className = 'image-upload-box';
+          box.dataset.index = index;
+          box.innerHTML = `
+              <img src="${base64String}" alt="Image ${index + 1}" class="image-preview-thumb">
+              <button type="button" class="remove-image-btn" data-index="${index}"><i class="fas fa-times"></i></button>
+          `;
+          imageUploadGrid.insertBefore(box, addImageBox);
+      });
+      
+      // Handle visibility of the 'Add Image' box
+      if (uploadedImageFiles.length >= MAX_IMAGES) {
+          addImageBox.style.display = 'none';
+      } else {
+          addImageBox.style.display = 'flex';
+      }
+      
+      // Attach remove button listeners
+      document.querySelectorAll('.remove-image-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const indexToRemove = parseInt(e.currentTarget.dataset.index);
+              uploadedImageFiles.splice(indexToRemove, 1); // Remove from array
+              itemImagesInput.value = ''; // Clear actual file input (prevents re-uploading removed file)
+              renderUploadedImages(); // Re-render the grid
+          });
+      });
   }
 
   // Handle image upload
-  function handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  async function handleImageUpload(e) {
+    const files = Array.from(e.target.files);
     
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      showMessage('File size too large. Please choose an image smaller than 5MB.');
-      return;
+    // Filter and process files
+    for (const file of files) {
+        if (uploadedImageFiles.length >= MAX_IMAGES) {
+            showMessage(`Maximum of ${MAX_IMAGES} images reached.`);
+            break;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            showMessage(`File "${file.name}" size too large. Max is 5MB.`);
+            continue;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            showMessage(`File "${file.name}" is not a valid image.`);
+            continue;
+        }
+        
+        try {
+            const base64String = await fileToBase64(file);
+            uploadedImageFiles.push(base64String);
+        } catch (error) {
+            console.error('Error converting file to base64:', error);
+            showMessage(`Failed to process image "${file.name}".`);
+        }
     }
     
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      showMessage('Please select a valid image file.');
-      return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      previewImage.src = e.target.result;
-      imagePreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+    // Clear file input to allow uploading the same file again if needed
+    e.target.value = ''; 
+    renderUploadedImages();
   }
 
-  // Submit item form - FIXED VERSION
+
+  // Submit item form
   async function submitItemForm(e) {
     e.preventDefault();
     
     // Get form values
     const title = document.getElementById('itemTitle').value.trim();
+    const description = document.getElementById('itemDescription').value.trim();
     const price = document.getElementById('itemPrice').value;
     const currency = document.getElementById('itemCurrency').value;
     const location = document.getElementById('itemLocation').value.trim();
     const category = document.getElementById('itemCategory').value;
     const condition = document.getElementById('itemCondition').value;
-    const description = document.getElementById('itemDescription').value.trim();
+    
+    // Get checkbox values
+    const paymentMeans = Array.from(document.querySelectorAll('input[name="paymentMeans"]:checked')).map(cb => cb.value);
+    const deliveryOptions = Array.from(document.querySelectorAll('input[name="deliveryMeans"]:checked')).map(cb => cb.value);
     
     // Validate form
     if (!title || !price || !location || !category || !description) {
@@ -1623,6 +2221,16 @@
       return;
     }
     
+    if (paymentMeans.length === 0 || deliveryOptions.length === 0) {
+        showMessage('Please select at least one payment mean and one delivery option.');
+        return;
+    }
+
+    if (uploadedImageFiles.length === 0) {
+        showMessage('Please upload at least one image for your item.');
+        return;
+    }
+    
     // Show loading state
     const submitBtn = postItemForm.querySelector('.submit-btn');
     const originalText = submitBtn.textContent;
@@ -1630,19 +2238,6 @@
     submitBtn.disabled = true;
     
     try {
-      // Get image data
-      let imageUrl = null;
-      if (itemImage.files[0]) {
-        try {
-          // Convert image to base64 for simple storage
-          imageUrl = await fileToBase64(itemImage.files[0]);
-        } catch (uploadError) {
-          console.error('Image processing error:', uploadError);
-          showMessage('Failed to process image. Using default image instead.');
-          // Continue with default image
-        }
-      }
-      
       // Create item data
       const itemData = {
         title,
@@ -1652,7 +2247,9 @@
         description,
         category,
         condition,
-        image: imageUrl // Will be null if upload failed or no image selected
+        images: uploadedImageFiles, // Array of base64 strings
+        paymentMeans,
+        deliveryOptions
       };
       
       // Create the item in Firebase
@@ -1687,7 +2284,8 @@
         item.title.toLowerCase().includes(query) ||
         item.description.toLowerCase().includes(query) ||
         item.location.toLowerCase().includes(query) ||
-        item.userName.toLowerCase().includes(query)
+        item.userName.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query)
       );
     }
     
@@ -1698,31 +2296,7 @@
   document.addEventListener('DOMContentLoaded', initMeetrader);
 </script>
 
-<!-- FIREBASE FIRESTORE SECURITY RULES - COPY AND PASTE THESE IN FIREBASE CONSOLE -->
 <div style="display:none">
-<!-- 
-Go to Firebase Console > Firestore Database > Rules tab and replace with:
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Meetrader items - allow read/write for authenticated users
-    match /meetrader/{itemId} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // User likes subcollection
-    match /meetrader/{itemId}/likes/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // User profiles
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
--->
 </div>
 </body>
 </html>
