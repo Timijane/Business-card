@@ -1,751 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MEET | Profile</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0080FF;
-            --primary-dark: #0066CC;
-            --error: #EF4444;
-            --success: #10B981;
-            --bg-color: #f0f2f5;
-            --card-bg: #fff;
-            --text-color: #111;
-            --secondary-text: #65676b;
-            --border-color: #dddfe2;
-            --online: #10B981;
-            --offline: #EF4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MEET | Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root { --primary: #0080FF; --bg-color: #f0f2f5; --card-bg: #fff; --text-color: #111; --secondary-text: #65676b; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; }
+    .app-container { display: flex; min-height: 100vh; }
 
-        body.dark-mode {
-            --bg-color: #18191a;
-            --card-bg: #242526;
-            --text-color: #e4e6eb;
-            --secondary-text: #b0b3b8;
-            --border-color: #3e4042;
-        }
+    /* Sidebar (Matching Feed) */
+    .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 240px; background: linear-gradient(180deg, #0080FF 0%, #0066CC 100%); overflow-y: auto; z-index: 100; padding: 20px; color: white; }
+    .sidebar-menu a { display: flex; align-items: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; transition: background 0.3s; font-size: 16px; }
+    .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
+    .sidebar-menu i { margin-right: 15px; font-size: 20px; width: 25px; text-align: center; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    .main-content { flex: 1; margin-left: 240px; padding: 20px; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            min-height: 100vh;
-            font-size: 16px;
-        }
+    /* Profile Header */
+    .profile-header { position: relative; margin-bottom: 20px; border-radius: 12px; overflow: hidden; background: var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .profile-background { height: 250px; background: #ddd; position: relative; overflow: hidden; }
+    .profile-background img { width: 100%; height: 100%; object-fit: cover; }
+    
+    /* 1. Fixed Image Buttons */
+    .change-btn { position: absolute; background: rgba(0,0,0,0.6); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: none; z-index: 10; }
+    #changeCoverBtn { bottom: 10px; right: 10px; }
+    
+    .profile-info { padding: 20px; display: flex; gap: 20px; position: relative; }
+    .profile-pic-container { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--card-bg); margin-top: -80px; position: relative; background: #fff; overflow: hidden; flex-shrink: 0; }
+    .profile-pic-container img { width: 100%; height: 100%; object-fit: cover; }
+    #changeAvatarBtn { bottom: 10px; left: 50%; transform: translateX(-50%); border-radius: 20px; font-size: 12px; width: max-content; }
 
-        .app-container { display: flex; min-height: 100vh; }
+    .profile-details { padding-top: 10px; flex: 1; }
+    .section { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+    .edit-icon { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--primary); display: none; }
 
-        /* Sidebar (Same as Feed) */
-        .sidebar {
-            position: fixed; left: 0; top: 0; height: 100vh; width: 280px;
-            background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto; z-index: 100; padding: 20px; color: white;
-        }
-        .sidebar-menu { list-style: none; margin-top: 20px; }
-        .sidebar-menu li { margin-bottom: 8px; }
-        .sidebar-menu a {
-            display: flex; align-items: center; padding: 12px;
-            text-decoration: none; color: white; border-radius: 8px;
-            transition: background 0.3s; font-size: 18px;
-        }
-        .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-        .sidebar-menu i { margin-right: 12px; font-size: 20px; }
+    .info-row { margin-bottom: 10px; }
+    .label { font-weight: 600; font-size: 14px; color: var(--secondary-text); }
 
-        /* Main Content */
-        .main-content {
-            flex: 1; margin-left: 280px; padding: 20px;
-            width: calc(100% - 280px);
-        }
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-content { background: white; width: 500px; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
 
-        .navbar {
-            background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-            padding: 15px 20px; border-radius: 12px; margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            color: white;
-        }
-
-        .nav-controls { display: flex; gap: 10px; align-items: center; }
-
-        .btn {
-            background: rgba(255, 255, 255, 0.2); color: white; border: none;
-            padding: 8px 16px; border-radius: 8px; cursor: pointer;
-            font-weight: 600; display: flex; align-items: center; gap: 8px;
-            font-size: 14px; transition: 0.3s;
-        }
-        .btn:hover { background: rgba(255, 255, 255, 0.3); }
-
-        /* Profile Header */
-        .profile-header {
-            position: relative; margin-bottom: 20px; border-radius: 12px;
-            overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .profile-background {
-            height: 250px;
-            background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%);
-            position: relative; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .profile-background img { width: 100%; height: 100%; object-fit: cover; }
-
-        .change-bg-btn {
-            position: absolute; bottom: 20px; right: 20px;
-            background: rgba(0,0,0,0.6); color: white; border: none;
-            padding: 8px 16px; border-radius: 20px; cursor: pointer;
-            display: none; /* Hidden by default, shown for owner */
-        }
-
-        .profile-info {
-            background: var(--card-bg); padding: 20px;
-            display: flex; align-items: flex-start; gap: 20px;
-            position: relative; flex-wrap: wrap;
-        }
-
-        .profile-picture-container {
-            margin-top: -80px; position: relative;
-            width: 160px; height: 160px; flex-shrink: 0;
-        }
-
-        .profile-picture {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 5px solid var(--card-bg); overflow: hidden;
-            background: white; display: flex; align-items: center; justify-content: center;
-            font-size: 60px; color: var(--primary); font-weight: bold;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
-
-        .change-pic-btn {
-            position: absolute; bottom: 10px; right: 10px;
-            background: var(--primary); color: white; border: none;
-            width: 36px; height: 36px; border-radius: 50%;
-            cursor: pointer; display: none; /* Hidden by default */
-            align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .profile-details { flex: 1; min-width: 200px; padding-top: 10px; }
-
-        .profile-name-row {
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
-        }
-        .profile-name { font-size: 28px; font-weight: 700; }
-        
-        .profile-bio { color: var(--secondary-text); margin-bottom: 15px; font-size: 16px; line-height: 1.5; }
-
-        .profile-stats { display: flex; gap: 30px; margin-bottom: 15px; }
-        .stat { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .stat-value { font-weight: 700; font-size: 18px; }
-        .stat-label { font-size: 14px; color: var(--secondary-text); }
-
-        .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
-        .associate-btn {
-            background: var(--primary); color: white; padding: 8px 24px;
-            border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
-        }
-        .associate-btn.following { background: var(--secondary-text); }
-
-        /* Sections */
-        .profile-section {
-            background: var(--card-bg); border-radius: 12px;
-            padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-        .section-title { font-size: 18px; font-weight: 600; }
-        .edit-section-btn {
-            background: none; border: none; color: var(--primary);
-            cursor: pointer; display: none; /* Hidden by default */
-        }
-
-        .info-item { margin-bottom: 15px; }
-        .info-label { font-size: 13px; color: var(--secondary-text); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        .private-info { color: var(--secondary-text); font-style: italic; display: flex; align-items: center; gap: 5px; }
-
-        .skill-tag {
-            display: inline-block; background: rgba(0, 128, 255, 0.1);
-            color: var(--primary); padding: 6px 14px; border-radius: 20px;
-            margin-right: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 500;
-        }
-
-        /* Post Grid */
-        .post-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        .post-item {
-            aspect-ratio: 1; background: var(--bg-color); border-radius: 8px;
-            overflow: hidden; position: relative; cursor: pointer;
-            border: 1px solid var(--border-color);
-        }
-        .post-item img, .post-item video { width: 100%; height: 100%; object-fit: cover; }
-        .post-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: rgba(0,0,0,0.6); color: white; padding: 8px;
-            font-size: 12px; transform: translateY(100%); transition: 0.3s;
-        }
-        .post-item:hover .post-overlay { transform: translateY(0); }
-
-        /* Modal Styles */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .modal-content {
-            background: var(--card-bg); border-radius: 12px;
-            width: 600px; max-width: 100%; max-height: 90vh;
-            overflow-y: auto; display: flex; flex-direction: column;
-        }
-        .modal-header {
-            padding: 16px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .modal-body { padding: 20px; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-control {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; background: var(--bg-color); color: var(--text-color);
-        }
-        .privacy-select { margin-top: 5px; font-size: 12px; padding: 4px; }
-
-        .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-color); }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 10px 5px; }
-            .sidebar-header, .sidebar-menu span, .navbar h2, .btn span, .user-profile-nav span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); padding: 10px; }
-            .profile-info { flex-direction: column; text-align: center; }
-            .profile-picture-container { margin: -60px auto 10px; }
-            .profile-details { width: 100%; }
-            .profile-name-row { justify-content: center; flex-direction: column; }
-            .profile-stats { justify-content: center; }
-            .action-buttons { justify-content: center; }
-        }
-    </style>
+    @media(max-width:768px){ .sidebar{width:60px;} .main-content{margin-left:60px;} .profile-info{flex-direction:column; text-align:center;} .profile-pic-container{margin:-80px auto 0;} }
+</style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="sidebar">
-        <div class="sidebar-header"><h2>MEET</h2></div>
+        <div style="margin-bottom:30px; text-align:center;"><h2>MEET</h2></div>
         <ul class="sidebar-menu">
-            <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-            <li><a href="#" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-            <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-            <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
+          <li><a href="feed.html"><i class="fas fa-home fa-fw"></i> <span>Feed</span></a></li>
+          <li><a href="#" onclick="location.reload()"><i class="fas fa-user fa-fw"></i> <span>Profile</span></a></li>
+          <li><a href="chat.html"><i class="fas fa-comment-alt fa-fw"></i> <span>Chat</span></a></li>
+          <li><a href="organization.html"><i class="fas fa-sitemap fa-fw"></i> <span>Organization</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <div class="navbar">
-            <h2>Profile</h2>
-            <div class="nav-controls">
-                <button class="btn" id="settingsBtn" style="display:none;"><i class="fas fa-cog"></i> <span>Settings</span></button>
-                <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
-                <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
-        </div>
-
         <div class="profile-header">
-            <div class="profile-background" id="profileCover">
-                <button class="change-bg-btn" id="changeCoverBtn"><i class="fas fa-camera"></i> Change Cover</button>
+            <div class="profile-background" id="coverDisplay">
+                <button id="changeCoverBtn" class="change-btn"><i class="fas fa-camera"></i> Edit Cover</button>
             </div>
             <div class="profile-info">
-                <div class="profile-picture-container">
-                    <div class="profile-picture" id="profileAvatar">U</div>
-                    <button class="change-pic-btn" id="changeAvatarBtn"><i class="fas fa-camera"></i></button>
+                <div class="profile-pic-container" id="avatarDisplay">
+                     <button id="changeAvatarBtn" class="change-btn"><i class="fas fa-camera"></i> Update</button>
+                    <img src="" id="avatarImg" onerror="this.src='https://via.placeholder.com/150'">
                 </div>
                 <div class="profile-details">
-                    <div class="profile-name-row">
-                        <div class="profile-name" id="displayName">Loading...</div>
-                        <div class="action-buttons" id="actionButtons">
-                            </div>
-                    </div>
-                    <div class="profile-bio" id="bio"></div>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <span class="stat-value" id="postsCount">0</span>
-                            <span class="stat-label">Posts</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="associatesCount">0</span>
-                            <span class="stat-label">Associates</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="associatedWithCount">0</span>
-                            <span class="stat-label">Associated With</span>
-                        </div>
-                    </div>
+                    <h2 id="profileName">User Name</h2>
+                    <p id="profileBio" style="color:var(--secondary-text)">Bio...</p>
                 </div>
             </div>
         </div>
 
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">About</div>
-                <button class="edit-section-btn" onclick="openSettings('about')"><i class="fas fa-edit"></i></button>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Introduction</div>
-                <div id="introVal" class="info-value">...</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Location</div>
-                <div id="locationVal" class="info-value">...</div>
-            </div>
+        <div class="section">
+            <h3>About <i class="fas fa-edit edit-icon" onclick="editSection('about')"></i></h3>
+            <div class="info-row"><span class="label">Intro:</span> <span id="dispIntro"></span></div>
+            <div class="info-row"><span class="label">Location:</span> <span id="dispLoc"></span></div>
         </div>
 
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Professional</div>
-                <button class="edit-section-btn" onclick="openSettings('work')"><i class="fas fa-edit"></i></button>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Workplace</div>
-                <div id="workVal" class="info-value">...</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Position</div>
-                <div id="posVal" class="info-value">...</div>
-            </div>
-             <div class="info-item">
-                <div class="info-label">Skills</div>
-                <div id="skillsList" class="info-value"></div>
-            </div>
+        <div class="section">
+            <h3>Professional <i class="fas fa-edit edit-icon" onclick="editSection('professional')"></i></h3>
+            <div class="info-row"><span class="label">Workplace:</span> <span id="dispWork"></span></div>
+            <div class="info-row"><span class="label">Position:</span> <span id="dispPos"></span></div>
+            <div class="info-row"><span class="label">Experience:</span> <span id="dispExp"></span></div>
+            <div class="info-row"><span class="label">Portfolio:</span> <a href="#" id="dispPort" target="_blank"></a></div>
+            <div class="info-row"><span class="label">Status:</span> <span id="dispStatus" style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px; font-size:12px;"></span></div>
         </div>
 
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Contact</div>
-                <button class="edit-section-btn" onclick="openSettings('contact')"><i class="fas fa-edit"></i></button>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Email</div>
-                <div id="emailVal" class="info-value">...</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Phone</div>
-                <div id="phoneVal" class="info-value">...</div>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <div class="section-header">
-                <div class="section-title">Post History</div>
-            </div>
-            <div class="post-grid" id="userPostsGrid">
-                <div style="padding:20px; color:var(--secondary-text);">Loading posts...</div>
-            </div>
+        <div class="section">
+            <h3>Contact <i class="fas fa-edit edit-icon" onclick="editSection('contact')"></i></h3>
+            <div class="info-row"><span class="label">Email:</span> <span id="dispEmail"></span></div>
+            <div class="info-row"><span class="label">Phone:</span> <span id="dispPhone"></span></div>
+            <div class="info-row"><span class="label">Website:</span> <a href="#" id="dispWeb" target="_blank"></a></div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="settingsModal">
+<div class="modal" id="editModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3>Edit Profile</h3>
-            <button class="close-modal" onclick="closeSettings()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="settingsForm">
-                </form>
-            <button class="btn" style="background:var(--primary); width:100%; margin-top:20px;" onclick="saveSettings()">Save Changes</button>
+        <h3 id="modalTitle">Edit</h3>
+        <form id="editForm"></form>
+        <div style="margin-top:20px; text-align:right;">
+            <button onclick="document.getElementById('editModal').style.display='none'" style="padding:8px 16px; cursor:pointer;">Cancel</button>
+            <button onclick="saveData()" style="background:var(--primary); color:white; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">Save</button>
         </div>
     </div>
 </div>
 
-<input type="file" id="avatarInput" accept="image/*" style="display:none;">
-<input type="file" id="coverInput" accept="image/*" style="display:none;">
+<input type="file" id="avatarInput" style="display:none" accept="image/*">
+<input type="file" id="coverInput" style="display:none" accept="image/*">
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { 
-        getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, getDocs, onSnapshot, deleteDoc, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-
-    const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-    const CLOUDINARY_PRESET = 'Meet_profile'; // Ensure this preset exists in Cloudinary
+    import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
         authDomain: "meet-6e159.firebaseapp.com",
-        databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-        projectId: "meet-6e159",
-        storageBucket: "meet-6e159.firebasestorage.app",
-        messagingSenderId: "252353608421",
-        appId: "1:252353608421:web:6706056048e9a8f12db20c"
+        projectId: "meet-6e159"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcwof2ngn/upload";
 
     let currentUser = null;
-    let targetProfileId = null;
+    let currentSection = '';
     let isOwnProfile = false;
-    let profileData = {};
-
-    // Theme Init
-    if(localStorage.getItem('meet_theme') === 'dark') document.body.classList.add('dark-mode');
 
     onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-        currentUser = user;
-        
-        // Determine whose profile we are viewing based on URL param
-        const urlParams = new URLSearchParams(window.location.search);
-        const uidParam = urlParams.get('uid');
-        
-        targetProfileId = uidParam || currentUser.uid;
-        isOwnProfile = (targetProfileId === currentUser.uid);
+        if(user) {
+            currentUser = user;
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetId = urlParams.get('uid') || user.uid;
+            isOwnProfile = (targetId === user.uid);
 
-        // Setup UI based on ownership
-        if (isOwnProfile) {
-            document.getElementById('settingsBtn').style.display = 'flex';
-            document.getElementById('changeAvatarBtn').style.display = 'flex';
-            document.getElementById('changeCoverBtn').style.display = 'block';
-            document.querySelectorAll('.edit-section-btn').forEach(btn => btn.style.display = 'block');
-        } else {
-            setupAssociateButton(); // Logic for "Follow" button
-        }
+            if(isOwnProfile) {
+                // 1. Show Buttons only if owner
+                document.querySelectorAll('.edit-icon').forEach(el => el.style.display = 'inline');
+                document.querySelectorAll('.change-btn').forEach(el => el.style.display = 'block');
+            }
 
-        // Load Data
-        await loadProfileData();
-        setupRealtimeStats();
-        loadUserPosts();
+            loadData(targetId);
+        } else { window.location.href = 'login.html'; }
     });
 
-    // --- Data Loading ---
-
-    async function loadProfileData() {
-        try {
-            const docSnap = await getDoc(doc(db, "users", targetProfileId));
-            if (docSnap.exists()) {
-                profileData = docSnap.data();
-                renderProfile(profileData);
-            } else {
-                // If profile doesn't exist yet (new user), use Auth data
-                if(isOwnProfile) {
-                    profileData = {
-                        displayName: currentUser.displayName,
-                        photoURL: currentUser.photoURL,
-                        email: currentUser.email
-                    };
-                    await setDoc(doc(db, "users", currentUser.uid), profileData, {merge:true});
-                    renderProfile(profileData);
-                }
-            }
-        } catch (e) { console.error("Error loading profile:", e); }
-    }
-
-    function renderProfile(data) {
-        // Basic Info
-        document.getElementById('displayName').textContent = data.displayName || "User";
-        document.getElementById('bio').textContent = data.bio || (isOwnProfile ? "Add a bio..." : "");
-        
-        // Images
-        if (data.photoURL) {
-            document.getElementById('profileAvatar').innerHTML = `<img src="${data.photoURL}">`;
-        } else {
-            document.getElementById('profileAvatar').innerText = (data.displayName||"U").charAt(0).toUpperCase();
-        }
-        
-        if (data.coverURL) {
-            document.getElementById('profileCover').innerHTML = `<img src="${data.coverURL}">` + (isOwnProfile ? `<button class="change-bg-btn" id="changeCoverBtn" style="display:block"><i class="fas fa-camera"></i> Change Cover</button>` : '');
-            if(isOwnProfile) bindImageUploads(); // Re-bind listener to new button
-        }
-
-        // Privacy Check Helper
-        const showField = (field, privacyKey) => {
-            if (isOwnProfile) return data[field] || "Not set";
-            if (data[privacyKey] === 'private') return `<span class="private-info"><i class="fas fa-lock"></i> Private</span>`;
-            return data[field] || "Not set";
-        };
-
-        // Render Fields
-        document.getElementById('introVal').innerHTML = showField('introduction', 'introPrivacy');
-        document.getElementById('locationVal').innerHTML = showField('location', 'locationPrivacy');
-        document.getElementById('workVal').innerHTML = showField('workplace', 'workPrivacy');
-        document.getElementById('posVal').innerHTML = showField('position', 'posPrivacy');
-        document.getElementById('emailVal').innerHTML = showField('email', 'emailPrivacy');
-        document.getElementById('phoneVal').innerHTML = showField('phone', 'phonePrivacy');
-
-        // Skills
-        const skillsContainer = document.getElementById('skillsList');
-        skillsContainer.innerHTML = '';
-        if (data.skills && Array.isArray(data.skills)) {
-            data.skills.forEach(skill => {
-                skillsContainer.innerHTML += `<span class="skill-tag">${skill}</span>`;
-            });
-        } else {
-            skillsContainer.innerHTML = '<span style="color:var(--secondary-text)">No skills listed</span>';
-        }
-    }
-
-    // --- Realtime Stats & Posts ---
-
-    function setupRealtimeStats() {
-        // Associates (Following)
-        onSnapshot(collection(db, `users/${targetProfileId}/associates`), (snap) => {
-            document.getElementById('associatesCount').innerText = snap.size;
-        });
-        // Associated With (Followers)
-        onSnapshot(collection(db, `users/${targetProfileId}/associatedWith`), (snap) => {
-            document.getElementById('associatedWithCount').innerText = snap.size;
-        });
-        // Posts
-        const q = query(collection(db, "posts"), where("userId", "==", targetProfileId));
-        onSnapshot(q, (snap) => {
-            document.getElementById('postsCount').innerText = snap.size;
-        });
-    }
-
-    async function loadUserPosts() {
-        const grid = document.getElementById('userPostsGrid');
-        const q = query(collection(db, "posts"), where("userId", "==", targetProfileId), orderBy("createdAt", "desc"));
-        
-        const snap = await getDocs(q);
-        grid.innerHTML = '';
-        
-        if(snap.empty) {
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">No posts to show.</div>';
-            return;
-        }
-
-        snap.forEach(doc => {
-            const post = doc.data();
-            // Check Post Privacy logic here if needed
-            if (post.privacy === 'private' && !isOwnProfile) return;
-
-            const div = document.createElement('div');
-            div.className = 'post-item';
-            let mediaContent = '';
+    async function loadData(uid) {
+        const snap = await getDoc(doc(db, "users", uid));
+        if(snap.exists()) {
+            const data = snap.data();
             
-            if(post.media) {
-                if(post.mediaType === 'video') {
-                    mediaContent = `<video src="${post.media}"></video>`;
-                } else {
-                    mediaContent = `<img src="${post.media}">`;
-                }
-            } else {
-                mediaContent = `<div style="padding:15px; font-size:14px; height:100%; background:#f0f2f5; color:#333; overflow:hidden;">${post.text}</div>`;
+            // Render Header
+            document.getElementById('profileName').innerText = data.displayName || "User";
+            document.getElementById('profileBio').innerText = data.bio || "";
+            if(data.photoURL) document.getElementById('avatarImg').src = data.photoURL;
+            if(data.coverURL) {
+                document.getElementById('coverDisplay').style.background = `url(${data.coverURL}) center/cover no-repeat`;
             }
 
-            div.innerHTML = `
-                ${mediaContent}
-                <div class="post-overlay">
-                    ${post.privacy === 'private' ? '<i class="fas fa-lock"></i> ' : ''} 
-                    ${post.createdAt?.toDate().toLocaleDateString()}
-                </div>
-            `;
-            grid.appendChild(div);
-        });
-    }
-
-    // --- Interaction (Associate/Follow) ---
-
-    async function setupAssociateButton() {
-        const container = document.getElementById('actionButtons');
-        // Check if I am already following this target
-        const docRef = doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`);
-        const snap = await getDoc(docRef);
-        const isFollowing = snap.exists();
-
-        container.innerHTML = `
-            <button class="associate-btn ${isFollowing ? 'following' : ''}" id="assocActionBtn">
-                ${isFollowing ? 'Disassociate' : 'Associate'}
-            </button>
-        `;
-
-        document.getElementById('assocActionBtn').onclick = async () => {
-            if (isFollowing) {
-                // Unfollow
-                await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`));
-                await deleteDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`));
-                setupAssociateButton(); // refresh button state
-            } else {
-                // Follow
-                await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetProfileId}`), { timestamp: serverTimestamp() });
-                await setDoc(doc(db, `users/${targetProfileId}/associatedWith/${currentUser.uid}`), { 
-                    followerId: currentUser.uid,
-                    timestamp: serverTimestamp() 
-                });
-                
-                // Notify Target
-                await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js").then(({ addDoc, collection }) => {
-                    addDoc(collection(db, "notifications"), {
-                        targetUserId: targetProfileId,
-                        type: 'associate',
-                        text: `${currentUser.displayName} associated with you.`,
-                        read: false,
-                        createdAt: serverTimestamp()
-                    });
-                });
-                setupAssociateButton(); // refresh button state
-            }
-        };
-    }
-
-    // --- Settings & Editing (Owner Only) ---
-
-    let activeSettingsSection = '';
-
-    window.openSettings = (section) => {
-        if(!isOwnProfile) return;
-        activeSettingsSection = section;
-        const form = document.getElementById('settingsForm');
-        
-        // Generate Form HTML based on section
-        if (section === 'about') {
-            form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Display Name</label>
-                    <input type="text" id="editName" class="form-control" value="${profileData.displayName || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Bio</label>
-                    <textarea id="editBio" class="form-control">${profileData.bio || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Introduction</label>
-                    <textarea id="editIntro" class="form-control">${profileData.introduction || ''}</textarea>
-                    <select id="introPrivacy" class="privacy-select">
-                        <option value="public" ${profileData.introPrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.introPrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <input type="text" id="editLoc" class="form-control" value="${profileData.location || ''}">
-                    <select id="locPrivacy" class="privacy-select">
-                        <option value="public" ${profileData.locationPrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.locationPrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-            `;
-        } else if (section === 'work') {
-            form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Workplace</label>
-                    <input type="text" id="editWork" class="form-control" value="${profileData.workplace || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Position</label>
-                    <input type="text" id="editPos" class="form-control" value="${profileData.position || ''}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Skills (Comma separated)</label>
-                    <input type="text" id="editSkills" class="form-control" value="${(profileData.skills || []).join(', ')}">
-                </div>
-            `;
-        } else if (section === 'contact') {
-             form.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Phone</label>
-                    <input type="text" id="editPhone" class="form-control" value="${profileData.phone || ''}">
-                    <select id="phonePrivacy" class="privacy-select">
-                        <option value="public" ${profileData.phonePrivacy!=='private'?'selected':''}>Public</option>
-                        <option value="private" ${profileData.phonePrivacy==='private'?'selected':''}>Private</option>
-                    </select>
-                </div>
-            `;
+            // Render Sections
+            setText('dispIntro', data.introduction);
+            setText('dispLoc', data.location);
+            setText('dispWork', data.workplace);
+            setText('dispPos', data.position);
+            setText('dispExp', data.yearsExperience ? data.yearsExperience + " Years" : "");
+            setLink('dispPort', data.portfolio);
+            setText('dispStatus', data.lookingForJob ? "Seeking Opportunities" : "Employed");
+            setText('dispEmail', data.email);
+            setText('dispPhone', data.phone);
+            setLink('dispWeb', data.website); // 3. Website
         }
-
-        document.getElementById('settingsModal').style.display = 'flex';
-    };
-
-    window.closeSettings = () => document.getElementById('settingsModal').style.display = 'none';
-
-    window.saveSettings = async () => {
-        const updates = { updatedAt: serverTimestamp() };
-        
-        if (activeSettingsSection === 'about') {
-            updates.displayName = document.getElementById('editName').value;
-            updates.bio = document.getElementById('editBio').value;
-            updates.introduction = document.getElementById('editIntro').value;
-            updates.introPrivacy = document.getElementById('introPrivacy').value;
-            updates.location = document.getElementById('editLoc').value;
-            updates.locationPrivacy = document.getElementById('locPrivacy').value;
-        } else if (activeSettingsSection === 'work') {
-            updates.workplace = document.getElementById('editWork').value;
-            updates.position = document.getElementById('editPos').value;
-            updates.skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(s=>s);
-        } else if (activeSettingsSection === 'contact') {
-            updates.phone = document.getElementById('editPhone').value;
-            updates.phonePrivacy = document.getElementById('phonePrivacy').value;
-        }
-
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), updates);
-            closeSettings();
-            loadProfileData(); // Reload UI
-        } catch(e) { alert('Error saving'); console.error(e); }
-    };
-
-    // --- Image Uploads ---
-    function bindImageUploads() {
-        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-        const changeCoverBtn = document.getElementById('changeCoverBtn');
-        
-        if(changeAvatarBtn) changeAvatarBtn.onclick = () => document.getElementById('avatarInput').click();
-        if(changeCoverBtn) changeCoverBtn.onclick = () => document.getElementById('coverInput').click();
     }
+
+    function setText(id, val) { document.getElementById(id).innerText = val || '---'; }
+    function setLink(id, val) { 
+        const el = document.getElementById(id);
+        el.innerText = val || '---';
+        el.href = val || '#';
+    }
+
+    // --- 1. Image Upload Logic ---
+    document.getElementById('changeAvatarBtn').onclick = () => document.getElementById('avatarInput').click();
+    document.getElementById('changeCoverBtn').onclick = () => document.getElementById('coverInput').click();
+
+    document.getElementById('avatarInput').onchange = (e) => uploadImage(e.target.files[0], 'photoURL');
+    document.getElementById('coverInput').onchange = (e) => uploadImage(e.target.files[0], 'coverURL');
 
     async function uploadImage(file, field) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_PRESET);
+        if(!file) return;
+        const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', 'Meet_profile');
+        const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+        const json = await res.json();
         
-        try {
-            const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-            const data = await res.json();
-            
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                [field]: data.secure_url
-            });
-            loadProfileData();
-        } catch(e) { console.error("Upload failed", e); alert("Image upload failed"); }
+        await updateDoc(doc(db, "users", currentUser.uid), { [field]: json.secure_url });
+        location.reload();
     }
 
-    document.getElementById('avatarInput').onchange = (e) => {
-        if(e.target.files[0]) uploadImage(e.target.files[0], 'photoURL');
-    };
-    document.getElementById('coverInput').onchange = (e) => {
-        if(e.target.files[0]) uploadImage(e.target.files[0], 'coverURL');
+    // --- 2. Professional & Contact Edit Logic ---
+    window.editSection = (sec) => {
+        currentSection = sec;
+        const modal = document.getElementById('editModal');
+        const form = document.getElementById('editForm');
+        modal.style.display = 'flex';
+        document.getElementById('modalTitle').innerText = "Edit " + sec;
+
+        // Fetch current values (simplified for demo, ideally from state)
+        if(sec === 'professional') {
+            // 2. Added more professional fields
+            form.innerHTML = `
+                <div class="input-group"><label>Workplace</label><input id="inpWork"></div>
+                <div class="input-group"><label>Position</label><input id="inpPos"></div>
+                <div class="input-group"><label>Years of Experience</label><input type="number" id="inpExp"></div>
+                <div class="input-group"><label>Portfolio URL</label><input type="url" id="inpPort"></div>
+                <div class="input-group" style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="inpJob" style="width:auto;"> <label style="margin:0">Open to Work?</label>
+                </div>
+            `;
+        } else if(sec === 'contact') {
+             // 3. Added Website
+            form.innerHTML = `
+                <div class="input-group"><label>Phone</label><input id="inpPhone"></div>
+                <div class="input-group"><label>Website URL</label><input id="inpWeb"></div>
+            `;
+        } else if(sec === 'about') {
+            form.innerHTML = `
+                <div class="input-group"><label>Display Name</label><input id="inpName"></div>
+                <div class="input-group"><label>Bio</label><textarea id="inpBio"></textarea></div>
+                <div class="input-group"><label>Intro</label><textarea id="inpIntro"></textarea></div>
+                <div class="input-group"><label>Location</label><input id="inpLoc"></div>
+            `;
+        }
     };
 
-    // --- Global Utils ---
-    bindImageUploads();
-    
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
-    document.getElementById('nightToggleBtn').onclick = () => {
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('meet_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    };
-    document.getElementById('settingsBtn').onclick = () => openSettings('about'); // Default to about
+    window.saveData = async () => {
+        const updates = {};
+        if(currentSection === 'professional') {
+            updates.workplace = document.getElementById('inpWork').value;
+            updates.position = document.getElementById('inpPos').value;
+            updates.yearsExperience = document.getElementById('inpExp').value;
+            updates.portfolio = document.getElementById('inpPort').value;
+            updates.lookingForJob = document.getElementById('inpJob').checked;
+        } else if (currentSection === 'contact') {
+            updates.phone = document.getElementById('inpPhone').value;
+            updates.website = document.getElementById('inpWeb').value;
+        } else if (currentSection === 'about') {
+            updates.displayName = document.getElementById('inpName').value;
+            updates.bio = document.getElementById('inpBio').value;
+            updates.introduction = document.getElementById('inpIntro').value;
+            updates.location = document.getElementById('inpLoc').value;
+        }
 
+        await updateDoc(doc(db, "users", currentUser.uid), updates);
+        location.reload();
+    };
+
+    window.auth = auth;
 </script>
 </body>
 </html>
