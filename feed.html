@@ -9,17 +9,13 @@
 <style>
   :root {
     --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --warning: #F59E0B;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
     --secondary-text: #65676b;
     --border-color: #dddfe2;
     --online: #10B981;
-    --offline: #EF4444;
+    --error: #EF4444;
   }
 
   body.dark-mode {
@@ -30,579 +26,96 @@
     --border-color: #3e4042;
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); min-height: 100vh; }
+  
+  .app-container { display: flex; min-height: 100vh; }
 
-  html, body {
-    height: 100%;
-    overflow-x: hidden;
-    font-size: 18px;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    min-height: 100vh;
-  }
-
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-  }
-
+  /* 5. Reduced Sidebar Width */
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
+    position: fixed; left: 0; top: 0; height: 100vh; 
+    width: 240px; /* Reduced size */
+    background: linear-gradient(180deg, #0080FF 0%, #0066CC 100%);
     border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 20px;
-    color: white;
+    overflow-y: auto; z-index: 100; padding: 20px; color: white;
   }
 
-  .sidebar-header {
-    padding: 10px 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
-  }
-
-  .sidebar-menu {
-    list-style: none;
-  }
-
-  .sidebar-menu li {
-    margin-bottom: 8px;
-  }
-
+  /* 6. Realistic Icons (fa-fw) */
+  .sidebar-menu { list-style: none; margin-top: 20px; }
   .sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    text-decoration: none;
-    color: white;
-    border-radius: 8px;
-    transition: background 0.3s;
-    min-height: 44px;
-    font-size: 18px;
+    display: flex; align-items: center; padding: 12px;
+    text-decoration: none; color: white; border-radius: 8px;
+    transition: background 0.3s; font-size: 16px; font-weight: 500;
   }
-
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .sidebar-menu i {
-    margin-right: 12px;
-    font-size: 18px;
-  }
+  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { margin-right: 15px; font-size: 18px; width: 24px; text-align: center; }
 
   .main-content {
-    flex: 1;
-    margin-left: 280px;
-    padding: 20px;
-    min-height: 100vh;
-    font-size: 18px;
+    flex: 1; margin-left: 240px; padding: 20px;
+    max-width: 800px;
   }
 
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    color: white;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 15px 20px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; color: white;
   }
 
-  .nav-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 8px 15px;
-    margin-right: 15px;
-  }
-
-  .search-bar input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 200px;
-    font-size: 18px;
-  }
-
-  .search-bar input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    position: relative;
-    min-height: 44px;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    min-width: 40px;
-    font-size: 18px;
-    overflow: hidden;
-  }
-
-  .user-avatar.small {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    min-width: 30px;
-  }
-
-  .user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .status-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-  }
-
-  .status-online { background-color: var(--online); }
-  .status-offline { background-color: var(--offline); }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 18px;
-    min-height: 44px;
-  }
-
-  .btn:hover { background: rgba(255, 255, 255, 0.3); }
-
-  .unread-badge {
-    background: var(--error);
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    display: none;
-    min-width: 18px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Post Composer */
-  .post-composer {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .composer-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .composer-input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 12px 16px;
-    border-radius: 25px;
-    color: var(--text-color);
-    font-size: 18px;
-    cursor: pointer;
-    min-height: 44px;
-  }
-
-  .composer-divider {
-    height: 1px;
-    background: var(--border-color);
-    margin: 16px 0;
-  }
-
-  .composer-actions {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--secondary-text);
-    min-height: 44px;
-    font-size: 16px;
-  }
-
-  /* MeetAI */
-  .meetai-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 99;
-  }
-
-  .meetai-assistant {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 300px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    z-index: 98;
-    display: none;
-    flex-direction: column;
-    max-height: 400px;
-  }
-
-  .meetai-header {
-    padding: 12px 16px;
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    color: white;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .meetai-messages {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    max-height: 300px;
-  }
-
-  .meetai-message {
-    margin-bottom: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-
-  .meetai-user { background: var(--primary); color: white; margin-left: 20px; }
-  .meetai-bot { background: var(--bg-color); margin-right: 20px; }
-
-  .meetai-input {
-    display: flex;
-    padding: 12px;
-    gap: 8px;
-  }
-
-  .meetai-input input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    background: var(--bg-color);
-    color: var(--text-color);
-  }
-
-  /* Modals */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-body { padding: 16px; }
+  /* Post Styles */
+  .post { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+  .post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .post-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
   
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--secondary-text);
+  /* 4. Post Menu (3 Dots) */
+  .post-options { position: relative; }
+  .post-options-btn { background: none; border: none; color: var(--secondary-text); cursor: pointer; font-size: 18px; padding: 5px; }
+  .post-menu-dropdown {
+    display: none; position: absolute; right: 0; top: 100%;
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10; min-width: 140px; overflow: hidden;
   }
-
-  /* Posts */
-  .posts { display: flex; flex-direction: column; gap: 16px; }
-
-  .post {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  .post-menu-item {
+    padding: 12px 15px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px; color: var(--text-color);
   }
+  .post-menu-item:hover { background: var(--bg-color); }
+  .post-menu-item.delete { color: var(--error); }
 
-  .post-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
+  /* 2. & 3. Interactions */
+  .post-interactions { display: flex; gap: 20px; padding: 10px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-top: 10px; }
+  .interaction-btn { 
+    cursor: pointer; color: var(--secondary-text); font-weight: 600; 
+    display: flex; align-items: center; gap: 8px; transition: 0.2s; background: none; border: none; font-size: 14px;
   }
+  .interaction-btn:hover { color: var(--primary); }
+  .interaction-btn.starred { color: #F59E0B; } /* Star color */
 
-  .post-user { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-  .post-meta { font-size: 15px; color: var(--secondary-text); }
+  /* 1. Notifications */
+  .notif-item { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+  .notif-content { flex: 1; cursor: pointer; }
+  .notif-actions { display: flex; gap: 8px; margin-left: 10px; }
+  .notif-btn { 
+    border: none; background: rgba(0,0,0,0.05); cursor: pointer; 
+    width: 30px; height: 30px; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center;
+    color: var(--secondary-text); transition: 0.2s;
+  }
+  .notif-btn:hover { background: rgba(0,0,0,0.1); color: var(--primary); }
+  .notif-btn.delete:hover { color: var(--error); }
+
+  /* UI Elements */
+  .btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
   
-  .post-content { margin-bottom: 12px; font-size: 18px; line-height: 1.5; }
-
-  .post-media {
-    margin-top: 12px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .post-media img, .post-media video {
-    width: 100%;
-    max-height: 600px;
-    object-fit: contain;
-  }
-
-  .post-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--secondary-text);
-    font-size: 16px;
-  }
-
-  .post-interactions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 20px;
-    padding: 8px 0;
-    flex-wrap: wrap;
-  }
-
-  .interaction-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    color: var(--secondary-text);
-    font-weight: 600;
-    min-height: 44px;
-    font-size: 16px;
-  }
-  .interaction-btn.active { color: var(--warning); }
-
-  /* Comments */
-  .comments-section {
-    margin-top: 12px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
-  }
-  .comment { display: flex; gap: 12px; margin-bottom: 12px; }
-  .comment-content { flex: 1; background: var(--bg-color); padding: 8px 12px; border-radius: 18px; }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-content { background: var(--card-bg); width: 500px; max-width: 95%; border-radius: 12px; padding: 20px; max-height: 80vh; overflow-y: auto; }
   
-  .view-more-comments {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-    text-align: left;
-    padding: 8px 0;
-    margin-bottom: 8px;
-    font-size: 16px;
-  }
-
-  .comment-input { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-  .comment-input input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 18px;
-    color: var(--text-color);
-    font-size: 16px;
-  }
-
-  .send-comment-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  /* Modal Specifics */
-  .comments-modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2000;
-    align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .comments-modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 600px;
-    max-width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 0;
-    display: flex; flex-direction: column;
-  }
-  .comments-modal-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .comments-modal-body { padding: 16px; overflow-y: auto; }
-
-  .post-textarea {
-    width: 100%;
-    min-height: 120px;
-    border: 2px solid #0080FF;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 18px;
-    resize: none;
-    outline: none;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  /* Users List */
-  .user-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 10px;
-  }
-  .association-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .associate-btn { background: var(--primary); color: white; }
-  .disassociate-btn { background: var(--error); color: white; }
-
-  .loading { text-align: center; padding: 20px; color: var(--secondary-text); }
-  .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 70px; padding: 10px 5px; }
-    .sidebar-header { display: none; }
-    .sidebar-menu a { flex-direction: column; padding: 10px 5px; font-size: 14px; text-align: center; }
-    .sidebar-menu i { margin-right: 0; margin-bottom: 5px; font-size: 20px; }
-    .main-content { margin-left: 70px; padding: 10px; width: calc(100% - 70px); }
-    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; }
-    .search-bar, .user-profile-nav span, .btn span { display: none; }
-    .nav-controls { width: 100%; justify-content: space-between; }
-    .btn { padding: 8px; flex: 1; justify-content: center; }
+    .sidebar { width: 60px; padding: 10px 5px; }
+    .sidebar span { display: none; }
+    .main-content { margin-left: 60px; }
+    .navbar h3 { display: none; }
   }
 </style>
 </head>
@@ -610,154 +123,72 @@
 
 <div class="app-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white;">MEET</h2>
-    </div>
+    <div style="margin-bottom:30px; text-align:center;"><h2>MEET</h2></div>
     <ul class="sidebar-menu">
-      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
+      <li><a href="feed.html"><i class="fas fa-home fa-fw"></i> <span>Feed</span></a></li>
+      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user fa-fw"></i> <span>Profile</span></a></li>
+      <li><a href="chat.html"><i class="fas fa-comment-dots fa-fw"></i> <span>Chat</span></a></li>
+      <li><a href="meetrader.html"><i class="fas fa-chart-line fa-fw"></i> <span>Meetrader</span></a></li>
+      <li><a href="meetversity.html"><i class="fas fa-graduation-cap fa-fw"></i> <span>Meetversity</span></a></li>
+      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-user-friends fa-fw"></i> <span>Associates</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white;">Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search...">
+      <h3>Feed</h3>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" onclick="openNotificationsModal()"><i class="fas fa-bell"></i> <span id="unreadBadge"></span></button>
+        <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+
+    <div style="background:var(--card-bg); padding:16px; border-radius:12px; margin-bottom:20px; cursor:pointer;" onclick="document.getElementById('postModal').style.display='flex'">
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div class="user-avatar" id="composerAvatar">U</div>
+            <div style="flex:1; background:var(--bg-color); padding:12px; border-radius:25px; color:var(--secondary-text);">What's on your mind?</div>
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName">User</span>
-          </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i> <span>Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span>Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </button>
-        </div>
-      </div>
     </div>
 
-    <div class="post-composer">
-      <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-        <div class="composer-input" id="openComposer">What's on your mind?</div>
-      </div>
-    </div>
-
-    <div class="meetai-button" onclick="toggleMeetAI()"><span>M</span></div>
-    <div class="meetai-assistant" id="meetaiAssistant">
-      <div class="meetai-header">
-        <h4>MeetAI Assistant</h4>
-        <button class="close-modal" onclick="closeMeetAI()">&times;</button>
-      </div>
-      <div class="meetai-messages" id="meetaiMessages">
-        <div class="meetai-message meetai-bot">Hello! I'm MeetAI. How can I help?</div>
-      </div>
-      <div class="meetai-input">
-        <input type="text" id="meetaiInput" placeholder="Ask me anything...">
-        <button class="send-comment-btn" onclick="sendMeetAIMessage()"><i class="fas fa-paper-plane"></i></button>
-      </div>
-    </div>
-
-    <div id="messageContainer"></div>
-
-    <div class="posts" id="postsContainer">
-      <div class="loading">Loading meetcasts...</div>
-    </div>
+    <div id="postsContainer"></div>
   </div>
 </div>
 
 <div class="modal" id="postModal">
   <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Meetcast</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex; gap:12px; margin-bottom:16px;">
-        <div class="user-avatar" id="modalUserAvatar">U</div>
-        <div>
-          <div id="modalUserName" style="font-weight:600;">User Name</div>
-          <select id="privacy" style="border:none; background:var(--bg-color); padding:4px;">
-            <option value="public">🌍 Public</option>
-            <option value="friends">👥 Associates</option>
-            <option value="private">🔒 Only Me</option>
-          </select>
-        </div>
-      </div>
-      <textarea class="post-textarea" id="postText" placeholder="What's on your mind?"></textarea>
-      <div class="media-preview" id="mediaPreview"></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-        <div style="display:flex; gap:10px;">
-            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
-            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62;"></i>
-        </div>
-        <button class="btn" id="postBtn" style="background:var(--primary);">Post</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="usersList"><div class="loading">Loading users...</div></div>
+    <h3>Create Meetcast</h3>
+    <textarea id="postText" style="width:100%; height:100px; margin:10px 0; border:1px solid var(--border-color); padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-color);" placeholder="Share something..."></textarea>
+    <input type="file" id="postMedia" style="margin-bottom:10px;">
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button onclick="document.getElementById('postModal').style.display='none'" style="padding:8px 16px; cursor:pointer;">Cancel</button>
+        <button onclick="createPost()" style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Post</button>
     </div>
   </div>
 </div>
 
 <div class="modal" id="notificationsModal">
   <div class="modal-content">
-    <div class="modal-header">
-      <h3>Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <h3>Notifications</h3>
+        <button onclick="document.getElementById('notificationsModal').style.display='none'" style="background:none; border:none; font-size:18px;">&times;</button>
     </div>
-    <div class="modal-body">
-      <div id="notificationsList"></div>
-    </div>
+    <div id="notificationsList"></div>
   </div>
 </div>
 
-<div class="comments-modal" id="commentsModal">
-  <div class="comments-modal-content">
-    <div class="comments-modal-header">
-      <h3>All Responses</h3>
-      <button class="close-modal" id="closeCommentsModal">&times;</button>
-    </div>
-    <div class="comments-modal-body" id="commentsModalBody">
-      </div>
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <h3>Edit Post</h3>
+    <input type="hidden" id="editPostId">
+    <textarea id="editText" style="width:100%; height:100px; margin:10px 0; padding:10px; border-radius:8px; border:1px solid var(--border-color);"></textarea>
+    <button onclick="submitEdit()" style="background:var(--primary); color:white; border:none; padding:8px 16px; width:100%; border-radius:6px;">Update</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { 
-    getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, writeBatch, updateDoc
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy, where, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-
-  // Cloudinary Config
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-  const CLOUDINARY_PRESET = 'Meet_video';
 
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
@@ -772,461 +203,201 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcwof2ngn/upload";
 
-  // Global State
   let currentUser = null;
-  const userCache = {};
-  let postDataMap = {};
-  
-  // DOM Elements
-  const postsContainer = document.getElementById('postsContainer');
-  const notificationsList = document.getElementById('notificationsList');
-  const usersList = document.getElementById('usersList');
-  
-  // Helper: Show Messages
-  function showMessage(msg, type = 'success') {
-    const el = document.getElementById('messageContainer');
-    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:10px; margin:10px; border-radius:8px; text-align:center;">${msg}</div>`;
-    setTimeout(() => el.innerHTML = '', 3000);
-  }
 
-  // Helper: Upload Media
-  async function uploadMedia(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_PRESET);
-    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-    const data = await res.json();
-    return data.secure_url;
-  }
-
-  // Helper: Get User Data (With Cache for performance and fresh pics)
-  async function getUserDataWithCache(userId) {
-    if (userCache[userId] && (Date.now() - userCache[userId].timestamp < 60000)) {
-        return userCache[userId].data; // Return cached if less than 1 min old
-    }
-    try {
-      const docSnap = await getDoc(doc(db, "users", userId));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        userCache[userId] = { data, timestamp: Date.now() };
-        return data;
-      }
-    } catch (e) { console.error(e); }
-    return null;
-  }
-
-  // Helper: Render Avatar
-  function getAvatarHTML(photoURL, name, size = 'medium') {
-    const initial = name ? name.charAt(0).toUpperCase() : 'U';
-    const style = size === 'small' ? 'width:30px;height:30px;font-size:16px;' : 'width:40px;height:40px;font-size:18px;';
-    
-    if (photoURL) {
-      return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-    }
-    return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
-  }
-
-  // NAVIGATION & LINKING (Req 6)
-  window.viewProfile = (targetId) => {
-    if(!targetId) return;
-    window.location.href = `profile.html?uid=${targetId}`;
-  };
-
-  // AUTH STATE
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'login.html';
+  onAuthStateChanged(auth, (user) => {
+    if(user) {
+        currentUser = user;
+        loadPosts();
+        setupNotifications();
     } else {
-      currentUser = user;
-      // Update current user UI
-      const userData = await getUserDataWithCache(user.uid);
-      const photo = userData?.photoURL || user.photoURL;
-      const name = userData?.displayName || user.displayName || 'User';
-      
-      document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
-      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('userName').textContent = name;
-      document.getElementById('modalUserName').textContent = name;
-      
-      // Initialize listeners
-      setupFeedListener();
-      setupNotificationsCount();
+        window.location.href = 'login.html';
     }
   });
 
-  // =================== FEED LOGIC ===================
-  function setupFeedListener() {
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    onSnapshot(q, async (snapshot) => {
-      postsContainer.innerHTML = "";
-      if (snapshot.empty) {
-        postsContainer.innerHTML = '<div class="loading">No meetcasts yet.</div>';
-        return;
-      }
+  // --- 2. & 3. Post Rendering with Star and Share ---
+  function loadPosts() {
+    onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snap) => {
+        const container = document.getElementById('postsContainer');
+        container.innerHTML = '';
+        snap.forEach(docSnap => {
+            const post = docSnap.data();
+            const pid = docSnap.id;
+            const isOwner = post.userId === currentUser.uid;
 
-      for (const docSnap of snapshot.docs) {
-        const post = docSnap.data();
-        const postId = docSnap.id;
-        
-        // Fetch FRESH user data for the author (Req 3)
-        const authorData = await getUserDataWithCache(post.userId);
-        const authorName = authorData?.displayName || post.userName || 'Anonymous';
-        const authorPhoto = authorData?.photoURL || post.photoURL;
+            // Check if starred by me
+            const isStarred = post.stars && post.stars.includes(currentUser.uid);
 
-        const postEl = document.createElement('div');
-        postEl.className = 'post';
-        postEl.dataset.postId = postId;
-        
-        // HTML Structure
-        postEl.innerHTML = `
-          <div class="post-header">
-            <div class="post-user" onclick="viewProfile('${post.userId}')">
-              <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
-              <div>
-                <div style="font-weight:600; color:var(--primary);">${authorName}</div>
-                <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
-              </div>
-            </div>
-            ${post.userId === currentUser.uid ? `<i class="fas fa-trash" onclick="deletePost('${postId}')" style="color:var(--error); cursor:pointer;"></i>` : ''}
-          </div>
-          <div class="post-content">${post.text}</div>
-          ${post.media ? `<div class="post-media" onclick="openMediaModal('${post.media}')">
-             ${post.mediaType === 'video' ? `<video src="${post.media}"></video>` : `<img src="${post.media}">`}
-          </div>` : ''}
-          
-          <div class="post-interactions">
-             <div class="interaction-btn" onclick="toggleStar('${postId}')"><i class="fas fa-star"></i> Star</div>
-             <div class="interaction-btn" onclick="focusComment('${postId}')"><i class="fas fa-comment"></i> Respond</div>
-          </div>
+            // 4. Post Menu (3 Dots) instead of trash icon
+            let menuHtml = '';
+            if(isOwner) {
+                menuHtml = `
+                <div class="post-options">
+                    <button class="post-options-btn" onclick="toggleMenu('${pid}')"><i class="fas fa-ellipsis-h"></i></button>
+                    <div id="menu-${pid}" class="post-menu-dropdown">
+                        <div class="post-menu-item" onclick="openEdit('${pid}', '${post.text.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit</div>
+                        <div class="post-menu-item delete" onclick="deletePost('${pid}')"><i class="fas fa-trash"></i> Delete</div>
+                    </div>
+                </div>`;
+            }
 
-          <div class="comments-section" id="comments-${postId}">
-             </div>
-          
-          <div class="comment-input">
-            ${getAvatarHTML(document.getElementById('currentUserAvatar').querySelector('img')?.src, 'Me', 'small')}
-            <input type="text" id="input-${postId}" placeholder="Write a response...">
-            <button class="send-comment-btn" onclick="sendResponse('${postId}')"><i class="fas fa-paper-plane"></i></button>
-          </div>
-        `;
-
-        postsContainer.appendChild(postEl);
-        loadComments(postId); // Load comments for this post
-      }
-    });
-  }
-
-  // =================== COMMENTS LOGIC (Req 5) ===================
-  function loadComments(postId) {
-    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
-    onSnapshot(q, async (snapshot) => {
-      const container = document.getElementById(`comments-${postId}`);
-      const allComments = [];
-      
-      // Process data
-      for (const d of snapshot.docs) {
-        const c = d.data();
-        // Get fresh commenter data
-        const cUser = await getUserDataWithCache(c.userId);
-        allComments.push({
-            id: d.id,
-            ...c,
-            freshPhoto: cUser?.photoURL || c.photoURL,
-            freshName: cUser?.displayName || c.userName
+            const div = document.createElement('div');
+            div.className = 'post';
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="user-avatar"><img src="${post.photoURL || ''}" onerror="this.style.display='none'"></div>
+                        <strong style="font-weight:600;">${post.userName}</strong>
+                    </div>
+                    ${menuHtml}
+                </div>
+                <div style="margin-bottom:10px; font-size:16px;">${post.text}</div>
+                ${post.media ? `<img src="${post.media}" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
+                
+                <div class="post-interactions">
+                    <button class="interaction-btn ${isStarred?'starred':''}" onclick="toggleStar('${pid}')">
+                        <i class="fas fa-star"></i> <span>${post.starCount || 0} Star</span>
+                    </button>
+                    <button class="interaction-btn" onclick="window.location.href='feed.html'"><i class="fas fa-comment"></i> Respond</button>
+                    <button class="interaction-btn" onclick="sharePost('${pid}', '${post.text.replace(/'/g, "\\'")}')"><i class="fas fa-share"></i> Share</button>
+                </div>
+            `;
+            container.appendChild(div);
         });
-      }
-
-      // Render Logic: Show Max 2, then button
-      let html = '';
-      const displayCount = 2;
-      const total = allComments.length;
-
-      // Render first 2
-      allComments.slice(0, displayCount).forEach(c => {
-        html += `
-          <div class="comment">
-             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(c.freshPhoto, c.freshName, 'small')}</div>
-             <div class="comment-content">
-                <div style="font-weight:600; font-size:14px; cursor:pointer" onclick="viewProfile('${c.userId}')">${c.freshName}</div>
-                <div>${c.text}</div>
-             </div>
-          </div>
-        `;
-      });
-
-      // If more than 2, show "View More" button
-      if (total > displayCount) {
-        html += `<div class="view-more-comments" onclick="openFullComments('${postId}')">View ${total - displayCount} more responses...</div>`;
-      }
-
-      container.innerHTML = html;
     });
   }
 
-  window.openFullComments = async (postId) => {
-    document.getElementById('commentsModal').style.display = 'flex';
-    const body = document.getElementById('commentsModalBody');
-    body.innerHTML = '<div class="loading">Loading responses...</div>';
+  // --- Global Functions for Post Actions ---
+  window.toggleMenu = (id) => {
+    const menu = document.getElementById(`menu-${id}`);
+    const isVisible = menu.style.display === 'block';
+    document.querySelectorAll('.post-menu-dropdown').forEach(el => el.style.display = 'none'); // Close others
+    menu.style.display = isVisible ? 'none' : 'block';
+  };
 
-    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
-    const snap = await getDocs(q);
-    
-    let html = '';
-    for (const d of snap.docs) {
-       const c = d.data();
-       const cUser = await getUserDataWithCache(c.userId);
-       html += `
-          <div class="comment">
-             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(cUser?.photoURL, cUser?.displayName, 'small')}</div>
-             <div class="comment-content">
-                <div style="font-weight:600;">${cUser?.displayName || c.userName}</div>
-                <div>${c.text}</div>
-             </div>
-          </div>
-       `;
+  window.deletePost = async (id) => {
+    if(confirm("Delete this meetcast?")) {
+        await deleteDoc(doc(db, "posts", id));
     }
-    body.innerHTML = html;
   };
 
-  window.sendResponse = async (postId) => {
-    const input = document.getElementById(`input-${postId}`);
-    const text = input.value.trim();
-    if(!text) return;
+  window.openEdit = (id, text) => {
+    document.getElementById('editPostId').value = id;
+    document.getElementById('editText').value = text;
+    document.getElementById('editModal').style.display = 'flex';
+    document.getElementById(`menu-${id}`).style.display = 'none';
+  };
 
-    try {
-        const userDoc = await getUserDataWithCache(currentUser.uid);
-        await addDoc(collection(db, `posts/${postId}/responses`), {
-            userId: currentUser.uid,
-            userName: userDoc?.displayName || currentUser.displayName,
-            photoURL: userDoc?.photoURL || currentUser.photoURL,
-            text: text,
-            createdAt: serverTimestamp()
-        });
-        
-        // Notification
-        const postSnap = await getDoc(doc(db, "posts", postId));
-        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
-            await addDoc(collection(db, "notifications"), {
-                targetUserId: postSnap.data().userId,
-                type: 'response',
-                text: `${userDoc?.displayName || 'Someone'} responded to your meetcast`,
-                read: false,
-                createdAt: serverTimestamp()
-            });
+  window.submitEdit = async () => {
+    const id = document.getElementById('editPostId').value;
+    const text = document.getElementById('editText').value;
+    await updateDoc(doc(db, "posts", id), { text: text });
+    document.getElementById('editModal').style.display = 'none';
+  };
+
+  window.toggleStar = async (pid) => {
+    const postRef = doc(db, "posts", pid);
+    const p = await getDoc(postRef);
+    if(!p.exists()) return;
+    
+    const data = p.data();
+    let stars = data.stars || [];
+    let count = data.starCount || 0;
+
+    if(stars.includes(currentUser.uid)) {
+        stars = stars.filter(id => id !== currentUser.uid);
+        count--;
+    } else {
+        stars.push(currentUser.uid);
+        count++;
+        // Notify owner if not self
+        if(data.userId !== currentUser.uid) {
+             addDoc(collection(db, "notifications"), {
+                targetUserId: data.userId, text: "Someone starred your post", read: false, createdAt: serverTimestamp()
+             });
         }
-        input.value = '';
-    } catch(e) { console.error(e); }
+    }
+    await updateDoc(postRef, { stars: stars, starCount: count });
   };
 
-  // =================== NOTIFICATIONS LOGIC (Req 1) ===================
-  function setupNotificationsCount() {
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
-    onSnapshot(q, (snap) => {
+  window.sharePost = (pid, text) => {
+    const url = `${window.location.origin}/feed.html?post=${pid}`;
+    if (navigator.share) {
+      navigator.share({ title: 'MEET Post', text: text, url: url });
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  window.createPost = async () => {
+    const text = document.getElementById('postText').value;
+    const file = document.getElementById('postMedia').files[0];
+    let mediaUrl = null;
+
+    if(file) {
+        const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', 'Meet_video');
+        const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+        const json = await res.json();
+        mediaUrl = json.secure_url;
+    }
+
+    await addDoc(collection(db, "posts"), {
+        text, media: mediaUrl, userId: currentUser.uid, userName: currentUser.displayName || "User",
+        createdAt: serverTimestamp(), starCount: 0, stars: []
+    });
+    document.getElementById('postModal').style.display = 'none';
+    document.getElementById('postText').value = '';
+  };
+
+  // --- 1. Notification Logic (Delete & Mark Read) ---
+  function setupNotifications() {
+    onSnapshot(query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc")), (snap) => {
+        const list = document.getElementById('notificationsList');
+        list.innerHTML = '';
+        let unread = 0;
+        
+        if(snap.empty) list.innerHTML = '<div style="text-align:center; padding:20px;">No notifications.</div>';
+
+        snap.forEach(d => {
+            const n = d.data();
+            if(!n.read) unread++;
+            const div = document.createElement('div');
+            div.className = 'notif-item';
+            div.style.background = n.read ? 'transparent' : 'rgba(0,128,255,0.05)';
+            div.innerHTML = `
+                <div class="notif-content">${n.text}</div>
+                <div class="notif-actions">
+                    ${!n.read ? `<button class="notif-btn" onclick="markNotifRead('${d.id}')" title="Mark Read"><i class="fas fa-check"></i></button>` : ''}
+                    <button class="notif-btn delete" onclick="deleteNotif('${d.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
         const badge = document.getElementById('unreadBadge');
-        if(!snap.empty) {
-            badge.style.display = 'flex';
-            badge.innerText = snap.size;
+        if(unread > 0) {
+            badge.innerText = unread;
+            badge.style.display = 'inline-block';
+            badge.style.background = 'red'; badge.style.color='white'; badge.style.borderRadius='50%'; badge.style.padding='2px 6px'; badge.style.fontSize='12px';
         } else {
             badge.style.display = 'none';
         }
     });
   }
 
-  window.openNotificationsModal = () => {
-    const modal = document.getElementById('notificationsModal');
-    const list = document.getElementById('notificationsList');
-    modal.style.display = 'flex';
-    
-    // Fix for Req 1: Immediate Loading
-    list.innerHTML = '<div class="loading">Loading...</div>';
-    
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
-    
-    // Mark all as read
-    getDocs(q).then(snap => {
-        const batch = writeBatch(db);
-        snap.docs.forEach(d => { if(!d.data().read) batch.update(d.ref, {read: true}); });
-        batch.commit();
-    });
-
-    onSnapshot(q, (snap) => {
-        list.innerHTML = ''; // Clear loading immediately
-        if (snap.empty) {
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No notifications.</div>';
-            return;
-        }
-        snap.forEach(d => {
-            const n = d.data();
-            list.innerHTML += `
-                <div style="padding:12px; border-bottom:1px solid #eee; ${!n.read ? 'background:#f0f9ff;' : ''}">
-                    ${n.text}
-                    <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div>
-                </div>
-            `;
-        });
-    });
+  window.markNotifRead = async (id) => {
+    await updateDoc(doc(db, "notifications", id), { read: true });
   };
 
-  // =================== ASSOCIATES LOGIC ===================
-  window.openUsersModal = async () => {
-    document.getElementById('usersModal').style.display = 'flex';
-    const list = document.getElementById('usersList');
-    list.innerHTML = '<div class="loading">Loading users...</div>';
-    
-    const snap = await getDocs(collection(db, "users"));
-    let html = '';
-    
-    for (const userDoc of snap.docs) {
-        if (userDoc.id === currentUser.uid) continue;
-        const user = userDoc.data();
-        
-        // Check if already associated
-        const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
-        const isAssoc = assocSnap.exists();
-
-        html += `
-          <div class="user-item">
-             <div style="display:flex; align-items:center; gap:10px;">
-                ${getAvatarHTML(user.photoURL, user.displayName, 'small')}
-                <span onclick="viewProfile('${userDoc.id}')" style="cursor:pointer; font-weight:600;">${user.displayName || 'User'}</span>
-             </div>
-             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
-                onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
-                ${isAssoc ? 'Disassociate' : 'Associate'}
-             </button>
-          </div>
-        `;
-    }
-    list.innerHTML = html;
+  window.deleteNotif = async (id) => {
+    await deleteDoc(doc(db, "notifications", id));
   };
 
-  window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
-    try {
-        if (isCurrentlyAssociated) {
-            // Remove Associate
-            await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
-            await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
-            showMessage('Disassociated successfully');
-        } else {
-            // Add Associate
-            await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), {
-                timestamp: serverTimestamp()
-            });
-            await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), {
-                followerId: currentUser.uid,
-                timestamp: serverTimestamp()
-            });
-            
-            // Notification
-            await addDoc(collection(db, "notifications"), {
-                targetUserId: targetId,
-                type: 'associate',
-                text: `${currentUser.displayName || 'Someone'} associated with you.`,
-                read: false,
-                createdAt: serverTimestamp()
-            });
-            showMessage('Associate added!');
-        }
-        window.openUsersModal(); // Refresh list
-    } catch (e) {
-        console.error(e);
-        showMessage('Action failed', 'error');
-    }
-  };
-
-  // =================== POST CREATION ===================
-  document.getElementById('postBtn').addEventListener('click', async () => {
-    const text = document.getElementById('postText').value;
-    const privacy = document.getElementById('privacy').value;
-    const fileInput = document.getElementById('postMedia');
-    
-    if (!text && !fileInput.files.length) return;
-
-    let mediaUrl = null;
-    let mediaType = null;
-
-    if (fileInput.files.length) {
-        showMessage('Uploading media...', 'success');
-        mediaUrl = await uploadMedia(fileInput.files[0]);
-        mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
-    }
-
-    try {
-        const userData = await getUserDataWithCache(currentUser.uid);
-        await addDoc(collection(db, "posts"), {
-            userId: currentUser.uid,
-            userName: userData?.displayName || currentUser.displayName,
-            photoURL: userData?.photoURL || currentUser.photoURL,
-            text: text,
-            media: mediaUrl,
-            mediaType: mediaType,
-            privacy: privacy,
-            createdAt: serverTimestamp()
-        });
-        
-        document.getElementById('postModal').style.display = 'none';
-        document.getElementById('postText').value = '';
-        fileInput.value = '';
-        document.getElementById('mediaPreview').innerHTML = '';
-        showMessage('Meetcast posted!');
-    } catch (e) {
-        console.error(e);
-        showMessage('Error posting', 'error');
-    }
-  });
-
-  // Media Preview logic
-  document.getElementById('postMedia').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if(file) {
-          const url = URL.createObjectURL(file);
-          const preview = document.getElementById('mediaPreview');
-          if(file.type.startsWith('video')) {
-              preview.innerHTML = `<video src="${url}" controls style="width:100%; max-height:200px;"></video>`;
-          } else {
-              preview.innerHTML = `<img src="${url}" style="width:100%; max-height:200px; object-fit:contain;">`;
-          }
-      }
-  });
-
-  // Modal Toggle Logic
-  document.getElementById('openComposer').onclick = () => document.getElementById('postModal').style.display = 'flex';
-  document.getElementById('closeModal').onclick = () => document.getElementById('postModal').style.display = 'none';
-  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
-  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
-  document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
-  
-  // Theme Toggle
-  document.getElementById('nightToggleBtn').onclick = () => {
-      document.body.classList.toggle('dark-mode');
-  };
-  
-  // Logout
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
-  // MeetAI Toggles
-  window.toggleMeetAI = () => {
-      const el = document.getElementById('meetaiAssistant');
-      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
-  }
-  window.closeMeetAI = () => document.getElementById('meetaiAssistant').style.display = 'none';
-  window.sendMeetAIMessage = () => {
-      const input = document.getElementById('meetaiInput');
-      const container = document.getElementById('meetaiMessages');
-      if(!input.value) return;
-      container.innerHTML += `<div class="meetai-message meetai-user">${input.value}</div>`;
-      setTimeout(() => {
-          container.innerHTML += `<div class="meetai-message meetai-bot">I can help you connect with associates or improve your profile!</div>`;
-          container.scrollTop = container.scrollHeight;
-      }, 1000);
-      input.value = '';
-  }
-
-  // Expose window functions
-  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
+  window.openNotificationsModal = () => document.getElementById('notificationsModal').style.display = 'flex';
+  window.viewProfile = (uid) => window.location.href = `profile.html?uid=${uid}`;
   window.auth = auth;
-
 </script>
 </body>
 </html>
