@@ -15,7 +15,7 @@
     .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 240px; background: linear-gradient(180deg, #0080FF 0%, #0066CC 100%); overflow-y: auto; z-index: 100; padding: 20px; color: white; }
     .sidebar-menu a { display: flex; align-items: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; transition: background 0.3s; font-size: 16px; }
     .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-    .sidebar-menu i { margin-right: 15px; font-size: 20px; width: 25px; text-align: center; }
+    .sidebar-menu i { margin-right: 15px; font-size: 18px; width: 24px; text-align: center; }
 
     .main-content { flex: 1; margin-left: 240px; padding: 20px; }
 
@@ -24,8 +24,7 @@
     .profile-background { height: 250px; background: #ddd; position: relative; overflow: hidden; }
     .profile-background img { width: 100%; height: 100%; object-fit: cover; }
     
-    /* 1. Fixed Image Buttons */
-    .change-btn { position: absolute; background: rgba(0,0,0,0.6); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: none; z-index: 10; }
+    .change-btn { position: absolute; background: rgba(0,0,0,0.6); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: none; z-index: 10; font-size: 14px; }
     #changeCoverBtn { bottom: 10px; right: 10px; }
     
     .profile-info { padding: 20px; display: flex; gap: 20px; position: relative; }
@@ -37,15 +36,16 @@
     .section { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
     .edit-icon { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--primary); display: none; }
 
-    .info-row { margin-bottom: 10px; }
-    .label { font-weight: 600; font-size: 14px; color: var(--secondary-text); }
+    .info-row { margin-bottom: 10px; display: flex; flex-wrap: wrap; }
+    .label { font-weight: 600; font-size: 14px; color: var(--secondary-text); min-width: 140px; }
 
     /* Modal */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-    .modal-content { background: white; width: 500px; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
+    .modal-content { background: white; width: 600px; padding: 20px; border-radius: 10px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
     .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
     .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+    .section-title { margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; font-weight: bold; color: var(--primary); }
 
     @media(max-width:768px){ .sidebar{width:60px;} .main-content{margin-left:60px;} .profile-info{flex-direction:column; text-align:center;} .profile-pic-container{margin:-80px auto 0;} }
 </style>
@@ -58,7 +58,7 @@
         <ul class="sidebar-menu">
           <li><a href="feed.html"><i class="fas fa-home fa-fw"></i> <span>Feed</span></a></li>
           <li><a href="#" onclick="location.reload()"><i class="fas fa-user fa-fw"></i> <span>Profile</span></a></li>
-          <li><a href="chat.html"><i class="fas fa-comment-alt fa-fw"></i> <span>Chat</span></a></li>
+          <li><a href="chat.html"><i class="fas fa-comment-dots fa-fw"></i> <span>Chat</span></a></li>
           <li><a href="organization.html"><i class="fas fa-sitemap fa-fw"></i> <span>Organization</span></a></li>
         </ul>
     </div>
@@ -70,7 +70,7 @@
             </div>
             <div class="profile-info">
                 <div class="profile-pic-container" id="avatarDisplay">
-                     <button id="changeAvatarBtn" class="change-btn"><i class="fas fa-camera"></i> Update</button>
+                    <button id="changeAvatarBtn" class="change-btn"><i class="fas fa-camera"></i> Update</button>
                     <img src="" id="avatarImg" onerror="this.src='https://via.placeholder.com/150'">
                 </div>
                 <div class="profile-details">
@@ -81,36 +81,93 @@
         </div>
 
         <div class="section">
-            <h3>About <i class="fas fa-edit edit-icon" onclick="editSection('about')"></i></h3>
-            <div class="info-row"><span class="label">Intro:</span> <span id="dispIntro"></span></div>
-            <div class="info-row"><span class="label">Location:</span> <span id="dispLoc"></span></div>
-        </div>
-
-        <div class="section">
-            <h3>Professional <i class="fas fa-edit edit-icon" onclick="editSection('professional')"></i></h3>
-            <div class="info-row"><span class="label">Workplace:</span> <span id="dispWork"></span></div>
-            <div class="info-row"><span class="label">Position:</span> <span id="dispPos"></span></div>
-            <div class="info-row"><span class="label">Experience:</span> <span id="dispExp"></span></div>
-            <div class="info-row"><span class="label">Portfolio:</span> <a href="#" id="dispPort" target="_blank"></a></div>
-            <div class="info-row"><span class="label">Status:</span> <span id="dispStatus" style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px; font-size:12px;"></span></div>
-        </div>
-
-        <div class="section">
-            <h3>Contact <i class="fas fa-edit edit-icon" onclick="editSection('contact')"></i></h3>
+            <h3>Personal Information <i class="fas fa-edit edit-icon" onclick="editProfile()"></i></h3>
+            <div class="info-row"><span class="label">Full Name:</span> <span id="dispFullName"></span></div>
+            <div class="info-row"><span class="label">Date of Birth:</span> <span id="dispDob"></span></div>
+            <div class="info-row"><span class="label">Nationality:</span> <span id="dispNation"></span></div>
+            <div class="info-row"><span class="label">Residence:</span> <span id="dispCountry"></span></div>
             <div class="info-row"><span class="label">Email:</span> <span id="dispEmail"></span></div>
             <div class="info-row"><span class="label">Phone:</span> <span id="dispPhone"></span></div>
             <div class="info-row"><span class="label">Website:</span> <a href="#" id="dispWeb" target="_blank"></a></div>
+        </div>
+
+        <div class="section">
+            <h3>Career Profile</h3>
+            <div class="info-row"><span class="label">Target Role:</span> <span id="dispRole"></span></div>
+            <div class="info-row"><span class="label">Industry:</span> <span id="dispIndustry"></span></div>
+            <div class="info-row"><span class="label">Pref. Country:</span> <span id="dispPrefCountry"></span></div>
+            <div class="info-row"><span class="label">Type:</span> <span id="dispEmpType"></span></div>
+            <div class="info-row"><span class="label">Availability:</span> <span id="dispAvail"></span></div>
+        </div>
+
+        <div class="section">
+            <h3>Education & Experience</h3>
+            <div class="info-row"><span class="label">Education:</span> <span id="dispEdu"></span></div>
+            <div class="info-row"><span class="label">Institution:</span> <span id="dispSchool"></span></div>
+            <div class="info-row"><span class="label">Current Role:</span> <span id="dispCurRole"></span></div>
+            <div class="info-row"><span class="label">Company:</span> <span id="dispComp"></span></div>
+        </div>
+
+        <div class="section">
+            <h3>Skills & Documents</h3>
+            <div class="info-row"><span class="label">Skills:</span> <span id="dispSkills"></span></div>
+            <div class="info-row"><span class="label">Resume:</span> <a href="#" id="dispResume" target="_blank">Download</a></div>
         </div>
     </div>
 </div>
 
 <div class="modal" id="editModal">
     <div class="modal-content">
-        <h3 id="modalTitle">Edit</h3>
-        <form id="editForm"></form>
+        <h3 style="margin-bottom:15px;">Edit Profile</h3>
+        <form id="editForm">
+            <div class="section-title">1. Personal Information</div>
+            <div class="input-group"><label>Full Name (Official)</label><input id="inpFullName"></div>
+            <div class="input-group"><label>About / Bio</label><textarea id="inpBio"></textarea></div>
+            <div class="input-group"><label>Date of Birth</label><input type="date" id="inpDob"></div>
+            <div class="input-group"><label>Nationality</label><input id="inpNation"></div>
+            <div class="input-group"><label>Current Country</label><input id="inpCountry"></div>
+            <div class="input-group"><label>Contact Email</label><input type="email" id="inpEmail"></div>
+            <div class="input-group"><label>Phone (+Code)</label><input id="inpPhone"></div>
+            <div class="input-group"><label>Personal Website</label><input id="inpWeb"></div>
+
+            <div class="section-title">2. Job Preferences</div>
+            <div class="input-group"><label>Desired Job Title</label><input id="inpRole"></div>
+            <div class="input-group"><label>Preferred Industry</label><input id="inpIndustry"></div>
+            <div class="input-group"><label>Preferred Work Country</label><input id="inpPrefCountry"></div>
+            <div class="input-group"><label>Employment Type</label>
+                <select id="inpEmpType">
+                    <option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option><option>Remote</option>
+                </select>
+            </div>
+            <div class="input-group"><label>Expected Salary</label><input id="inpSalary"></div>
+            <div class="input-group"><label>Start Date</label><input type="date" id="inpAvail"></div>
+
+            <div class="section-title">3. Education</div>
+            <div class="input-group"><label>Highest Level</label><input id="inpEduLevel" placeholder="e.g. Masters"></div>
+            <div class="input-group"><label>Field of Study</label><input id="inpMajor"></div>
+            <div class="input-group"><label>Institution</label><input id="inpSchool"></div>
+            <div class="input-group"><label>Graduation Year</label><input type="number" id="inpGradYear"></div>
+
+            <div class="section-title">4. Work Experience</div>
+            <div class="input-group"><label>Current/Recent Employer</label><input id="inpComp"></div>
+            <div class="input-group"><label>Job Title</label><input id="inpCurRole"></div>
+            <div class="input-group"><label>Key Responsibilities</label><textarea id="inpResp"></textarea></div>
+            
+            <div class="section-title">5. Skills</div>
+            <div class="input-group"><label>Skills (Comma separated)</label><input id="inpSkills"></div>
+
+            <div class="section-title">6. Documents</div>
+            <div class="input-group"><label>Resume / CV (Upload New)</label><input type="file" id="inpResumeFile"></div>
+
+            <div class="section-title">7. Additional</div>
+            <div class="input-group" style="display:flex; gap:20px;">
+                <label><input type="checkbox" id="inpRelocate" style="width:auto;"> Willing to Relocate</label>
+                <label><input type="checkbox" id="inpTravel" style="width:auto;"> Willing to Travel</label>
+            </div>
+        </form>
         <div style="margin-top:20px; text-align:right;">
-            <button onclick="document.getElementById('editModal').style.display='none'" style="padding:8px 16px; cursor:pointer;">Cancel</button>
-            <button onclick="saveData()" style="background:var(--primary); color:white; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">Save</button>
+            <button onclick="document.getElementById('editModal').style.display='none'" style="padding:10px 20px; background:#ccc; border:none; border-radius:5px; cursor:pointer;">Cancel</button>
+            <button onclick="saveData()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer;">Save Profile</button>
         </div>
     </div>
 </div>
@@ -132,10 +189,12 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    
+    // Ensure this preset exists in Cloudinary settings as "unsigned"
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcwof2ngn/upload";
+    const CLOUDINARY_PRESET = "Meet_profile"; 
 
     let currentUser = null;
-    let currentSection = '';
     let isOwnProfile = false;
 
     onAuthStateChanged(auth, async (user) => {
@@ -146,9 +205,12 @@
             isOwnProfile = (targetId === user.uid);
 
             if(isOwnProfile) {
-                // 1. Show Buttons only if owner
                 document.querySelectorAll('.edit-icon').forEach(el => el.style.display = 'inline');
                 document.querySelectorAll('.change-btn').forEach(el => el.style.display = 'block');
+                
+                // Re-bind listeners now that elements are confirmed visible
+                document.getElementById('changeAvatarBtn').onclick = () => document.getElementById('avatarInput').click();
+                document.getElementById('changeCoverBtn').onclick = () => document.getElementById('coverInput').click();
             }
 
             loadData(targetId);
@@ -160,109 +222,162 @@
         if(snap.exists()) {
             const data = snap.data();
             
-            // Render Header
-            document.getElementById('profileName').innerText = data.displayName || "User";
+            // Header
+            document.getElementById('profileName').innerText = data.fullName || data.displayName || "User";
             document.getElementById('profileBio').innerText = data.bio || "";
             if(data.photoURL) document.getElementById('avatarImg').src = data.photoURL;
-            if(data.coverURL) {
-                document.getElementById('coverDisplay').style.background = `url(${data.coverURL}) center/cover no-repeat`;
-            }
+            if(data.coverURL) document.getElementById('coverDisplay').style.background = `url(${data.coverURL}) center/cover no-repeat`;
 
-            // Render Sections
-            setText('dispIntro', data.introduction);
-            setText('dispLoc', data.location);
-            setText('dispWork', data.workplace);
-            setText('dispPos', data.position);
-            setText('dispExp', data.yearsExperience ? data.yearsExperience + " Years" : "");
-            setLink('dispPort', data.portfolio);
-            setText('dispStatus', data.lookingForJob ? "Seeking Opportunities" : "Employed");
-            setText('dispEmail', data.email);
+            // Populate Display Fields
+            setText('dispFullName', data.fullName);
+            setText('dispDob', data.dob);
+            setText('dispNation', data.nationality);
+            setText('dispCountry', data.country);
+            setText('dispEmail', data.contactEmail || data.email);
             setText('dispPhone', data.phone);
-            setLink('dispWeb', data.website); // 3. Website
+            setLink('dispWeb', data.website);
+
+            setText('dispRole', data.jobTitle);
+            setText('dispIndustry', data.industry);
+            setText('dispPrefCountry', data.prefCountry);
+            setText('dispEmpType', data.empType);
+            setText('dispAvail', data.startDate);
+
+            setText('dispEdu', data.eduLevel);
+            setText('dispSchool', data.institution);
+            setText('dispCurRole', data.curRole);
+            setText('dispComp', data.curComp);
+            
+            setText('dispSkills', data.skills);
+            if(data.resumeURL) {
+                document.getElementById('dispResume').href = data.resumeURL;
+                document.getElementById('dispResume').innerText = "Download Resume";
+            } else {
+                 document.getElementById('dispResume').innerText = "No Resume";
+            }
+            
+            // Pre-fill Form
+            if(isOwnProfile) prefillForm(data);
         }
     }
 
-    function setText(id, val) { document.getElementById(id).innerText = val || '---'; }
-    function setLink(id, val) { 
-        const el = document.getElementById(id);
-        el.innerText = val || '---';
-        el.href = val || '#';
+    function prefillForm(data) {
+        setVal('inpFullName', data.fullName);
+        setVal('inpBio', data.bio);
+        setVal('inpDob', data.dob);
+        setVal('inpNation', data.nationality);
+        setVal('inpCountry', data.country);
+        setVal('inpEmail', data.contactEmail);
+        setVal('inpPhone', data.phone);
+        setVal('inpWeb', data.website);
+        
+        setVal('inpRole', data.jobTitle);
+        setVal('inpIndustry', data.industry);
+        setVal('inpPrefCountry', data.prefCountry);
+        setVal('inpEmpType', data.empType);
+        setVal('inpSalary', data.salary);
+        setVal('inpAvail', data.startDate);
+        
+        setVal('inpEduLevel', data.eduLevel);
+        setVal('inpMajor', data.major);
+        setVal('inpSchool', data.institution);
+        setVal('inpGradYear', data.gradYear);
+        
+        setVal('inpComp', data.curComp);
+        setVal('inpCurRole', data.curRole);
+        setVal('inpResp', data.responsibilities);
+        
+        setVal('inpSkills', data.skills);
+        
+        document.getElementById('inpRelocate').checked = data.relocate;
+        document.getElementById('inpTravel').checked = data.travel;
     }
 
-    // --- 1. Image Upload Logic ---
-    document.getElementById('changeAvatarBtn').onclick = () => document.getElementById('avatarInput').click();
-    document.getElementById('changeCoverBtn').onclick = () => document.getElementById('coverInput').click();
+    window.editProfile = () => document.getElementById('editModal').style.display = 'flex';
 
+    window.saveData = async () => {
+        // Handle Resume Upload first if present
+        const resumeFile = document.getElementById('inpResumeFile').files[0];
+        let resumeURL = null;
+        if(resumeFile) {
+            resumeURL = await uploadFile(resumeFile);
+        }
+
+        const updates = {
+            fullName: getVal('inpFullName'),
+            bio: getVal('inpBio'),
+            dob: getVal('inpDob'),
+            nationality: getVal('inpNation'),
+            country: getVal('inpCountry'),
+            contactEmail: getVal('inpEmail'),
+            phone: getVal('inpPhone'),
+            website: getVal('inpWeb'),
+            
+            jobTitle: getVal('inpRole'),
+            industry: getVal('inpIndustry'),
+            prefCountry: getVal('inpPrefCountry'),
+            empType: getVal('inpEmpType'),
+            salary: getVal('inpSalary'),
+            startDate: getVal('inpAvail'),
+            
+            eduLevel: getVal('inpEduLevel'),
+            major: getVal('inpMajor'),
+            institution: getVal('inpSchool'),
+            gradYear: getVal('inpGradYear'),
+            
+            curComp: getVal('inpComp'),
+            curRole: getVal('inpCurRole'),
+            responsibilities: getVal('inpResp'),
+            
+            skills: getVal('inpSkills'),
+            
+            relocate: document.getElementById('inpRelocate').checked,
+            travel: document.getElementById('inpTravel').checked
+        };
+        
+        if(resumeURL) updates.resumeURL = resumeURL;
+
+        await updateDoc(doc(db, "users", currentUser.uid), updates);
+        location.reload();
+    };
+
+    // --- Helpers ---
+    function setText(id, val) { document.getElementById(id).innerText = val || '---'; }
+    function setLink(id, val) { const el = document.getElementById(id); el.href = val || '#'; el.innerText = val || '---'; }
+    function setVal(id, val) { if(val) document.getElementById(id).value = val; }
+    function getVal(id) { return document.getElementById(id).value; }
+
+    // --- Image & File Uploads ---
+    // Listeners attached in onAuthStateChanged
     document.getElementById('avatarInput').onchange = (e) => uploadImage(e.target.files[0], 'photoURL');
     document.getElementById('coverInput').onchange = (e) => uploadImage(e.target.files[0], 'coverURL');
 
     async function uploadImage(file, field) {
         if(!file) return;
-        const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', 'Meet_profile');
-        const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
-        const json = await res.json();
-        
-        await updateDoc(doc(db, "users", currentUser.uid), { [field]: json.secure_url });
-        location.reload();
+        const url = await uploadFile(file);
+        if(url) {
+            await updateDoc(doc(db, "users", currentUser.uid), { [field]: url });
+            location.reload();
+        }
     }
 
-    // --- 2. Professional & Contact Edit Logic ---
-    window.editSection = (sec) => {
-        currentSection = sec;
-        const modal = document.getElementById('editModal');
-        const form = document.getElementById('editForm');
-        modal.style.display = 'flex';
-        document.getElementById('modalTitle').innerText = "Edit " + sec;
+    async function uploadFile(file) {
+        const fd = new FormData(); 
+        fd.append('file', file); 
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+        fd.append('resource_type', 'auto'); // Important for PDF/Docs
 
-        // Fetch current values (simplified for demo, ideally from state)
-        if(sec === 'professional') {
-            // 2. Added more professional fields
-            form.innerHTML = `
-                <div class="input-group"><label>Workplace</label><input id="inpWork"></div>
-                <div class="input-group"><label>Position</label><input id="inpPos"></div>
-                <div class="input-group"><label>Years of Experience</label><input type="number" id="inpExp"></div>
-                <div class="input-group"><label>Portfolio URL</label><input type="url" id="inpPort"></div>
-                <div class="input-group" style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="inpJob" style="width:auto;"> <label style="margin:0">Open to Work?</label>
-                </div>
-            `;
-        } else if(sec === 'contact') {
-             // 3. Added Website
-            form.innerHTML = `
-                <div class="input-group"><label>Phone</label><input id="inpPhone"></div>
-                <div class="input-group"><label>Website URL</label><input id="inpWeb"></div>
-            `;
-        } else if(sec === 'about') {
-            form.innerHTML = `
-                <div class="input-group"><label>Display Name</label><input id="inpName"></div>
-                <div class="input-group"><label>Bio</label><textarea id="inpBio"></textarea></div>
-                <div class="input-group"><label>Intro</label><textarea id="inpIntro"></textarea></div>
-                <div class="input-group"><label>Location</label><input id="inpLoc"></div>
-            `;
+        try {
+            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+            if(!res.ok) throw new Error("Upload failed");
+            const json = await res.json();
+            return json.secure_url;
+        } catch(e) { 
+            console.error(e); 
+            alert("Upload failed. Please check your internet or file size.");
+            return null;
         }
-    };
-
-    window.saveData = async () => {
-        const updates = {};
-        if(currentSection === 'professional') {
-            updates.workplace = document.getElementById('inpWork').value;
-            updates.position = document.getElementById('inpPos').value;
-            updates.yearsExperience = document.getElementById('inpExp').value;
-            updates.portfolio = document.getElementById('inpPort').value;
-            updates.lookingForJob = document.getElementById('inpJob').checked;
-        } else if (currentSection === 'contact') {
-            updates.phone = document.getElementById('inpPhone').value;
-            updates.website = document.getElementById('inpWeb').value;
-        } else if (currentSection === 'about') {
-            updates.displayName = document.getElementById('inpName').value;
-            updates.bio = document.getElementById('inpBio').value;
-            updates.introduction = document.getElementById('inpIntro').value;
-            updates.location = document.getElementById('inpLoc').value;
-        }
-
-        await updateDoc(doc(db, "users", currentUser.uid), updates);
-        location.reload();
-    };
+    }
 
     window.auth = auth;
 </script>
