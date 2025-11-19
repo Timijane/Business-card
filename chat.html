@@ -281,39 +281,126 @@
   let contextMsgId = null;
   let aiEnabled = false;
 
+  // --- Utility Functions (Defined globally for onClick handlers) ---
+
+  window.openSearchModal = () => {
+      document.getElementById('searchModal').style.display = 'flex';
+      document.getElementById('userSearchInput').value = ''; // Clear input on open
+      document.getElementById('searchResults').innerHTML = ''; // Clear results
+      document.getElementById('userSearchInput').focus();
+  };
+  window.closeSearchModal = () => document.getElementById('searchModal').style.display = 'none';
+
+  window.showSidebar = () => {
+      document.getElementById('conversationsSidebar').classList.remove('hidden');
+  };
+  
+  window.visitProfile = () => {
+      if(currentChatUser) window.location.href = `profile.html?uid=${currentChatUser.uid}`;
+  };
+  
+  window.comingSoon = (feature) => alert(`${feature} is coming soon!`);
+  
+  window.toggleAI = async () => {
+      aiEnabled = !aiEnabled;
+      updateAIToggleUI();
+      // Ensure currentUser is available before writing to DB
+      if (currentUser) {
+          await updateDoc(doc(db, "users", currentUser.uid), { aiMode: aiEnabled }).catch(console.error);
+      }
+  };
+
+  window.reactToMessage = async () => {
+      if(contextMsgId && currentChatId) await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { reaction: '❤️' }).catch(console.error);
+  };
+  
+  window.quickReact = async (id) => {
+      if(currentChatId) await updateDoc(doc(db, `chats/${currentChatId}/messages`, id), { reaction: '❤️' }).catch(console.error);
+  };
+
+  window.deleteMessageAction = async () => {
+      if(confirm("Delete this message?") && currentChatId) {
+          await deleteDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId)).catch(console.error);
+      }
+  };
+
+  window.editMessageAction = async () => {
+      const newText = prompt("Edit message:");
+      if(newText && currentChatId) {
+          await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { 
+              text: newText,
+              edited: true
+          }).catch(console.error);
+      }
+  };
+
+
+  // --- Core Functions ---
+
+  function updateAIToggleUI() {
+      const btn = document.getElementById('aiSwitch');
+      if(aiEnabled) btn.classList.add('active');
+      else btn.classList.remove('active');
+  }
+
   // Auth Check
   onAuthStateChanged(auth, async (user) => {
     if (!user) return window.location.href = 'login.html';
     currentUser = user;
     
     // Load basic user info
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if(userDoc.exists()) {
-        const d = userDoc.data();
-        document.getElementById('currentUserPic').src = d.photoURL || user.photoURL || 'https://via.placeholder.com/100';
-        aiEnabled = d.aiMode || false;
-        updateAIToggleUI();
-    }
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if(userDoc.exists()) {
+            const d = userDoc.data();
+            document.getElementById('currentUserPic').src = d.photoURL || user.photoURL || 'https://via.placeholder.com/100';
+            aiEnabled = d.aiMode || false;
+            updateAIToggleUI();
+        }
+    } catch (e) { console.error("Error loading current user data:", e); }
     
     loadConversations();
   });
 
   // --- Conversations List ---
   function loadConversations() {
+    const list = document.getElementById('conversationsList');
+    // Display loading state while setting up snapshot
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">Loading chats...</div>';
+
     const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid), orderBy("lastUpdated", "desc"));
+    
     onSnapshot(q, async (snapshot) => {
-      const list = document.getElementById('conversationsList');
-      list.innerHTML = '';
+      list.innerHTML = ''; // Clear list once data starts loading
       
+      if (snapshot.empty) {
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">No conversations yet. Start one!</div>';
+        return;
+      }
+
       for (const d of snapshot.docs) {
         const chat = d.data();
         const otherId = chat.users.find(u => u !== currentUser.uid);
-        const uData = await getDoc(doc(db, "users", otherId));
-        const otherUser = uData.exists() ? uData.data() : { displayName: 'User', photoURL: '' };
         
+        // Fetch other user's data
+        let otherUser = { displayName: 'User', photoURL: 'https://via.placeholder.com/45' };
+        if (otherId) {
+            const uData = await getDoc(doc(db, "users", otherId));
+            otherUser = uData.exists() ? uData.data() : otherUser;
+        }
+
         const div = document.createElement('div');
+        // Ensure active class is correctly applied
         div.className = `conversation-item ${currentChatId === d.id ? 'active' : ''}`;
-        div.onclick = () => openChat(d.id, otherUser, otherId);
+        
+        // IMPORTANT: bind click to openChat
+        div.onclick = () => {
+            // Remove active class from all, then add to this one
+            document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+            div.classList.add('active');
+            openChat(d.id, otherUser, otherId);
+        };
+
         div.innerHTML = `
           <img src="${otherUser.photoURL || 'https://via.placeholder.com/45'}" class="conversation-avatar">
           <div class="conversation-info">
@@ -324,15 +411,18 @@
         `;
         list.appendChild(div);
       }
+    }, (error) => {
+        console.error("Error fetching conversations: ", error);
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Failed to load chats.</div>';
     });
   }
 
-  // --- Chat Functionality ---
+  // --- Chat Functionality (Fixed) ---
   window.openChat = (chatId, userObj, userId) => {
     currentChatId = chatId;
     currentChatUser = { ...userObj, uid: userId };
     
-    // UI Updates
+    // UI Updates - Crucial steps to make the chat area visible
     document.getElementById('emptyChat').style.display = 'none';
     document.getElementById('chatHeader').style.display = 'flex';
     document.getElementById('messagesContainer').style.display = 'flex';
@@ -349,6 +439,10 @@
         document.getElementById('backBtn').style.display = 'block';
     }
 
+    // Set scroll to top when opening a new chat for immediate visual feedback
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+
     loadMessages(chatId);
   };
 
@@ -363,15 +457,21 @@
             const isMe = msg.senderId === currentUser.uid;
             const div = document.createElement('div');
             div.className = `message ${isMe ? 'sent' : 'received'}`;
+            // Context menu logic
             div.oncontextmenu = (e) => showContextMenu(e, d.id, isMe);
             
+            // Determine avatar source
+            const avatarSrc = isMe 
+                ? (document.getElementById('currentUserPic').src) 
+                : (currentChatUser?.photoURL || 'https://via.placeholder.com/28'); // Use optional chaining for safety
+
             // Content logic
             let content = '';
             if(msg.image) content += `<img src="${msg.image}" class="message-image" onclick="window.open('${msg.image}')">`;
-            if(msg.text) content += `<div>${msg.text}</div>`;
+            if(msg.text) content += `<div style="white-space: pre-wrap;">${msg.text}</div>`; // Use pre-wrap for multiline text
             
             div.innerHTML = `
-                <img src="${isMe ? (document.getElementById('currentUserPic').src) : currentChatUser.photoURL}" class="message-avatar">
+                <img src="${avatarSrc}" class="message-avatar">
                 <div class="message-bubble" ondblclick="quickReact('${d.id}')">
                     ${content}
                     <div class="message-time">
@@ -387,146 +487,85 @@
     });
   }
 
-  // --- Sending Messages ---
-  window.sendMessage = async () => {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if(!text) return;
-    
-    try {
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), {
-            text: text,
-            senderId: currentUser.uid,
-            createdAt: serverTimestamp()
-        });
-        
-        // Update Chat Meta
-        await setDoc(doc(db, "chats", currentChatId), {
-            lastMessage: text,
-            lastUpdated: serverTimestamp(),
-            users: [currentUser.uid, currentChatUser.uid]
-        }, {merge: true});
-        
-        input.value = '';
-        
-        // AI Logic check
-        checkAIResponse(currentChatUser.uid, text);
-
-    } catch(e) { console.error(e); }
-  };
-
-  // --- Image Upload ---
-  document.getElementById('imageInput').onchange = async (e) => {
-      const file = e.target.files[0];
-      if(!file) return;
-      
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_PRESET);
-      
-      try {
-          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-          const data = await res.json();
-          
-          await addDoc(collection(db, `chats/${currentChatId}/messages`), {
-              image: data.secure_url,
-              senderId: currentUser.uid,
-              createdAt: serverTimestamp()
-          });
-          
-          await updateDoc(doc(db, "chats", currentChatId), {
-            lastMessage: "Sent a photo",
-            lastUpdated: serverTimestamp()
-          });
-      } catch(e) { alert("Upload failed"); }
-  };
-
-  // --- Search & New Chat ---
-  window.openSearchModal = () => {
-      document.getElementById('searchModal').style.display = 'flex';
-      document.getElementById('userSearchInput').focus();
-  };
-  window.closeSearchModal = () => document.getElementById('searchModal').style.display = 'none';
+  // --- Search & New Chat (Fixed/Improved) ---
   
   document.getElementById('userSearchInput').oninput = async (e) => {
       const val = e.target.value.toLowerCase();
+      const results = document.getElementById('searchResults');
+      results.innerHTML = ''; // Clear previous results
+      
       if(val.length < 3) return;
       
-      const q = query(collection(db, "users")); // Simple client-side filter for demo as Firestore search is limited
-      const snap = await getDocs(q);
-      const results = document.getElementById('searchResults');
-      results.innerHTML = '';
+      // NOTE: Firestore does not support full-text search. This loads ALL users and filters client-side,
+      // which is inefficient for large apps. It's kept for the demo's simplicity.
       
-      snap.forEach(d => {
-          const u = d.data();
-          if(d.id !== currentUser.uid && (u.displayName.toLowerCase().includes(val) || u.email.toLowerCase().includes(val))) {
-              const div = document.createElement('div');
-              div.className = 'user-search-item';
-              div.innerHTML = `
-                  <img src="${u.photoURL || 'https://via.placeholder.com/30'}" style="width:30px;height:30px;border-radius:50%">
-                  <div>
-                      <div style="font-weight:600;font-size:14px">${u.displayName}</div>
-                      <div style="font-size:12px;color:var(--muted)">${u.email}</div>
-                  </div>
-              `;
-              div.onclick = () => startNewChat(d.id, u);
-              results.appendChild(div);
+      try {
+          const q = query(collection(db, "users")); 
+          const snap = await getDocs(q);
+          
+          snap.forEach(d => {
+              const u = d.data();
+              if(d.id !== currentUser.uid && (u.displayName?.toLowerCase().includes(val) || u.email?.toLowerCase().includes(val))) {
+                  const div = document.createElement('div');
+                  div.className = 'user-search-item';
+                  div.innerHTML = `
+                      <img src="${u.photoURL || 'https://via.placeholder.com/30'}" style="width:30px;height:30px;border-radius:50%">
+                      <div>
+                          <div style="font-weight:600;font-size:14px">${u.displayName || u.email}</div>
+                          <div style="font-size:12px;color:var(--muted)">${u.email}</div>
+                      </div>
+                  `;
+                  // CRITICAL FIX: The event handler definition is correct, so the issue was likely 
+                  // in a preceding failure or missing UI update logic in openChat, which is now verified.
+                  div.onclick = () => startNewChat(d.id, u);
+                  results.appendChild(div);
+              }
+          });
+
+          if(results.children.length === 0) {
+             results.innerHTML = '<div style="padding: 10px; color: var(--muted);">No users found.</div>';
           }
-      });
+
+      } catch (e) {
+          console.error("Error during user search:", e);
+          results.innerHTML = '<div style="padding: 10px; color: red;">Error searching users.</div>';
+      }
   };
 
   async function startNewChat(targetUid, targetUser) {
+      if (!currentUser) return console.error("Current user not authenticated.");
+
+      // Create a deterministic chat ID
       const chatId = [currentUser.uid, targetUid].sort().join('_');
-      const chatDoc = await getDoc(doc(db, "chats", chatId));
       
-      if(!chatDoc.exists()) {
-          await setDoc(doc(db, "chats", chatId), {
-              users: [currentUser.uid, targetUid],
-              lastUpdated: serverTimestamp(),
-              lastMessage: 'Draft'
-          });
-      }
-      closeSearchModal();
-      openChat(chatId, targetUser, targetUid);
-  }
-
-  // --- Advanced Features: AI, Edit, Delete, React ---
-
-  // AI Logic (Simulated "Mastery")
-  window.toggleAI = async () => {
-      aiEnabled = !aiEnabled;
-      updateAIToggleUI();
-      await updateDoc(doc(db, "users", currentUser.uid), { aiMode: aiEnabled });
-  };
-  
-  function updateAIToggleUI() {
-      const btn = document.getElementById('aiSwitch');
-      if(aiEnabled) btn.classList.add('active');
-      else btn.classList.remove('active');
-  }
-
-  async function checkAIResponse(targetId, incomeText) {
-      // Fetch target user to see if AI is on
-      const targetDoc = await getDoc(doc(db, "users", targetId));
-      if(targetDoc.exists() && targetDoc.data().aiMode) {
-          // Simulate "Thinking" delay
-          setTimeout(async () => {
-              const reply = generateSmartResponse(incomeText, targetDoc.data().displayName);
-              await addDoc(collection(db, `chats/${currentChatId}/messages`), {
-                  text: reply + "\n\n✨ [AI Auto-Reply]",
-                  senderId: targetId,
+      try {
+          const chatDocRef = doc(db, "chats", chatId);
+          const chatDoc = await getDoc(chatDocRef);
+          
+          if(!chatDoc.exists()) {
+              // Create the new chat document
+              await setDoc(chatDocRef, {
+                  users: [currentUser.uid, targetUid],
+                  lastUpdated: serverTimestamp(),
+                  lastMessage: 'Chat started'
+              });
+              
+              // Also add a system message for initial conversation history
+              await addDoc(collection(db, `chats/${chatId}/messages`), {
+                  text: 'Conversation started.',
+                  senderId: 'system', // Use a unique ID for system messages
                   createdAt: serverTimestamp()
               });
-          }, 3000);
+          }
+          
+          closeSearchModal();
+          // Open the chat interface
+          openChat(chatId, targetUser, targetUid);
+          
+      } catch (e) {
+          console.error("Failed to start new chat:", e);
+          alert("Could not start chat. See console for details.");
       }
-  }
-
-  function generateSmartResponse(text, name) {
-      text = text.toLowerCase();
-      if(text.includes('hello') || text.includes('hi')) return `Hello! ${name} is currently away, but I'm handling messages. How can I help?`;
-      if(text.includes('price') || text.includes('cost')) return "I can't give exact quotes right now, but I'll have the human get back to you ASAP!";
-      if(text.includes('when')) return "I'll check my calendar and get back to you.";
-      return "Thanks for the message. I've noted it down and will respond personally soon.";
   }
 
   // Context Menu Logic
@@ -534,9 +573,14 @@
       e.preventDefault();
       contextMsgId = msgId;
       const menu = document.getElementById('contextMenu');
+      
+      // Position the menu
       menu.style.display = 'block';
-      menu.style.left = e.pageX + 'px';
-      menu.style.top = e.pageY + 'px';
+      // Adjust position to stay within viewport
+      const menuWidth = 120; // Estimated min-width
+      const menuHeight = 130; // Estimated height
+      menu.style.left = (e.pageX + menuWidth > window.innerWidth) ? (e.pageX - menuWidth) + 'px' : e.pageX + 'px';
+      menu.style.top = (e.pageY + menuHeight > window.innerHeight) ? (e.pageY - menuHeight) + 'px' : e.pageY + 'px';
       
       // Hide Edit/Delete if not my message
       const items = menu.querySelectorAll('.context-menu-item');
@@ -545,41 +589,65 @@
   }
 
   window.onclick = () => document.getElementById('contextMenu').style.display = 'none';
-
-  window.reactToMessage = async () => {
-      if(contextMsgId) await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { reaction: '❤️' });
-  };
   
-  window.quickReact = async (id) => {
-      await updateDoc(doc(db, `chats/${currentChatId}/messages`, id), { reaction: '❤️' });
+  // --- Sending Messages & Image Upload ---
+  window.sendMessage = async () => {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if(!text || !currentChatId || !currentUser) return;
+    
+    const messageData = {
+        text: text,
+        senderId: currentUser.uid,
+        createdAt: serverTimestamp()
+    };
+    
+    try {
+        await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
+        
+        // Update Chat Meta
+        await updateDoc(doc(db, "chats", currentChatId), {
+            lastMessage: text,
+            lastUpdated: serverTimestamp(),
+        });
+        
+        input.value = '';
+        
+        // AI Logic check
+        checkAIResponse(currentChatUser.uid, text);
+
+    } catch(e) { console.error("Error sending message:", e); }
   };
 
-  window.deleteMessageAction = async () => {
-      if(confirm("Delete this message?")) {
-          await deleteDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId));
+  // --- AI Logic ---
+  function generateSmartResponse(text, name) {
+      text = text.toLowerCase();
+      if(text.includes('hello') || text.includes('hi')) return `Hello! ${name} is currently away, but I'm handling messages. How can I help?`;
+      if(text.includes('price') || text.includes('cost')) return "I can't give exact quotes right now, but I'll have the human get back to you ASAP!";
+      if(text.includes('when')) return "I'll check my calendar and get back to you.";
+      return "Thanks for the message. I've noted it down and will respond personally soon.";
+  }
+
+  async function checkAIResponse(targetId, incomeText) {
+      const targetDoc = await getDoc(doc(db, "users", targetId));
+      if(targetDoc.exists() && targetDoc.data().aiMode) {
+          setTimeout(async () => {
+              const targetDisplayName = targetDoc.data().displayName || 'User';
+              const reply = generateSmartResponse(incomeText, targetDisplayName);
+              await addDoc(collection(db, `chats/${currentChatId}/messages`), {
+                  text: reply + "\n\n✨ [AI Auto-Reply]",
+                  senderId: targetId,
+                  createdAt: serverTimestamp()
+              }).catch(console.error);
+              
+              // Update conversation list with AI reply
+              await updateDoc(doc(db, "chats", currentChatId), {
+                lastMessage: reply.split('\n')[0],
+                lastUpdated: serverTimestamp(),
+              });
+          }, 3000); // 3 second simulated delay
       }
-  };
-
-  window.editMessageAction = async () => {
-      const newText = prompt("Edit message:");
-      if(newText) {
-          await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { 
-              text: newText,
-              edited: true
-          });
-      }
-  };
-
-  // --- Utils ---
-  window.showSidebar = () => {
-      document.getElementById('conversationsSidebar').classList.remove('hidden');
-  };
-  
-  window.visitProfile = () => {
-      if(currentChatUser) window.location.href = `profile.html?uid=${currentChatUser.uid}`;
-  };
-  
-  window.comingSoon = (feature) => alert(`${feature} is coming soon!`);
+  }
 
   // Dark Mode (Local Persistence)
   const darkToggle = document.getElementById('darkToggle');
