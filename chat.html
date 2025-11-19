@@ -368,6 +368,11 @@
     // Display loading state while setting up snapshot
     list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">Loading chats...</div>';
 
+    if (!currentUser) {
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Authentication error. Please log in.</div>';
+        return;
+    }
+
     const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid), orderBy("lastUpdated", "desc"));
     
     onSnapshot(q, async (snapshot) => {
@@ -412,8 +417,9 @@
         list.appendChild(div);
       }
     }, (error) => {
+        // This is the error handler that sets the 'Failed to load chats' message.
         console.error("Error fetching conversations: ", error);
-        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Failed to load chats.</div>';
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Failed to load chats. Check Firebase Security Rules or Index.</div>';
     });
   }
 
@@ -487,7 +493,63 @@
     });
   }
 
-  // --- Search & New Chat (Fixed/Improved) ---
+  // --- Sending Messages & Image Upload ---
+  window.sendMessage = async () => {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if(!text || !currentChatId || !currentUser) return;
+    
+    const messageData = {
+        text: text,
+        senderId: currentUser.uid,
+        createdAt: serverTimestamp()
+    };
+    
+    try {
+        await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
+        
+        // Update Chat Meta
+        await updateDoc(doc(db, "chats", currentChatId), {
+            lastMessage: text,
+            lastUpdated: serverTimestamp(),
+        });
+        
+        input.value = '';
+        
+        // AI Logic check
+        checkAIResponse(currentChatUser.uid, text);
+
+    } catch(e) { console.error("Error sending message:", e); }
+  };
+
+  // --- Image Upload ---
+  document.getElementById('imageInput').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file || !currentChatId || !currentUser) return;
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_PRESET);
+      
+      try {
+          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+          const data = await res.json();
+          
+          await addDoc(collection(db, `chats/${currentChatId}/messages`), {
+              image: data.secure_url,
+              senderId: currentUser.uid,
+              createdAt: serverTimestamp()
+          });
+          
+          await updateDoc(doc(db, "chats", currentChatId), {
+            lastMessage: "Sent a photo",
+            lastUpdated: serverTimestamp()
+          });
+      } catch(e) { alert("Upload failed"); }
+  };
+
+
+  // --- Search & New Chat ---
   
   document.getElementById('userSearchInput').oninput = async (e) => {
       const val = e.target.value.toLowerCase();
@@ -495,9 +557,6 @@
       results.innerHTML = ''; // Clear previous results
       
       if(val.length < 3) return;
-      
-      // NOTE: Firestore does not support full-text search. This loads ALL users and filters client-side,
-      // which is inefficient for large apps. It's kept for the demo's simplicity.
       
       try {
           const q = query(collection(db, "users")); 
@@ -515,8 +574,6 @@
                           <div style="font-size:12px;color:var(--muted)">${u.email}</div>
                       </div>
                   `;
-                  // CRITICAL FIX: The event handler definition is correct, so the issue was likely 
-                  // in a preceding failure or missing UI update logic in openChat, which is now verified.
                   div.onclick = () => startNewChat(d.id, u);
                   results.appendChild(div);
               }
@@ -590,35 +647,6 @@
 
   window.onclick = () => document.getElementById('contextMenu').style.display = 'none';
   
-  // --- Sending Messages & Image Upload ---
-  window.sendMessage = async () => {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if(!text || !currentChatId || !currentUser) return;
-    
-    const messageData = {
-        text: text,
-        senderId: currentUser.uid,
-        createdAt: serverTimestamp()
-    };
-    
-    try {
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
-        
-        // Update Chat Meta
-        await updateDoc(doc(db, "chats", currentChatId), {
-            lastMessage: text,
-            lastUpdated: serverTimestamp(),
-        });
-        
-        input.value = '';
-        
-        // AI Logic check
-        checkAIResponse(currentChatUser.uid, text);
-
-    } catch(e) { console.error("Error sending message:", e); }
-  };
-
   // --- AI Logic ---
   function generateSmartResponse(text, name) {
       text = text.toLowerCase();
