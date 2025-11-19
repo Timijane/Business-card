@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Meetrader</title>
+<title>MEET | Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* --- BASE STYLES FROM FEED.HTML (DO NOT CHANGE) --- */
   :root {
     --primary: #0080FF;
     --primary-dark: #0066CC;
@@ -31,176 +30,596 @@
     --border-color: #3e4042;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow-x: hidden; font-size: 18px; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; }
-  
-  .app-container { display: flex; min-height: 100vh; position: relative; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-  /* --- SIDEBAR (MATCHING FEED) --- */
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    font-size: 18px;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    min-height: 100vh;
+  }
+
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* 3. Reduced Sidebar Width (Side Menu Bar) */
   .sidebar {
-    position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 180px; /* Reduced from 220px/280px */
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color); overflow-y: auto; z-index: 100; padding: 15px; color: white;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 15px; /* Reduced padding */
+    color: white;
   }
-  .sidebar-header { padding: 5px 0 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 15px; }
-  .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 6px; }
+
+  .sidebar-header {
+    padding: 5px 0 15px; /* Reduced padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 15px; /* Reduced margin */
+  }
+
+  .sidebar-menu {
+    list-style: none;
+  }
+
+  .sidebar-menu li {
+    margin-bottom: 6px; /* Reduced margin */
+  }
+
   .sidebar-menu a {
-    display: flex; align-items: center; padding: 10px; text-decoration: none; color: white;
-    border-radius: 8px; transition: background 0.3s; min-height: 40px; font-size: 16px;
+    display: flex;
+    align-items: center;
+    padding: 10px; /* Reduced padding */
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: background 0.3s;
+    min-height: 40px; /* Reduced min-height */
+    font-size: 16px; /* Reduced font-size */
   }
-  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-  .sidebar-menu i { margin-right: 10px; font-size: 18px; width: 22px; text-align: center; }
 
-  /* Icons Colors */
-  .sidebar-menu a[href="feed.html"] i { color: #fff; }
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; }
-  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
-  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; }
-  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; }
-  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; }
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; }
+  .sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 
-  .main-content { flex: 1; margin-left: 180px; padding: 15px; min-height: 100vh; font-size: 18px; }
+  /* 2. Realistic Icons in Menu Bar (Sidebar) */
+  .sidebar-menu i {
+    margin-right: 10px; /* Reduced margin */
+    font-size: 18px; /* Adjusted size */
+    width: 22px; /* Adjusted width */
+    text-align: center;
+    /* Adding realistic color for visual distinctiveness */
+    /* Note: Only colors/styles change, structure/fa class remains for requirement 2 */
+  }
+  .sidebar-menu a[href="feed.html"] i { color: #fff; } /* Home - Primary */
+  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; } /* User - Gold/Yellow */
+  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; } /* Comment - Green */
+  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; } /* Chart - Orange/Red */
+  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; } /* Cap - Purple */
+  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; } /* Sitemap - Cyan */
+  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; } /* Users - Pink */
 
-  /* --- NAVBAR (MATCHING FEED) --- */
+
+  .main-content {
+    flex: 1;
+    margin-left: 180px; /* Matches NEW sidebar width */
+    padding: 15px; /* Reduced padding (Top Menu Bar Reduction) */
+    min-height: 100vh;
+    font-size: 18px;
+  }
+
+  /* 3. Reduced Top Menu Bar */
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
-    display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: white; flex-wrap: wrap; gap: 8px;
+    padding: 10px 15px; /* Reduced padding */
+    border-radius: 10px; /* Reduced border radius */
+    margin-bottom: 15px; /* Reduced margin */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* Reduced shadow */
+    color: white;
+    flex-wrap: wrap;
+    gap: 8px; /* Reduced gap */
   }
-  .nav-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .nav-controls {
+    display: flex;
+    gap: 8px; /* Reduced gap */
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   .search-bar {
-    display: flex; align-items: center; background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px; padding: 6px 12px; margin-right: 10px;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 6px 12px; /* Reduced padding */
+    margin-right: 10px; /* Reduced margin */
   }
-  .search-bar input { background: transparent; border: none; color: white; outline: none; width: 180px; font-size: 16px; }
-  .search-bar input::placeholder { color: rgba(255, 255, 255, 0.7); }
-  
+
+  .search-bar input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    width: 180px; /* Reduced width */
+    font-size: 16px; /* Reduced font-size */
+  }
+
+  .search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
   .user-profile-nav {
-    display: flex; align-items: center; gap: 8px; padding: 4px 8px;
-    border-radius: 20px; background: rgba(255, 255, 255, 0.2);
-    cursor: pointer; position: relative; min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Reduced gap */
+    padding: 4px 8px; /* Reduced padding */
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    position: relative;
+    min-height: 36px; /* Reduced min-height */
   }
+
   .user-avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; cursor: pointer; position: relative; min-width: 36px; font-size: 16px; overflow: hidden;
+    width: 36px; /* Reduced size */
+    height: 36px; /* Reduced size */
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    min-width: 36px;
+    font-size: 16px; /* Reduced font-size */
+    overflow: hidden;
   }
-  .user-avatar.small { width: 28px; height: 28px; font-size: 14px; min-width: 28px; }
-  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+  .user-avatar.small {
+    width: 28px; /* Reduced size */
+    height: 28px; /* Reduced size */
+    font-size: 14px; /* Reduced font-size */
+    min-width: 28px;
+  }
+
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
   .btn {
-    background: rgba(255, 255, 255, 0.2); color: white; border: none;
-    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    transition: background 0.3s; display: flex; align-items: center; gap: 6px;
-    font-size: 16px; min-height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 6px 12px; /* Reduced padding */
+    border-radius: 6px; /* Reduced border radius */
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduced gap */
+    font-size: 16px; /* Reduced font-size */
+    min-height: 36px; /* Reduced min-height */
   }
-  .btn i { font-size: 18px; }
-  #notificationsBtn i { color: #FFC107; }
-  #nightToggleBtn i { color: #9C27B0; }
-  #logoutBtn i { color: #EF4444; }
+  
+  /* 2. Realistic Icons in Menu Bar (Navbar) */
+  .btn i {
+    font-size: 18px;
+    /* Adding realistic color for visual distinctiveness */
+  }
+  #notificationsBtn i { color: #FFC107; } /* Bell - Yellow/Amber */
+  #nightToggleBtn i { color: #9C27B0; } /* Moon - Purple */
+  #logoutBtn i { color: #EF4444; } /* Sign Out - Red */
+
   .btn:hover { background: rgba(255, 255, 255, 0.3); }
-  
+
   .unread-badge {
-    background: var(--error); color: white; border-radius: 50%;
-    padding: 2px 5px; font-size: 10px; display: none;
-    min-width: 16px; justify-content: center; align-items: center;
+    background: var(--error);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 5px;
+    font-size: 10px; /* Reduced font size */
+    display: none;
+    min-width: 16px; /* Reduced min-width */
+    justify-content: center;
+    align-items: center;
   }
 
-  /* --- MEETRADER SPECIFIC STYLES --- */
+  /* Post Composer */
+  .post-composer {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .composer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .composer-input {
+    flex: 1;
+    background: var(--bg-color);
+    border: none;
+    padding: 10px 14px; /* Reduced padding */
+    border-radius: 25px;
+    color: var(--text-color);
+    font-size: 16px; /* Reduced font size */
+    cursor: pointer;
+    min-height: 40px; /* Reduced min-height */
+  }
+
+  /* MeetAI */
+  .meetai-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px; /* Reduced size */
+    height: 50px; /* Reduced size */
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px; /* Reduced font size */
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 99;
+  }
+
+  .meetai-assistant {
+    position: fixed;
+    bottom: 80px; /* Adjusted position */
+    right: 20px;
+    width: 280px; /* Reduced width */
+    background: var(--card-bg);
+    border-radius: 10px; /* Reduced radius */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 98;
+    display: none;
+    flex-direction: column;
+    max-height: 350px; /* Reduced max-height */
+  }
+
+  .meetai-header {
+    padding: 10px 14px; /* Reduced padding */
+    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
+    color: white;
+    border-radius: 10px 10px 0 0; /* Adjusted radius */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .meetai-messages {
+    flex: 1;
+    padding: 10px; /* Reduced padding */
+    overflow-y: auto;
+    max-height: 250px; /* Adjusted max-height */
+  }
+
+  .meetai-message {
+    margin-bottom: 6px; /* Reduced margin */
+    padding: 6px 10px; /* Reduced padding */
+    border-radius: 8px;
+    font-size: 13px; /* Reduced font size */
+  }
+
+  .meetai-user { background: var(--primary); color: white; margin-left: 20px; }
+  .meetai-bot { background: var(--bg-color); margin-right: 20px; }
+
+  .meetai-input {
+    display: flex;
+    padding: 10px; /* Reduced padding */
+    gap: 6px; /* Reduced gap */
+  }
+
+  .meetai-input input {
+    flex: 1;
+    padding: 6px 10px; /* Reduced padding */
+    border: 1px solid var(--border-color);
+    border-radius: 18px; /* Reduced radius */
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 15px; /* Reduced font size */
+  }
+
+  /* Modals */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 15px; /* Reduced padding */
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 10px; /* Reduced radius */
+    width: 450px; /* Reduced width */
+    max-width: 90%;
+    max-height: 85vh; /* Reduced max-height */
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 14px; /* Reduced padding */
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body { padding: 14px; } /* Reduced padding */
   
-  /* Filter Section */
-  .filters-container {
-    background: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 15px; align-items: center;
-  }
-  .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
-  .filter-label { font-size: 14px; color: var(--secondary-text); font-weight: 600; }
-  .filter-select, .filter-input {
-    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
-    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
-  }
-  .filter-btn {
-    background: var(--primary); color: white; border: none; padding: 10px 20px;
-    border-radius: 8px; cursor: pointer; font-weight: 600; height: 40px; align-self: flex-end;
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 22px; /* Reduced font size */
+    cursor: pointer;
+    color: var(--secondary-text);
   }
 
-  /* Product Grid */
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  /* Posts */
+  .posts { display: flex; flex-direction: column; gap: 14px; } /* Reduced gap */
 
-  /* Product Card */
-  .product-card {
-    background: var(--card-bg); border-radius: 10px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;
+  .post {
+    background: var(--card-bg);
+    border-radius: 10px; /* Reduced radius */
+    padding: 14px; /* Reduced padding */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px; /* Reduced margin */
+  }
+
+  .post-user { display: flex; align-items: center; gap: 10px; cursor: pointer; } /* Reduced gap */
+  .post-meta { font-size: 14px; /* Reduced font size */ color: var(--secondary-text); }
+  
+  .post-content { margin-bottom: 10px; /* Reduced margin */ font-size: 17px; /* Reduced font size */ line-height: 1.5; }
+
+  .post-media {
+    margin-top: 10px; /* Reduced margin */
+    border-radius: 6px; /* Reduced radius */
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .post-media img, .post-media video {
+    width: 100%;
+    max-height: 500px; /* Reduced max-height */
+    object-fit: contain;
+  }
+
+  .post-interactions {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0; /* Reduced padding */
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px; /* Reduced margin */
+  }
+
+  .interaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Reduced gap */
+    padding: 6px 10px; /* Reduced padding */
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    font-weight: 600;
+    min-height: 40px; /* Reduced min-height */
+    font-size: 15px; /* Reduced font size */
+    flex: 1;
+    justify-content: center;
+  }
+  .interaction-btn:hover { background: var(--bg-color); }
+  .interaction-btn.active { color: var(--warning); } /* Star active color */
+  
+  /* Styling for counts */
+  .interaction-btn .count {
+      margin-left: 2px;
+      font-weight: bold;
+      font-size: 14px;
+  }
+
+  /* Dropdown for Post Options (3 dots) */
+  .post-options {
+    position: relative;
+  }
+  .post-options-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Reduced shadow */
+    border-radius: 6px; /* Reduced radius */
+    z-index: 10;
+    width: 140px; /* Reduced width */
+    overflow: hidden;
+  }
+  .post-options-menu.show { display: block; }
+  .post-option-item {
+    padding: 8px 12px; /* Reduced padding */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduced gap */
+    font-size: 15px; /* Reduced font size */
+  }
+  .post-option-item:hover { background: var(--bg-color); }
+
+  /* Comments */
+  .comments-section {
+    margin-top: 10px; /* Reduced margin */
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px; /* Reduced padding */
+  }
+  .comment { display: flex; gap: 10px; /* Reduced gap */ margin-bottom: 10px; } /* Reduced margin */
+  .comment-content { flex: 1; background: var(--bg-color); padding: 6px 10px; /* Reduced padding */ border-radius: 16px; /* Reduced radius */ font-size: 15px; } /* Reduced font size */
+  
+  .view-more-comments {
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 0; /* Reduced padding */
+    margin-bottom: 6px; /* Reduced margin */
+    font-size: 15px; /* Reduced font size */
+  }
+
+  .comment-input { display: flex; gap: 6px; /* Reduced gap */ margin-top: 10px; /* Reduced margin */ align-items: center; }
+  .comment-input input {
+    flex: 1;
+    background: var(--bg-color);
+    border: none;
+    padding: 6px 10px; /* Reduced padding */
+    border-radius: 16px; /* Reduced radius */
+    color: var(--text-color);
+    font-size: 15px; /* Reduced font size */
+  }
+
+  .send-comment-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px; /* Reduced size */
+    height: 30px; /* Reduced size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px; /* Reduced font size */
+  }
+
+  /* Modal Specifics */
+  .comments-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 2000;
+    align-items: center; justify-content: center;
+    padding: 15px;
+  }
+  .comments-modal-content {
+    background: var(--card-bg);
+    border-radius: 10px;
+    width: 550px; /* Reduced width */
+    max-width: 90%;
+    max-height: 75vh; /* Reduced max-height */
+    overflow-y: auto;
+    padding: 0;
     display: flex; flex-direction: column;
   }
-  .product-card:hover { transform: translateY(-5px); }
+  .comments-modal-header {
+    padding: 14px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .comments-modal-body { padding: 14px; overflow-y: auto; }
 
-  /* Instagram-like Carousel */
-  .ad-carousel { position: relative; width: 100%; height: 250px; background: #000; overflow: hidden; }
-  .ad-images-container { display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out; }
-  .ad-img { min-width: 100%; width: 100%; height: 100%; object-fit: cover; }
-
-  /* Counter Badge (1/3) */
-  .ad-counter {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(0, 0, 0, 0.6); color: white;
-    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; z-index: 10;
+  .post-textarea {
+    width: 100%;
+    min-height: 100px; /* Reduced height */
+    border: 2px solid #0080FF;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 16px; /* Reduced font size */
+    resize: none;
+    outline: none;
+    padding: 10px;
+    border-radius: 6px;
   }
 
-  /* Navigation Arrows */
-  .ad-nav-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
-    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; z-index: 10;
-    opacity: 0.7; transition: opacity 0.2s;
+  /* Users List */
+  .user-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px; /* Reduced padding */
+    background: var(--card-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 8px; /* Reduced margin */
   }
-  .ad-nav-btn:hover { opacity: 1; background: white; }
-  .ad-prev { left: 10px; }
-  .ad-next { right: 10px; }
-
-  /* Product Details */
-  .product-details { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-  .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .product-title { font-weight: 700; font-size: 18px; color: var(--text-color); }
-  .product-price { color: var(--success); font-weight: 700; font-size: 18px; }
-  .product-seller { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; color: var(--secondary-text); }
-  .seller-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; }
-  .product-desc { font-size: 14px; color: var(--secondary-text); margin-bottom: 15px; flex: 1; line-height: 1.4; }
-  
-  .product-actions { display: flex; gap: 10px; margin-top: auto; }
-  .action-btn-product {
-    flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
-    font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  .association-btn {
+    padding: 5px 10px; /* Reduced padding */
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px; /* Reduced font size */
+    font-weight: 600;
   }
-  .btn-msg { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
-  .btn-buy { background: var(--primary); color: white; }
-
-  /* Loading & Modals */
-  .loading { text-align: center; padding: 20px; color: var(--secondary-text); width: 100%; }
-  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
-  .modal-content { background: var(--card-bg); border-radius: 10px; width: 450px; max-width: 90%; max-height: 85vh; overflow-y: auto; }
-  .modal-header { padding: 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-  .modal-body { padding: 14px; }
-  .close-modal { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--secondary-text); }
-
-  /* Notification Items */
-  .notif-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
-  .notif-unread { background: #f0f9ff; }
-  .notif-actions { display: flex; gap: 8px; }
-  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 13px; }
-  .user-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
-  .association-btn { padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
   .associate-btn { background: var(--primary); color: white; }
   .disassociate-btn { background: var(--error); color: white; }
 
+  /* Notification Actions */
+  .notif-item {
+    padding: 10px; /* Reduced padding */
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px; /* Reduced font size */
+  }
+  .notif-unread { background: #f0f9ff; }
+  .notif-actions { display: flex; gap: 8px; /* Reduced gap */ }
+  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 13px; /* Reduced font size */ }
+  .notif-btn:hover { color: var(--primary); }
+  .notif-btn.delete:hover { color: var(--error); }
+
+  .loading { text-align: center; padding: 15px; color: var(--secondary-text); }
+  
   /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 60px; padding: 8px 4px; }
+    .sidebar { width: 60px; padding: 8px 4px; } /* Further reduced for mobile */
     .sidebar-header { display: none; }
     .sidebar-menu a { flex-direction: column; padding: 8px 4px; font-size: 12px; text-align: center; }
     .sidebar-menu i { margin-right: 0; margin-bottom: 4px; font-size: 18px; }
@@ -209,8 +628,6 @@
     .search-bar, .user-profile-nav span, .btn span { display: none; }
     .nav-controls { width: 100%; justify-content: space-between; }
     .btn { padding: 6px; flex: 1; justify-content: center; }
-    .filters-container { flex-direction: column; align-items: stretch; }
-    .filter-btn { width: 100%; }
   }
 </style>
 </head>
@@ -234,7 +651,7 @@
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white; font-size: 20px;">Meetrader</h2>
+      <h2 style="color: white; font-size: 20px;">Feed</h2>
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
         <div class="search-bar">
           <i class="fas fa-search"></i>
@@ -259,43 +676,63 @@
       </div>
     </div>
 
-    <div class="filters-container">
-      <div class="filter-group">
-        <label class="filter-label">Keywords</label>
-        <input type="text" class="filter-input" id="filterKeywords" placeholder="e.g. Laptop, Shoes...">
+    <div class="post-composer">
+      <div class="composer-header">
+        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
+        <div class="composer-input" id="openComposer">Surprise the world</div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Category</label>
-        <select class="filter-select" id="filterCategory">
-          <option value="all">All Categories</option>
-          <option value="electronics">Electronics</option>
-          <option value="fashion">Fashion</option>
-          <option value="home">Home & Living</option>
-          <option value="services">Services</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">Max Price</label>
-        <input type="number" class="filter-input" id="filterPrice" placeholder="Any price">
-      </div>
-      <button class="filter-btn" onclick="applyFilters()">Filter Results</button>
     </div>
 
-    <div class="products-grid" id="productsContainer">
-      <div class="loading">Loading ads...</div>
+    <div class="meetai-button" onclick="toggleMeetAI()"><span>M</span></div>
+    <div class="meetai-assistant" id="meetaiAssistant">
+      <div class="meetai-header">
+        <h4 style="font-size: 16px;">MeetAI Assistant</h4>
+        <button class="close-modal" onclick="closeMeetAI()">&times;</button>
+      </div>
+      <div class="meetai-messages" id="meetaiMessages">
+        <div class="meetai-message meetai-bot">Hello! I'm MeetAI. How can I help?</div>
+      </div>
+      <div class="meetai-input">
+        <input type="text" id="meetaiInput" placeholder="Ask me anything...">
+        <button class="send-comment-btn" onclick="sendMeetAIMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
     </div>
 
+    <div id="messageContainer"></div>
+
+    <div class="posts" id="postsContainer">
+      <div class="loading">Loading meetcasts...</div>
+    </div>
   </div>
 </div>
 
-<div class="modal" id="notificationsModal">
+<div class="modal" id="postModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size: 18px;">Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+      <h3 id="modalTitle" style="font-size: 18px;">Create Meetcast</h3>
+      <button class="close-modal" id="closeModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="notificationsList"></div>
+      <div style="display:flex; gap:12px; margin-bottom:16px;">
+        <div class="user-avatar" id="modalUserAvatar">U</div>
+        <div>
+          <div id="modalUserName" style="font-weight:600; font-size: 16px;">User Name</div>
+          <select id="privacy" style="border:none; background:var(--bg-color); padding:4px; font-size: 14px;">
+            <option value="public">🌍 Public</option>
+            <option value="friends">👥 Associates</option>
+            <option value="private">🔒 Only Me</option>
+          </select>
+        </div>
+      </div>
+      <textarea class="post-textarea" id="postText" placeholder="Surprise the world"></textarea>
+      <div class="media-preview" id="mediaPreview"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <div style="display:flex; gap:10px;">
+            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
+            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size: 24px; cursor: pointer;"></i>
+        </div>
+        <button class="btn" id="postBtn" style="background:var(--primary); font-size: 16px;">Post</button>
+      </div>
     </div>
   </div>
 </div>
@@ -312,20 +749,47 @@
   </div>
 </div>
 
+<div class="modal" id="notificationsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="font-size: 18px;">Notifications</h3>
+      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="comments-modal" id="commentsModal">
+  <div class="comments-modal-content">
+    <div class="comments-modal-header">
+      <h3 style="font-size: 18px;">All Responses</h3>
+      <button class="close-modal" id="closeCommentsModal">&times;</button>
+    </div>
+    <div class="comments-modal-body" id="commentsModalBody">
+      </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { 
-    getFirestore, collection, doc, getDoc, getDocs, 
-    onSnapshot, query, where, orderBy, updateDoc, deleteDoc, setDoc, serverTimestamp 
+    getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
+    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, writeBatch, updateDoc
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+  // Cloudinary Config
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video';
 
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
     databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
     projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
+    storageBucket: "meet-6e159-firebasestorage.app",
     messagingSenderId: "252353608421",
     appId: "1:252353608421:web:6706056048e9a8f12db20c"
   };
@@ -334,66 +798,32 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  // Global State
   let currentUser = null;
+  let editingPostId = null; // Track edit state
   const userCache = {};
+  
+  // DOM Elements
+  const postsContainer = document.getElementById('postsContainer');
+  
+  // Helper: Show Messages
+  function showMessage(msg, type = 'success') {
+    const el = document.getElementById('messageContainer');
+    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:10px; margin:10px; border-radius:8px; text-align:center;">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 3000);
+  }
 
-  // Mock Data for Ads
-  const mockAds = [
-    {
-      id: 1,
-      title: "MacBook Pro M1",
-      price: "$950",
-      rawPrice: 950,
-      category: "electronics",
-      seller: "TechGuy",
-      desc: "Perfect condition, minimal scratches. Comes with box.",
-      images: [
-        "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1611186871348-640e0479d00b?auto=format&fit=crop&w=500&q=60"
-      ]
-    },
-    {
-      id: 2,
-      title: "Vintage Denim Jacket",
-      price: "$45",
-      rawPrice: 45,
-      category: "fashion",
-      seller: "Fashionista",
-      desc: "Size M, authentic vintage look.",
-      images: [
-        "https://images.unsplash.com/photo-1559551409-dadc959f76b8?auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?auto=format&fit=crop&w=500&q=60"
-      ]
-    },
-    {
-      id: 3,
-      title: "Modern Sofa Set",
-      price: "$300",
-      rawPrice: 300,
-      category: "home",
-      seller: "HomeDecor",
-      desc: "Grey 3-seater sofa. Very comfortable. Pickup only.",
-      images: [
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=60"
-      ]
-    },
-    {
-      id: 4,
-      title: "Graphic Design Service",
-      price: "$50/hr",
-      rawPrice: 50,
-      category: "services",
-      seller: "CreativeMind",
-      desc: "Logo, branding, and web design services.",
-      images: [
-        "https://images.unsplash.com/photo-1626785774573-4b799315545d?auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?auto=format&fit=crop&w=500&q=60"
-      ]
-    }
-  ];
+  // Helper: Upload Media
+  async function uploadMedia(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_PRESET);
+    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+    const data = await res.json();
+    return data.secure_url;
+  }
 
-  // --- Helper Functions ---
+  // Helper: Get User Data
   async function getUserDataWithCache(userId) {
     if (userCache[userId] && (Date.now() - userCache[userId].timestamp < 60000)) {
         return userCache[userId].data;
@@ -409,9 +839,11 @@
     return null;
   }
 
+  // Helper: Render Avatar
   function getAvatarHTML(photoURL, name, size = 'medium') {
     const initial = name ? name.charAt(0).toUpperCase() : 'U';
     const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
+    
     if (photoURL) {
       return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
     }
@@ -423,7 +855,7 @@
     window.location.href = `profile.html?uid=${targetId}`;
   };
 
-  // --- Auth & Init ---
+  // AUTH STATE
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = 'login.html';
@@ -434,103 +866,312 @@
       const name = userData?.displayName || user.displayName || 'User';
       
       document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
+      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
+      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
       document.getElementById('userName').textContent = name;
+      document.getElementById('modalUserName').textContent = name;
       
+      setupFeedListener();
       setupNotificationsCount();
-      renderProducts(mockAds);
     }
   });
 
-  // --- MEETRADER LOGIC ---
-
-  // 1. Render Products with Carousel & Counter
-  function renderProducts(ads) {
-    const container = document.getElementById('productsContainer');
-    container.innerHTML = '';
-
-    if(ads.length === 0) {
-        container.innerHTML = '<div class="loading">No items found matching criteria.</div>';
+  // =================== FEED LOGIC ===================
+  function setupFeedListener() {
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, async (snapshot) => {
+      postsContainer.innerHTML = "";
+      if (snapshot.empty) {
+        postsContainer.innerHTML = '<div class="loading">No meetcasts yet.</div>';
         return;
-    }
+      }
 
-    ads.forEach(ad => {
-        const hasMultiple = ad.images.length > 1;
-        const card = document.createElement('div');
-        card.className = 'product-card';
+      for (const docSnap of snapshot.docs) {
+        const post = docSnap.data();
+        const postId = docSnap.id;
         
-        let imagesHTML = '';
-        ad.images.forEach(img => {
-            imagesHTML += `<img src="${img}" class="ad-img" alt="${ad.title}">`;
-        });
+        const authorData = await getUserDataWithCache(post.userId);
+        const authorName = authorData?.displayName || post.userName || 'Anonymous';
+        const authorPhoto = authorData?.photoURL || post.photoURL;
 
-        card.innerHTML = `
-            <div class="ad-carousel" id="carousel-${ad.id}" data-index="0" data-total="${ad.images.length}">
-                <div class="ad-images-container" style="width: ${ad.images.length * 100}%">
-                    ${imagesHTML}
-                </div>
-                ${hasMultiple ? `
-                    <div class="ad-counter" id="counter-${ad.id}">1/${ad.images.length}</div>
-                    <button class="ad-nav-btn ad-prev" onclick="slideImage(${ad.id}, -1)">&#10094;</button>
-                    <button class="ad-nav-btn ad-next" onclick="slideImage(${ad.id}, 1)">&#10095;</button>
-                ` : ''}
-            </div>
-            <div class="product-details">
-                <div class="product-header">
-                    <div class="product-title">${ad.title}</div>
-                    <div class="product-price">${ad.price}</div>
-                </div>
-                <div class="product-seller">
-                    <div class="seller-avatar"></div>
-                    <span>${ad.seller}</span>
-                </div>
-                <div class="product-desc">${ad.desc}</div>
-                <div class="product-actions">
-                    <button class="action-btn-product btn-msg"><i class="fas fa-comment"></i> Message</button>
-                    <button class="action-btn-product btn-buy"><i class="fas fa-shopping-cart"></i> Buy Now</button>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
+        // 1. Real-time Count: Star and Response setup
+        const postEl = document.createElement('div');
+        postEl.className = 'post';
+        postEl.dataset.postId = postId;
+        
+        postsContainer.appendChild(postEl);
+        renderPost(postEl, post, postId, authorName, authorPhoto);
+        loadComments(postId); // Load comments once, onSnapshot handles updates
+        setupPostInteractionListeners(postId); // Setup listeners for real-time updates
+      }
     });
   }
 
-  // 2. Filter Logic
-  window.applyFilters = () => {
-      const keyword = document.getElementById('filterKeywords').value.toLowerCase();
-      const category = document.getElementById('filterCategory').value;
-      const maxPrice = document.getElementById('filterPrice').value;
+  // Helper to render post HTML (for initial load and updates)
+  async function renderPost(postEl, post, postId, authorName, authorPhoto) {
+      const currentUserId = currentUser.uid;
 
-      const filtered = mockAds.filter(ad => {
-          const matchesKeyword = ad.title.toLowerCase().includes(keyword) || ad.desc.toLowerCase().includes(keyword);
-          const matchesCategory = category === 'all' || ad.category === category;
-          const matchesPrice = !maxPrice || ad.rawPrice <= parseFloat(maxPrice);
-          return matchesKeyword && matchesCategory && matchesPrice;
+      // Check star status
+      const starSnap = await getDoc(doc(db, `posts/${postId}/stars/${currentUserId}`));
+      const isStarred = starSnap.exists();
+      
+      // Get Star Count (Use a dedicated query for a robust count)
+      const starCountSnap = await getDocs(collection(db, `posts/${postId}/stars`));
+      const starCount = starCountSnap.size;
+
+      // HTML Structure with counts and current star status
+      postEl.innerHTML = `
+        <div class="post-header">
+          <div class="post-user" onclick="viewProfile('${post.userId}')">
+            <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
+            <div>
+              <div style="font-weight:600; color:var(--primary); font-size: 16px;">${authorName}</div>
+              <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
+            </div>
+          </div>
+          ${post.userId === currentUserId ? `
+            <div class="post-options">
+              <i class="fas fa-ellipsis-h" onclick="togglePostMenu('${postId}')" style="cursor:pointer; color:var(--secondary-text);"></i>
+              <div class="post-options-menu" id="menu-${postId}">
+                <div class="post-option-item" onclick="editPost('${postId}', '${post.text?.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit Post</div>
+                <div class="post-option-item" onclick="deletePost('${postId}')" style="color:var(--error);"><i class="fas fa-trash"></i> Delete Post</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        <div class="post-content" id="content-${postId}">${post.text}</div>
+        ${post.media ? `<div class="post-media" onclick="openMediaModal('${post.media}')">
+           ${post.mediaType === 'video' ? `<video src="${post.media}" controls></video>` : `<img src="${post.media}">`}
+        </div>` : ''}
+        
+        <div class="post-interactions">
+           <div class="interaction-btn ${isStarred ? 'active' : ''}" id="star-btn-${postId}" onclick="toggleStar('${postId}')">
+              <i class="${isStarred ? 'fas' : 'far'} fa-star"></i> Star
+              <span class="count" id="star-count-${postId}">${starCount}</span>
+           </div>
+           <div class="interaction-btn" onclick="focusComment('${postId}')">
+              <i class="fas fa-comment" style="color: #4CAF50;"></i> Respond
+              <span class="count" id="response-count-${postId}">0</span>
+           </div>
+           <div class="interaction-btn" onclick="sharePost('${postId}')">
+              <i class="fas fa-share" style="color: #00BCD4;"></i> Share
+              <span class="count" id="share-count-${postId}">0</span>
+           </div>
+        </div>
+
+        <div class="comments-section" id="comments-${postId}"></div>
+        
+        <div class="comment-input">
+          ${getAvatarHTML(document.getElementById('currentUserAvatar').querySelector('img')?.src, 'Me', 'small')}
+          <input type="text" id="input-${postId}" placeholder="Write a response...">
+          <button class="send-comment-btn" onclick="sendResponse('${postId}')"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      `;
+  }
+  
+  // 1. Real-time Update Listeners for Star and Response
+  function setupPostInteractionListeners(postId) {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!postEl) return;
+    
+    // Star Listener
+    onSnapshot(collection(db, `posts/${postId}/stars`), (snap) => {
+        const starCount = snap.size;
+        const starCountEl = document.getElementById(`star-count-${postId}`);
+        if (starCountEl) starCountEl.textContent = starCount;
+
+        const starBtn = document.getElementById(`star-btn-${postId}`);
+        const isStarred = snap.docs.some(doc => doc.id === currentUser.uid);
+        if(starBtn) {
+            starBtn.classList.toggle('active', isStarred);
+            starBtn.querySelector('i').className = isStarred ? 'fas fa-star' : 'far fa-star';
+        }
+    });
+
+    // Response Listener
+    onSnapshot(collection(db, `posts/${postId}/responses`), (snap) => {
+        const responseCount = snap.size;
+        const responseCountEl = document.getElementById(`response-count-${postId}`);
+        if (responseCountEl) responseCountEl.textContent = responseCount;
+    });
+  }
+
+  // =================== FEED ACTIONS (Star, Share, Delete/Edit) ===================
+  
+  // A.2 Star Functionality
+  window.toggleStar = async (postId) => {
+    try {
+      const starRef = doc(db, `posts/${postId}/stars/${currentUser.uid}`);
+      const starSnap = await getDoc(starRef);
+      
+      if (starSnap.exists()) {
+        await deleteDoc(starRef);
+      } else {
+        await setDoc(starRef, { timestamp: serverTimestamp() });
+        // Notify author if not self
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.data().userId !== currentUser.uid) {
+           const userData = await getUserDataWithCache(currentUser.uid);
+           await addDoc(collection(db, "notifications"), {
+             targetUserId: postSnap.data().userId,
+             type: 'star',
+             text: `${userData?.displayName || 'Someone'} starred your meetcast`,
+             read: false,
+             createdAt: serverTimestamp()
+           });
+        }
+      }
+      // Listener auto-updates UI
+    } catch (e) { console.error(e); }
+  };
+
+  // A.3 Share Functionality (Count remains 0 as it's not tracked server-side)
+  window.sharePost = (postId) => {
+    const postUrl = window.location.origin + `/post.html?id=${postId}`;
+    const postText = document.getElementById(`content-${postId}`).innerText;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this Meetcast',
+        text: postText,
+        url: postUrl
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(postUrl);
+      showMessage("Link copied to clipboard!");
+    }
+  };
+
+  // A.4 Post Menu & Delete/Edit
+  window.togglePostMenu = (id) => {
+    const menu = document.getElementById(`menu-${id}`);
+    // Close others
+    document.querySelectorAll('.post-options-menu').forEach(el => {
+        if(el.id !== `menu-${id}`) el.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+  };
+  
+  // Close menus when clicking outside
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.post-options')) {
+        document.querySelectorAll('.post-options-menu').forEach(el => el.classList.remove('show'));
+    }
+  });
+
+  window.deletePost = async (postId) => {
+    if(!confirm("Are you sure you want to delete this meetcast?")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      showMessage("Meetcast deleted");
+    } catch (e) { console.error(e); }
+  };
+
+  window.editPost = (postId, currentText) => {
+    editingPostId = postId;
+    document.getElementById('postText').value = currentText;
+    document.getElementById('modalTitle').innerText = "Edit Meetcast";
+    document.getElementById('postBtn').innerText = "Update";
+    document.getElementById('postModal').style.display = 'flex';
+    // Hide media input for edit simplicity in this version
+    document.getElementById('postMedia').parentElement.style.display = 'none';
+  };
+
+  // =================== COMMENTS LOGIC ===================
+  // Load comments uses onSnapshot, so it naturally handles real-time updates for the list as well.
+  function loadComments(postId) {
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    onSnapshot(q, async (snapshot) => {
+      const container = document.getElementById(`comments-${postId}`);
+      const allComments = [];
+      for (const d of snapshot.docs) {
+        const c = d.data();
+        const cUser = await getUserDataWithCache(c.userId);
+        allComments.push({
+            id: d.id,
+            ...c,
+            freshPhoto: cUser?.photoURL || c.photoURL,
+            freshName: cUser?.displayName || c.userName
+        });
+      }
+
+      let html = '';
+      const displayCount = 2;
+      const total = allComments.length;
+
+      allComments.slice(0, displayCount).forEach(c => {
+        html += `
+          <div class="comment">
+             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(c.freshPhoto, c.freshName, 'small')}</div>
+             <div class="comment-content">
+                <div style="font-weight:600; font-size:14px; cursor:pointer" onclick="viewProfile('${c.userId}')">${c.freshName}</div>
+                <div>${c.text}</div>
+             </div>
+          </div>
+        `;
       });
-      renderProducts(filtered);
+
+      if (total > displayCount) {
+        html += `<div class="view-more-comments" onclick="openFullComments('${postId}')">View ${total - displayCount} more responses...</div>`;
+      }
+      container.innerHTML = html;
+    });
+  }
+
+  window.openFullComments = async (postId) => {
+    document.getElementById('commentsModal').style.display = 'flex';
+    const body = document.getElementById('commentsModalBody');
+    body.innerHTML = '<div class="loading">Loading responses...</div>';
+    
+    // Rerender the modal body every time
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    onSnapshot(q, async (snap) => {
+        let html = '';
+        for (const d of snap.docs) {
+           const c = d.data();
+           const cUser = await getUserDataWithCache(c.userId);
+           html += `
+              <div class="comment">
+                 <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(cUser?.photoURL, cUser?.displayName, 'small')}</div>
+                 <div class="comment-content">
+                    <div style="font-weight:600;">${cUser?.displayName || c.userName}</div>
+                    <div>${c.text}</div>
+                 </div>
+              </div>
+           `;
+        }
+        body.innerHTML = html;
+    });
   };
 
-  // 3. Image Slider Logic
-  window.slideImage = (id, direction) => {
-      const carousel = document.getElementById(`carousel-${id}`);
-      const container = carousel.querySelector('.ad-images-container');
-      const counter = document.getElementById(`counter-${id}`);
-      
-      let currentIndex = parseInt(carousel.dataset.index);
-      const total = parseInt(carousel.dataset.total);
-      
-      let newIndex = currentIndex + direction;
-      if (newIndex < 0) newIndex = 0;
-      if (newIndex >= total) newIndex = total - 1;
-
-      // Move Container
-      container.style.transform = `translateX(-${newIndex * (100 / total)}%)`;
-
-      // Update Counter
-      counter.innerText = `${newIndex + 1}/${total}`;
-      carousel.dataset.index = newIndex;
+  window.sendResponse = async (postId) => {
+    const input = document.getElementById(`input-${postId}`);
+    const text = input.value.trim();
+    if(!text) return;
+    try {
+        const userDoc = await getUserDataWithCache(currentUser.uid);
+        await addDoc(collection(db, `posts/${postId}/responses`), {
+            userId: currentUser.uid,
+            userName: userDoc?.displayName || currentUser.displayName,
+            photoURL: userDoc?.photoURL || currentUser.photoURL,
+            text: text,
+            createdAt: serverTimestamp()
+        });
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
+            await addDoc(collection(db, "notifications"), {
+                targetUserId: postSnap.data().userId,
+                type: 'response',
+                text: `${userDoc?.displayName || 'Someone'} responded to your meetcast`,
+                read: false,
+                createdAt: serverTimestamp()
+            });
+        }
+        input.value = '';
+    } catch(e) { console.error(e); }
   };
 
-  // --- Notification Logic (Copied from Feed) ---
+  // =================== NOTIFICATIONS (Instruction A.1) ===================
   function setupNotificationsCount() {
     const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
     onSnapshot(q, (snap) => {
@@ -577,24 +1218,30 @@
     });
   };
 
-  // Standard Modals
-  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
-  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
-  document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
-  
-  // Users Modal Logic (Reused)
+  window.markNotifRead = async (id) => {
+      await updateDoc(doc(db, "notifications", id), { read: true });
+  };
+
+  window.deleteNotif = async (id) => {
+      await deleteDoc(doc(db, "notifications", id));
+  };
+
+  // =================== ASSOCIATES ===================
   window.openUsersModal = async () => {
     document.getElementById('usersModal').style.display = 'flex';
     const list = document.getElementById('usersList');
     list.innerHTML = '<div class="loading">Loading users...</div>';
+    
     const snap = await getDocs(collection(db, "users"));
     let html = '';
+    
     for (const userDoc of snap.docs) {
         if (userDoc.id === currentUser.uid) continue;
         const user = userDoc.data();
+        
         const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
         const isAssoc = assocSnap.exists();
+
         html += `
           <div class="user-item">
              <div style="display:flex; align-items:center; gap:10px;">
@@ -610,21 +1257,157 @@
     }
     list.innerHTML = html;
   };
-  
+
   window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
-      try {
+    try {
         if (isCurrentlyAssociated) {
             await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
             await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
+            showMessage('Disassociated successfully');
         } else {
-            await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), { timestamp: serverTimestamp() });
-            await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
+            await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), {
+                timestamp: serverTimestamp()
+            });
+            await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), {
+                followerId: currentUser.uid,
+                timestamp: serverTimestamp()
+            });
+            
+            const userData = await getUserDataWithCache(currentUser.uid);
+            await addDoc(collection(db, "notifications"), {
+                targetUserId: targetId,
+                type: 'associate',
+                text: `${userData?.displayName || 'Someone'} associated with you.`,
+                read: false,
+                createdAt: serverTimestamp()
+            });
+            showMessage('Associate added!');
         }
         window.openUsersModal(); 
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+        showMessage('Action failed', 'error');
+    }
   };
 
+  // =================== POST CREATION & EDITING ===================
+  document.getElementById('postBtn').addEventListener('click', async () => {
+    const text = document.getElementById('postText').value;
+    const privacy = document.getElementById('privacy').value;
+    
+    if (!text && !editingPostId) return;
+
+    // EDIT MODE
+    if(editingPostId) {
+        try {
+            await updateDoc(doc(db, "posts", editingPostId), {
+                text: text,
+                privacy: privacy
+            });
+            showMessage('Meetcast updated!');
+            closeComposer();
+        } catch(e) { console.error(e); }
+        return;
+    }
+
+    // CREATE MODE
+    const fileInput = document.getElementById('postMedia');
+    let mediaUrl = null;
+    let mediaType = null;
+
+    if (fileInput.files.length) {
+        showMessage('Uploading media...', 'success');
+        mediaUrl = await uploadMedia(fileInput.files[0]);
+        mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
+    }
+
+    try {
+        const userData = await getUserDataWithCache(currentUser.uid);
+        await addDoc(collection(db, "posts"), {
+            userId: currentUser.uid,
+            userName: userData?.displayName || currentUser.displayName,
+            photoURL: userData?.photoURL || currentUser.photoURL,
+            text: text,
+            media: mediaUrl,
+            mediaType: mediaType,
+            privacy: privacy,
+            createdAt: serverTimestamp()
+        });
+        showMessage('Meetcast posted!');
+        closeComposer();
+    } catch (e) {
+        console.error(e);
+        showMessage('Error posting', 'error');
+    }
+  });
+
+  // Media Preview
+  document.getElementById('postMedia').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(file) {
+          const url = URL.createObjectURL(file);
+          const preview = document.getElementById('mediaPreview');
+          if(file.type.startsWith('video')) {
+              preview.innerHTML = `<video src="${url}" controls style="width:100%; max-height:200px;"></video>`;
+          } else {
+              preview.innerHTML = `<img src="${url}" style="width:100%; max-height:200px; object-fit:contain;">`;
+          }
+      }
+  });
+
+  // Helper to reset and close modal
+  function closeComposer() {
+      document.getElementById('postModal').style.display = 'none';
+      document.getElementById('postText').value = '';
+      document.getElementById('postMedia').value = '';
+      document.getElementById('mediaPreview').innerHTML = '';
+      // Reset to Create Mode
+      editingPostId = null;
+      document.getElementById('modalTitle').innerText = "Create Meetcast";
+      document.getElementById('postBtn').innerText = "Post";
+      document.getElementById('postMedia').parentElement.style.display = 'flex';
+  }
+
+  // Modal Toggle Logic
+  document.getElementById('openComposer').onclick = () => {
+      editingPostId = null;
+      document.getElementById('modalTitle').innerText = "Create Meetcast";
+      document.getElementById('postBtn').innerText = "Post";
+      document.getElementById('postMedia').parentElement.style.display = 'flex';
+      document.getElementById('postModal').style.display = 'flex';
+  };
+
+  document.getElementById('closeModal').onclick = closeComposer;
+  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
+  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
+  document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
+  
+  document.getElementById('nightToggleBtn').onclick = () => {
+      document.body.classList.toggle('dark-mode');
+  };
+  
+  document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+  window.toggleMeetAI = () => {
+      const el = document.getElementById('meetaiAssistant');
+      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+  }
+  window.closeMeetAI = () => document.getElementById('meetaiAssistant').style.display = 'none';
+  window.sendMeetAIMessage = () => {
+      const input = document.getElementById('meetaiInput');
+      const container = document.getElementById('meetaiMessages');
+      if(!input.value) return;
+      container.innerHTML += `<div class="meetai-message meetai-user">${input.value}</div>`;
+      setTimeout(() => {
+          container.innerHTML += `<div class="meetai-message meetai-bot">I can help you connect with associates or improve your profile!</div>`;
+          container.scrollTop = container.scrollHeight;
+      }, 1000);
+      input.value = '';
+  }
+
+  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
   window.auth = auth;
+
 </script>
 </body>
 </html>
