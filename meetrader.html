@@ -7,12 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+  /* --- BASE STYLES FROM FEED.HTML (DO NOT CHANGE) --- */
   :root {
     --primary: #0080FF;
     --primary-dark: #0066CC;
-    --accent: #00C6FF;
-    --success: #10B981;
     --error: #EF4444;
+    --success: #10B981;
+    --warning: #F59E0B;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
@@ -20,538 +21,342 @@
     --border-color: #dddfe2;
     --online: #10B981;
     --offline: #EF4444;
-    --radius: 12px;
-    --shadow: 0 2px 8px rgba(0,0,0,0.1);
-    --error: #EF4444;
-    --success: #10B981;
   }
 
   body.dark-mode {
-@@ -30,341 +24,169 @@
+    --bg-color: #18191a;
+    --card-bg: #242526;
     --text-color: #e4e6eb;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
-    --shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-  html, body {
-    height: 100%;
-    overflow-x: hidden;
-    font-size: 16px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; font-size: 18px; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; }
   
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    min-height: 100vh;
-    -webkit-overflow-scrolling: touch;
-    font-size: 15px;
-  }
+  .app-container { display: flex; min-height: 100vh; position: relative; }
 
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-  }
-  .app-container { display: flex; min-height: 100vh; }
-
-  /* Sidebar */
-  /* --- NEW SIDEBAR STYLE (FROM PROFILE) --- */
+  /* --- SIDEBAR (MATCHING FEED) --- */
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 280px;
-    position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
+    position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 20px;
-    transition: all 0.3s ease;
-    color: white;
+    border-right: 1px solid var(--border-color); overflow-y: auto; z-index: 100; padding: 15px; color: white;
   }
-  .sidebar-header {
-    padding: 10px 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
-    overflow-y: auto; z-index: 100; padding: 20px; color: white;
-  }
-  .sidebar-header h2 { margin-bottom: 20px; color: white; }
+  .sidebar-header { padding: 5px 0 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 15px; }
   .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 12px; }
+  .sidebar-menu li { margin-bottom: 6px; }
   .sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    text-decoration: none;
-    color: white;
-    border-radius: 8px;
-    transition: background 0.3s;
-    min-height: 44px;
-    font-size: 16px;
-    margin-bottom: 8px;
-    display: flex; align-items: center; padding: 10px;
-    text-decoration: none; color: white; border-radius: 8px;
-    transition: background 0.3s; font-size: 16px;
+    display: flex; align-items: center; padding: 10px; text-decoration: none; color: white;
+    border-radius: 8px; transition: background 0.3s; min-height: 40px; font-size: 16px;
   }
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  .sidebar-menu i {
-    margin-right: 12px;
-    font-size: 18px;
-  .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255, 255, 255, 0.2); }
-  .sidebar-icon {
-    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; margin-right: 12px; background: rgba(255,255,255,0.2);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { margin-right: 10px; font-size: 18px; width: 22px; text-align: center; }
 
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    margin-left: 280px;
-    padding: 20px;
-    min-height: 100vh;
-    flex: 1; margin-left: 240px; padding: 20px; width: calc(100% - 240px);
-  }
+  /* Icons Colors */
+  .sidebar-menu a[href="feed.html"] i { color: #fff; }
+  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; }
+  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
+  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; }
+  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; }
+  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; }
+  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; }
 
-  /* Navbar */
+  .main-content { flex: 1; margin-left: 180px; padding: 15px; min-height: 100vh; font-size: 18px; }
+
+  /* --- NAVBAR (MATCHING FEED) --- */
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: var(--shadow);
-    color: white;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: white; flex-wrap: wrap; gap: 8px;
   }
+  .nav-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .search-bar {
+    display: flex; align-items: center; background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px; padding: 6px 12px; margin-right: 10px;
+  }
+  .search-bar input { background: transparent; border: none; color: white; outline: none; width: 180px; font-size: 16px; }
+  .search-bar input::placeholder { color: rgba(255, 255, 255, 0.7); }
+  
   .user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    min-height: 44px;
-    padding: 15px 20px; border-radius: 12px; margin-bottom: 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+    border-radius: 20px; background: rgba(255, 255, 255, 0.2);
+    cursor: pointer; position: relative; min-height: 36px;
   }
-
   .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    position: relative;
-    min-width: 40px;
-    border: 2px solid white;
-    overflow: hidden; /* Essential for images */
+    width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; cursor: pointer; position: relative; min-width: 36px; font-size: 16px; overflow: hidden;
   }
-  .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .user-avatar.small { width: 28px; height: 28px; font-size: 14px; min-width: 28px; }
+  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-  .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-  .user-avatar {
-    width: 35px; height: 35px; border-radius: 50%; background: white;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; font-weight: bold; color: var(--primary);
-  }
-  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-  .user-avatar.small {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
   .btn {
-    background: rgba(255,255,255,0.2); border: none; color: white;
-    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    background: rgba(255, 255, 255, 0.2); color: white; border: none;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    transition: background 0.3s; display: flex; align-items: center; gap: 6px;
+    font-size: 16px; min-height: 36px;
   }
-
-  /* Meetrader Grid */
-  .meetrader-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-  }
-  .item-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-    display: flex;
-    flex-direction: column;
-  }
-  .item-image-container {
-      position: relative;
-      width: 100%;
-      height: 200px;
-      overflow: hidden;
-  }
-  .item-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .post-btn { background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-  .post-btn:hover { background: #0066cc; }
-
-  .item-details {
-    padding: 12px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  .items-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;
-  }
-
-  .item-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .item-title {
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.3;
-  }
-  .item-price {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--primary);
-    white-space: nowrap;
-  }
-  .item-seller {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 10px;
-  .item-card {
-    background: var(--card-bg); border-radius: 12px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-    position: relative;
-  }
-
-  .seller-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    overflow: hidden;
-  }
-  .item-image { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-
-  .seller-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-  }
-  .item-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
-  .item-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .item-price { color: var(--primary); font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+  .btn i { font-size: 18px; }
+  #notificationsBtn i { color: #FFC107; }
+  #nightToggleBtn i { color: #9C27B0; }
+  #logoutBtn i { color: #EF4444; }
+  .btn:hover { background: rgba(255, 255, 255, 0.3); }
   
-  .item-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); }
-  .seller-info { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-  .seller-pic { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: #ccc; }
-  
-  .item-stats { display: flex; gap: 10px; font-size: 12px; color: var(--secondary-text); }
-  .stat { display: flex; align-items: center; gap: 4px; }
+  .unread-badge {
+    background: var(--error); color: white; border-radius: 50%;
+    padding: 2px 5px; font-size: 10px; display: none;
+    min-width: 16px; justify-content: center; align-items: center;
+  }
 
-  /* Buttons */
+  /* --- MEETRADER SPECIFIC STYLES --- */
+  
+  /* Filter Section */
+  .filters-container {
+    background: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 15px; align-items: center;
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+  .filter-label { font-size: 14px; color: var(--secondary-text); font-weight: 600; }
+  .filter-select, .filter-input {
+    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
+  }
+  .filter-btn {
+    background: var(--primary); color: white; border: none; padding: 10px 20px;
+    border-radius: 8px; cursor: pointer; font-weight: 600; height: 40px; align-self: flex-end;
+  }
+
+  /* Product Grid */
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+  /* Product Card */
+  .product-card {
+    background: var(--card-bg); border-radius: 10px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;
+    display: flex; flex-direction: column; position: relative;
+  }
+  .product-card:hover { transform: translateY(-5px); }
+
+  /* Instagram-like Carousel */
+  .ad-carousel { position: relative; width: 100%; height: 250px; background: #000; overflow: hidden; }
+  .ad-images-container { display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out; }
+  .ad-img { min-width: 100%; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Counter Badge (1/3) */
+  .ad-counter {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0, 0, 0, 0.6); color: white;
+    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; z-index: 10;
+  }
+
+  /* Navigation Arrows */
+  .ad-nav-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    opacity: 0.7; transition: opacity 0.2s;
+  }
+  .ad-nav-btn:hover { opacity: 1; background: white; }
+  .ad-prev { left: 10px; }
+  .ad-next { right: 10px; }
+
+  /* Product Details */
+  .product-details { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .product-title { font-weight: 700; font-size: 18px; color: var(--text-color); }
+  .product-price { color: var(--success); font-weight: 700; font-size: 18px; }
+  .product-seller { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; color: var(--secondary-text); }
+  .seller-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; overflow: hidden; }
+  .seller-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .product-desc { font-size: 14px; color: var(--secondary-text); margin-bottom: 15px; flex: 1; line-height: 1.4; }
+  
+  .product-actions { display: flex; gap: 10px; margin-top: auto; }
+  .action-btn-product {
+    flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-msg { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
+  .btn-buy { background: var(--primary); color: white; }
+
+  /* Post Button */
   .post-item-btn {
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    color: white;
-    border: 0;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  .view-btn {
-      width: 100%; padding: 8px; margin-top: 10px;
-      background: transparent; border: 1px solid var(--primary);
-      color: var(--primary); border-radius: 6px; cursor: pointer; font-weight: 600;
+    background: var(--primary); color: white; border: none; padding: 10px 20px;
+    border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
   }
-  .view-btn:hover { background: var(--primary); color: white; }
 
-  /* Modal Styles */
-  /* MODALS */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); z-index: 1000;
-    justify-content: center; align-items: center; padding: 20px;
-  }
-  .modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    background: var(--card-bg); width: 600px; max-width: 100%; max-height: 90vh;
-    border-radius: 12px; overflow-y: auto; display: flex; flex-direction: column;
-  }
-  .form-group {
-    margin-bottom: 15px;
-  .modal-header {
-    padding: 15px; border-bottom: 1px solid var(--border-color);
-    display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; background: var(--card-bg); z-index: 10;
-  }
-  .modal-body { padding: 20px; }
+  /* Loading & Modals */
+  .loading { text-align: center; padding: 20px; color: var(--secondary-text); width: 100%; }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
+  .modal-content { background: var(--card-bg); border-radius: 10px; width: 600px; max-width: 90%; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .modal-header { padding: 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
+  .modal-body { padding: 14px; }
+  .close-modal { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--secondary-text); }
 
   /* Forms */
   .form-group { margin-bottom: 15px; }
-  .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+  .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
   .form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--text-color);
-    width: 100%; padding: 10px; border: 1px solid var(--border-color);
-    border-radius: 8px; background: var(--bg-color); color: var(--text-color);
+    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
+    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
   }
   .form-textarea { resize: vertical; min-height: 80px; }
   
-  .radio-group { display: flex; flex-direction: column; gap: 8px; }
-  .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  /* Radio Group */
+  .radio-group { display: flex; flex-direction: column; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); }
+  .radio-item { display: flex; align-items: center; gap: 10px; }
+  .radio-item input[type="radio"] { accent-color: var(--primary); transform: scale(1.2); }
   
   /* Image Upload Grid */
-  .upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin-top: 5px; }
-  .upload-box {
-    height: 70px; border: 2px dashed var(--border-color); border-radius: 6px;
+  .image-upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 5px; }
+  .image-upload-box {
+    height: 80px; border: 2px dashed var(--border-color); border-radius: 6px;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
     position: relative; overflow: hidden;
   }
-  .upload-box img { width: 100%; height: 100%; object-fit: cover; }
-  .remove-img { position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 10px; }
-  /* Item Detail Styles */
-  .detail-gallery { height: 300px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; border-radius: 8px; }
-  .detail-img { max-width: 100%; max-height: 100%; }
-  .gallery-nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; px: 10px; }
-  .nav-btn { background: rgba(0,0,0,0.5); color: white; border: none; padding: 10px; cursor: pointer; border-radius: 50%; margin: 0 10px; }
+  .image-upload-box img { width: 100%; height: 100%; object-fit: cover; }
+  .remove-img { position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 10px; cursor: pointer; }
+
+  /* Details Modal Specifics */
+  .detail-gallery { height: 300px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; border-radius: 8px; overflow: hidden; }
+  .detail-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .nav-btn { position: absolute; background: rgba(255,255,255,0.3); color: white; border: none; padding: 10px; cursor: pointer; border-radius: 50%; margin: 0 10px; }
+  .nav-btn:hover { background: rgba(255,255,255,0.6); }
   
-  .detail-info h2 { margin-bottom: 5px; }
+  .detail-info h2 { margin-bottom: 5px; font-size: 22px; }
   .detail-price { font-size: 20px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
   .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 10px 0; font-size: 14px; }
   
   /* Reviews */
   .reviews-section { margin-top: 20px; border-top: 2px solid var(--border-color); padding-top: 15px; }
   .review-item { background: var(--bg-color); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-  .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; color: var(--secondary-text); }
-  .delete-review { color: var(--error); cursor: pointer; }
+  .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: var(--secondary-text); }
+  .delete-review { color: var(--error); cursor: pointer; font-size: 12px; }
 
-  /* Radio Group (New Style) */
-  .radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-color);
-  }
-  .radio-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-  }
-  .radio-item input[type="radio"] {
-      accent-color: var(--primary);
-      transform: scale(1.2);
-  }
-  .image-upload-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-  }
-  .image-upload-box {
-    border: 2px dashed var(--border-color);
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .image-preview-thumb { width: 100%; height: 100%; object-fit: cover; }
-  /* Responsive adjustments */
+  /* Notification Items */
+  .notif-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+  .notif-unread { background: #f0f9ff; }
+  .notif-actions { display: flex; gap: 8px; }
+  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 13px; }
+  
+  /* Users List */
+  .user-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+  .association-btn { padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .associate-btn { background: var(--primary); color: white; }
+  .disassociate-btn { background: var(--error); color: white; }
+
   /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 70px; padding: 10px 5px; }
+    .sidebar { width: 60px; padding: 8px 4px; }
     .sidebar-header { display: none; }
-    .sidebar-menu a { flex-direction: column; font-size: 10px; text-align: center; padding: 5px; }
-    .sidebar-menu i { margin: 0 0 5px 0; }
-    .main-content { margin-left: 70px; padding: 10px; }
-    
-    /* Force 2 columns on mobile */
-    .meetrader-items {
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 10px;
-    }
-    
-    .item-image-container {
-        height: 140px; /* Smaller images for mobile */
-    }
-    
-    .item-title { font-size: 14px; }
-    .item-price { font-size: 14px; }
-    
-    .sidebar-menu a { flex-direction: column; padding: 8px 2px; font-size: 11px; text-align: center; }
-    .sidebar-icon { margin: 0 0 5px 0; }
-    .main-content { margin-left: 70px; width: calc(100% - 70px); padding: 10px; }
-    .items-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } /* 2 items per row */
+    .sidebar-menu a { flex-direction: column; padding: 8px 4px; font-size: 12px; text-align: center; }
+    .sidebar-menu i { margin-right: 0; margin-bottom: 4px; font-size: 18px; }
+    .main-content { margin-left: 60px; padding: 8px; width: calc(100% - 60px); }
     .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .search-bar, .user-profile-nav span, .btn span { display: none; }
     .nav-controls { width: 100%; justify-content: space-between; }
-    .search-bar { display: none; }
-    .item-image { height: 140px; }
+    .btn { padding: 6px; flex: 1; justify-content: center; }
+    .filters-container { flex-direction: column; align-items: stretch; }
+    .filter-btn { width: 100%; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .ad-carousel { height: 150px; }
   }
 </style>
 </head>
-@@ -373,291 +195,509 @@
+<body>
+
 <div class="app-container">
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2 style="color: white;">MEET</h2>
-      <h2>MEET</h2>
+      <h2 style="color: white; font-size: 20px;">MEET</h2>
     </div>
     <ul class="sidebar-menu">
       <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="meetrader.html" style="background: rgba(255, 255, 255, 0.2);"><i class="fas fa-store"></i> <span>Meetrader</span></a></li>
+      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
       <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li>
-        <a href="feed.html">
-          <div class="sidebar-icon" style="background: linear-gradient(135deg, #FF6B6B, #EE5253);"><i class="fas fa-home"></i></div>
-          <span>Feed</span>
-        </a>
-      </li>
-      <li>
-        <a href="profile.html">
-          <div class="sidebar-icon" style="background: linear-gradient(135deg, #4834D4, #686DE0);"><i class="fas fa-user"></i></div>
-          <span>Profile</span>
-        </a>
-      </li>
-      <li>
-        <a href="meetrader.html" class="active">
-          <div class="sidebar-icon" style="background: linear-gradient(135deg, #F0932B, #FFBE76);"><i class="fas fa-store"></i></div>
-          <span>Meetrader</span>
-        </a>
-      </li>
-      <li>
-        <a href="chat.html">
-            <div class="sidebar-icon" style="background: linear-gradient(135deg, #6AB04C, #BADC58);"><i class="fas fa-comment"></i></div>
-            <span>Chat</span>
-        </a>
-      </li>
+      <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
+      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
+      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
+      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white;">Meetrader</h2>
-      <h2>Meetrader Marketplace</h2>
-      <div class="nav-controls">
-        <div class="user-profile-nav">
-          <div class="user-avatar small" id="currentUserAvatar"></div>
-          <span id="userName" style="color:white; font-weight:600; margin-left:5px;">User</span>
+      <h2 style="color: white; font-size: 20px;">Meetrader</h2>
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search...">
         </div>
-        <div class="user-avatar" id="navAvatar">U</div>
-        <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        <div class="nav-controls">
+          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
+            <div class="user-avatar small" id="currentUserAvatar">U</div>
+            <span id="userName" style="font-size: 15px;">User</span>
+          </div>
+          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
+            <i class="fas fa-bell"></i> <span style="font-size: 15px;">Notifications</span>
+            <span class="unread-badge" id="unreadBadge"></span>
+          </button>
+          <button class="btn" id="nightToggleBtn">
+            <i class="fas fa-moon"></i> <span style="font-size: 15px;">Night Mode</span>
+          </button>
+          <button class="btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> <span style="font-size: 15px;">Logout</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div id="messageContainer" style="position:fixed; top:20px; right:20px; z-index:9999;"></div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h1 style="margin:0; font-size:24px;">Marketplace</h1>
-        <button class="post-item-btn" id="postItemBtn"><i class="fas fa-plus"></i> Post Item</button>
-    <div class="header-row">
-        <h3>Recent Items</h3>
-        <button class="post-btn" onclick="openPostModal()"><i class="fas fa-plus"></i> Post Item</button>
+        <button class="post-item-btn" onclick="openPostModal()"><i class="fas fa-plus"></i> Post Item</button>
     </div>
 
-    <div class="meetrader-items" id="meetraderItems">
-        </div>
-    <div id="emptyState" style="display:none; text-align:center; padding:40px; color:#666;">
-        <i class="fas fa-store" style="font-size:40px; margin-bottom:10px;"></i>
-        <p>No items found. Be the first to post!</p>
-    <div class="items-grid" id="itemsGrid">
-        <div style="grid-column:1/-1; text-align:center; padding:40px;">Loading items...</div>
+    <div class="filters-container">
+      <div class="filter-group">
+        <label class="filter-label">Keywords</label>
+        <input type="text" class="filter-input" id="filterKeywords" placeholder="e.g. Laptop, Shoes...">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Category</label>
+        <select class="filter-select" id="filterCategory">
+          <option value="all">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Services">Services</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Max Price</label>
+        <input type="number" class="filter-input" id="filterPrice" placeholder="Any price">
+      </div>
+      <button class="filter-btn" onclick="applyFilters()">Filter Results</button>
+    </div>
+
+    <div class="products-grid" id="productsContainer">
+      <div class="loading">Loading ads...</div>
     </div>
   </div>
 </div>
 
-<div class="modal" id="postItemModal">
 <div class="modal" id="postModal">
   <div class="modal-content">
-    <div style="padding:16px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between;">
     <div class="modal-header">
       <h3>Post New Item</h3>
-      <i class="fas fa-times" id="closePostItemModal" style="cursor:pointer;"></i>
-      <button onclick="closePostModal()" style="background:none; border:none; font-size:20px;">&times;</button>
+      <button class="close-modal" onclick="closePostModal()">&times;</button>
     </div>
-    <div style="padding:16px;">
-      <form id="postItemForm">
     <div class="modal-body">
       <form id="postForm">
         <div class="form-group">
-          <label>Item Title</label>
-          <input type="text" class="form-input" id="itemTitle" required>
             <label class="form-label">Item Title</label>
             <input type="text" id="pTitle" class="form-input" required>
         </div>
 
-        <div class="form-group">
-          <label>Description</label>
-          <textarea class="form-textarea" id="itemDescription" required></textarea>
         <div style="display:flex; gap:10px;">
             <div class="form-group" style="flex:1">
                 <label class="form-label">Currency</label>
@@ -559,10 +364,6 @@
                     <option value="NGN">₦ NGN</option>
                     <option value="USD">$ USD</option>
                     <option value="EUR">€ EUR</option>
-                    <option value="GBP">£ GBP</option>
-                    <option value="GHS">₵ GHS</option>
-                    <option value="KES">KSh KES</option>
-                    <option value="ZAR">R ZAR</option>
                 </select>
             </div>
             <div class="form-group" style="flex:1">
@@ -571,206 +372,107 @@
             </div>
         </div>
 
-        <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>
-                <label>Seller Phone Number</label>
-                <input type="tel" class="form-input" id="sellerPhone" placeholder="+123..." required>
         <div style="display:flex; gap:10px;">
              <div class="form-group" style="flex:1">
-                <label class="form-label">Quantity Available</label>
+                <label class="form-label">Quantity</label>
                 <input type="number" id="pQty" class="form-input" value="1" required>
             </div>
-            <div>
-                <label>Gmail (Email)</label>
-                <input type="email" class="form-input" id="sellerEmail" placeholder="example@gmail.com" required>
             <div class="form-group" style="flex:1">
                 <label class="form-label">Condition</label>
                 <select id="pCondition" class="form-select">
                     <option value="New">New</option>
-                    <option value="Like New">Like New</option>
-                    <option value="Fairly Used">Fairly Used</option>
-                    <option value="Old">Old / Vintage</option>
-                    <option value="Refurbished">Refurbished</option>
+                    <option value="Used">Used</option>
                 </select>
             </div>
         </div>
         
         <div class="form-group">
-          <label>Price</label>
-          <div style="display:flex; gap:10px;">
-            <select class="form-select" id="itemCurrency" style="width:100px;">
-              <option value="NGN">₦ NGN</option>
-              <option value="USD">$ USD</option>
-              <option value="EUR">€ EUR</option>
             <label class="form-label">Category</label>
             <select id="pCategory" class="form-select">
                 <option value="Electronics">Electronics</option>
-                <option value="Phones & Tablets">Phones & Tablets</option>
-                <option value="Fashion">Fashion & Clothing</option>
+                <option value="Fashion">Fashion</option>
                 <option value="Furniture">Furniture</option>
-                <option value="Vehicles">Vehicles</option>
-                <option value="Real Estate">Real Estate</option>
                 <option value="Services">Services</option>
-                <option value="Books">Books & Courses</option>
                 <option value="Other">Other</option>
             </select>
-            <input type="number" class="form-input" id="itemPrice" required>
-          </div>
         </div>
-        
+
         <div class="form-group">
-            <label>Payment Means (Select One)</label>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" id="payDelivery" name="paymentMeans" value="Pay at Delivery" checked>
-                    <label for="payDelivery">Pay at Delivery</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="payEscrow" name="paymentMeans" value="Pay Before (Escrow)">
-                    <label for="payEscrow">Pay Before Delivery (Escrow)</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="payMeetpay" name="paymentMeans" value="Pay via Meetpay">
-                    <label for="payMeetpay">Pay via Meetpay</label>
-                </div>
             <label class="form-label">Description</label>
             <textarea id="pDesc" class="form-textarea" placeholder="Describe item details..." required></textarea>
         </div>
+
         <div style="display:flex; gap:10px;">
             <div class="form-group" style="flex:1">
                 <label class="form-label">Seller Phone</label>
                 <input type="tel" id="pPhone" class="form-input" required>
             </div>
             <div class="form-group" style="flex:1">
-                <label class="form-label">Gmail (Email)</label>
+                <label class="form-label">Email</label>
                 <input type="email" id="pEmail" class="form-input" required>
             </div>
         </div>
         
         <div class="form-group">
-          <label>Location</label>
-          <input type="text" class="form-input" id="itemLocation" required>
-            <label class="form-label">Means of Payment</label>
+          <label class="form-label">Location</label>
+          <input type="text" class="form-input" id="pLocation" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Payment Method</label>
             <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="pPayment" value="Meetpay" checked> Pay via Meetpay (Recommended)</label>
-                <label class="radio-label"><input type="radio" name="pPayment" value="Cash on Delivery"> Cash on Delivery</label>
-                <label class="radio-label"><input type="radio" name="pPayment" value="Bank Transfer"> Bank Transfer (Escrow)</label>
+                <div class="radio-item">
+                    <input type="radio" name="pPayment" value="Meetpay" checked id="pay1">
+                    <label for="pay1">Pay via Meetpay</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pPayment" value="Cash on Delivery" id="pay2">
+                    <label for="pay2">Cash on Delivery</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Delivery Method</label>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" name="pDelivery" value="Pickup" checked id="del1">
+                    <label for="del1">Pickup</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pDelivery" value="Shipping" id="del2">
+                    <label for="del2">Shipping</label>
+                </div>
             </div>
         </div>
         
         <div class="form-group">
-          <label>Category</label>
-          <select class="form-select" id="itemCategory" required>
-            <option value="electronics">Electronics</option>
-            <option value="clothing">Clothing</option>
-            <option value="furniture">Furniture</option>
-            <option value="other">Other</option>
-          </select>
-            <label class="form-label">Means of Delivery</label>
-            <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="pDelivery" value="Pick up by buyer" checked> Pick up by buyer</label>
-                <label class="radio-label"><input type="radio" name="pDelivery" value="Through third party"> Through third party (Courier)</label>
-                <label class="radio-label"><input type="radio" name="pDelivery" value="Through seller"> Through seller</label>
-            </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Images</label>
-          <div class="image-upload-grid" id="imageUploadGrid">
-              <div class="image-upload-box" id="addImageBox">
-                <i class="fas fa-camera"></i>
-              </div>
-          </div>
-          <input type="file" id="itemImages" accept="image/*" multiple style="display: none">
             <label class="form-label">Images (Max 5)</label>
-            <div class="upload-grid" id="uploadGrid">
-                <div class="upload-box" onclick="document.getElementById('pImages').click()">
-                    <i class="fas fa-camera"></i>
+            <div class="image-upload-grid" id="uploadGrid">
+                <div class="image-upload-box" onclick="document.getElementById('pImages').click()">
+                    <i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i>
                 </div>
             </div>
             <input type="file" id="pImages" accept="image/*" multiple style="display:none">
         </div>
         
         <button type="submit" class="post-item-btn" style="width:100%; justify-content:center;">Post Item</button>
-        <button type="submit" class="post-btn" style="width:100%; justify-content:center;">Post Item</button>
       </form>
     </div>
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  let uploadedImageFiles = [];
-  let currentUser = null;
-  // Auth State Listener for Navbar Avatar
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          currentUser = user;
-          document.getElementById('userName').textContent = user.displayName || 'User';
-          
-          const avatarContainer = document.getElementById('currentUserAvatar');
-          if (user.photoURL) {
-              avatarContainer.innerHTML = `<img src="${user.photoURL}" alt="User">`;
-          } else {
-              avatarContainer.innerHTML = (user.displayName || 'U').charAt(0).toUpperCase();
-          }
-          
-          setupFeed();
-      } else {
-          window.location.href = 'login.html';
-      }
-  });
-  // Real-time Feed Listener
-  function setupFeed() {
-      const q = query(collection(db, "meetrader"), orderBy("timestamp", "desc"));
-      onSnapshot(q, (snapshot) => {
-          const container = document.getElementById('meetraderItems');
-          container.innerHTML = '';
-          
-          if (snapshot.empty) {
-              document.getElementById('emptyState').style.display = 'block';
-              return;
-          }
-          document.getElementById('emptyState').style.display = 'none';
-          snapshot.forEach((doc) => {
-              const item = doc.data();
-              // Profile Picture Logic for Seller
-              let sellerAvatarHTML = '';
-              if (item.userPhoto) {
-                  sellerAvatarHTML = `<img src="${item.userPhoto}" alt="${item.userName}">`;
-              } else {
-                  sellerAvatarHTML = item.userInitial || 'U';
-              }
-              const div = document.createElement('div');
-              div.className = 'item-card';
-              div.innerHTML = `
-                <div class="item-image-container">
-                    <img src="${item.images && item.images[0] ? item.images[0] : 'https://via.placeholder.com/300'}" class="item-image">
 <div class="modal" id="detailModal">
     <div class="modal-content">
         <div class="modal-header">
             <h3>Item Details</h3>
-            <button onclick="closeDetailModal()" style="background:none; border:none; font-size:20px;">&times;</button>
+            <button class="close-modal" onclick="closeDetailModal()">&times;</button>
         </div>
         <div class="modal-body">
             <div class="detail-gallery">
-                <button class="nav-btn" style="left:0" onclick="swapImage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn" style="left:0" onclick="swapDetailImage(-1)"><i class="fas fa-chevron-left"></i></button>
                 <img id="dMainImg" class="detail-img" src="">
-                <button class="nav-btn" style="right:0" onclick="swapImage(1)"><i class="fas fa-chevron-right"></i></button>
+                <button class="nav-btn" style="right:0" onclick="swapDetailImage(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
             
             <div class="detail-info">
@@ -789,8 +491,6 @@
                 <div class="detail-row">
                     <span>Condition:</span> <span id="dCondition"></span>
                 </div>
-                <div class="item-details">
-                    <div class="item-header">
                  <div class="detail-row">
                     <span>Available:</span> <span id="dQty"></span>
                 </div>
@@ -805,14 +505,15 @@
                     <p id="dDesc" style="margin-top:5px; color:var(--secondary-text);"></p>
                 </div>
             </div>
+
             <div class="reviews-section">
                 <h4>Reviews & Ratings</h4>
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="newRating" class="form-select" style="width:80px;">
-                        <option value="5">5 ★</option>
-                        <option value="4">4 ★</option>
-                        <option value="3">3 ★</option>
-                        <option value="2">2 ★</option>
+                    <select id="newRating" class="form-select" style="width:100px;">
+                        <option value="5">5 ★★★★★</option>
+                        <option value="4">4 ★★★★</option>
+                        <option value="3">3 ★★★</option>
+                        <option value="2">2 ★★</option>
                         <option value="1">1 ★</option>
                     </select>
                     <input type="text" id="newReviewText" class="form-input" placeholder="Write a review...">
@@ -823,142 +524,212 @@
         </div>
     </div>
 </div>
+
+<div class="modal" id="notificationsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="font-size: 18px;">Notifications</h3>
+      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="usersModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="font-size: 18px;">Find Associates</h3>
+      <button class="close-modal" id="closeUsersModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="usersList"><div class="loading">Loading users...</div></div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { 
+        getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
+        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
         authDomain: "meet-6e159.firebaseapp.com",
         databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
         projectId: "meet-6e159",
-        storageBucket: "meet-6e159.firebasestorage.app",
+        storageBucket: "meet-6e159-firebasestorage.app",
         messagingSenderId: "252353608421",
         appId: "1:252353608421:web:6706056048e9a8f12db20c"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+
     let currentUser = null;
     let uploadedImages = [];
-    let currentItem = null; // For details modal
-    let currentImgIdx = 0;
-    // Auth Check
-    onAuthStateChanged(auth, (user) => {
+    let allItems = []; // For filtering
+    let currentItem = null; // For details view
+    let currentDetailImgIdx = 0; // For details view gallery
+
+    // --- HELPER FUNCTIONS ---
+    function getAvatarHTML(photoURL, name, size = 'medium') {
+        const initial = name ? name.charAt(0).toUpperCase() : 'U';
+        const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
+        if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
+        return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+    }
+
+    window.viewProfile = (targetId) => { if(targetId) window.location.href = `profile.html?uid=${targetId}`; };
+
+    // --- AUTH & INIT ---
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            const av = document.getElementById('navAvatar');
-            if(user.photoURL) av.innerHTML = `<img src="${user.photoURL}">`;
-            else av.textContent = (user.displayName || 'U').charAt(0).toUpperCase();
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userData = userDoc.exists() ? userDoc.data() : {};
+            
+            document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(userData.photoURL, userData.displayName || 'User', 'small');
+            document.getElementById('userName').textContent = userData.displayName || 'User';
+            
+            setupNotificationsCount();
             loadItems();
         } else {
             window.location.href = 'login.html';
         }
     });
-    // --- FEED LOGIC ---
+
+    // --- LOAD ITEMS & FILTERING ---
     function loadItems() {
         const q = query(collection(db, "meetrader"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snap) => {
-            const grid = document.getElementById('itemsGrid');
-            grid.innerHTML = '';
-            if(snap.empty) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">No items yet.</div>';
-                return;
-            }
-            snap.forEach(doc => {
-                const item = doc.data();
-                const id = doc.id;
-                
-                // Check if user photo exists in item, else use initials
-                let sellerImg = item.sellerPhoto ? `<img src="${item.sellerPhoto}" style="width:100%; height:100%; border-radius:50%;">` : (item.sellerName || 'U').charAt(0);
-                const card = document.createElement('div');
-                card.className = 'item-card';
-                card.innerHTML = `
-                    <img src="${item.images[0]}" class="item-image" onclick="openDetail('${id}')">
-                    <div class="item-body">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-price">${item.currency} ${item.price}</div>
-                        <div class="item-meta">
-                            <div class="seller-info">
-                                <div class="seller-pic" style="display:flex;align-items:center;justify-content:center;font-size:12px;color:white;background:#0080FF;">${sellerImg}</div>
-                                <span>${item.sellerName}</span>
-                            </div>
-                            <div class="item-stats">
-                                <div class="stat"><i class="fas fa-heart"></i> ${item.likes ? item.likes.length : 0}</div>
-                                <div class="stat"><i class="fas fa-comment"></i> ${item.reviews ? item.reviews.length : 0}</div>
-                            </div>
-                        </div>
-                        <button class="view-btn" onclick="openDetail('${id}')">View Details</button>
-                    </div>
-                    <div style="font-size:12px; color:#666; margin-bottom:5px;"><i class="fas fa-map-marker-alt"></i> ${item.location}</div>
-                    <div class="item-seller">
-                        <div class="seller-avatar">${sellerAvatarHTML}</div>
-                        <span style="font-size:13px; font-weight:600;">${item.userName}</span>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+            allItems = [];
+            snap.forEach(doc => allItems.push({ id: doc.id, ...doc.data() }));
+            renderProducts(allItems);
         });
     }
+
+    window.applyFilters = () => {
+        const keyword = document.getElementById('filterKeywords').value.toLowerCase();
+        const category = document.getElementById('filterCategory').value;
+        const maxPrice = document.getElementById('filterPrice').value;
+
+        const filtered = allItems.filter(item => {
+            const matchesKeyword = item.title.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword);
+            const matchesCategory = category === 'all' || item.category === category;
+            const matchesPrice = !maxPrice || parseFloat(item.price) <= parseFloat(maxPrice);
+            return matchesKeyword && matchesCategory && matchesPrice;
+        });
+        renderProducts(filtered);
+    };
+
+    function renderProducts(items) {
+        const container = document.getElementById('productsContainer');
+        container.innerHTML = '';
+
+        if(items.length === 0) {
+            container.innerHTML = '<div class="loading">No items found matching criteria.</div>';
+            return;
+        }
+
+        items.forEach(item => {
+            const hasMultiple = item.images && item.images.length > 1;
+            const imagesHTML = item.images ? item.images.map(img => `<img src="${img}" class="ad-img">`).join('') : '';
+            
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="ad-carousel" id="carousel-${item.id}" data-index="0" data-total="${item.images ? item.images.length : 0}">
+                    <div class="ad-images-container" style="width: ${item.images ? item.images.length * 100 : 100}%">
+                        ${imagesHTML || '<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;">No Image</div>'}
+                    </div>
+                    ${hasMultiple ? `
+                        <div class="ad-counter" id="counter-${item.id}">1/${item.images.length}</div>
+                        <button class="ad-nav-btn ad-prev" onclick="slideImage('${item.id}', -1)">&#10094;</button>
+                        <button class="ad-nav-btn ad-next" onclick="slideImage('${item.id}', 1)">&#10095;</button>
+                    ` : ''}
+                </div>
+                <div class="product-details">
+                    <div class="product-header">
+                        <div class="product-title">${item.title}</div>
+                        <div class="product-price">${item.currency} ${item.price}</div>
+                    </div>
+                    <div class="product-seller">
+                        <div class="seller-avatar">${getAvatarHTML(item.sellerPhoto, item.sellerName, 'small')}</div>
+                        <span>${item.sellerName}</span>
+                    </div>
+                    <div class="product-desc">${item.description ? item.description.substring(0, 50) + '...' : ''}</div>
+                    <div class="product-actions">
+                        <button class="action-btn-product btn-msg" onclick="viewProfile('${item.sellerId}')"><i class="fas fa-comment"></i> Message</button>
+                        <button class="action-btn-product btn-buy" onclick="openDetail('${item.id}')"><i class="fas fa-shopping-cart"></i> Details</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // --- CAROUSEL LOGIC ---
+    window.slideImage = (id, direction) => {
+        const carousel = document.getElementById(`carousel-${id}`);
+        const container = carousel.querySelector('.ad-images-container');
+        const counter = document.getElementById(`counter-${id}`);
+        
+        let currentIndex = parseInt(carousel.dataset.index);
+        const total = parseInt(carousel.dataset.total);
+        
+        let newIndex = currentIndex + direction;
+        if (newIndex < 0) newIndex = 0;
+        if (newIndex >= total) newIndex = total - 1;
+
+        container.style.transform = `translateX(-${newIndex * (100 / total)}%)`;
+        counter.innerText = `${newIndex + 1}/${total}`;
+        carousel.dataset.index = newIndex;
+    };
+
     // --- POST ITEM LOGIC ---
     window.openPostModal = () => document.getElementById('postModal').style.display = 'flex';
     window.closePostModal = () => {
         document.getElementById('postModal').style.display = 'none';
         uploadedImages = [];
-        document.getElementById('uploadGrid').innerHTML = `<div class="upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera"></i></div>`;
+        document.getElementById('uploadGrid').innerHTML = `<div class="image-upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i></div>`;
     };
-    // Image Compression & Processing
+
+    // Image Compression & Preview
     document.getElementById('pImages').onchange = async (e) => {
         const files = Array.from(e.target.files);
-        if(files.length + uploadedImages.length > 5) {
-            alert("Max 5 images allowed");
-            return;
-        }
+        if(files.length + uploadedImages.length > 5) { alert("Max 5 images"); return; }
+        
         for(const file of files) {
-            const compressed = await compressImage(file);
-            uploadedImages.push(compressed);
-            
-            const div = document.createElement('div');
-            div.className = 'upload-box';
-            div.innerHTML = `<img src="${compressed}"><div class="remove-img" onclick="this.parentElement.remove()">&times;</div>`;
-            document.getElementById('uploadGrid').insertBefore(div, document.getElementById('uploadGrid').lastElementChild);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const compressed = e.target.result; // In real app, use canvas to compress
+                uploadedImages.push(compressed);
+                const div = document.createElement('div');
+                div.className = 'image-upload-box';
+                div.innerHTML = `<img src="${compressed}"><div class="remove-img" onclick="this.parentElement.remove()">&times;</div>`;
+                document.getElementById('uploadGrid').insertBefore(div, document.getElementById('uploadGrid').lastElementChild);
+            };
+            reader.readAsDataURL(file);
         }
     };
-    // Helper: Compress Image to base64 (Max 800px width)
-    function compressImage(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const maxWidth = 800;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality
-                };
-            };
-        });
-    }
+
     document.getElementById('postForm').onsubmit = async (e) => {
         e.preventDefault();
         if(uploadedImages.length === 0) { alert("Please add an image"); return; }
+        
         const btn = e.target.querySelector('button');
-        btn.innerText = "Posting...";
-        btn.disabled = true;
+        btn.innerText = "Posting..."; btn.disabled = true;
+
         try {
             const payment = document.querySelector('input[name="pPayment"]:checked').value;
             const delivery = document.querySelector('input[name="pDelivery"]:checked').value;
+            
             await addDoc(collection(db, "meetrader"), {
                 sellerId: currentUser.uid,
                 sellerName: currentUser.displayName || "User",
@@ -972,151 +743,77 @@
                 description: document.getElementById('pDesc').value,
                 phone: document.getElementById('pPhone').value,
                 email: document.getElementById('pEmail').value,
+                location: document.getElementById('pLocation').value,
                 payment: payment,
                 delivery: delivery,
                 images: uploadedImages,
-                likes: [],
                 reviews: [],
                 createdAt: serverTimestamp()
             });
-            alert("Item Posted Successfully!");
+            
+            alert("Item Posted!");
             closePostModal();
             document.getElementById('postForm').reset();
-        } catch (err) {
-            console.error(err);
-            alert("Error posting: " + err.message);
-        } finally {
-            btn.innerText = "Post Item";
-            btn.disabled = false;
-        }
+        } catch (err) { console.error(err); alert("Error posting item"); }
+        finally { btn.innerText = "Post Item"; btn.disabled = false; }
     };
-    // --- DETAILS & REVIEWS LOGIC ---
+
+    // --- DETAILS & REVIEWS ---
     window.openDetail = async (id) => {
-        const docSnap = await getDoc(doc(db, "meetrader", id));
-        if(!docSnap.exists()) return;
-        
-        currentItem = { id: id, ...docSnap.data() };
-        currentImgIdx = 0;
-        
-        // Populate Modal
-        document.getElementById('dMainImg').src = currentItem.images[0];
-        document.getElementById('dTitle').innerText = currentItem.title;
-        document.getElementById('dPrice').innerText = `${currentItem.currency} ${currentItem.price}`;
-        document.getElementById('dSeller').innerText = currentItem.sellerName;
-        document.getElementById('dContact').innerText = currentItem.phone;
-        document.getElementById('dEmail').innerText = currentItem.email;
-        document.getElementById('dCondition').innerText = currentItem.condition;
-        document.getElementById('dQty').innerText = currentItem.qty;
-        document.getElementById('dPayment').innerText = currentItem.payment;
-        document.getElementById('dDelivery').innerText = currentItem.delivery;
-        document.getElementById('dDesc').innerText = currentItem.description;
+        const item = allItems.find(i => i.id === id);
+        if(!item) return;
+        currentItem = item;
+        currentDetailImgIdx = 0;
+
+        document.getElementById('dMainImg').src = item.images[0];
+        document.getElementById('dTitle').innerText = item.title;
+        document.getElementById('dPrice').innerText = `${item.currency} ${item.price}`;
+        document.getElementById('dSeller').innerText = item.sellerName;
+        document.getElementById('dContact').innerText = item.phone;
+        document.getElementById('dEmail').innerText = item.email;
+        document.getElementById('dCondition').innerText = item.condition;
+        document.getElementById('dQty').innerText = item.qty;
+        document.getElementById('dPayment').innerText = item.payment;
+        document.getElementById('dDelivery').innerText = item.delivery;
+        document.getElementById('dDesc').innerText = item.description;
         
         renderReviews();
         document.getElementById('detailModal').style.display = 'flex';
     };
+
     window.closeDetailModal = () => document.getElementById('detailModal').style.display = 'none';
-    window.swapImage = (dir) => {
-        if(!currentItem) return;
-        currentImgIdx += dir;
-        if(currentImgIdx < 0) currentImgIdx = currentItem.images.length - 1;
-        if(currentImgIdx >= currentItem.images.length) currentImgIdx = 0;
-        document.getElementById('dMainImg').src = currentItem.images[currentImgIdx];
+
+    window.swapDetailImage = (dir) => {
+        if(!currentItem || !currentItem.images) return;
+        currentDetailImgIdx += dir;
+        if(currentDetailImgIdx < 0) currentDetailImgIdx = currentItem.images.length - 1;
+        if(currentDetailImgIdx >= currentItem.images.length) currentDetailImgIdx = 0;
+        document.getElementById('dMainImg').src = currentItem.images[currentDetailImgIdx];
     };
-    // Review Logic
+
     function renderReviews() {
         const list = document.getElementById('reviewsList');
         list.innerHTML = '';
         const reviews = currentItem.reviews || [];
-        
         reviews.forEach((r, idx) => {
             const div = document.createElement('div');
             div.className = 'review-item';
-            const stars = "★".repeat(r.rating);
-            const canDelete = r.uid === currentUser.uid ? `<span class="delete-review" onclick="deleteReview(${idx})">Delete</span>` : '';
-            
             div.innerHTML = `
                 <div class="review-header">
-                    <strong>${r.name} <span style="color:gold">${stars}</span></strong>
-                    ${canDelete}
+                    <strong>${r.name} <span style="color:gold">${"★".repeat(r.rating)}</span></strong>
+                    ${r.uid === currentUser.uid ? `<span class="delete-review" onclick="deleteReview(${idx})">Delete</span>` : ''}
                 </div>
-              `;
-              container.appendChild(div);
-          });
-      });
-  }
                 <div>${r.text}</div>
             `;
             list.appendChild(div);
         });
     }
 
-  // Post Item Logic
-  document.getElementById('postItemForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (uploadedImageFiles.length === 0) {
-          alert('Please upload at least one image');
-          return;
-      }
-      const submitBtn = e.target.querySelector('button');
-      submitBtn.innerHTML = 'Posting...';
-      submitBtn.disabled = true;
-      try {
-          // Get Radio Value
-          const paymentMeans = document.querySelector('input[name="paymentMeans"]:checked').value;
-          await addDoc(collection(db, "meetrader"), {
-              userId: currentUser.uid,
-              userName: currentUser.displayName || 'Anonymous',
-              userInitial: (currentUser.displayName || 'A').charAt(0).toUpperCase(),
-              userPhoto: currentUser.photoURL || null, // Saving user photo
-              title: document.getElementById('itemTitle').value,
-              description: document.getElementById('itemDescription').value,
-              sellerPhone: document.getElementById('sellerPhone').value, // New Field
-              sellerEmail: document.getElementById('sellerEmail').value, // New Field
-              currency: document.getElementById('itemCurrency').value,
-              price: document.getElementById('itemPrice').value,
-              paymentMeans: paymentMeans, // Single Value
-              location: document.getElementById('itemLocation').value,
-              category: document.getElementById('itemCategory').value,
-              images: uploadedImageFiles,
-              timestamp: serverTimestamp()
-          });
-          alert('Item posted!');
-          document.getElementById('postItemModal').style.display = 'none';
-          document.getElementById('postItemForm').reset();
-          uploadedImageFiles = [];
-          document.querySelectorAll('.image-upload-box:not(#addImageBox)').forEach(el => el.remove());
-      } catch (error) {
-          console.error(error);
-          alert('Error posting item');
-      } finally {
-          submitBtn.innerHTML = 'Post Item';
-          submitBtn.disabled = false;
-      }
-  });
-  // Image Upload Handling
-  document.getElementById('addImageBox').onclick = () => document.getElementById('itemImages').click();
-  document.getElementById('itemImages').onchange = async (e) => {
-      const files = Array.from(e.target.files);
-      for (const file of files) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-              uploadedImageFiles.push(e.target.result);
-              const div = document.createElement('div');
-              div.className = 'image-upload-box';
-              div.innerHTML = `<img src="${e.target.result}" class="image-preview-thumb">`;
-              document.getElementById('imageUploadGrid').insertBefore(div, document.getElementById('addImageBox'));
-          };
-          reader.readAsDataURL(file);
-      }
-  };
-  // Modal Controls
-  document.getElementById('postItemBtn').onclick = () => document.getElementById('postItemModal').style.display = 'flex';
-  document.getElementById('closePostItemModal').onclick = () => document.getElementById('postItemModal').style.display = 'none';
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
     window.submitReview = async () => {
         const text = document.getElementById('newReviewText').value;
         const rating = document.getElementById('newRating').value;
         if(!text) return;
+
         const newReview = {
             uid: currentUser.uid,
             name: currentUser.displayName || 'User',
@@ -1124,28 +821,129 @@
             rating: parseInt(rating),
             date: new Date().toISOString()
         };
+
         try {
             await updateDoc(doc(db, "meetrader", currentItem.id), {
                 reviews: arrayUnion(newReview)
             });
+            // Optimistic update
             currentItem.reviews = currentItem.reviews || [];
             currentItem.reviews.push(newReview);
             renderReviews();
             document.getElementById('newReviewText').value = '';
         } catch(e) { alert("Failed to review"); }
     };
+    
+    // Expose deleteReview for onclick usage (needs window scope)
     window.deleteReview = async (idx) => {
-        if(!confirm("Delete this review?")) return;
-        const reviewToDelete = currentItem.reviews[idx];
+        if(!confirm("Delete review?")) return;
+        const review = currentItem.reviews[idx];
         try {
             await updateDoc(doc(db, "meetrader", currentItem.id), {
-                reviews: arrayRemove(reviewToDelete)
+                reviews: arrayRemove(review)
             });
             currentItem.reviews.splice(idx, 1);
             renderReviews();
         } catch(e) { alert("Failed to delete"); }
     };
+
+    // --- NOTIFICATIONS LOGIC (Copied from Feed) ---
+    function setupNotificationsCount() {
+        const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
+        onSnapshot(q, (snap) => {
+            const badge = document.getElementById('unreadBadge');
+            if(!snap.empty) {
+                badge.style.display = 'flex';
+                badge.innerText = snap.size;
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+
+    window.openNotificationsModal = () => {
+        const modal = document.getElementById('notificationsModal');
+        const list = document.getElementById('notificationsList');
+        modal.style.display = 'flex';
+        list.innerHTML = '<div class="loading">Loading...</div>';
+        
+        const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snap) => {
+            list.innerHTML = '';
+            if (snap.empty) {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No notifications.</div>';
+                return;
+            }
+            snap.forEach(d => {
+                const n = d.data();
+                const id = d.id;
+                list.innerHTML += `
+                    <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
+                        <div style="flex:1;">
+                            ${n.text}
+                            <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div>
+                        </div>
+                        <div class="notif-actions">
+                            ${!n.read ? `<i class="fas fa-check notif-btn" title="Mark as read" onclick="markNotifRead('${id}')"></i>` : ''}
+                            <i class="fas fa-trash notif-btn delete" title="Delete" onclick="deleteNotif('${id}')"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    };
+
+    window.markNotifRead = async (id) => await updateDoc(doc(db, "notifications", id), { read: true });
+    window.deleteNotif = async (id) => await deleteDoc(doc(db, "notifications", id));
+
+    // Basic controls
+    document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
+    document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
+    document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    
+    // --- USERS MODAL (Reused) ---
+    window.openUsersModal = async () => {
+        document.getElementById('usersModal').style.display = 'flex';
+        const list = document.getElementById('usersList');
+        list.innerHTML = '<div class="loading">Loading users...</div>';
+        const snap = await getDocs(collection(db, "users"));
+        let html = '';
+        for (const userDoc of snap.docs) {
+            if (userDoc.id === currentUser.uid) continue;
+            const user = userDoc.data();
+            const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
+            const isAssoc = assocSnap.exists();
+            html += `
+              <div class="user-item">
+                 <div style="display:flex; align-items:center; gap:10px;">
+                    ${getAvatarHTML(user.photoURL, user.displayName, 'small')}
+                    <span onclick="viewProfile('${userDoc.id}')" style="cursor:pointer; font-weight:600;">${user.displayName || 'User'}</span>
+                 </div>
+                 <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
+                    onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
+                    ${isAssoc ? 'Disassociate' : 'Associate'}
+                 </button>
+              </div>
+            `;
+        }
+        list.innerHTML = html;
+    };
+    
+    window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
+        try {
+            if (isCurrentlyAssociated) {
+                await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
+                await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
+            } else {
+                await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), { timestamp: serverTimestamp() });
+                await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
+            }
+            window.openUsersModal(); 
+        } catch (e) { console.error(e); }
+    };
+
+    window.auth = auth;
 </script>
 </body>
 </html>
