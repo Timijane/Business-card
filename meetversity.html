@@ -7,26 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* --- BASE STYLES FROM MEETRADER TEMPLATE --- */
+  /* --- CSS VARIABLES & BASE STYLES --- */
   :root {
     --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --warning: #F59E0B;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
     --secondary-text: #65676b;
     --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
-    /* Meetversity specific */
     --edu-primary: #0061FF;
     --edu-accent: #5AE4A8;
     --edu-gradient: linear-gradient(135deg, var(--edu-primary) 0%, var(--edu-accent) 100%);
     --radius: 12px;
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    --success: #10B981;
   }
 
   body.dark-mode {
@@ -39,268 +33,108 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow-x: hidden; font-size: 18px; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; font-size: 15px; }
   
-  .app-container { display: flex; min-height: 100vh; position: relative; }
+  .app-container { display: flex; min-height: 100vh; }
 
-  /* Sidebar and Navbar styles are imported from Meetrader template */
+  /* --- SIDEBAR & NAVBAR (Standardized) --- */
   .sidebar {
     position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color); overflow-y: auto; z-index: 100; padding: 15px; color: white;
+    z-index: 100; padding: 15px; color: white;
   }
-  .sidebar-header { padding: 5px 0 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 15px; }
+  .sidebar-header { margin-bottom: 20px; font-weight: 700; font-size: 20px; }
   .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 6px; }
   .sidebar-menu a {
     display: flex; align-items: center; padding: 10px; text-decoration: none; color: white;
-    border-radius: 8px; transition: background 0.3s; min-height: 40px; font-size: 16px;
+    border-radius: 8px; margin-bottom: 5px; transition: background 0.2s;
   }
-  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-  .sidebar-menu i { margin-right: 10px; font-size: 18px; width: 22px; text-align: center; }
+  .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { width: 25px; text-align: center; margin-right: 10px; }
 
-  /* Active style for Meetversity */
-  .sidebar-menu a[href="meetversity.html"] { 
-    background: rgba(255, 255, 255, 0.3); 
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  }
-
-  /* Icons Colors */
-  .sidebar-menu a[href="feed.html"] i { color: #fff; }
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; }
-  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
-  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; }
-  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; }
-  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; }
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; }
-
-  .main-content { flex: 1; margin-left: 180px; padding: 15px; min-height: 100vh; font-size: 18px; }
-
+  .main-content { flex: 1; margin-left: 180px; padding: 20px; }
+  
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
-    display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: white; flex-wrap: wrap; gap: 8px;
+    padding: 12px 20px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; color: white;
   }
-  .search-bar { display: flex; align-items: center; background: rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 6px 12px; margin-right: 10px; }
-  .search-bar input { background: transparent; border: none; color: white; outline: none; width: 180px; font-size: 16px; }
-  .user-profile-nav { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 20px; background: rgba(255, 255, 255, 0.2); cursor: pointer; position: relative; min-height: 36px; }
-  .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; min-width: 36px; font-size: 16px; overflow: hidden; }
-  .user-avatar.small { width: 28px; height: 28px; font-size: 14px; min-width: 28px; }
-  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-  .btn {
-    background: rgba(255, 255, 255, 0.2); color: white; border: none;
-    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    transition: background 0.3s; display: flex; align-items: center; gap: 6px;
-    font-size: 16px; min-height: 36px;
-  }
-  .nav-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .unread-badge { background: var(--error); color: white; border-radius: 50%; padding: 2px 5px; font-size: 10px; display: none; min-width: 16px; justify-content: center; align-items: center; }
+  .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .btn-nav { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-  /* --- MEETVERSITY STYLES (MODIFIED TO FIT TEMPLATE) --- */
-  .meetversity-container { max-width: 1200px; margin: 0 auto; width: 100%; }
+  /* --- MEETVERSITY SPECIFIC UI --- */
+  .meetversity-container { max-width: 1200px; margin: 0 auto; }
   
-  .meetversity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .meetversity-title {
-    font-size: 32px;
-    font-weight: 700;
-    background: var(--edu-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-  }
+  .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  .page-title { font-size: 28px; font-weight: 800; background: var(--edu-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  
   .create-btn {
-    background: var(--edu-primary); /* Use primary blue for main action */
-    color: white;
-    border: 0;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
+    background: var(--edu-primary); color: white; border: none; padding: 12px 24px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,97,255,0.3); transition: transform 0.2s;
   }
-  .create-btn:hover { background: var(--edu-primary); opacity: 0.9; }
+  .create-btn:hover { transform: translateY(-2px); }
 
-  /* Stats */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-  .stat-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    padding: 15px;
-    text-align: center;
-    box-shadow: var(--shadow);
-  }
-  .stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: var(--edu-primary); /* Use edu primary for stats */
-  }
-  .stat-label { font-size: 14px; color: var(--secondary-text); }
-
-  /* Content Types */
-  .content-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-  .content-type-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    padding: 20px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-    cursor: pointer;
-    border: 2px solid transparent;
-  }
-  .content-type-card:hover { transform: translateY(-3px); border-color: var(--edu-primary); }
-  .content-icon { font-size: 36px; margin-bottom: 10px; display: block; }
-  .content-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
-  .content-description { font-size: 13px; color: var(--secondary-text); line-height: 1.4; }
+  /* Stats Cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+  .stat-val { font-size: 28px; font-weight: 700; color: var(--edu-primary); }
+  .stat-lbl { font-size: 13px; color: var(--secondary-text); }
 
   /* Sections */
-  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-  .section-title { font-size: 22px; font-weight: 700; margin: 0; }
-  .view-all { color: var(--primary); font-weight: 600; text-decoration: none; font-size: 14px; }
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 15px; }
+  .section-head h2 { font-size: 20px; font-weight: 700; }
 
-  /* Courses & Learning Paths (similar styling) */
-  .courses-grid, .learning-paths {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-  .course-card, .path-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-    position: relative;
-    cursor: pointer; /* Added cursor pointer */
-  }
-  .course-card:hover, .path-card:hover { transform: translateY(-5px); }
-  .course-thumbnail { width: 100%; height: 150px; object-fit: cover; }
-  .course-details { padding: 15px; }
-  .course-category { font-size: 12px; color: var(--edu-primary); font-weight: 600; margin-bottom: 5px; text-transform: uppercase; }
-  .course-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
-  .course-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--secondary-text); }
-  .course-instructor { display: flex; align-items: center; gap: 8px; }
-  .instructor-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-  .course-duration, .path-meta span { display: flex; align-items: center; gap: 4px; }
-  .course-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-  .course-price { font-weight: 700; color: var(--edu-primary); }
-  .certificate-badge { background: rgba(90,228,168,0.1); color: var(--success); font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+  /* Course Grid */
+  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   
-  .path-card { padding: 20px; }
-  .path-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--edu-gradient); }
-  .path-icon { font-size: 24px; margin-bottom: 10px; color: var(--edu-primary); }
-  .path-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-  .path-description { font-size: 13px; color: var(--secondary-text); margin-bottom: 12px; line-height: 1.4; }
-  .path-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--secondary-text); }
-
-
-  /* Quick Videos */
-  .quick-videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px; }
-  .quick-video-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-    cursor: pointer; /* Added cursor pointer */
+  .course-card {
+    background: var(--card-bg); border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column;
   }
-  .quick-video-card:hover { transform: scale(1.03); }
-  .quick-video-thumbnail { width: 100%; height: 100px; object-fit: cover; }
-  .quick-video-details { padding: 10px; }
-  .quick-video-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .quick-video-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--secondary-text); }
+  .course-card:hover { transform: translateY(-5px); }
+  .course-thumb { height: 160px; width: 100%; object-fit: cover; background: #eee; }
+  .course-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
   
-  /* Documents */
-  .documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-  .document-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    padding: 15px;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    cursor: pointer; /* Added cursor pointer */
-  }
-  .document-card:hover { transform: translateY(-3px); }
-  .document-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(0,97,255,0.1);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--edu-primary);
-    flex-shrink: 0;
-  }
-  .document-details { flex: 1; }
-  .document-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-  .document-meta { display: flex; gap: 8px; font-size: 11px; color: var(--secondary-text); }
-
-  /* Modal Overrides for consistency */
-  .modal-content { max-width: 800px; }
-  .modal-header h3 { font-size: 20px; }
+  .c-cat { font-size: 11px; text-transform: uppercase; color: var(--edu-primary); font-weight: 700; letter-spacing: 0.5px; }
+  .c-title { font-size: 16px; font-weight: 700; margin: 5px 0; line-height: 1.3; }
+  .c-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--secondary-text); margin-bottom: 10px; }
+  .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-bottom: 5px; }
   
-  /* Create Content Modal Form Styles (Using Meetrader form styles) */
+  .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
+  .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn-join.joined { background: var(--success); cursor: default; }
+  .btn-review { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+  /* Content Type Selection (in Modal) */
+  .type-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-color); padding: 5px; border-radius: 8px; }
+  .type-tab { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--secondary-text); transition: 0.2s; }
+  .type-tab.active { background: white; color: var(--edu-primary); shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+  /* Modal Styles */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+  .modal-body { padding: 20px; }
+  
+  /* Form Elements */
   .form-group { margin-bottom: 15px; }
-  .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-  .form-input, .form-select, .form-textarea {
-    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
-    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
-  }
-  .form-textarea { resize: vertical; min-height: 80px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-  .content-type-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-  .content-type-tab {
-    background: transparent; border: 0; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer;
-    color: var(--secondary-text); transition: all 0.2s; font-size: 14px;
-  }
-  .content-type-tab.active { background: rgba(0,97,255,0.1); color: var(--edu-primary); }
-
-  .file-upload {
-    border: 2px dashed var(--border-color); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: border 0.2s;
-    margin-top: 10px;
-  }
-  .file-upload:hover { border-color: var(--edu-primary); }
-  .file-upload-icon { font-size: 30px; margin-bottom: 5px; color: var(--secondary-text); }
-  .file-upload-text { font-size: 13px; color: var(--secondary-text); }
-  .file-preview { display: none; margin-top: 10px; border-radius: 8px; overflow: hidden; }
-  .file-preview img, .file-preview video { width: 100%; max-height: 150px; object-fit: cover; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 15px; border-top: 1px solid var(--border-color); }
-  .cancel-btn {
-    background: var(--bg-color); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer;
-  }
-  .submit-btn {
-    background: var(--edu-primary); color: white; border: 0; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer;
-  }
+  .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: inherit; }
+  .form-textarea { min-height: 80px; resize: vertical; }
   
-  /* Responsive Overrides (Matching Meetrader structure) */
+  .file-area { border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; margin-top: 5px; }
+  .file-area:hover { border-color: var(--edu-primary); background: rgba(0,97,255,0.02); }
+  
+  /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 60px; padding: 8px 4px; }
-    .sidebar-header { display: none; }
-    .sidebar-menu a { flex-direction: column; padding: 8px 4px; font-size: 12px; text-align: center; }
-    .sidebar-menu i { margin-right: 0; margin-bottom: 4px; font-size: 18px; }
-    .main-content { margin-left: 60px; padding: 8px; width: calc(100% - 60px); }
+    .sidebar { width: 60px; padding: 10px 5px; }
+    .sidebar-header, .sidebar-menu span { display: none; }
+    .sidebar-menu i { margin: 0; width: 100%; font-size: 20px; }
+    .main-content { margin-left: 60px; padding: 15px; }
+    .grid-layout { grid-template-columns: 1fr; }
     .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .search-bar, .user-profile-nav span, .btn span { display: none; }
     .nav-controls { width: 100%; justify-content: space-between; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .content-types { grid-template-columns: 1fr; }
-    .courses-grid, .learning-paths { grid-template-columns: 1fr; }
-    .quick-videos { grid-template-columns: repeat(2, 1fr); }
-    .documents-grid { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -308,701 +142,414 @@
 
 <div class="app-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white; font-size: 20px;">MEET</h2>
-    </div>
+    <div class="sidebar-header">MEET</div>
     <ul class="sidebar-menu">
       <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="#" class="active"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
       <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white; font-size: 20px;">Meetversity</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search courses, videos, documents...">
+      <h3>Meetversity</h3>
+      <div class="nav-controls">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div id="userAvatar" style="width:32px; height:32px; background:white; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">U</div>
+          <span id="userNameDisplay" style="font-size:14px;">Guest</span>
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName" style="font-size: 15px;">User</span>
-          </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i> <span style="font-size: 15px;">Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span style="font-size: 15px;">Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span style="font-size: 15px;">Logout</span>
-          </button>
-        </div>
+        <button class="btn-nav" id="toggleDark"><i class="fas fa-moon"></i></button>
+        <button class="btn-nav" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i></button>
       </div>
     </div>
-    
+
     <div class="meetversity-container">
-      
-      <div class="meetversity-header">
-        <h1 class="meetversity-title">MEETVERSITY</h1>
-        <div class="meetversity-actions">
-          <button class="create-btn" id="createContentBtn">
-            <i class="fas fa-plus"></i> Create Content
-          </button>
-        </div>
+      <div class="header-section">
+        <h1 class="page-title">MEETVERSITY</h1>
+        <button class="create-btn" onclick="openCreateModal()">
+          <i class="fas fa-plus-circle"></i> Create Course
+        </button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-value">1,247</div>
-          <div class="stat-label">Courses</div>
+          <div class="stat-val" id="statCourses">0</div>
+          <div class="stat-lbl">Total Courses</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">5,892</div>
-          <div class="stat-label">Quick Videos</div>
+          <div class="stat-val" id="statLearners">0</div>
+          <div class="stat-lbl">Total Learners</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">3,145</div>
-          <div class="stat-label">Documents</div>
+          <div class="stat-val" id="statDocs">0</div>
+          <div class="stat-lbl">Documents</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">28,451</div>
-          <div class="stat-label">Learners</div>
-        </div>
-      </div>
-      
-      <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
-
-      <div class="section-header">
-        <h2 class="section-title">New Content</h2>
-      </div>
-      <div class="content-types">
-        <div class="content-type-card" data-type="long-video">
-          <span class="content-icon" style="color:#0061FF;"><i class="fas fa-video"></i></span>
-          <h3 class="content-title">Long Video Course</h3>
-          <p class="content-description">In-depth courses with multiple lessons and assessments. (Hours)</p>
-        </div>
-        <div class="content-type-card" data-type="quick-video">
-          <span class="content-icon" style="color:#5AE4A8;"><i class="fas fa-bolt"></i></span>
-          <h3 class="content-title">Quick Video</h3>
-          <p class="content-description">Short educational videos (1-2 minutes) for quick skill acquisition.</p>
-        </div>
-        <div class="content-type-card" data-type="document">
-          <span class="content-icon" style="color:#9C27B0;"><i class="fas fa-file-alt"></i></span>
-          <h3 class="content-title">Study Document</h3>
-          <p class="content-description">Upload PDFs, presentations, or study guides for reading.</p>
-        </div>
-      </div>
-      
-      <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
-
-      <div class="section-header">
-        <h2 class="section-title">Learning Paths (Static Mock)</h2>
-        <a href="#" class="view-all">View All</a>
-      </div>
-      <div class="learning-paths">
-        <div class="path-card">
-          <div class="path-icon"><i class="fas fa-code"></i></div>
-          <h3 class="path-title">Web Development</h3>
-          <p class="path-description">Master HTML, CSS, JavaScript and modern frameworks to build responsive websites.</p>
-          <div class="path-meta">
-            <span><i class="fas fa-book-open"></i> 12 Courses</span>
-            <span><i class="fas fa-clock"></i> 45h 20m</span>
-          </div>
-        </div>
-        <div class="path-card">
-          <div class="path-icon"><i class="fas fa-palette"></i></div>
-          <h3 class="path-title">UI/UX Design</h3>
-          <p class="path-description">Learn user-centered design principles, prototyping, and design tools.</p>
-          <div class="path-meta">
-            <span><i class="fas fa-book-open"></i> 8 Courses</span>
-            <span><i class="fas fa-clock"></i> 32h 15m</span>
-          </div>
-        </div>
-        <div class="path-card">
-          <div class="path-icon"><i class="fas fa-mobile-alt"></i></div>
-          <h3 class="path-title">Mobile Development</h3>
-          <p class="path-description">Build native and cross-platform mobile applications for iOS and Android.</p>
-          <div class="path-meta">
-            <span><i class="fas fa-book-open"></i> 10 Courses</span>
-            <span><i class="fas fa-clock"></i> 38h 40m</span>
-          </div>
+          <div class="stat-val" id="statVideos">0</div>
+          <div class="stat-lbl">Quick Videos</div>
         </div>
       </div>
 
-      <div class="section-header">
-        <h2 class="section-title">Featured Courses</h2>
-        <a href="#" class="view-all">View All</a>
+      <div class="section-head">
+        <h2>Latest Courses</h2>
+        <a href="#" style="color:var(--primary); text-decoration:none; font-size:13px;">View All</a>
       </div>
-      <div class="courses-grid" id="coursesGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading courses...</p>
-      </div>
-      
-      <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
-
-      <div class="section-header">
-        <h2 class="section-title">Quick Videos</h2>
-        <a href="#" class="view-all">View All</a>
-      </div>
-      <div class="quick-videos" id="quickVideosGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading quick videos...</p>
+      <div class="grid-layout" id="coursesFeed">
+        <div style="padding:20px; text-align:center; color:var(--secondary-text); grid-column:1/-1;">
+          <i class="fas fa-spinner fa-spin"></i> Loading courses...
+        </div>
       </div>
 
-      <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
+      <div class="section-head">
+        <h2>Quick Videos</h2>
+      </div>
+      <div class="grid-layout" id="videosFeed">
+         </div>
 
-      <div class="section-header">
-        <h2 class="section-title">Study Documents</h2>
-        <a href="#" class="view-all">View All</a>
+      <div class="section-head">
+        <h2>Study Documents</h2>
       </div>
-      <div class="documents-grid" id="documentsGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading documents...</p>
-      </div>
+      <div class="grid-layout" id="docsFeed">
+         </div>
+
     </div>
-    </div>
+  </div>
 </div>
 
-<div class="modal" id="createContentModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Create Educational Content</h3>
-      <button class="close-modal" id="closeCreateModal">&times;</button>
+<div class="modal" id="createModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Create Content</h3>
+      <button onclick="closeCreateModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
     </div>
-    
     <div class="modal-body">
-      <div class="content-type-tabs">
-        <button class="content-type-tab active" data-type="long-video">Long Video Course</button>
-        <button class="content-type-tab" data-type="quick-video">Quick Video</button>
-        <button class="content-type-tab" data-type="document">Document</button>
+      <div class="type-tabs">
+        <button class="type-tab active" onclick="setType('long-video', this)">Course</button>
+        <button class="type-tab" onclick="setType('quick-video', this)">Quick Video</button>
+        <button class="type-tab" onclick="setType('document', this)">Document</button>
       </div>
-      
-      <form id="createContentForm">
+
+      <form id="createForm">
         <div class="form-group">
-          <label class="form-label" for="contentTitle">Name of the Course/Content</label>
-          <input type="text" class="form-input" id="contentTitle" placeholder="e.g., Advanced JavaScript Patterns" required>
+          <label class="form-label">Title</label>
+          <input type="text" id="cTitle" class="form-input" placeholder="e.g. Advanced React Patterns" required>
         </div>
-        
-        <div class="form-group">
-          <label class="form-label" for="targetAudience">Target Audience</label>
-          <input type="text" class="form-input" id="targetAudience" placeholder="e.g., Beginner Developers, Junior Designers" required>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="cCategory" class="form-select">
+              <option>Technology</option>
+              <option>Business</option>
+              <option>Design</option>
+              <option>Marketing</option>
+              <option>Personal Dev</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration/Length</label>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 15 Pages" required>
+          </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="learningOutcomes">Key Learning Outcomes</label>
-          <textarea class="form-textarea" id="learningOutcomes" placeholder="List 3-5 things the learner will be able to do after finishing the content..."></textarea>
+          <label class="form-label">Thumbnail Image</label>
+          <div class="file-area" onclick="document.getElementById('cThumb').click()">
+            <i class="fas fa-image" style="font-size:24px; color:var(--secondary-text);"></i>
+            <p style="font-size:12px; color:var(--secondary-text); margin-top:5px;">Click to upload cover image</p>
+            <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)">
+          </div>
+          <img id="thumbPreview" style="width:100%; height:150px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
         </div>
-        
+
         <div class="form-group">
-          <label class="form-label" for="contentCategory">Course Categories</label>
-          <select class="form-select" id="contentCategory" required>
-            <option value="">Select a category</option>
-            <option value="technology">Technology</option>
-            <option value="design">Design</option>
-            <option value="business">Business</option>
-            <option value="marketing">Marketing</option>
-            <option value="languages">Languages</option>
-            <option value="science">Science</option>
-            <option value="arts">Arts & Creativity</option>
-            <option value="personal-development">Personal Development</option>
-          </select>
+          <label class="form-label" id="mediaLabel">Video/File URL (Simulation)</label>
+          <input type="text" id="cMedia" class="form-input" placeholder="Enter video link or filename">
+          <small style="color:var(--secondary-text); font-size:11px;">*In production, this would be a file uploader to Firebase Storage.</small>
         </div>
-        
+
         <div class="form-group">
-          <label class="form-label">Course Type</label>
-          <div class="radio-group" style="flex-direction:row; gap:15px; background:transparent; padding:0; border:none;">
-            <label class="radio-item">
-              <input type="radio" name="courseType" value="one-time" checked>
-              One-time Course
-            </label>
-            <label class="radio-item">
-              <input type="radio" name="courseType" value="long-term">
-              Long-term Course
-            </label>
-          </div>
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="cCert"> Offer MEET Certificate upon completion
+          </label>
         </div>
-        
-        <div class="form-group" id="courseOutlineGroup">
-          <label class="form-label" for="courseOutline">Course Outline</label>
-          <textarea class="form-textarea" id="courseOutline" placeholder="Describe the course structure, modules, and learning objectives..."></textarea>
-          <div class="file-upload" id="outlineUpload">
-            <div class="file-upload-icon"><i class="fas fa-file-pdf"></i></div>
-            <div class="file-upload-text">Or upload course outline as PDF</div>
-            <input type="file" id="outlineFile" accept=".pdf" style="display: none">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label" for="contentDuration">Duration to Complete</label>
-          <input type="text" class="form-input" id="contentDuration" placeholder="e.g., 4 weeks, 12 hours" required>
-        </div>
-        
-        <div class="form-group" id="mediaUploadGroup">
-          <label class="form-label">Upload Content</label>
-          <div class="file-upload" id="mediaUpload">
-            <div class="file-upload-icon" id="mediaIcon"><i class="fas fa-video"></i></div>
-            <div class="file-upload-text" id="mediaText">Click to upload your video file</div>
-            <input type="file" id="mediaFile" style="display: none">
-          </div>
-          <div class="file-preview" id="mediaPreview">
-            <video id="previewVideo" controls></video>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <div class="radio-item">
-            <input type="checkbox" id="offerCertificate" style="accent-color:var(--edu-primary);">
-            <label for="offerCertificate" style="font-weight:400; font-size:15px; margin-left:-5px;">Offer MEET Certificate to learners upon completion</label>
-          </div>
-        </div>
+
+        <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center;" onclick="submitCourse()">
+          Post Content
+        </button>
       </form>
     </div>
-    
-    <div class="modal-footer">
-      <button type="button" class="cancel-btn" id="cancelCreate">Cancel</button>
-      <button type="button" class="submit-btn" id="submitContent">Create Content</button>
-    </div>
   </div>
 </div>
 
-<div class="modal" id="notificationsModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+<div class="modal" id="reviewModal">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-head">
+      <h3>Write a Review</h3>
+      <button onclick="document.getElementById('reviewModal').style.display='none'" style="background:none; border:none;">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="notificationsList"></div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="usersList"><div class="loading">Loading users...</div></div>
+      <input type="hidden" id="reviewCourseId">
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <select id="rRating" class="form-select">
+          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+          <option value="4">⭐⭐⭐⭐ (4)</option>
+          <option value="3">⭐⭐⭐ (3)</option>
+          <option value="2">⭐⭐ (2)</option>
+          <option value="1">⭐ (1)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Review</label>
+        <textarea id="rText" class="form-textarea" placeholder="What did you think?"></textarea>
+      </div>
+      <button class="create-btn" style="width:100%; justify-content:center;" onclick="submitReview()">Submit Review</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-    // Firebase imports and configuration (unchanged)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { 
-        getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    
-    // Cloudinary import (simplified placeholder as actual upload logic is complex)
-    // import * as cloudinary from "cloudinary-core"; 
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-        authDomain: "meet-6e159.firebaseapp.com",
-        databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-        projectId: "meet-6e159",
-        storageBucket: "meet-6e159-firebasestorage.app",
-        messagingSenderId: "252353608421",
-        appId: "1:252353608421:web:6706056048e9a8f12db20c"
-    };
+  const firebaseConfig = {
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+      projectId: "meet-6e159",
+      storageBucket: "meet-6e159-firebasestorage.app",
+      messagingSenderId: "252353608421",
+      appId: "1:252353608421:web:6706056048e9a8f12db20c"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    // Cloudinary configuration placeholder (real logic would involve storage or API calls)
-    const cloudinaryConfig = { cloudName: 'YOUR_CLOUD_NAME' }; // Placeholder
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  window.auth = auth; // For logout button
 
-    let currentUser = null;
+  let currentUser = null;
+  let currentType = 'long-video';
+  let thumbBase64 = null;
 
-    // --- HELPER FUNCTIONS ---
-    function getAvatarHTML(photoURL, name, size = 'medium') {
-        const initial = name ? name.charAt(0).toUpperCase() : 'U';
-        const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
-        if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-        return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+  // --- AUTH LISTENER ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('userNameDisplay').innerText = user.displayName || 'User';
+      if(user.photoURL) document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    } else {
+      // Redirect to login in real app
+      document.getElementById('userNameDisplay').innerText = "Guest (Please Login)";
     }
+  });
 
-    // New navigation function for content
-    window.viewContent = (id) => { 
-        console.log('Viewing content with ID:', id);
-        // window.location.href = `content.html?id=${id}`; // Real navigation
-    };
+  // --- REAL TIME FEED ---
+  const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
+  
+  onSnapshot(q, (snapshot) => {
+    const courses = [];
+    const videos = [];
+    const docs = [];
+    let totalLearners = 0;
 
-    window.viewProfile = (targetId) => { if(targetId) window.location.href = `profile.html?uid=${targetId}`; };
-    window.openUsersModal = async () => { /* Logic from Meetrader */ };
-    window.toggleAssociate = async (targetId, isCurrentlyAssociated) => { /* Logic from Meetrader */ };
-    window.openNotificationsModal = () => { /* Logic from Meetrader */ };
-    window.markNotifRead = async (id) => await updateDoc(doc(db, "notifications", id), { read: true });
-    window.deleteNotif = async (id) => await deleteDoc(doc(db, "notifications", id));
-    
-    // Basic controls
-    document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
-    document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
-    document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    snapshot.forEach((doc) => {
+      const data = { id: doc.id, ...doc.data() };
+      const lCount = data.learners ? data.learners.length : 0;
+      totalLearners += lCount;
 
-    // --- AUTH & INIT ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const userData = userDoc.exists() ? userDoc.data() : {};
-            
-            currentUser.displayName = userData.displayName || user.displayName;
-            currentUser.photoURL = userData.photoURL || user.photoURL;
-
-            document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(currentUser.photoURL, currentUser.displayName || 'User', 'small');
-            document.getElementById('userName').textContent = currentUser.displayName || 'User';
-            
-            setupNotificationsCount();
-            initMeetversity(); // Initialize Meetversity content
-        } else {
-            // window.location.href = 'login.html'; // Uncomment in production
-        }
+      if(data.type === 'long-video') courses.push(data);
+      else if(data.type === 'quick-video') videos.push(data);
+      else if(data.type === 'document') docs.push(data);
     });
 
-    // --- MEETVERSITY LOGIC: REAL DATA FETCHING ---
+    // Update Stats
+    document.getElementById('statCourses').innerText = courses.length;
+    document.getElementById('statVideos').innerText = videos.length;
+    document.getElementById('statDocs').innerText = docs.length;
+    document.getElementById('statLearners').innerText = totalLearners;
 
-    let currentContentType = 'long-video';
+    // Render Grids
+    renderGrid('coursesFeed', courses);
+    renderGrid('videosFeed', videos);
+    renderGrid('docsFeed', docs);
+  });
+
+  function renderGrid(elementId, items) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = '';
     
-    // DOM Elements
-    const createContentModal = document.getElementById('createContentModal');
-    const closeCreateModal = document.getElementById('closeCreateModal');
-    const cancelCreate = document.getElementById('cancelCreate');
-    const createContentBtn = document.getElementById('createContentBtn');
-    const contentTypeTabs = document.querySelectorAll('.content-type-tab');
-    const contentTypeCards = document.querySelectorAll('.content-type-card');
-    const coursesGrid = document.getElementById('coursesGrid');
-    const quickVideosGrid = document.getElementById('quickVideosGrid');
-    const documentsGrid = document.getElementById('documentsGrid');
-    const createContentForm = document.getElementById('createContentForm');
-    const submitContent = document.getElementById('submitContent');
-    const mediaUpload = document.getElementById('mediaUpload');
-    const mediaFile = document.getElementById('mediaFile');
-    const mediaPreview = document.getElementById('mediaPreview');
-    const previewVideo = document.getElementById('previewVideo');
-    const outlineUpload = document.getElementById('outlineUpload');
-    const outlineFile = document.getElementById('outlineFile');
-    const mediaIcon = document.getElementById('mediaIcon');
-    const mediaText = document.getElementById('mediaText');
-    const courseOutlineGroup = document.getElementById('courseOutlineGroup');
-    const mediaUploadGroup = document.getElementById('mediaUploadGroup');
-    
-    // New/Updated fields
-    const contentTitle = document.getElementById('contentTitle');
-    const targetAudience = document.getElementById('targetAudience');
-    const learningOutcomes = document.getElementById('learningOutcomes');
-    const contentCategory = document.getElementById('contentCategory');
-    const contentDuration = document.getElementById('contentDuration');
-
-
-    function initMeetversity() {
-      // Setup real-time listeners for each content type
-      setupCoursesListener();
-      setupQuickVideosListener();
-      setupDocumentsListener();
-      setupMeetversityEventListeners();
-    }
-    
-    // --- REAL-TIME CONTENT FETCHING ---
-
-    async function getUserDetails(uid) {
-        const docRef = doc(db, "users", uid);
-        const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? docSnap.data() : { displayName: 'Unknown Creator', photoURL: null };
-    }
-    
-    async function renderCourses(courses) {
-        let html = '';
-        for (const course of courses) {
-            // Fetch creator's details for real data
-            const creator = await getUserDetails(course.creatorId);
-            html += `
-                <div class="course-card" onclick="viewContent('${course.id}')">
-                    <img src="${course.thumbnailUrl || 'https://images.unsplash.com/photo-1541701494587-c5b141459c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="${course.title}" class="course-thumbnail">
-                    <div class="course-details">
-                        <div class="course-category">${course.category}</div>
-                        <h3 class="course-title">${course.title}</h3>
-                        <div class="course-meta">
-                            <div class="course-instructor">
-                                ${getAvatarHTML(creator.photoURL, creator.displayName, 'small')}
-                                <span class="instructor-name">${creator.displayName}</span>
-                            </div>
-                            <div class="course-duration">
-                                <i class="fas fa-clock"></i> ${course.duration}
-                            </div>
-                        </div>
-                        <div class="course-footer">
-                            <div class="course-price">${course.price || 'Free'}</div>
-                            ${course.offerCertificate ? '<div class="certificate-badge">Certificate</div>' : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        coursesGrid.innerHTML = html || '<p style="padding: 15px; color: var(--secondary-text);">No courses found.</p>';
+    if(items.length === 0) {
+      container.innerHTML = `<div style="color:var(--secondary-text); padding:10px;">No content yet. Be the first to post!</div>`;
+      return;
     }
 
-    function setupCoursesListener() {
-        // Query courses (long-video content)
-        const q = query(collection(db, "meetversity"), where("contentType", "==", "long-video"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const courses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderCourses(courses);
-        }, (error) => {
-            console.error("Error fetching courses:", error);
-            coursesGrid.innerHTML = '<p style="padding: 15px; color: var(--error);">Error loading courses. Please check console.</p>';
-        });
-    }
-
-    function renderQuickVideos(videos) {
-        quickVideosGrid.innerHTML = videos.map(video => `
-            <div class="quick-video-card" onclick="viewContent('${video.id}')">
-                <img src="${video.thumbnailUrl || 'https://images.unsplash.com/photo-1510511459019-5beef44a1b5e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="${video.title}" class="quick-video-thumbnail">
-                <div class="quick-video-details">
-                    <h3 class="quick-video-title">${video.title}</h3>
-                    <div class="quick-video-meta">
-                        <span><i class="fas fa-clock"></i> ${video.duration}</span>
-                        <span><i class="fas fa-eye"></i> ${video.views || '0'}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('') || '<p style="grid-column: 1 / -1; padding: 15px; color: var(--secondary-text);">No quick videos found.</p>';
-    }
-
-    function setupQuickVideosListener() {
-        // Query quick videos
-        const q = query(collection(db, "meetversity"), where("contentType", "==", "quick-video"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const videos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderQuickVideos(videos);
-        });
-    }
-
-    function renderDocuments(documents) {
-        documentsGrid.innerHTML = documents.map(doc => `
-            <div class="document-card" onclick="viewContent('${doc.id}')">
-                <div class="document-icon"><i class="fas fa-file-pdf"></i></div>
-                <div class="document-details">
-                    <h3 class="document-title">${doc.title}</h3>
-                    <div class="document-meta">
-                        <span>${doc.fileType || 'Document'}</span>
-                        <span>${doc.pages || 'N/A'} pages</span>
-                        <span><i class="fas fa-download"></i> ${doc.downloads || '0'}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('') || '<p style="grid-column: 1 / -1; padding: 15px; color: var(--secondary-text);">No documents found.</p>';
-    }
-    
-    function setupDocumentsListener() {
-        // Query study documents
-        const q = query(collection(db, "meetversity"), where("contentType", "==", "document"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderDocuments(documents);
-        });
-    }
-
-
-    // Modal Handlers
-    function closeCreateModalHandler() {
-      createContentModal.style.display = 'none';
-      createContentForm.reset();
-      mediaPreview.style.display = 'none';
-      // Reset media text and icon
-      mediaIcon.innerHTML = `<i class="fas fa-video"></i>`;
-      mediaText.textContent = 'Click to upload your video file';
-    }
-
-    function setContentType(type) {
-      currentContentType = type;
+    items.forEach(item => {
+      const isJoined = currentUser && item.learners && item.learners.includes(currentUser.uid);
+      const learnerCount = item.learners ? item.learners.length : 0;
+      const reviewsCount = item.reviews ? item.reviews.length : 0;
       
-      // Update form based on content type
-      if (type === 'long-video') {
-        mediaIcon.innerHTML = `<i class="fas fa-video"></i>`;
-        mediaText.textContent = 'Click to upload your video file';
-        mediaFile.accept = 'video/*';
-        courseOutlineGroup.style.display = 'block';
-        contentTitle.placeholder = 'e.g., Advanced JavaScript Patterns';
-      } else if (type === 'quick-video') {
-        mediaIcon.innerHTML = `<i class="fas fa-bolt"></i>`;
-        mediaText.textContent = 'Click to upload your quick video (1-2 min)';
-        mediaFile.accept = 'video/*';
-        courseOutlineGroup.style.display = 'none';
-        contentTitle.placeholder = 'e.g., CSS Flexbox in 90 seconds';
-      } else if (type === 'document') {
-        mediaIcon.innerHTML = `<i class="fas fa-file-alt"></i>`;
-        mediaText.textContent = 'Click to upload your document (PDF, PPT, etc.)';
-        mediaFile.accept = '.pdf,.ppt,.pptx,.doc,.docx';
-        courseOutlineGroup.style.display = 'none';
-        contentTitle.placeholder = 'e.g., React Hooks Cheatsheet';
+      // Rating Calc
+      let rating = 0;
+      if(reviewsCount > 0) {
+        rating = (item.reviews.reduce((acc, r) => acc + r.rating, 0) / reviewsCount).toFixed(1);
       }
-    }
 
-    // Simplified media upload handler (real scenario needs Firebase Storage/Cloudinary upload)
-    function handleMediaUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      mediaPreview.style.display = 'none';
-      previewVideo.style.display = 'none';
-      
-      if (file.type.startsWith('video/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          previewVideo.src = e.target.result;
-          previewVideo.style.display = 'block';
-          mediaPreview.style.display = 'block';
-          mediaText.textContent = file.name;
+      const div = document.createElement('div');
+      div.className = 'course-card';
+      div.innerHTML = `
+        <img src="${item.thumbnail || 'https://via.placeholder.com/300x160?text=No+Image'}" class="course-thumb">
+        <div class="course-body">
+          ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
+          <div class="c-cat">${item.category}</div>
+          <div class="c-title">${item.title}</div>
+          <div class="c-meta">
+            <span><i class="fas fa-user"></i> ${item.instructorName}</span>
+            <span><i class="fas fa-star" style="color:gold"></i> ${rating || 'New'}</span>
+          </div>
+          <div class="c-meta">
+            <span><i class="fas fa-clock"></i> ${item.duration}</span>
+            <span><i class="fas fa-users"></i> ${learnerCount} Learners</span>
+          </div>
+          <div class="c-footer">
+            <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="window.joinCourse('${item.id}')">
+              ${isJoined ? '<i class="fas fa-check"></i> Joined' : 'Join Course'}
+            </button>
+            <button class="btn-review" onclick="window.openReview('${item.id}')"><i class="fas fa-pen"></i></button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // --- CREATION LOGIC ---
+  window.openCreateModal = () => {
+    if(!currentUser) { alert("Please log in to create content."); return; }
+    document.getElementById('createModal').style.display = 'flex';
+  }
+  window.closeCreateModal = () => {
+    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createForm').reset();
+    document.getElementById('thumbPreview').style.display='none';
+    thumbBase64 = null;
+  }
+
+  window.setType = (type, btn) => {
+    currentType = type;
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const lbl = document.getElementById('mediaLabel');
+    if(type === 'document') lbl.innerText = "Document Link/File Name";
+    else lbl.innerText = "Video Link/File Name";
+  }
+
+  // Image Compressor for Thumbnail
+  window.previewThumb = (input) => {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const maxWidth = 500;
+            const scale = Math.min(maxWidth / img.width, 1);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            thumbBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            
+            const preview = document.getElementById('thumbPreview');
+            preview.src = thumbBase64;
+            preview.style.display = 'block';
         };
-        reader.readAsDataURL(file);
-      } else {
-        mediaPreview.innerHTML = `<div style="padding: 10px; text-align: center; color: var(--secondary-text); font-size:14px;">File uploaded: ${file.name}</div>`;
-        mediaPreview.style.display = 'block';
-        mediaText.textContent = file.name;
-      }
+      };
+      reader.readAsDataURL(input.files[0]);
     }
+  }
 
-    // --- SUBMIT CONTENT HANDLER (UPDATED TO INCLUDE NEW FIELDS) ---
-    async function submitContentHandler() {
-        if (!currentUser) {
-            alert('Please log in to create content.');
-            return;
-        }
+  window.submitCourse = async () => {
+    if(!currentUser) return;
+    const title = document.getElementById('cTitle').value;
+    const category = document.getElementById('cCategory').value;
+    const duration = document.getElementById('cDuration').value;
+    const media = document.getElementById('cMedia').value;
+    const hasCert = document.getElementById('cCert').checked;
 
-        // Get values from the form
-        const title = contentTitle.value;
-        const category = contentCategory.value;
-        const target = targetAudience.value; // New Field
-        const outcomes = learningOutcomes.value; // New Field
-        const courseType = document.querySelector('input[name="courseType"]:checked').value;
-        const duration = contentDuration.value;
-        const offerCertificate = document.getElementById('offerCertificate').checked;
-        const mediaFile = document.getElementById('mediaFile').files[0];
-        const outlineText = document.getElementById('courseOutline').value;
-        const outlineFileObj = document.getElementById('outlineFile').files[0];
+    if(!title || !duration) { alert("Title and Duration are required"); return; }
 
-        if (!title || !category || !target || !duration || !mediaFile) {
-            alert('Please fill in all required fields and upload a file.');
-            return;
-        }
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "Posting..."; btn.disabled = true;
 
-        const btn = document.getElementById('submitContent');
-        btn.innerText = "Uploading..."; btn.disabled = true;
-
-        try {
-            // **REAL WORLD STEP:** Upload mediaFile and outlineFile to Storage here
-            // const mediaUrl = await uploadToStorage(mediaFile, currentUser.uid, currentContentType); 
-            // const outlineUrl = outlineFileObj ? await uploadToStorage(outlineFileObj, currentUser.uid, 'outline') : null;
-            
-            // Placeholder URLs for demo
-            const mediaUrl = `https://storage-placeholder.com/${currentContentType}-${new Date().getTime()}`;
-            const outlineUrl = outlineFileObj ? `https://outline-placeholder.com/${new Date().getTime()}` : null;
-            const thumbnailUrl = 'https://images.unsplash.com/photo-1541701494587-c5b141459c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
-
-
-            await addDoc(collection(db, "meetversity"), {
-                contentType: currentContentType,
-                title,
-                category,
-                targetAudience: target,
-                learningOutcomes: outcomes,
-                courseType,
-                duration,
-                offerCertificate,
-                mediaUrl, // URL to the main content
-                outlineText: outlineText, // Outline description text
-                outlineUrl: outlineUrl, // URL to the outline PDF (if uploaded)
-                creatorId: currentUser.uid,
-                creatorName: currentUser.displayName,
-                thumbnailUrl: thumbnailUrl,
-                views: 0,
-                downloads: currentContentType === 'document' ? 0 : null,
-                createdAt: serverTimestamp()
-            });
-            
-            alert(`${currentContentType === 'long-video' ? 'Course' : currentContentType === 'quick-video' ? 'Quick video' : 'Document'} created successfully!`);
-            closeCreateModalHandler();
-            
-        } catch(e) {
-            console.error("Error creating content:", e);
-            alert("Error creating content. Please try again.");
-        } finally {
-            btn.innerText = "Create Content"; btn.disabled = false;
-        }
+    try {
+      await addDoc(collection(db, "meetversity_courses"), {
+        title, category, duration, type: currentType,
+        mediaUrl: media,
+        thumbnail: thumbBase64,
+        hasCert,
+        instructorId: currentUser.uid,
+        instructorName: currentUser.displayName || 'Instructor',
+        learners: [],
+        reviews: [],
+        createdAt: serverTimestamp()
+      });
+      window.closeCreateModal();
+    } catch(e) {
+      console.error(e);
+      alert("Error posting content.");
+    } finally {
+      btn.innerText = "Post Content"; btn.disabled = false;
     }
+  }
 
-    // Event Listeners
-    function setupMeetversityEventListeners() {
-      createContentBtn.addEventListener('click', () => {
-        createContentModal.style.display = 'flex';
-        setContentType(currentContentType); // Ensure correct form is shown on open
+  // --- INTERACTION LOGIC ---
+  window.joinCourse = async (id) => {
+    if(!currentUser) { alert("Please login."); return; }
+    try {
+      const ref = doc(db, "meetversity_courses", id);
+      await updateDoc(ref, {
+        learners: arrayUnion(currentUser.uid)
       });
+    } catch(e) { console.error(e); }
+  }
 
-      closeCreateModal.addEventListener('click', closeCreateModalHandler);
-      cancelCreate.addEventListener('click', closeCreateModalHandler);
-      createContentModal.addEventListener('click', (e) => {
-        if (e.target === createContentModal) {
-          closeCreateModalHandler();
-        }
+  window.openReview = (id) => {
+    if(!currentUser) { alert("Please login."); return; }
+    document.getElementById('reviewCourseId').value = id;
+    document.getElementById('reviewModal').style.display = 'flex';
+  }
+
+  window.submitReview = async () => {
+    const id = document.getElementById('reviewCourseId').value;
+    const rating = parseInt(document.getElementById('rRating').value);
+    const text = document.getElementById('rText').value;
+    
+    try {
+      const ref = doc(db, "meetversity_courses", id);
+      await updateDoc(ref, {
+        reviews: arrayUnion({
+          uid: currentUser.uid,
+          userName: currentUser.displayName || 'User',
+          rating, text,
+          date: new Date().toISOString()
+        })
       });
-      
-      contentTypeTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const type = tab.getAttribute('data-type');
-          setContentType(type);
-          contentTypeTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-        });
-      });
+      document.getElementById('reviewModal').style.display = 'none';
+      document.getElementById('rText').value = '';
+    } catch(e) { console.error(e); }
+  }
 
-      contentTypeCards.forEach(card => {
-        card.addEventListener('click', () => {
-          const type = card.getAttribute('data-type');
-          setContentType(type);
-          createContentModal.style.display = 'flex';
-          contentTypeTabs.forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.getAttribute('data-type') === type) {
-              tab.classList.add('active');
-            }
-          });
-        });
-      });
+  // Dark Mode
+  document.getElementById('toggleDark').onclick = () => {
+    document.body.classList.toggle('dark-mode');
+  }
 
-      mediaUpload.addEventListener('click', () => mediaFile.click());
-      mediaFile.addEventListener('change', handleMediaUpload);
-      outlineUpload.addEventListener('click', () => outlineFile.click());
-      submitContent.addEventListener('click', submitContentHandler);
-    }
-
-    // Notifications count function (reused from Meetrader)
-    function setupNotificationsCount() {
-        const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
-        onSnapshot(q, (snap) => {
-            const badge = document.getElementById('unreadBadge');
-            if(!snap.empty) {
-                badge.style.display = 'flex';
-                badge.innerText = snap.size;
-            } else {
-                badge.style.display = 'none';
-            }
-        });
-    }
-
-    window.auth = auth;
 </script>
 </body>
 </html>
