@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* --- CSS VARIABLES & BASE STYLES --- */
+  /* --- CSS VARIABLES --- */
   :root {
     --primary: #0080FF;
     --bg-color: #f0f2f5;
@@ -21,7 +21,6 @@
     --radius: 12px;
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
     --success: #10B981;
-    --error: #EF4444;
   }
 
   body.dark-mode {
@@ -38,7 +37,7 @@
   
   .app-container { display: flex; min-height: 100vh; }
 
-  /* --- SIDEBAR --- */
+  /* --- SIDEBAR & NAVBAR --- */
   .sidebar {
     position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
@@ -67,71 +66,84 @@
   .meetversity-container { max-width: 1200px; margin: 0 auto; }
   
   .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-  .page-title { font-size: 28px; font-weight: 800; background: var(--edu-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-title { font-size: 24px; font-weight: 800; background: var(--edu-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
+  /* REDUCED BUTTON SIZE */
   .create-btn {
-    background: var(--edu-primary); color: white; border: none; padding: 12px 24px;
-    border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    box-shadow: 0 4px 10px rgba(0,97,255,0.3); transition: transform 0.2s;
+    background: var(--edu-primary); color: white; border: none; padding: 8px 16px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 13px; box-shadow: 0 4px 10px rgba(0,97,255,0.3); transition: transform 0.2s;
   }
   .create-btn:hover { transform: translateY(-2px); }
+  .create-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
   /* Stats Cards */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
-  .stat-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
-  .stat-val { font-size: 28px; font-weight: 700; color: var(--edu-primary); }
-  .stat-lbl { font-size: 13px; color: var(--secondary-text); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: var(--card-bg); padding: 15px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 700; color: var(--edu-primary); }
+  .stat-lbl { font-size: 12px; color: var(--secondary-text); }
 
-  /* Course Card */
-  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  /* Course Grid */
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 15px; }
+  .section-head h2 { font-size: 18px; font-weight: 700; }
+  
+  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
   
   .course-card {
     background: var(--card-bg); border-radius: var(--radius); overflow: hidden;
     box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column;
   }
   .course-card:hover { transform: translateY(-5px); }
-  .course-thumb { height: 180px; width: 100%; object-fit: cover; background: #eee; position: relative;}
-  .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); opacity: 0; transition: 0.2s; }
-  .course-card:hover .play-overlay { opacity: 1; }
-  .course-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
   
-  .creator-info { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .creator-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-  .creator-name { font-size: 12px; color: var(--secondary-text); font-weight: 600; }
+  .course-header { position: relative; height: 150px; }
+  .course-thumb { height: 100%; width: 100%; object-fit: cover; background: #eee; }
+  
+  /* Poster Image Overlay */
+  .poster-badge {
+    position: absolute; bottom: -15px; right: 15px;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--card-bg); background: var(--edu-primary);
+    overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;
+  }
+  .poster-badge img { width: 100%; height: 100%; object-fit: cover; }
 
-  .c-title { font-size: 16px; font-weight: 700; margin: 5px 0; line-height: 1.3; }
-  .c-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--secondary-text); margin-bottom: 10px; }
-  .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-top: 5px; }
+  .course-body { padding: 20px 15px 15px; flex: 1; display: flex; flex-direction: column; }
   
-  .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
-  .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .c-cat { font-size: 10px; text-transform: uppercase; color: var(--edu-primary); font-weight: 700; letter-spacing: 0.5px; }
+  .c-title { font-size: 15px; font-weight: 700; margin: 5px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  
+  .c-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--secondary-text); margin-bottom: 10px; }
+  .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-bottom: 8px; }
+  
+  .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+  .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
   .btn-join.joined { background: var(--success); cursor: default; }
-  .btn-review { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-
-  /* Modal Styles */
+  
+  /* Modal */
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-  .modal-box { background: var(--card-bg); width: 100%; max-width: 700px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
-  .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+  .modal-box { background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
   .modal-body { padding: 20px; }
   
   /* Form Elements */
   .form-group { margin-bottom: 15px; }
   .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: inherit; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: inherit; font-size: 14px; }
   .form-textarea { min-height: 80px; resize: vertical; }
   
-  /* Upload Box */
-  .file-area { border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; margin-top: 5px; position: relative; background: var(--bg-color); }
-  .file-area:hover { border-color: var(--edu-primary); }
-  .file-status { font-size: 12px; color: var(--success); margin-top: 5px; font-weight: 600; display: none; }
-
-  /* Type Tabs */
+  .file-drop { border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+  .file-drop:hover { border-color: var(--edu-primary); background: rgba(0,97,255,0.02); }
+  
+  /* Dynamic List for "What you'll learn" */
+  .learn-item { display: flex; gap: 10px; margin-bottom: 8px; }
+  .btn-icon { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); width: 36px; border-radius: 6px; cursor: pointer; }
+  
   .type-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-color); padding: 5px; border-radius: 8px; }
-  .type-tab { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--secondary-text); transition: 0.2s; }
-  .type-tab.active { background: white; color: var(--edu-primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-  /* Course Details Overlay */
-  .course-details-overlay { display: none; margin-top: 15px; padding: 15px; background: var(--bg-color); border-radius: 8px; font-size: 13px; }
+  .type-tab { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--secondary-text); font-size: 13px; }
+  .type-tab.active { background: white; color: var(--edu-primary); shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  
+  .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 5px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: var(--edu-primary); width: 0%; transition: width 0.3s; }
 
   /* Responsive */
   @media (max-width: 768px) {
@@ -139,9 +151,12 @@
     .sidebar-header, .sidebar-menu span { display: none; }
     .sidebar-menu i { margin: 0; width: 100%; font-size: 20px; }
     .main-content { margin-left: 60px; padding: 15px; }
-    .grid-layout { grid-template-columns: 1fr; }
+    .grid-layout { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
     .nav-controls { width: 100%; justify-content: space-between; }
+  }
+  @media (max-width: 480px) {
+    .grid-layout { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -164,7 +179,7 @@
       <h3>Meetversity</h3>
       <div class="nav-controls">
         <div style="display:flex; align-items:center; gap:10px;">
-          <div id="userAvatar" style="width:32px; height:32px; background:white; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; overflow:hidden;">U</div>
+          <div id="userAvatar" style="width:32px; height:32px; background:white; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; overflow:hidden;">U</div>
           <span id="userNameDisplay" style="font-size:14px;">Guest</span>
         </div>
         <button class="btn-nav" id="toggleDark"><i class="fas fa-moon"></i></button>
@@ -174,9 +189,9 @@
 
     <div class="meetversity-container">
       <div class="header-section">
-        <h1 class="page-title">MEETVERSITY</h1>
+        <h1 class="page-title">ACADEMY</h1>
         <button class="create-btn" onclick="openCreateModal()">
-          <i class="fas fa-plus-circle"></i> Create Course
+          <i class="fas fa-plus"></i> Create Course
         </button>
       </div>
 
@@ -190,19 +205,23 @@
           <div class="stat-lbl">Learners</div>
         </div>
         <div class="stat-card">
+          <div class="stat-val" id="statVideos">0</div>
+          <div class="stat-lbl">Quick Vids</div>
+        </div>
+        <div class="stat-card">
           <div class="stat-val" id="statDocs">0</div>
           <div class="stat-lbl">Docs</div>
         </div>
       </div>
 
-      <div class="section-head" style="margin-top:10px;">
-        <h2>Explore Content</h2>
-      </div>
-      <div class="grid-layout" id="coursesFeed">
-        <div style="padding:20px; text-align:center; color:var(--secondary-text); grid-column:1/-1;">
-          <i class="fas fa-spinner fa-spin"></i> Loading courses...
-        </div>
-      </div>
+      <div class="section-head"><h2>Featured Courses</h2></div>
+      <div class="grid-layout" id="coursesFeed"><div style="padding:20px;">Loading...</div></div>
+
+      <div class="section-head"><h2>Quick Videos</h2></div>
+      <div class="grid-layout" id="videosFeed"></div>
+
+      <div class="section-head"><h2>Documents</h2></div>
+      <div class="grid-layout" id="docsFeed"></div>
     </div>
   </div>
 </div>
@@ -210,20 +229,20 @@
 <div class="modal" id="createModal">
   <div class="modal-box">
     <div class="modal-head">
-      <h3>Create New Content</h3>
+      <h3>Create Content</h3>
       <button onclick="closeCreateModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
     </div>
     <div class="modal-body">
       <div class="type-tabs">
         <button class="type-tab active" onclick="setType('long-video', this)">Full Course</button>
-        <button class="type-tab" onclick="setType('quick-video', this)">Short Video</button>
-        <button class="type-tab" onclick="setType('document', this)">Document</button>
+        <button class="type-tab" onclick="setType('quick-video', this)">Quick Video</button>
+        <button class="type-tab" onclick="setType('document', this)">Document (PDF)</button>
       </div>
 
       <form id="createForm">
         <div class="form-group">
-          <label class="form-label">Content Title</label>
-          <input type="text" id="cTitle" class="form-input" placeholder="e.g. Web Development Masterclass" required>
+          <label class="form-label">Title</label>
+          <input type="text" id="cTitle" class="form-input" placeholder="e.g. Advanced React Patterns" required>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -234,60 +253,63 @@
               <option>Business</option>
               <option>Design</option>
               <option>Marketing</option>
-              <option>Personal Dev</option>
+              <option>Health</option>
+              <option>Academic</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Duration / Pages</label>
-            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 20 Pages" required>
+            <label class="form-label">Duration</label>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 15 Pages" required>
           </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label">What they'll learn (Outcomes)</label>
-            <textarea id="cOutcomes" class="form-textarea" placeholder="• Understand React basics&#10;• Build a real project"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Course Outline (Optional)</label>
-            <div style="display:flex; gap:10px; margin-bottom:5px;">
-                <button type="button" class="btn-nav" style="color:var(--text-color); background:var(--bg-color); border:1px solid var(--border-color);" onclick="document.getElementById('outlineText').style.display='block'; document.getElementById('outlineFileArea').style.display='none'">Write</button>
-                <button type="button" class="btn-nav" style="color:var(--text-color); background:var(--bg-color); border:1px solid var(--border-color);" onclick="document.getElementById('outlineText').style.display='none'; document.getElementById('outlineFileArea').style.display='block'">Upload PDF</button>
-            </div>
-            <textarea id="outlineText" class="form-textarea" placeholder="Module 1: Introduction..." style="display:block;"></textarea>
-            <div class="file-area" id="outlineFileArea" style="display:none;" onclick="document.getElementById('cOutlineFile').click()">
-                <i class="fas fa-file-pdf"></i> Upload Outline PDF
-                <input type="file" id="cOutlineFile" accept="application/pdf" style="display:none" onchange="updateFileName(this, 'outlineStatus')">
-                <div id="outlineStatus" class="file-status">File Selected</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" id="mediaLabel">Upload Main Video</label>
-          <div class="file-area" onclick="document.getElementById('cMediaFile').click()">
-            <i class="fas fa-cloud-upload-alt" style="font-size:24px;"></i>
-            <p>Click to upload file (Video/PDF)</p>
-            <input type="file" id="cMediaFile" accept="video/*, application/pdf" style="display:none" onchange="updateFileName(this, 'mediaStatus')">
-            <div id="mediaStatus" class="file-status">File Selected</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Cover Image / Thumbnail</label>
-          <div class="file-area" onclick="document.getElementById('cThumb').click()">
-            <i class="fas fa-image"></i> Upload Image
+          <label class="form-label">Cover Image (Compressed)</label>
+          <div class="file-drop" onclick="document.getElementById('cThumb').click()">
+            <i class="fas fa-image" style="font-size:20px; color:var(--secondary-text);"></i>
+            <p style="font-size:11px; color:var(--secondary-text); margin-top:5px;">Click to upload thumbnail</p>
             <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)">
           </div>
-          <img id="thumbPreview" style="width:100%; height:150px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
+          <img id="thumbPreview" style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="mediaLabel">Upload Video File</label>
+          <input type="file" id="cMediaFile" class="form-input" accept="video/*">
+          <div class="progress-bar" id="mediaProgress">
+              <div class="progress-fill" id="mediaProgressFill"></div>
+          </div>
+          <small style="color:var(--secondary-text); font-size:10px;">File will be optimized via Cloudinary.</small>
+        </div>
+
+        <div class="form-group" id="outlineSection">
+          <label class="form-label">Course Outline</label>
+          <div style="display:flex; gap:10px; margin-bottom:10px; font-size:13px;">
+            <label><input type="radio" name="outlineType" value="text" checked onclick="toggleOutline('text')"> Write Text</label>
+            <label><input type="radio" name="outlineType" value="file" onclick="toggleOutline('file')"> Upload PDF</label>
+          </div>
+          
+          <textarea id="cOutlineText" class="form-textarea" placeholder="Week 1: Introduction..."></textarea>
+          <input type="file" id="cOutlineFile" class="form-input" accept=".pdf" style="display:none;">
+        </div>
+
+        <div class="form-group" id="learnSection">
+          <label class="form-label">What you'll learn</label>
+          <div id="learnContainer">
+             <div class="learn-item">
+                 <input type="text" class="form-input learn-input" placeholder="e.g. Master CSS Grid">
+             </div>
+          </div>
+          <button type="button" onclick="addLearnItem()" style="background:none; border:none; color:var(--primary); font-size:12px; cursor:pointer;">+ Add another outcome</button>
         </div>
 
         <div class="form-group">
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;">
-            <input type="checkbox" id="cCert"> Offer MEET Certificate upon completion
+            <input type="checkbox" id="cCert"> Offer MEET Certificate
           </label>
         </div>
 
-        <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center;" onclick="submitCourse()">
+        <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center; padding:12px;" onclick="submitCourse()">
           Post Content
         </button>
       </form>
@@ -295,37 +317,12 @@
   </div>
 </div>
 
-<div class="modal" id="reviewModal">
-  <div class="modal-box" style="max-width:400px;">
-    <div class="modal-head">
-      <h3>Write a Review</h3>
-      <button onclick="document.getElementById('reviewModal').style.display='none'" style="background:none; border:none;">&times;</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="reviewCourseId">
-      <div class="form-group">
-        <label class="form-label">Rating</label>
-        <select id="rRating" class="form-select">
-          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-          <option value="4">⭐⭐⭐⭐ (4)</option>
-          <option value="3">⭐⭐⭐ (3)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Review</label>
-        <textarea id="rText" class="form-textarea" placeholder="What did you think?"></textarea>
-      </div>
-      <button class="create-btn" style="width:100%; justify-content:center;" onclick="submitReview()">Submit Review</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-  // --- CONFIGURATION ---
+  // --- FIREBASE CONFIG ---
   const firebaseConfig = {
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
       authDomain: "meet-6e159.firebaseapp.com",
@@ -336,308 +333,305 @@
       appId: "1:252353608421:web:6706056048e9a8f12db20c"
   };
 
-  // *** REPLACE THESE WITH YOUR CLOUDINARY DETAILS FOR REAL UPLOADS ***
-  const CLOUD_NAME = 'YOUR_CLOUD_NAME'; // e.g., 'demo'
-  const UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET'; // e.g., 'ml_default'
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  window.auth = auth; 
+  window.auth = auth;
+
+  // --- CLOUDINARY CONFIG (REPLACE THESE!) ---
+  const CLOUD_NAME = "demo"; // Replace with your Cloudinary Cloud Name
+  const UPLOAD_PRESET = "docs_upload_example_us_preset"; // Replace with your Unsigned Upload Preset
 
   let currentUser = null;
   let currentType = 'long-video';
-  let thumbBase64 = null;
+  let thumbBase64 = null; // For reduced memory thumbnail
 
-  // --- AUTH LISTENER ---
-  onAuthStateChanged(auth, (user) => {
+  // --- AUTH & USER PROFILE ---
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      document.getElementById('userNameDisplay').innerText = user.displayName || 'User';
-      if(user.photoURL) document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
-    }
-  });
+      // Fetch extended profile if available
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      
+      currentUser.displayName = userData.displayName || user.displayName;
+      currentUser.photoURL = userData.photoURL || user.photoURL;
 
-  // --- REAL TIME FEED ---
-  const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
-  
-  onSnapshot(q, (snapshot) => {
-    const courses = [];
-    let totalLearners = 0;
-    let totalDocs = 0;
-
-    snapshot.forEach((doc) => {
-      const data = { id: doc.id, ...doc.data() };
-      totalLearners += (data.learners ? data.learners.length : 0);
-      if(data.type === 'document') totalDocs++;
-      courses.push(data);
-    });
-
-    // Update Stats
-    document.getElementById('statCourses').innerText = courses.length;
-    document.getElementById('statLearners').innerText = totalLearners;
-    document.getElementById('statDocs').innerText = totalDocs;
-
-    // Render
-    const container = document.getElementById('coursesFeed');
-    container.innerHTML = '';
-
-    if(courses.length === 0) {
-      container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--secondary-text);">No courses available yet.</div>`;
-      return;
-    }
-
-    courses.forEach(item => {
-        const isJoined = currentUser && item.learners && item.learners.includes(currentUser.uid);
-        const learnerCount = item.learners ? item.learners.length : 0;
-        
-        // Calculate Ratings
-        let rating = "New";
-        if(item.reviews && item.reviews.length > 0) {
-            const sum = item.reviews.reduce((a, b) => a + b.rating, 0);
-            rating = (sum / item.reviews.length).toFixed(1);
-        }
-
-        const div = document.createElement('div');
-        div.className = 'course-card';
-        
-        // Icons based on type
-        let typeIcon = 'play-circle';
-        if(item.type === 'document') typeIcon = 'file-alt';
-        if(item.type === 'quick-video') typeIcon = 'bolt';
-
-        div.innerHTML = `
-            <div class="course-thumb" style="background-image:url('${item.thumbnail || ''}'); background-size:cover; background-position:center;">
-                <div class="play-overlay"><i class="fas fa-${typeIcon}" style="font-size:40px; color:white;"></i></div>
-            </div>
-            <div class="course-body">
-                <div class="creator-info">
-                    <img src="${item.creatorPhoto || 'https://via.placeholder.com/30'}" class="creator-img">
-                    <span class="creator-name">${item.creatorName || 'Instructor'}</span>
-                </div>
-                <div style="font-size:11px; text-transform:uppercase; color:var(--primary); font-weight:700;">${item.category} • ${item.type === 'long-video' ? 'Course' : item.type}</div>
-                <div class="c-title">${item.title}</div>
-                
-                <div class="c-meta">
-                    <span><i class="fas fa-star" style="color:gold;"></i> ${rating}</span>
-                    <span><i class="fas fa-user-graduate"></i> ${learnerCount}</span>
-                </div>
-                
-                ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
-
-                <div id="details-${item.id}" class="course-details-overlay">
-                    <strong>What you'll learn:</strong><br>${item.outcomes || 'Not specified'}<br><br>
-                    <strong>Outline:</strong><br>
-                    ${item.outlineUrl ? `<a href="${item.outlineUrl}" target="_blank" style="color:var(--primary);">Download PDF</a>` : (item.outlineText || 'No outline')}
-                    <br><br>
-                    ${isJoined ? `<a href="${item.mediaUrl}" target="_blank" style="display:block; background:var(--primary); color:white; text-align:center; padding:5px; border-radius:4px; text-decoration:none;">Access Content</a>` : ''}
-                </div>
-
-                <div class="c-footer">
-                    <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="toggleDetails('${item.id}')">
-                       ${isJoined ? 'Open Content' : 'View Details'}
-                    </button>
-                    ${!isJoined ? `<button class="btn-join" onclick="joinCourse('${item.id}')" style="background:var(--text-color);">Join</button>` : ''}
-                    <button class="btn-review" onclick="openReview('${item.id}')"><i class="fas fa-pen"></i></button>
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-  });
-
-  // --- UPLOAD HELPER (CLOUDINARY) ---
-  async function uploadToCloudinary(file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', UPLOAD_PRESET);
-
-      // Determine resource type
-      let resourceType = 'auto';
-      if (file.type.includes('image')) resourceType = 'image';
-      else if (file.type.includes('video')) resourceType = 'video';
-      else resourceType = 'raw'; // For PDFs sometimes 'raw' or 'image' (pages) depending on config, 'auto' usually works
-
-      try {
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
-              method: 'POST',
-              body: formData
-          });
-          const data = await res.json();
-          if(data.error) throw new Error(data.error.message);
-          return data.secure_url;
-      } catch (err) {
-          console.error("Upload Error:", err);
-          alert("File upload failed: " + err.message + ". Did you set your Cloud Name/Preset?");
-          return null;
+      document.getElementById('userNameDisplay').innerText = currentUser.displayName || 'User';
+      if(currentUser.photoURL) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
       }
-  }
-
-  // --- CREATION LOGIC ---
-  window.openCreateModal = () => {
-    if(!currentUser) { alert("Please log in first."); return; }
-    document.getElementById('createModal').style.display = 'flex';
-  }
-  window.closeCreateModal = () => {
-    document.getElementById('createModal').style.display = 'none';
-    document.getElementById('createForm').reset();
-    document.getElementById('thumbPreview').style.display='none';
-    document.getElementById('outlineStatus').style.display='none';
-    document.getElementById('mediaStatus').style.display='none';
-    thumbBase64 = null;
-  }
-
-  window.setType = (type, btn) => {
-    currentType = type;
-    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    
-    const mediaFile = document.getElementById('cMediaFile');
-    if(type === 'document') {
-        mediaFile.accept = "application/pdf";
-        document.getElementById('mediaLabel').innerText = "Upload Document PDF";
     } else {
-        mediaFile.accept = "video/*";
-        document.getElementById('mediaLabel').innerText = "Upload Video File";
+      document.getElementById('userNameDisplay').innerText = "Guest";
+      // In real app, redirect to login
     }
-  }
+  });
 
-  window.updateFileName = (input, statusId) => {
-      if(input.files[0]) {
-          const el = document.getElementById(statusId);
-          el.style.display = 'block';
-          el.innerText = "Selected: " + input.files[0].name;
-      }
-  }
-
-  // Thumbnail Compression (Canvas)
-  window.previewThumb = (input) => {
-    if (input.files && input.files[0]) {
+  // --- COMPRESSION LOGIC (Meetrader Style) ---
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = (e) => {
         const img = new Image();
         img.src = e.target.result;
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            // Compress to max 500px width
-            const scale = Math.min(500 / img.width, 1);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            thumbBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-            
-            const preview = document.getElementById('thumbPreview');
-            preview.src = thumbBase64;
-            preview.style.display = 'block';
+          const canvas = document.createElement('canvas');
+          // Max dim 500px for thumbnails to save memory
+          const MAX = 500;
+          const scale = Math.min(MAX / img.width, 1);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Output low quality JPEG
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
         };
       };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
+      reader.readAsDataURL(file);
+    });
+  };
 
-  window.submitCourse = async () => {
-    if(!currentUser) return;
-
-    const title = document.getElementById('cTitle').value;
-    const category = document.getElementById('cCategory').value;
-    const duration = document.getElementById('cDuration').value;
-    const outcomes = document.getElementById('cOutcomes').value;
-    const outlineText = document.getElementById('outlineText').value;
-    const hasCert = document.getElementById('cCert').checked;
-
-    // Files
-    const mediaFile = document.getElementById('cMediaFile').files[0];
-    const outlineFile = document.getElementById('cOutlineFile').files[0];
-
-    if(!title || !duration || !outcomes) { alert("Please fill all text fields."); return; }
-    if(!thumbBase64) { alert("Please upload a thumbnail."); return; }
-    if(!mediaFile) { alert("Please upload the main course file."); return; }
-
-    const btn = document.getElementById('submitBtn');
-    btn.innerText = "Uploading Files... (Please Wait)"; 
-    btn.disabled = true;
+  // --- CLOUDINARY UPLOAD HELPER ---
+  const uploadToCloudinary = async (file, resourceType) => {
+    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
-      // 1. Upload Main Media
-      const mediaUrl = await uploadToCloudinary(mediaFile);
-      if(!mediaUrl) throw new Error("Media upload failed");
-
-      // 2. Upload Outline PDF (if exists)
-      let outlineUrl = null;
-      if(outlineFile) {
-          outlineUrl = await uploadToCloudinary(outlineFile);
-      }
-
-      // 3. Save to Firestore
-      await addDoc(collection(db, "meetversity_courses"), {
-        title, category, duration, outcomes, 
-        outlineText, outlineUrl,
-        type: currentType,
-        mediaUrl,
-        thumbnail: thumbBase64, // Compressed Base64
-        hasCert,
-        creatorId: currentUser.uid,
-        creatorName: currentUser.displayName || 'Instructor',
-        creatorPhoto: currentUser.photoURL || null,
-        learners: [],
-        reviews: [],
-        createdAt: serverTimestamp()
-      });
-
-      alert("Course Posted Successfully!");
-      window.closeCreateModal();
-
-    } catch(e) {
-      console.error(e);
-      alert("Error posting: " + e.message);
-    } finally {
-      btn.innerText = "Post Content"; 
-      btn.disabled = false;
+      const response = await fetch(url, { method: "POST", body: formData });
+      const data = await response.json();
+      return data.secure_url;
+    } catch (err) {
+      console.error("Upload failed", err);
+      throw err;
     }
+  };
+
+  // --- FEED LOGIC ---
+  const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const courses = [], videos = [], docs = [];
+    let learners = 0;
+
+    snapshot.forEach((doc) => {
+      const data = { id: doc.id, ...doc.data() };
+      learners += (data.learners ? data.learners.length : 0);
+      if(data.type === 'long-video') courses.push(data);
+      else if(data.type === 'quick-video') videos.push(data);
+      else docs.push(data);
+    });
+
+    // Update stats
+    document.getElementById('statCourses').innerText = courses.length;
+    document.getElementById('statVideos').innerText = videos.length;
+    document.getElementById('statDocs').innerText = docs.length;
+    document.getElementById('statLearners').innerText = learners;
+
+    renderGrid('coursesFeed', courses);
+    renderGrid('videosFeed', videos);
+    renderGrid('docsFeed', docs);
+  });
+
+  function renderGrid(id, items) {
+    const container = document.getElementById(id);
+    container.innerHTML = '';
+    if(!items.length) { container.innerHTML = '<div style="padding:10px; color:#888;">No content yet.</div>'; return; }
+
+    items.forEach(item => {
+      const isJoined = currentUser && item.learners?.includes(currentUser.uid);
+      const lCount = item.learners ? item.learners.length : 0;
+      
+      // Poster Image Logic
+      const posterImg = item.instructorPhoto 
+        ? `<img src="${item.instructorPhoto}">` 
+        : `<div style="width:100%;height:100%;background:#0080FF;color:white;display:flex;align-items:center;justify-content:center;">${item.instructorName?.[0]||'U'}</div>`;
+
+      const div = document.createElement('div');
+      div.className = 'course-card';
+      div.innerHTML = `
+        <div class="course-header">
+            <img src="${item.thumbnail || 'https://via.placeholder.com/300'}" class="course-thumb">
+            <div class="poster-badge">${posterImg}</div>
+        </div>
+        <div class="course-body">
+          ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
+          <div class="c-cat">${item.category}</div>
+          <div class="c-title">${item.title}</div>
+          <div class="c-meta">
+            <span>${item.instructorName}</span>
+            <span>${lCount} Learners</span>
+          </div>
+          <div class="c-footer">
+             <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="joinCourse('${item.id}')">
+              ${isJoined ? 'Joined' : 'Join'}
+            </button>
+             <button style="background:none; border:1px solid #ddd; padding:6px; border-radius:6px; cursor:pointer;" onclick="viewDetails('${item.id}')">Details</button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
   }
 
-  // --- ACTIONS ---
-  window.toggleDetails = (id) => {
-      const el = document.getElementById(`details-${id}`);
-      if(el.style.display === 'block') el.style.display = 'none';
-      else el.style.display = 'block';
-  }
+  // --- CREATION FORM LOGIC ---
+  window.openCreateModal = () => {
+      if(!currentUser) { alert("Login required"); return; }
+      document.getElementById('createModal').style.display = 'flex';
+  };
+  window.closeCreateModal = () => {
+      document.getElementById('createModal').style.display = 'none';
+      document.getElementById('createForm').reset();
+      thumbBase64 = null;
+      document.getElementById('thumbPreview').style.display = 'none';
+  };
+
+  // Form Tabs & toggles
+  window.setType = (type, btn) => {
+      currentType = type;
+      document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const mediaInput = document.getElementById('cMediaFile');
+      const label = document.getElementById('mediaLabel');
+      
+      if(type === 'document') {
+          label.innerText = "Upload PDF Document";
+          mediaInput.accept = ".pdf";
+          document.getElementById('outlineSection').style.display = 'none'; // Docs don't need outline usually
+      } else {
+          label.innerText = "Upload Video File";
+          mediaInput.accept = "video/*";
+          document.getElementById('outlineSection').style.display = 'block';
+      }
+  };
+
+  window.toggleOutline = (val) => {
+      if(val === 'text') {
+          document.getElementById('cOutlineText').style.display = 'block';
+          document.getElementById('cOutlineFile').style.display = 'none';
+      } else {
+          document.getElementById('cOutlineText').style.display = 'none';
+          document.getElementById('cOutlineFile').style.display = 'block';
+      }
+  };
+
+  window.addLearnItem = () => {
+      const div = document.createElement('div');
+      div.className = 'learn-item';
+      div.innerHTML = `<input type="text" class="form-input learn-input" placeholder="Outcome..."><button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>`;
+      document.getElementById('learnContainer').appendChild(div);
+  };
+
+  // Thumbnail Compression Preview
+  window.previewThumb = async (input) => {
+      if (input.files && input.files[0]) {
+          const compressedDataUrl = await compressImage(input.files[0]);
+          thumbBase64 = compressedDataUrl; // Store compressed string for upload
+          const preview = document.getElementById('thumbPreview');
+          preview.src = thumbBase64;
+          preview.style.display = 'block';
+      }
+  };
+
+  // Main Submit Logic
+  window.submitCourse = async () => {
+      const btn = document.getElementById('submitBtn');
+      const progress = document.getElementById('mediaProgress');
+      const fill = document.getElementById('mediaProgressFill');
+      
+      const title = document.getElementById('cTitle').value;
+      const category = document.getElementById('cCategory').value;
+      const duration = document.getElementById('cDuration').value;
+      
+      const mediaFile = document.getElementById('cMediaFile').files[0];
+      
+      // Gather "What you'll learn"
+      const learnInputs = document.querySelectorAll('.learn-input');
+      const outcomes = [];
+      learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
+
+      if(!title || !mediaFile) { alert("Title and Media File required"); return; }
+      if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
+
+      btn.innerText = "Uploading...";
+      btn.disabled = true;
+      progress.style.display = 'block';
+      fill.style.width = '20%';
+
+      try {
+          // 1. Upload Thumbnail (Base64 -> Cloudinary)
+          const thumbUrl = await uploadToCloudinary(thumbBase64, "image");
+          fill.style.width = '40%';
+
+          // 2. Upload Main Content (Video/PDF -> Cloudinary)
+          const resourceType = (currentType === 'document') ? 'image' : 'video'; // Cloudinary treats PDFs as images usually, or raw
+          // Note: Large videos might fail on Free Cloudinary tier via browser fetch due to size limits.
+          // For production, signed uploads or chunked uploads are needed.
+          const mediaUrl = await uploadToCloudinary(mediaFile, resourceType === 'image' && mediaFile.type === 'application/pdf' ? 'auto' : resourceType);
+          fill.style.width = '70%';
+
+          // 3. Upload Outline PDF if selected
+          let outlineUrl = null;
+          let outlineText = null;
+          const outlineType = document.querySelector('input[name="outlineType"]:checked').value;
+          
+          if(currentType !== 'document') {
+              if(outlineType === 'file') {
+                  const oFile = document.getElementById('cOutlineFile').files[0];
+                  if(oFile) outlineUrl = await uploadToCloudinary(oFile, "auto");
+              } else {
+                  outlineText = document.getElementById('cOutlineText').value;
+              }
+          }
+          fill.style.width = '90%';
+
+          // 4. Save to Firestore
+          await addDoc(collection(db, "meetversity_courses"), {
+              title, category, duration, type: currentType,
+              thumbnail: thumbUrl,
+              mediaUrl: mediaUrl,
+              outcomes: outcomes,
+              outlineType: outlineType,
+              outlineUrl: outlineUrl,
+              outlineText: outlineText,
+              hasCert: document.getElementById('cCert').checked,
+              instructorId: currentUser.uid,
+              instructorName: currentUser.displayName || 'Instructor',
+              instructorPhoto: currentUser.photoURL || null,
+              learners: [],
+              createdAt: serverTimestamp()
+          });
+
+          fill.style.width = '100%';
+          alert("Content Posted Successfully!");
+          closeCreateModal();
+
+      } catch(e) {
+          console.error(e);
+          alert("Upload failed. Check console. (Cloudinary config might be missing)");
+      } finally {
+          btn.innerText = "Post Content";
+          btn.disabled = false;
+          progress.style.display = 'none';
+      }
+  };
 
   window.joinCourse = async (id) => {
-    if(!currentUser) { alert("Please login."); return; }
-    try {
-      const ref = doc(db, "meetversity_courses", id);
-      await updateDoc(ref, { learners: arrayUnion(currentUser.uid) });
-      // Force details open
-      document.getElementById(`details-${id}`).style.display = 'block';
-    } catch(e) { console.error(e); }
-  }
+      if(!currentUser) { alert("Login required"); return; }
+      await updateDoc(doc(db, "meetversity_courses", id), {
+          learners: arrayUnion(currentUser.uid)
+      });
+  };
 
-  window.openReview = (id) => {
-      document.getElementById('reviewCourseId').value = id;
-      document.getElementById('reviewModal').style.display = 'flex';
-  }
+  window.viewDetails = (id) => {
+      alert("Feature: Opens course detail view (Video Player / PDF Viewer) using mediaUrl: " + id);
+  };
 
-  window.submitReview = async () => {
-      const id = document.getElementById('reviewCourseId').value;
-      const rating = parseInt(document.getElementById('rRating').value);
-      const text = document.getElementById('rText').value;
-      
-      try {
-          await updateDoc(doc(db, "meetversity_courses", id), {
-              reviews: arrayUnion({
-                  uid: currentUser.uid,
-                  name: currentUser.displayName,
-                  rating, text, date: new Date().toISOString()
-              })
-          });
-          document.getElementById('reviewModal').style.display = 'none';
-      } catch(e) { console.error(e); }
-  }
-
-  // Dark mode toggler
+  // Dark mode toggle
   document.getElementById('toggleDark').onclick = () => document.body.classList.toggle('dark-mode');
+
 </script>
 </body>
 </html>
