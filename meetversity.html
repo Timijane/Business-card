@@ -178,7 +178,7 @@
     box-shadow: var(--shadow);
     transition: transform 0.3s;
     position: relative;
-    cursor: pointer; /* Added cursor pointer */
+    cursor: pointer; 
   }
   .course-card:hover, .path-card:hover { transform: translateY(-5px); }
   .course-thumbnail { width: 100%; height: 150px; object-fit: cover; }
@@ -209,7 +209,7 @@
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.3s;
-    cursor: pointer; /* Added cursor pointer */
+    cursor: pointer; 
   }
   .quick-video-card:hover { transform: scale(1.03); }
   .quick-video-thumbnail { width: 100%; height: 100px; object-fit: cover; }
@@ -228,7 +228,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    cursor: pointer; /* Added cursor pointer */
+    cursor: pointer; 
   }
   .document-card:hover { transform: translateY(-3px); }
   .document-icon {
@@ -248,8 +248,26 @@
   .document-meta { display: flex; gap: 8px; font-size: 11px; color: var(--secondary-text); }
 
   /* Modal Overrides for consistency */
-  .modal-content { max-width: 800px; }
-  .modal-header h3 { font-size: 20px; }
+  .modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); z-index: 1000;
+    display: none; justify-content: center; align-items: center;
+    overflow-y: auto;
+  }
+  .modal-content {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 20px; position: relative; width: 90%; max-width: 800px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); margin: 20px 0;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;
+  }
+  .modal-header h3 { font-size: 20px; margin: 0; }
+  .close-modal {
+    background: none; border: none; font-size: 24px; color: var(--secondary-text);
+    cursor: pointer; line-height: 1; padding: 0 5px;
+  }
   
   /* Create Content Modal Form Styles (Using Meetrader form styles) */
   .form-group { margin-bottom: 15px; }
@@ -277,13 +295,15 @@
   .file-upload-text { font-size: 13px; color: var(--secondary-text); }
   .file-preview { display: none; margin-top: 10px; border-radius: 8px; overflow: hidden; }
   .file-preview img, .file-preview video { width: 100%; max-height: 150px; object-fit: cover; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 15px; border-top: 1px solid var(--border-color); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 15px 0 0; }
   .cancel-btn {
     background: var(--bg-color); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer;
   }
   .submit-btn {
     background: var(--edu-primary); color: white; border: 0; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer;
   }
+
+  .loading { text-align: center; padding: 20px; color: var(--secondary-text); }
   
   /* Responsive Overrides (Matching Meetrader structure) */
   @media (max-width: 768px) {
@@ -443,7 +463,7 @@
         <a href="#" class="view-all">View All</a>
       </div>
       <div class="courses-grid" id="coursesGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading courses...</p>
+        <p class="loading">Loading courses...</p>
       </div>
       
       <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
@@ -453,7 +473,7 @@
         <a href="#" class="view-all">View All</a>
       </div>
       <div class="quick-videos" id="quickVideosGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading quick videos...</p>
+        <p class="loading">Loading quick videos...</p>
       </div>
 
       <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
@@ -463,7 +483,7 @@
         <a href="#" class="view-all">View All</a>
       </div>
       <div class="documents-grid" id="documentsGrid">
-        <p style="text-align: center; color: var(--secondary-text);">Loading documents...</p>
+        <p class="loading">Loading documents...</p>
       </div>
     </div>
     </div>
@@ -499,59 +519,68 @@
           <textarea class="form-textarea" id="learningOutcomes" placeholder="List 3-5 things the learner will be able to do after finishing the content..."></textarea>
         </div>
         
-        <div class="form-group">
-          <label class="form-label" for="contentCategory">Course Categories</label>
-          <select class="form-select" id="contentCategory" required>
-            <option value="">Select a category</option>
-            <option value="technology">Technology</option>
-            <option value="design">Design</option>
-            <option value="business">Business</option>
-            <option value="marketing">Marketing</option>
-            <option value="languages">Languages</option>
-            <option value="science">Science</option>
-            <option value="arts">Arts & Creativity</option>
-            <option value="personal-development">Personal Development</option>
-          </select>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="contentCategory">Course Categories</label>
+                <select class="form-select" id="contentCategory" required>
+                  <option value="">Select a category</option>
+                  <option value="technology">Technology</option>
+                  <option value="design">Design</option>
+                  <option value="business">Business</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="languages">Languages</option>
+                  <option value="science">Science</option>
+                  <option value="arts">Arts & Creativity</option>
+                  <option value="personal-development">Personal Development</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="contentDuration">Duration to Complete</label>
+                <input type="text" class="form-input" id="contentDuration" placeholder="e.g., 4 weeks, 12 hours" required>
+            </div>
         </div>
-        
-        <div class="form-group">
-          <label class="form-label">Course Type</label>
-          <div class="radio-group" style="flex-direction:row; gap:15px; background:transparent; padding:0; border:none;">
-            <label class="radio-item">
-              <input type="radio" name="courseType" value="one-time" checked>
-              One-time Course
-            </label>
-            <label class="radio-item">
-              <input type="radio" name="courseType" value="long-term">
-              Long-term Course
-            </label>
-          </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="contentPrice">Price (Enter 0 for Free)</label>
+                <input type="number" class="form-input" id="contentPrice" placeholder="e.g., 50.00" value="0" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Course Type</label>
+                <div class="radio-group" style="display:flex; gap:15px; background:transparent; padding:10px 0; border:none;">
+                  <label class="radio-item">
+                    <input type="radio" name="courseType" value="one-time" checked>
+                    One-time
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="courseType" value="long-term">
+                    Long-term
+                  </label>
+                </div>
+            </div>
         </div>
         
         <div class="form-group" id="courseOutlineGroup">
-          <label class="form-label" for="courseOutline">Course Outline</label>
+          <label class="form-label" for="courseOutline">Course Outline / Description</label>
           <textarea class="form-textarea" id="courseOutline" placeholder="Describe the course structure, modules, and learning objectives..."></textarea>
           <div class="file-upload" id="outlineUpload">
             <div class="file-upload-icon"><i class="fas fa-file-pdf"></i></div>
-            <div class="file-upload-text">Or upload course outline as PDF</div>
+            <div class="file-upload-text">Or upload course outline as PDF (Optional)</div>
             <input type="file" id="outlineFile" accept=".pdf" style="display: none">
           </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label" for="contentDuration">Duration to Complete</label>
-          <input type="text" class="form-input" id="contentDuration" placeholder="e.g., 4 weeks, 12 hours" required>
-        </div>
-        
         <div class="form-group" id="mediaUploadGroup">
-          <label class="form-label">Upload Content</label>
+          <label class="form-label">Upload Content File</label>
           <div class="file-upload" id="mediaUpload">
             <div class="file-upload-icon" id="mediaIcon"><i class="fas fa-video"></i></div>
-            <div class="file-upload-text" id="mediaText">Click to upload your video file</div>
-            <input type="file" id="mediaFile" style="display: none">
+            <div class="file-upload-text" id="mediaText">Click to upload your video file or document</div>
+            <input type="file" id="mediaFile" style="display: none" required>
           </div>
           <div class="file-preview" id="mediaPreview">
-            <video id="previewVideo" controls></video>
+            <video id="previewVideo" controls style="display: none;"></video>
+            <div id="fileInfo" style="padding: 10px; text-align: center; color: var(--secondary-text); font-size:14px; display: none;"></div>
           </div>
         </div>
         
@@ -578,7 +607,7 @@
       <button class="close-modal" id="closeNotificationsModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="notificationsList"></div>
+      <div id="notificationsList"><div class="loading">Loading notifications...</div></div>
     </div>
   </div>
 </div>
@@ -599,18 +628,17 @@
     // Firebase imports and configuration (unchanged)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { 
-        getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp 
+        getFirestore, collection, addDoc, doc, getDoc, 
+        onSnapshot, query, where, orderBy, updateDoc, serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
     
-    // Cloudinary import (simplified placeholder as actual upload logic is complex)
-    // import * as cloudinary from "cloudinary-core"; 
+    // NOTE: Firebase Storage or a third-party service (like Cloudinary) is required for actual file uploads (mediaFile, outlineFile).
+    // The current logic simulates this by logging the files and using placeholder URLs.
 
     const firebaseConfig = {
-        apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+        apiKey: "YOUR_API_KEY", // Replace with actual API Key
         authDomain: "meet-6e159.firebaseapp.com",
-        databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
         projectId: "meet-6e159",
         storageBucket: "meet-6e159-firebasestorage.app",
         messagingSenderId: "252353608421",
@@ -620,31 +648,27 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    // Cloudinary configuration placeholder (real logic would involve storage or API calls)
-    const cloudinaryConfig = { cloudName: 'YOUR_CLOUD_NAME' }; // Placeholder
 
     let currentUser = null;
+    let userCache = {}; // Cache for user details
 
     // --- HELPER FUNCTIONS ---
     function getAvatarHTML(photoURL, name, size = 'medium') {
         const initial = name ? name.charAt(0).toUpperCase() : 'U';
-        const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
-        if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-        return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+        const style = size === 'small' ? 'width:24px;height:24px;font-size:12px; min-width: 24px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
+        if (photoURL && photoURL !== 'null') return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
+        return `<div class="user-avatar" style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
     }
 
     // New navigation function for content
     window.viewContent = (id) => { 
         console.log('Viewing content with ID:', id);
-        // window.location.href = `content.html?id=${id}`; // Real navigation
+        // window.location.href = `content-detail.html?id=${id}`; // Real navigation
     };
 
     window.viewProfile = (targetId) => { if(targetId) window.location.href = `profile.html?uid=${targetId}`; };
-    window.openUsersModal = async () => { /* Logic from Meetrader */ };
-    window.toggleAssociate = async (targetId, isCurrentlyAssociated) => { /* Logic from Meetrader */ };
-    window.openNotificationsModal = () => { /* Logic from Meetrader */ };
-    window.markNotifRead = async (id) => await updateDoc(doc(db, "notifications", id), { read: true });
-    window.deleteNotif = async (id) => await deleteDoc(doc(db, "notifications", id));
+    window.openUsersModal = async () => { document.getElementById('usersModal').style.display = 'flex'; /* Logic from Meetrader */ };
+    window.openNotificationsModal = () => { document.getElementById('notificationsModal').style.display = 'flex'; /* Logic from Meetrader */ };
     
     // Basic controls
     document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
@@ -668,7 +692,11 @@
             setupNotificationsCount();
             initMeetversity(); // Initialize Meetversity content
         } else {
-            // window.location.href = 'login.html'; // Uncomment in production
+             // window.location.href = 'login.html'; // Uncomment in production
+             // Default to a logged-out state for development
+             document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(null, 'Guest', 'small');
+             document.getElementById('userName').textContent = 'Guest';
+             initMeetversity();
         }
     });
 
@@ -692,47 +720,53 @@
     const mediaFile = document.getElementById('mediaFile');
     const mediaPreview = document.getElementById('mediaPreview');
     const previewVideo = document.getElementById('previewVideo');
+    const fileInfo = document.getElementById('fileInfo');
     const outlineUpload = document.getElementById('outlineUpload');
     const outlineFile = document.getElementById('outlineFile');
     const mediaIcon = document.getElementById('mediaIcon');
     const mediaText = document.getElementById('mediaText');
     const courseOutlineGroup = document.getElementById('courseOutlineGroup');
-    const mediaUploadGroup = document.getElementById('mediaUploadGroup');
     
-    // New/Updated fields
+    // Form fields
     const contentTitle = document.getElementById('contentTitle');
     const targetAudience = document.getElementById('targetAudience');
     const learningOutcomes = document.getElementById('learningOutcomes');
     const contentCategory = document.getElementById('contentCategory');
     const contentDuration = document.getElementById('contentDuration');
+    const contentPrice = document.getElementById('contentPrice');
 
 
     function initMeetversity() {
-      // Setup real-time listeners for each content type
       setupCoursesListener();
       setupQuickVideosListener();
       setupDocumentsListener();
       setupMeetversityEventListeners();
     }
     
-    // --- REAL-TIME CONTENT FETCHING ---
+    // --- REAL-TIME CONTENT FETCHING & RENDERING ---
 
     async function getUserDetails(uid) {
+        if (userCache[uid]) return userCache[uid];
         const docRef = doc(db, "users", uid);
         const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? docSnap.data() : { displayName: 'Unknown Creator', photoURL: null };
+        const data = docSnap.exists() ? docSnap.data() : { displayName: 'Unknown Creator', photoURL: null };
+        userCache[uid] = data;
+        return data;
     }
     
     async function renderCourses(courses) {
-        let html = '';
-        for (const course of courses) {
-            // Fetch creator's details for real data
-            const creator = await getUserDetails(course.creatorId);
-            html += `
+        const creatorDetailsPromises = courses.map(course => getUserDetails(course.creatorId));
+        const creators = await Promise.all(creatorDetailsPromises);
+
+        let html = courses.map((course, index) => {
+            const creator = creators[index];
+            const priceDisplay = course.price > 0 ? `$${course.price.toFixed(2)}` : 'Free';
+            
+            return `
                 <div class="course-card" onclick="viewContent('${course.id}')">
                     <img src="${course.thumbnailUrl || 'https://images.unsplash.com/photo-1541701494587-c5b141459c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="${course.title}" class="course-thumbnail">
                     <div class="course-details">
-                        <div class="course-category">${course.category}</div>
+                        <div class="course-category">${course.category.toUpperCase()}</div>
                         <h3 class="course-title">${course.title}</h3>
                         <div class="course-meta">
                             <div class="course-instructor">
@@ -744,25 +778,25 @@
                             </div>
                         </div>
                         <div class="course-footer">
-                            <div class="course-price">${course.price || 'Free'}</div>
+                            <div class="course-price">${priceDisplay}</div>
                             ${course.offerCertificate ? '<div class="certificate-badge">Certificate</div>' : ''}
                         </div>
                     </div>
                 </div>
             `;
-        }
-        coursesGrid.innerHTML = html || '<p style="padding: 15px; color: var(--secondary-text);">No courses found.</p>';
+        }).join('');
+
+        coursesGrid.innerHTML = html || '<p class="loading">No courses found yet. Be the first to create one!</p>';
     }
 
     function setupCoursesListener() {
-        // Query courses (long-video content)
         const q = query(collection(db, "meetversity"), where("contentType", "==", "long-video"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const courses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderCourses(courses);
         }, (error) => {
             console.error("Error fetching courses:", error);
-            coursesGrid.innerHTML = '<p style="padding: 15px; color: var(--error);">Error loading courses. Please check console.</p>';
+            coursesGrid.innerHTML = '<p class="loading" style="color: var(--error);">Error loading courses. Please try again.</p>';
         });
     }
 
@@ -778,11 +812,10 @@
                     </div>
                 </div>
             </div>
-        `).join('') || '<p style="grid-column: 1 / -1; padding: 15px; color: var(--secondary-text);">No quick videos found.</p>';
+        `).join('') || '<p class="loading" style="grid-column: 1 / -1;">No quick videos found yet.</p>';
     }
 
     function setupQuickVideosListener() {
-        // Query quick videos
         const q = query(collection(db, "meetversity"), where("contentType", "==", "quick-video"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const videos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -791,23 +824,22 @@
     }
 
     function renderDocuments(documents) {
-        documentsGrid.innerHTML = documents.map(doc => `
-            <div class="document-card" onclick="viewContent('${doc.id}')">
+        documentsGrid.innerHTML = documents.map(docItem => `
+            <div class="document-card" onclick="viewContent('${docItem.id}')">
                 <div class="document-icon"><i class="fas fa-file-pdf"></i></div>
                 <div class="document-details">
-                    <h3 class="document-title">${doc.title}</h3>
+                    <h3 class="document-title">${docItem.title}</h3>
                     <div class="document-meta">
-                        <span>${doc.fileType || 'Document'}</span>
-                        <span>${doc.pages || 'N/A'} pages</span>
-                        <span><i class="fas fa-download"></i> ${doc.downloads || '0'}</span>
+                        <span>${docItem.fileType || 'Document'}</span>
+                        <span>${docItem.duration || 'N/A'}</span>
+                        <span><i class="fas fa-download"></i> ${docItem.downloads || '0'}</span>
                     </div>
                 </div>
             </div>
-        `).join('') || '<p style="grid-column: 1 / -1; padding: 15px; color: var(--secondary-text);">No documents found.</p>';
+        `).join('') || '<p class="loading" style="grid-column: 1 / -1;">No study documents found yet.</p>';
     }
     
     function setupDocumentsListener() {
-        // Query study documents
         const q = query(collection(db, "meetversity"), where("contentType", "==", "document"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -821,13 +853,19 @@
       createContentModal.style.display = 'none';
       createContentForm.reset();
       mediaPreview.style.display = 'none';
+      previewVideo.style.display = 'none';
+      fileInfo.style.display = 'none';
       // Reset media text and icon
       mediaIcon.innerHTML = `<i class="fas fa-video"></i>`;
-      mediaText.textContent = 'Click to upload your video file';
+      mediaText.textContent = 'Click to upload your video file or document';
     }
 
     function setContentType(type) {
       currentContentType = type;
+      
+      // Update tabs
+      contentTypeTabs.forEach(t => t.classList.remove('active'));
+      document.querySelector(`.content-type-tab[data-type="${type}"]`).classList.add('active');
       
       // Update form based on content type
       if (type === 'long-video') {
@@ -845,10 +883,18 @@
       } else if (type === 'document') {
         mediaIcon.innerHTML = `<i class="fas fa-file-alt"></i>`;
         mediaText.textContent = 'Click to upload your document (PDF, PPT, etc.)';
-        mediaFile.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+        mediaFile.accept = '.pdf,.ppt,.pptx,.doc,.docx,.txt';
         courseOutlineGroup.style.display = 'none';
         contentTitle.placeholder = 'e.g., React Hooks Cheatsheet';
       }
+    }
+
+    function getFileType(fileName) {
+        const parts = fileName.split('.');
+        if (parts.length > 1) {
+            return parts.pop().toUpperCase();
+        }
+        return 'FILE';
     }
 
     // Simplified media upload handler (real scenario needs Firebase Storage/Cloudinary upload)
@@ -856,46 +902,48 @@
       const file = e.target.files[0];
       if (!file) return;
       
-      mediaPreview.style.display = 'none';
+      mediaPreview.style.display = 'block';
       previewVideo.style.display = 'none';
+      fileInfo.style.display = 'none';
+      
+      mediaText.textContent = file.name;
       
       if (file.type.startsWith('video/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
           previewVideo.src = e.target.result;
           previewVideo.style.display = 'block';
-          mediaPreview.style.display = 'block';
-          mediaText.textContent = file.name;
         };
         reader.readAsDataURL(file);
       } else {
-        mediaPreview.innerHTML = `<div style="padding: 10px; text-align: center; color: var(--secondary-text); font-size:14px;">File uploaded: ${file.name}</div>`;
-        mediaPreview.style.display = 'block';
-        mediaText.textContent = file.name;
+        const fileType = getFileType(file.name);
+        const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+        fileInfo.innerHTML = `**${fileType}** file uploaded (${fileSize} MB).`;
+        fileInfo.style.display = 'block';
       }
     }
 
-    // --- SUBMIT CONTENT HANDLER (UPDATED TO INCLUDE NEW FIELDS) ---
+    // --- SUBMIT CONTENT HANDLER (UPDATED TO INCLUDE ALL FIELDS) ---
     async function submitContentHandler() {
         if (!currentUser) {
             alert('Please log in to create content.');
             return;
         }
 
-        // Get values from the form
-        const title = contentTitle.value;
+        const title = contentTitle.value.trim();
         const category = contentCategory.value;
-        const target = targetAudience.value; // New Field
-        const outcomes = learningOutcomes.value; // New Field
+        const target = targetAudience.value.trim();
+        const outcomes = learningOutcomes.value.trim();
         const courseType = document.querySelector('input[name="courseType"]:checked').value;
-        const duration = contentDuration.value;
+        const duration = contentDuration.value.trim();
+        const price = parseFloat(contentPrice.value);
         const offerCertificate = document.getElementById('offerCertificate').checked;
-        const mediaFile = document.getElementById('mediaFile').files[0];
-        const outlineText = document.getElementById('courseOutline').value;
+        const mediaFileObj = document.getElementById('mediaFile').files[0];
+        const outlineText = document.getElementById('courseOutline').value.trim();
         const outlineFileObj = document.getElementById('outlineFile').files[0];
 
-        if (!title || !category || !target || !duration || !mediaFile) {
-            alert('Please fill in all required fields and upload a file.');
+        if (!title || !category || !target || !duration || isNaN(price) || !mediaFileObj) {
+            alert('Please fill in all required fields and upload the main content file.');
             return;
         }
 
@@ -903,28 +951,33 @@
         btn.innerText = "Uploading..."; btn.disabled = true;
 
         try {
-            // **REAL WORLD STEP:** Upload mediaFile and outlineFile to Storage here
-            // const mediaUrl = await uploadToStorage(mediaFile, currentUser.uid, currentContentType); 
-            // const outlineUrl = outlineFileObj ? await uploadToStorage(outlineFileObj, currentUser.uid, 'outline') : null;
+            // --- REAL WORLD STEP SIMULATION ---
+            // In a real application, you would upload mediaFileObj and outlineFileObj 
+            // to Firebase Storage here and get their public URLs.
             
             // Placeholder URLs for demo
-            const mediaUrl = `https://storage-placeholder.com/${currentContentType}-${new Date().getTime()}`;
-            const outlineUrl = outlineFileObj ? `https://outline-placeholder.com/${new Date().getTime()}` : null;
-            const thumbnailUrl = 'https://images.unsplash.com/photo-1541701494587-c5b141459c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+            const timestamp = new Date().getTime();
+            const mediaUrl = `https://meetversity-storage.com/${currentUser.uid}/${currentContentType}-${timestamp}.${getFileType(mediaFileObj.name)}`;
+            const outlineUrl = outlineFileObj ? `https://meetversity-storage.com/${currentUser.uid}/outline-${timestamp}.${getFileType(outlineFileObj.name)}` : null;
+            const thumbnailUrl = 'https://images.unsplash.com/photo-1541701494587-c5b141459c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'; // Static thumbnail for demo
 
-
+            console.log(`Simulating upload for: ${mediaFileObj.name}`);
+            if (outlineFileObj) console.log(`Simulating outline upload for: ${outlineFileObj.name}`);
+            
             await addDoc(collection(db, "meetversity"), {
                 contentType: currentContentType,
                 title,
                 category,
+                price,
                 targetAudience: target,
                 learningOutcomes: outcomes,
                 courseType,
                 duration,
                 offerCertificate,
-                mediaUrl, // URL to the main content
-                outlineText: outlineText, // Outline description text
-                outlineUrl: outlineUrl, // URL to the outline PDF (if uploaded)
+                mediaUrl, 
+                fileType: getFileType(mediaFileObj.name),
+                outlineText: outlineText,
+                outlineUrl: outlineUrl,
                 creatorId: currentUser.uid,
                 creatorName: currentUser.displayName,
                 thumbnailUrl: thumbnailUrl,
@@ -938,7 +991,7 @@
             
         } catch(e) {
             console.error("Error creating content:", e);
-            alert("Error creating content. Please try again.");
+            alert("Error creating content. Please check the console for details.");
         } finally {
             btn.innerText = "Create Content"; btn.disabled = false;
         }
@@ -948,7 +1001,7 @@
     function setupMeetversityEventListeners() {
       createContentBtn.addEventListener('click', () => {
         createContentModal.style.display = 'flex';
-        setContentType(currentContentType); // Ensure correct form is shown on open
+        setContentType(currentContentType); 
       });
 
       closeCreateModal.addEventListener('click', closeCreateModalHandler);
@@ -963,8 +1016,6 @@
         tab.addEventListener('click', () => {
           const type = tab.getAttribute('data-type');
           setContentType(type);
-          contentTypeTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
         });
       });
 
@@ -973,12 +1024,6 @@
           const type = card.getAttribute('data-type');
           setContentType(type);
           createContentModal.style.display = 'flex';
-          contentTypeTabs.forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.getAttribute('data-type') === type) {
-              tab.classList.add('active');
-            }
-          });
         });
       });
 
@@ -990,6 +1035,7 @@
 
     // Notifications count function (reused from Meetrader)
     function setupNotificationsCount() {
+        if (!currentUser || !currentUser.uid) return;
         const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
         onSnapshot(q, (snap) => {
             const badge = document.getElementById('unreadBadge');
