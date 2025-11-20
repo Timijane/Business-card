@@ -129,7 +129,7 @@
   }
 
   /* Course Grid */
-  .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
   /* Course Card */
   .course-card {
@@ -139,9 +139,29 @@
   }
   .course-card:hover { transform: translateY(-5px); }
 
-  /* Course Image */
-  .course-image { position: relative; width: 100%; height: 180px; background: #000; overflow: hidden; }
-  .course-img { width: 100%; height: 100%; object-fit: cover; }
+  /* Instagram-like Carousel */
+  .ad-carousel { position: relative; width: 100%; height: 250px; background: #000; overflow: hidden; }
+  .ad-images-container { display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out; }
+  .ad-img { min-width: 100%; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Counter Badge (1/3) */
+  .ad-counter {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0, 0, 0, 0.6); color: white;
+    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; z-index: 10;
+  }
+
+  /* Navigation Arrows */
+  .ad-nav-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    opacity: 0.7; transition: opacity 0.2s;
+  }
+  .ad-nav-btn:hover { opacity: 1; background: white; }
+  .ad-prev { left: 10px; }
+  .ad-next { right: 10px; }
 
   /* Course Details */
   .course-details { padding: 15px; flex: 1; display: flex; flex-direction: column; }
@@ -153,7 +173,7 @@
   .instructor-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .course-desc { font-size: 14px; color: var(--secondary-text); margin-bottom: 15px; flex: 1; line-height: 1.4; }
   
-  /* NEW: Rating Display */
+  /* Rating Display */
   .course-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 13px; color: gold; }
   .course-rating span { color: var(--secondary-text); font-weight: 600; }
   
@@ -162,10 +182,10 @@
     flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
     font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
   }
+  .btn-msg { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
   .btn-enroll { background: var(--primary); color: white; }
-  .btn-preview { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
 
-  /* Post Course Button */
+  /* Post Button */
   .post-course-btn {
     background: var(--primary); color: white; border: none; padding: 10px 20px;
     border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
@@ -206,6 +226,8 @@
   /* Details Modal Specifics */
   .detail-gallery { height: 300px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; border-radius: 8px; overflow: hidden; }
   .detail-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .nav-btn { position: absolute; background: rgba(255,255,255,0.3); color: white; border: none; padding: 10px; cursor: pointer; border-radius: 50%; margin: 0 10px; }
+  .nav-btn:hover { background: rgba(255,255,255,0.6); }
   
   .detail-info h2 { margin-bottom: 5px; font-size: 22px; }
   .detail-price { font-size: 20px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
@@ -243,7 +265,7 @@
     .filters-container { flex-direction: column; align-items: stretch; }
     .filter-btn { width: 100%; }
     .courses-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .course-image { height: 120px; }
+    .ad-carousel { height: 150px; }
   }
 </style>
 </head>
@@ -271,7 +293,7 @@
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
         <div class="search-bar">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search courses..." id="searchCourses">
+          <input type="text" placeholder="Search courses...">
         </div>
         <div class="nav-controls">
           <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
@@ -293,14 +315,14 @@
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h1 style="margin:0; font-size:24px;">Course Marketplace</h1>
+        <h1 style="margin:0; font-size:24px;">Learning Marketplace</h1>
         <button class="post-course-btn" onclick="openPostModal()"><i class="fas fa-plus"></i> Post Course</button>
     </div>
 
     <div class="filters-container">
       <div class="filter-group">
         <label class="filter-label">Keywords</label>
-        <input type="text" class="filter-input" id="filterKeywords" placeholder="e.g. Web Development, Design...">
+        <input type="text" class="filter-input" id="filterKeywords" placeholder="e.g. Programming, Design...">
       </div>
       <div class="filter-group">
         <label class="filter-label">Category</label>
@@ -310,7 +332,7 @@
           <option value="Business">Business</option>
           <option value="Design">Design</option>
           <option value="Marketing">Marketing</option>
-          <option value="Languages">Languages</option>
+          <option value="Personal Development">Personal Development</option>
           <option value="Other">Other</option>
         </select>
       </div>
@@ -348,6 +370,9 @@
                     <option value="USD">$ USD - US Dollar</option>
                     <option value="EUR">€ EUR - Euro</option>
                     <option value="GBP">£ GBP - British Pound</option>
+                    <option value="JPY">¥ JPY - Japanese Yen</option>
+                    <option value="CAD">$ CAD - Canadian Dollar</option>
+                    <option value="AUD">$ AUD - Australian Dollar</option>
                 </select>
             </div>
             <div class="form-group" style="flex:1">
@@ -357,9 +382,9 @@
         </div>
 
         <div style="display:flex; gap:10px;">
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Duration (hours)</label>
-                <input type="number" id="pDuration" class="form-input" value="10" required>
+             <div class="form-group" style="flex:1">
+                <label class="form-label">Duration (weeks)</label>
+                <input type="number" id="pDuration" class="form-input" required>
             </div>
             <div class="form-group" style="flex:1">
                 <label class="form-label">Level</label>
@@ -378,39 +403,76 @@
                 <option value="Business">Business</option>
                 <option value="Design">Design</option>
                 <option value="Marketing">Marketing</option>
-                <option value="Languages">Languages</option>
+                <option value="Personal Development">Personal Development</option>
                 <option value="Other">Other</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea id="pDesc" class="form-textarea" placeholder="Describe course content, learning outcomes..." required></textarea>
+            <label class="form-label">Course Description</label>
+            <textarea id="pDesc" class="form-textarea" placeholder="Describe the course content, learning outcomes, and requirements..." required></textarea>
         </div>
 
-        <div class="form-group">
-            <label class="form-label">Learning Objectives (one per line)</label>
-            <textarea id="pObjectives" class="form-textarea" placeholder="What will students learn?"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Prerequisites</label>
-            <textarea id="pPrerequisites" class="form-textarea" placeholder="What should students know before taking this course?"></textarea>
+        <div style="display:flex; gap:10px;">
+            <div class="form-group" style="flex:1">
+                <label class="form-label">Instructor Phone</label>
+                <input type="tel" id="pPhone" class="form-input" required>
+            </div>
+            <div class="form-group" style="flex:1">
+                <label class="form-label">Email</label>
+                <input type="email" id="pEmail" class="form-input" required>
+            </div>
         </div>
         
         <div class="form-group">
-          <label class="form-label">Instructor Bio</label>
-          <textarea id="pInstructorBio" class="form-textarea" placeholder="Tell students about your expertise..." required></textarea>
+          <label class="form-label">Location/Delivery Method</label>
+          <input type="text" class="form-input" id="pLocation" placeholder="Online, Physical location, or Hybrid" required>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Course Image</label>
+            <label class="form-label">Payment Method</label>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" name="pPayment" value="Meetpay" checked id="pay1">
+                    <label for="pay1">Pay via Meetpay</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pPayment" value="Pay Before Start" id="pay3">
+                    <label for="pay3">Pay Before Course Start</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pPayment" value="Installments" id="pay2">
+                    <label for="pay2">Installments</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Course Format</label>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" name="pFormat" value="Self-paced" checked id="fmt1">
+                    <label for="fmt1">Self-paced</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pFormat" value="Live Online" id="fmt2">
+                    <label for="fmt2">Live Online</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" name="pFormat" value="In-person" id="fmt3">
+                    <label for="fmt3">In-person</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Course Images (Max 5)</label>
             <div class="image-upload-grid" id="uploadGrid">
                 <div class="image-upload-box" onclick="document.getElementById('pImages').click()">
                     <i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i>
                 </div>
             </div>
-            <input type="file" id="pImages" accept="image/*" style="display:none">
+            <input type="file" id="pImages" accept="image/*" multiple style="display:none">
         </div>
         
         <button type="submit" class="post-course-btn" style="width:100%; justify-content:center;">Post Course</button>
@@ -427,7 +489,9 @@
         </div>
         <div class="modal-body">
             <div class="detail-gallery">
+                <button class="nav-btn" style="left:0" onclick="swapDetailImage(-1)"><i class="fas fa-chevron-left"></i></button>
                 <img id="dMainImg" class="detail-img" src="">
+                <button class="nav-btn" style="right:0" onclick="swapDetailImage(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
             
             <div class="detail-info">
@@ -437,30 +501,30 @@
                 <div class="detail-row">
                     <span>Instructor:</span> <span id="dInstructor"></span>
                 </div>
+                 <div class="detail-row">
+                    <span>Contact:</span> <span id="dContact"></span>
+                </div>
+                 <div class="detail-row">
+                    <span>Email:</span> <span id="dEmail"></span>
+                </div>
                 <div class="detail-row">
                     <span>Level:</span> <span id="dLevel"></span>
                 </div>
-                <div class="detail-row">
+                 <div class="detail-row">
                     <span>Duration:</span> <span id="dDuration"></span>
                 </div>
                 <div class="detail-row">
-                    <span>Category:</span> <span id="dCategory"></span>
+                    <span>Format:</span> <span id="dFormat"></span>
+                </div>
+                <div class="detail-row">
+                    <span>Payment:</span> <span id="dPayment"></span>
+                </div>
+                <div class="detail-row">
+                    <span>Location/Delivery:</span> <span id="dLocation"></span>
                 </div>
                 <div style="margin-top:15px;">
-                    <strong>Description:</strong>
+                    <strong>Course Description:</strong>
                     <p id="dDesc" style="margin-top:5px; color:var(--secondary-text);"></p>
-                </div>
-                <div style="margin-top:15px;">
-                    <strong>Learning Objectives:</strong>
-                    <ul id="dObjectives" style="margin-top:5px; color:var(--secondary-text); padding-left:20px;"></ul>
-                </div>
-                <div style="margin-top:15px;">
-                    <strong>Prerequisites:</strong>
-                    <p id="dPrerequisites" style="margin-top:5px; color:var(--secondary-text);"></p>
-                </div>
-                <div style="margin-top:15px;">
-                    <strong>Instructor Bio:</strong>
-                    <p id="dInstructorBio" style="margin-top:5px; color:var(--secondary-text);"></p>
                 </div>
             </div>
 
@@ -533,10 +597,13 @@
     let uploadedImages = [];
     let allCourses = []; // For filtering
     let currentCourse = null; // For details view
+    let currentDetailImgIdx = 0; // For details view gallery
 
-    // Cloudinary Configuration
-    const cloudName = 'your-cloud-name'; // Replace with your Cloudinary cloud name
-    const uploadPreset = 'your-upload-preset'; // Replace with your Cloudinary upload preset
+    // Cloudinary configuration
+    const cloudinaryConfig = {
+        cloudName: 'your-cloud-name', // Replace with your Cloudinary cloud name
+        uploadPreset: 'meetversity_preset' // Replace with your upload preset
+    };
 
     // --- HELPER FUNCTIONS ---
     function getAvatarHTML(photoURL, name, size = 'medium') {
@@ -561,7 +628,7 @@
             const userDoc = await getDoc(doc(db, "users", user.uid));
             const userData = userDoc.exists() ? userDoc.data() : {};
             
-            // Fix: Update currentUser displayName/photoURL with data from Firestore
+            // Update currentUser displayName/photoURL with data from Firestore
             currentUser.displayName = userData.displayName || user.displayName;
             currentUser.photoURL = userData.photoURL || user.photoURL;
 
@@ -592,9 +659,7 @@
         const maxPrice = document.getElementById('filterPrice').value;
 
         const filtered = allCourses.filter(course => {
-            const matchesKeyword = course.title.toLowerCase().includes(keyword) || 
-                                   course.description.toLowerCase().includes(keyword) ||
-                                   course.category.toLowerCase().includes(keyword);
+            const matchesKeyword = course.title.toLowerCase().includes(keyword) || course.description.toLowerCase().includes(keyword);
             const matchesCategory = category === 'all' || course.category === category;
             const matchesPrice = !maxPrice || (course.price && parseFloat(course.price) <= parseFloat(maxPrice));
             return matchesKeyword && matchesCategory && matchesPrice;
@@ -613,14 +678,23 @@
         }
 
         courses.forEach(course => {
+            const hasMultiple = course.images && course.images.length > 1;
+            const imagesHTML = course.images ? course.images.map(img => `<img src="${img}" class="ad-img">`).join('') : '';
             const { avg, count } = calculateAverageRating(course.reviews);
             const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
             
             const card = document.createElement('div');
             card.className = 'course-card';
             card.innerHTML = `
-                <div class="course-image">
-                    <img src="${course.image || 'https://via.placeholder.com/300x180?text=Course+Image'}" class="course-img">
+                <div class="ad-carousel" id="carousel-${course.id}" data-index="0" data-total="${course.images ? course.images.length : 0}">
+                    <div class="ad-images-container" style="width: ${course.images ? course.images.length * 100 : 100}%">
+                        ${imagesHTML || '<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;color:#888;">No Image</div>'}
+                    </div>
+                    ${hasMultiple ? `
+                        <div class="ad-counter" id="counter-${course.id}">1/${course.images.length}</div>
+                        <button class="ad-nav-btn ad-prev" onclick="event.stopPropagation(); slideImage('${course.id}', -1);">&#10094;</button>
+                        <button class="ad-nav-btn ad-next" onclick="event.stopPropagation(); slideImage('${course.id}', 1);">&#10095;</button>
+                    ` : ''}
                 </div>
                 <div class="course-details">
                     <div class="course-header">
@@ -635,16 +709,36 @@
                         ${stars}
                         <span>(${count} reviews)</span>
                     </div>
-                    <div class="course-desc">${course.description.substring(0, 100)}${course.description.length > 100 ? '...' : ''}</div>
+                    <div class="course-desc">${course.description.length > 100 ? course.description.substring(0, 100) + '...' : course.description}</div>
                     <div class="course-actions">
-                        <button class="action-btn-course btn-preview" onclick="openDetail('${course.id}')"><i class="fas fa-search"></i> Preview</button>
-                        <button class="action-btn-course btn-enroll" onclick="enrollInCourse('${course.id}')"><i class="fas fa-shopping-cart"></i> Enroll</button>
+                        <button class="action-btn-course btn-msg" onclick="viewProfile('${course.instructorId}')"><i class="fas fa-comment"></i> Contact</button>
+                        <button class="action-btn-course btn-enroll" onclick="openDetail('${course.id}')"><i class="fas fa-search"></i> Details</button>
                     </div>
                 </div>
             `;
             container.appendChild(card);
         });
     }
+
+    // --- CAROUSEL LOGIC ---
+    window.slideImage = (id, direction) => {
+        const carousel = document.getElementById(`carousel-${id}`);
+        if (!carousel) return;
+
+        const container = carousel.querySelector('.ad-images-container');
+        const counter = document.getElementById(`counter-${id}`);
+        
+        let currentIndex = parseInt(carousel.dataset.index);
+        const total = parseInt(carousel.dataset.total);
+        
+        let newIndex = currentIndex + direction;
+        if (newIndex < 0) newIndex = total - 1; // Loop back
+        if (newIndex >= total) newIndex = 0; // Loop forward
+
+        container.style.transform = `translateX(-${newIndex * 100}%)`;
+        if (counter) counter.innerText = `${newIndex + 1}/${total}`;
+        carousel.dataset.index = newIndex;
+    };
 
     // --- POST COURSE LOGIC ---
     window.openPostModal = () => document.getElementById('postModal').style.display = 'flex';
@@ -663,9 +757,9 @@
         return new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', uploadPreset);
+            formData.append('upload_preset', cloudinaryConfig.uploadPreset);
             
-            fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -674,59 +768,55 @@
                 if (data.secure_url) {
                     resolve(data.secure_url);
                 } else {
-                    reject(new Error('Upload failed'));
+                    reject('Upload failed');
                 }
             })
             .catch(error => reject(error));
         });
     };
 
-    // Image Upload Handler (Modified to use Cloudinary)
+    // Image Upload Handler (Using Cloudinary)
     document.getElementById('pImages').onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
+        const files = Array.from(e.target.files);
         const uploadGrid = document.getElementById('uploadGrid');
-        
-        // Show loading state
-        uploadGrid.innerHTML = '<div class="image-upload-box"><i class="fas fa-spinner fa-spin" style="font-size:24px; color:var(--secondary-text);"></i></div>';
-        
-        try {
-            const imageUrl = await uploadToCloudinary(file);
-            uploadedImages = [imageUrl]; // Store only one image for course
 
-            // Update preview
-            uploadGrid.innerHTML = '';
-            const div = document.createElement('div');
-            div.className = 'image-upload-box';
-            div.innerHTML = `<img src="${imageUrl}"><div class="remove-img" data-index="0">&times;</div>`;
-            uploadGrid.appendChild(div);
-            
-            // Attach removal handler
-            div.querySelector('.remove-img').onclick = function() {
-                uploadedImages = [];
-                uploadGrid.innerHTML = `<div class="image-upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i></div>`;
-            };
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            alert("Error uploading image. Please try again.");
-            uploadGrid.innerHTML = `<div class="image-upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i></div>`;
+        for(const file of files) {
+            if (uploadedImages.length >= 5) { alert("Max 5 images allowed."); break; }
+
+            try {
+                const imageUrl = await uploadToCloudinary(file);
+                uploadedImages.push(imageUrl);
+
+                // Add new image preview BEFORE the camera button
+                const div = document.createElement('div');
+                div.className = 'image-upload-box';
+                div.innerHTML = `<img src="${imageUrl}"><div class="remove-img" data-index="${uploadedImages.length - 1}">&times;</div>`;
+                uploadGrid.insertBefore(div, uploadGrid.lastElementChild);
+                
+                // Re-attach removal handler
+                div.querySelector('.remove-img').onclick = function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    uploadedImages.splice(index, 1);
+                    this.parentElement.remove();
+                };
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Failed to upload image. Please try again.');
+            }
         }
-        
         e.target.value = null; // Clear file input
     };
 
     document.getElementById('postForm').onsubmit = async (e) => {
         e.preventDefault();
-        if(uploadedImages.length === 0) { alert("Please add a course image"); return; }
+        if(uploadedImages.length === 0) { alert("Please add at least one image"); return; }
         
         const btn = e.target.querySelector('button');
         btn.innerText = "Posting..."; btn.disabled = true;
 
         try {
-            const objectives = document.getElementById('pObjectives').value
-                .split('\n')
-                .filter(obj => obj.trim() !== '');
+            const payment = document.querySelector('input[name="pPayment"]:checked').value;
+            const format = document.querySelector('input[name="pFormat"]:checked').value;
             
             await addDoc(collection(db, "meetversity"), {
                 instructorId: currentUser.uid,
@@ -739,20 +829,22 @@
                 level: document.getElementById('pLevel').value,
                 category: document.getElementById('pCategory').value,
                 description: document.getElementById('pDesc').value,
-                objectives: objectives,
-                prerequisites: document.getElementById('pPrerequisites').value,
-                instructorBio: document.getElementById('pInstructorBio').value,
-                image: uploadedImages[0],
+                phone: document.getElementById('pPhone').value,
+                email: document.getElementById('pEmail').value,
+                location: document.getElementById('pLocation').value,
+                payment: payment,
+                format: format,
+                images: uploadedImages,
                 reviews: [], // Initialize reviews array
-                enrolledStudents: [], // Initialize enrolled students array
                 createdAt: serverTimestamp()
             });
             
             alert("Course Posted Successfully!");
             closePostModal();
+            // Note: loadCourses() is triggered by onSnapshot, which will handle the re-render.
         } catch (err) { 
             console.error("Error posting course:", err); 
-            alert("Error posting course"); 
+            alert("Error posting course. Please try again."); 
         }
         finally { 
             btn.innerText = "Post Course"; 
@@ -762,40 +854,41 @@
 
     // --- DETAILS & REVIEWS ---
     window.openDetail = async (id) => {
-        const course = allCourses.find(c => c.id === id);
+        const course = allCourses.find(i => i.id === id);
         if(!course) return;
         currentCourse = course;
+        currentDetailImgIdx = 0;
 
-        document.getElementById('dMainImg').src = course.image || 'https://via.placeholder.com/600x300?text=Course+Image';
+        document.getElementById('dMainImg').src = course.images ? course.images[0] : '';
         document.getElementById('dTitle').innerText = course.title;
         document.getElementById('dPrice').innerText = `${course.currency} ${course.price}`;
         document.getElementById('dInstructor').innerText = course.instructorName;
+        document.getElementById('dContact').innerText = course.phone;
+        document.getElementById('dEmail').innerText = course.email;
         document.getElementById('dLevel').innerText = course.level;
-        document.getElementById('dDuration').innerText = `${course.duration} hours`;
-        document.getElementById('dCategory').innerText = course.category;
+        document.getElementById('dDuration').innerText = course.duration + " weeks";
+        document.getElementById('dFormat').innerText = course.format;
+        document.getElementById('dPayment').innerText = course.payment;
+        document.getElementById('dLocation').innerText = course.location;
         document.getElementById('dDesc').innerText = course.description;
         
-        // Format objectives as list
-        const objectivesList = document.getElementById('dObjectives');
-        objectivesList.innerHTML = '';
-        if (course.objectives && course.objectives.length > 0) {
-            course.objectives.forEach(obj => {
-                const li = document.createElement('li');
-                li.textContent = obj;
-                objectivesList.appendChild(li);
-            });
-        } else {
-            objectivesList.innerHTML = '<li>No specific objectives listed</li>';
-        }
-        
-        document.getElementById('dPrerequisites').innerText = course.prerequisites || 'None specified';
-        document.getElementById('dInstructorBio').innerText = course.instructorBio;
+        // Show/hide nav buttons
+        const navBtns = document.querySelectorAll('.detail-gallery .nav-btn');
+        navBtns.forEach(btn => btn.style.display = (course.images && course.images.length > 1) ? 'flex' : 'none');
 
         renderReviews();
         document.getElementById('detailModal').style.display = 'flex';
     };
 
     window.closeDetailModal = () => document.getElementById('detailModal').style.display = 'none';
+
+    window.swapDetailImage = (dir) => {
+        if(!currentCourse || !currentCourse.images || currentCourse.images.length === 0) return;
+        currentDetailImgIdx += dir;
+        if(currentDetailImgIdx < 0) currentDetailImgIdx = currentCourse.images.length - 1;
+        if(currentDetailImgIdx >= currentCourse.images.length) currentDetailImgIdx = 0;
+        document.getElementById('dMainImg').src = currentCourse.images[currentDetailImgIdx];
+    };
 
     function renderReviews() {
         const list = document.getElementById('reviewsList');
@@ -856,7 +949,7 @@
             textInput.value = '';
             
             // Re-render courses to update the review count/stars on the main page
-            loadCourses();
+            loadCourses(); 
 
         } catch(e) { 
             console.error("Failed to submit review:", e); 
@@ -869,7 +962,7 @@
         if(!confirm("Delete review?")) return;
         
         // Find the course in allCourses and the specific review
-        const course = allCourses.find(c => c.id === courseId);
+        const course = allCourses.find(i => i.id === courseId);
         if (!course || !course.reviews || !course.reviews[idx]) return;
         
         const reviewToDelete = course.reviews[idx];
@@ -891,31 +984,6 @@
         } catch(e) { 
             console.error("Failed to delete review:", e); 
             alert("Failed to delete review. Please try again."); 
-        }
-    };
-
-    // Enroll in course function
-    window.enrollInCourse = async (courseId) => {
-        const course = allCourses.find(c => c.id === courseId);
-        if (!course) return;
-        
-        // Check if user is already enrolled
-        if (course.enrolledStudents && course.enrolledStudents.includes(currentUser.uid)) {
-            alert("You are already enrolled in this course.");
-            return;
-        }
-        
-        if(confirm(`Enroll in "${course.title}" for ${course.currency} ${course.price}?`)) {
-            try {
-                await updateDoc(doc(db, "meetversity", courseId), {
-                    enrolledStudents: arrayUnion(currentUser.uid)
-                });
-                
-                alert("Successfully enrolled in the course!");
-            } catch(e) {
-                console.error("Error enrolling in course:", e);
-                alert("Error enrolling in course. Please try again.");
-            }
         }
     };
 
