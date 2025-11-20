@@ -3,11 +3,276 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Page</title>
+<title>MEET | Chat Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #007BFF;
+    --accent: #28A745;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #343a40;
+    --muted: #6c757d;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --my-msg-bg: #007bff;
+    --their-msg-bg: #e9ecef;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, Arial;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .chat-app {
+    display: flex;
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* --- Sidebar (Search & Users) --- */
+  .sidebar {
+    width: 350px;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .search-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-family: inherit;
+  }
+  .search-container button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .users-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+  .user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .user-item:hover {
+    background: #f1f1f1;
+  }
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 15px;
+  }
+
+  /* --- Chat Area --- */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    background: var(--card);
+    font-weight: 600;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+  }
+
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Message Bubbles */
+  .message-bubble {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .sent {
+    align-self: flex-end;
+    background: var(--my-msg-bg);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .received {
+    align-self: flex-start;
+    background: var(--their-msg-bg);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Typing Status */
+  #typingStatus {
+    padding: 5px 20px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  
+  /* Input Area */
+  .input-area {
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .input-area input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 24px;
+    font-family: inherit;
+    font-size: 16px;
+  }
+  .input-area button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.2s;
+  }
+  .input-area button:hover {
+    background: #0056b3;
+  }
+  
+  /* Empty State */
+  .empty-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    text-align: center;
+  }
+  .empty-chat i {
+    font-size: 50px;
+    margin-bottom: 15px;
+  }
+  .empty-chat h3 {
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .chat-app {
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+    }
+    .sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #dee2e6;
+      max-height: 40vh;
+    }
+    .users-list {
+      min-height: 150px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-app">
+  
+  <div class="sidebar">
+    <h3 style="margin-top: 0;">Find User</h3>
+    
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search by name">
+      <button id="searchBtn"><i class="fas fa-search"></i></button>
+    </div>
+    
+    <div class="users-list" id="users">
+      <p style="color: var(--muted); text-align: center;">Search to find users and start chatting!</p>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="chat-header">
+      <span id="chatWith" style="font-weight: 700;">Select a user to chat</span>
+    </div>
+    
+    <div class="messages-container" id="messagesContainer">
+      <div class="empty-chat" id="emptyChat">
+        <i class="fas fa-comments"></i>
+        <h3>Welcome to Chat</h3>
+        <p>Find a user in the sidebar to begin your conversation.</p>
+      </div>
+      <div id="messages" style="display: none;"></div> 
+    </div>
+    
+    <div id="typingStatus"></div>
+    
+    <div class="input-area" id="inputArea" style="display: none;">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+</div>
+
 <script type="module">
-  // ---------------------- FIREBASE SETUP ----------------------
+  // ---------------------- FIREBASE SETUP (KEEP AS IS) ----------------------
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, doc, collection, setDoc, addDoc, getDoc, query, orderBy, onSnapshot, updateDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { getFirestore, doc, collection, setDoc, addDoc, getDoc, query, orderBy, onSnapshot, updateDoc, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -24,17 +289,39 @@
   const auth = getAuth(app);
 
   // ---------------------- LOGIN FOR DEMO ----------------------
-  // Replace with your own email/password login
   const demoEmail = "test1@example.com";
   const demoPass = "123456";
 
   let currentUser;
+  let currentUserData = {};
+  
+  // Mock User Data for Demo (replace this with actual user data fetching)
+  const mockUsers = {
+    "user123": { name: "Alice Smith", uid: "user123" },
+    "user456": { name: "Bob Johnson", uid: "user456" },
+    "user789": { name: "Charlie Brown", uid: "user789" },
+  };
+
+  async function getOtherUserData(uid) {
+      // Simulate fetching user data from Firestore 'users' collection
+      if (mockUsers[uid]) return mockUsers[uid];
+      try {
+          const docSnap = await getDoc(doc(db, "users", uid));
+          return docSnap.exists() ? docSnap.data() : { name: "Unknown User" };
+      } catch (e) {
+          console.error("Error fetching user data:", e);
+          return { name: "Unknown User" };
+      }
+  }
+
   signInWithEmailAndPassword(auth, demoEmail, demoPass)
-    .then(res => {
+    .then(async res => {
       currentUser = res.user;
+      currentUserData = await getOtherUserData(currentUser.uid); // Load current user data
       console.log("Logged in as:", currentUser.uid);
+      // Update UI with logged-in user info if needed
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("Login Error. Ensure demo user exists:", err));
 
   // ---------------------- UTILITY ----------------------
   function getChatId(uid1, uid2) {
@@ -46,39 +333,72 @@
     const chatRef = doc(db, "chats", chatId);
     const chatSnap = await getDoc(chatRef);
     if (!chatSnap.exists()) {
-      await setDoc(chatRef, { users: [uid1, uid2], typing: {} });
+      await setDoc(chatRef, { 
+          users: [uid1, uid2], 
+          typing: {},
+          lastUpdated: serverTimestamp() 
+      });
       console.log("Chat created:", chatId);
     }
     return chatRef;
   }
 
   async function sendMessage(toUid, text) {
-    if (!currentUser) return alert("Not logged in yet!");
+    if (!currentUser || text.trim() === "") return;
     const chatRef = await createChatIfNotExist(currentUser.uid, toUid);
     const messagesRef = collection(chatRef, "messages");
-    await addDoc(messagesRef, { senderId: currentUser.uid, message: text, timestamp: new Date() });
+    
+    // Add message
+    await addDoc(messagesRef, { 
+        senderId: currentUser.uid, 
+        message: text, 
+        timestamp: serverTimestamp() 
+    });
+    
+    // Update chat metadata
+    await updateDoc(chatRef, {
+        lastMessage: text,
+        lastUpdated: serverTimestamp()
+    });
+    
     document.getElementById("messageInput").value = "";
+    // Set typing to false after sending
+    setTyping(toUid, false); 
   }
 
   async function setTyping(toUid, isTyping) {
     if (!currentUser) return;
-    const chatRef = await createChatIfNotExist(currentUser.uid, toUid);
-    await updateDoc(chatRef, { [`typing.${currentUser.uid}`]: isTyping });
+    const chatId = getChatId(currentUser.uid, toUid);
+    const chatRef = doc(db, "chats", chatId);
+    
+    // Check if the chat document exists before trying to update 'typing'
+    const chatSnap = await getDoc(chatRef);
+    if (chatSnap.exists()) {
+        await updateDoc(chatRef, { 
+            [`typing.${currentUser.uid}`]: isTyping 
+        }).catch(e => console.error("Error setting typing status:", e));
+    }
   }
 
   function listenMessages(toUid) {
     const chatId = getChatId(currentUser.uid, toUid);
     const messagesRef = collection(db, "chats", chatId, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
+    const container = document.getElementById("messages");
+    const messagesContainer = document.getElementById("messagesContainer");
+    
     onSnapshot(q, snapshot => {
-      const container = document.getElementById("messages");
       container.innerHTML = "";
       snapshot.docs.forEach(doc => {
         const msg = doc.data();
+        const isSent = msg.senderId === currentUser.uid;
         const div = document.createElement("div");
-        div.textContent = (msg.senderId === currentUser.uid ? "You: " : "Other: ") + msg.message;
+        div.className = `message-bubble ${isSent ? 'sent' : 'received'}`;
+        div.textContent = msg.message;
         container.appendChild(div);
       });
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
   }
 
@@ -87,38 +407,77 @@
     const chatRef = doc(db, "chats", chatId);
     onSnapshot(chatRef, docSnap => {
       const status = document.getElementById("typingStatus");
+      status.textContent = ""; // Clear status first
       if (docSnap.exists()) {
         const typing = docSnap.data().typing || {};
-        status.textContent = typing[toUid] ? "User is typing..." : "";
+        // Check if the other user's typing status is true
+        if (typing[toUid]) {
+           status.textContent = `${activeChatUserName} is typing...`;
+        }
       }
     });
   }
 
   // ---------------------- SEARCH USERS ----------------------
   async function searchUsers() {
+    if (!currentUser) return;
     const name = document.getElementById("searchInput").value.toLowerCase();
     const usersContainer = document.getElementById("users");
     usersContainer.innerHTML = "";
+    
+    if (name.length < 2) {
+        usersContainer.innerHTML = `<p style="color: var(--muted); text-align: center;">Type at least 2 characters to search.</p>`;
+        return;
+    }
+    
+    // --- Simulate searching mock users ---
+    const searchResults = Object.values(mockUsers).filter(user => 
+        user.name.toLowerCase().includes(name) && user.uid !== currentUser.uid
+    );
+    // -------------------------------------
+    
+    // If you had a Firestore index for 'name' and used 'where' queries:
+    /*
     const usersCol = collection(db, "users");
-    const q = query(usersCol);
+    // NOTE: Firestore queries often require indexing for complex searches
+    const q = query(usersCol, where("name", ">=", name), where("name", "<=", name + '\uf8ff'));
     const snap = await getDocs(q);
-    snap.docs.forEach(docSnap => {
-      const data = docSnap.data();
-      if (data.name && data.name.toLowerCase().includes(name) && docSnap.id !== currentUser.uid) {
+    const searchResults = snap.docs.filter(docSnap => docSnap.id !== currentUser.uid).map(docSnap => ({ ...docSnap.data(), uid: docSnap.id }));
+    */
+
+    if (searchResults.length === 0) {
+        usersContainer.innerHTML = `<p style="color: var(--muted); text-align: center;">No users found matching "${document.getElementById("searchInput").value}".</p>`;
+        return;
+    }
+
+    searchResults.forEach(user => {
         const div = document.createElement("div");
-        div.textContent = data.name;
-        div.style.cursor = "pointer";
-        div.addEventListener("click", () => startChat(docSnap.id));
+        div.className = "user-item";
+        div.innerHTML = `
+            <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+            <span>${user.name}</span>
+        `;
+        div.addEventListener("click", () => startChat(user.uid, user.name));
         usersContainer.appendChild(div);
-      }
     });
   }
 
   let activeChatUser = null;
+  let activeChatUserName = "Unknown";
 
-  async function startChat(uid) {
+  async function startChat(uid, name) {
     activeChatUser = uid;
-    document.getElementById("chatWith").textContent = "Chatting with: " + uid;
+    activeChatUserName = name;
+    
+    // UI Update: Hide empty state, show messages/input
+    document.getElementById("emptyChat").style.display = 'none';
+    document.getElementById("messages").style.display = 'block';
+    document.getElementById("inputArea").style.display = 'flex';
+    
+    // UI Update: Header
+    document.getElementById("chatWith").textContent = name;
+    
+    // Logic: Ensure chat document exists and start listeners
     await createChatIfNotExist(currentUser.uid, uid);
     listenMessages(uid);
     listenTyping(uid);
@@ -127,32 +486,28 @@
   // ---------------------- EVENT LISTENERS ----------------------
   window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("searchBtn").addEventListener("click", searchUsers);
+    document.getElementById("searchInput").addEventListener("keypress", (e) => {
+        if (e.key === 'Enter') searchUsers();
+    });
 
     const messageInput = document.getElementById("messageInput");
+    
+    // Typing status logic
     messageInput.addEventListener("input", () => {
       if (activeChatUser) setTyping(activeChatUser, messageInput.value.length > 0);
     });
-
-    document.getElementById("sendBtn").addEventListener("click", () => {
-      if (activeChatUser) sendMessage(activeChatUser, messageInput.value);
+    
+    // Send message logic
+    const sendHandler = () => {
+      const text = messageInput.value.trim();
+      if (activeChatUser && text) sendMessage(activeChatUser, text);
+    };
+    
+    document.getElementById("sendBtn").addEventListener("click", sendHandler);
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === 'Enter') sendHandler();
     });
   });
 </script>
-<style>
-  #messages { border: 1px solid #ccc; height: 200px; overflow-y: scroll; padding: 5px; margin-bottom: 5px; }
-  #users div:hover { background-color: #eee; }
-</style>
-</head>
-<body>
-<h2>Search Users</h2>
-<input type="text" id="searchInput" placeholder="Enter name">
-<button id="searchBtn">Search</button>
-<div id="users"></div>
-
-<h2 id="chatWith">No chat selected</h2>
-<div id="messages"></div>
-<div id="typingStatus" style="color: green; font-weight: bold;"></div>
-<input type="text" id="messageInput" placeholder="Type a message...">
-<button id="sendBtn">Send</button>
 </body>
 </html>
