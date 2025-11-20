@@ -100,7 +100,6 @@
     object-fit: cover; 
     align-self: flex-end; 
     margin-bottom: 5px; 
-    /* Ensures AI/System messages don't show an avatar placeholder */
     background-color: var(--card); 
   }
   
@@ -112,7 +111,7 @@
     font-size: 14px; 
     line-height: 1.5; 
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    cursor: default; /* Remove pointer on bubble */
+    cursor: default; 
   }
   .received .message-bubble { background: var(--their-msg-bg); border-bottom-left-radius: 4px; }
   .sent .message-bubble { background: var(--my-msg-bg); color: white; border-bottom-right-radius: 4px; }
@@ -124,7 +123,7 @@
     margin-top: 4px; 
     text-align: right; 
     display: block; 
-    color: inherit; /* Ensure time is white on sent msgs */
+    color: inherit; 
   }
   .received .message-time { color: var(--muted); }
 
@@ -150,7 +149,7 @@
     font-family: inherit; 
     font-size: 15px; 
     color: var(--text);
-    overflow-y: hidden; /* Hide scrollbar for auto-grow */
+    overflow-y: hidden; 
   }
   .input-actions { display: flex; gap: 5px; padding-bottom: 4px;}
   .input-action-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
@@ -170,7 +169,7 @@
   /* Context Menu for Edit/Delete */
   .context-menu { 
     display: none; 
-    position: fixed; /* Use fixed to stay relative to viewport */
+    position: fixed; 
     background: var(--card); 
     box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
     border-radius: 8px; 
@@ -198,7 +197,7 @@
     .conversations-sidebar.hidden { transform: translateX(-100%); }
     .chat-area { width: 100%; position: absolute; z-index: 10; }
     .brand, .search { display: none; }
-    #backBtn { display: block !important; } /* Force show back button on mobile */
+    #backBtn { display: block !important; }
   }
 </style>
 </head>
@@ -326,8 +325,8 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   
   // --- CLOUDINARY CONFIG (REPLACE WITH YOUR ACTUAL CREDENTIALS) ---
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/upload`; 
-  const CLOUDINARY_PRESET = 'YOUR_UPLOAD_PRESET'; 
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/upload`; // **REPLACE**
+  const CLOUDINARY_PRESET = 'YOUR_UPLOAD_PRESET'; // **REPLACE**
 
   // --- FIREBASE CONFIG (REPLACE WITH YOUR ACTUAL CREDENTIALS) ---
   const firebaseConfig = {
@@ -445,7 +444,6 @@
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if(userDoc.exists()) {
             const d = userDoc.data();
-            // Use local user image if DB provides one, otherwise fallback to Firebase/placeholder
             document.getElementById('currentUserPic').src = d.photoURL || user.photoURL || 'https://via.placeholder.com/38';
             aiEnabled = d.aiMode || false;
             updateAIToggleUI();
@@ -462,7 +460,6 @@
 
     if (!currentUser) return;
 
-    // Use 'createdAt' for creation order, 'lastUpdated' for sort order
     const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid), orderBy("lastUpdated", "desc"));
     
     onSnapshot(q, async (snapshot) => {
@@ -473,7 +470,6 @@
         return;
       }
 
-      // Pre-fetch all necessary user data efficiently
       const userIdsToFetch = new Set();
       snapshot.docs.forEach(d => {
         const otherId = d.data().users.find(u => u !== currentUser.uid);
@@ -548,7 +544,6 @@
     const q = query(collection(db, `chats/${chatId}/messages`), orderBy("createdAt", "asc"));
     const container = document.getElementById('messagesContainer');
     
-    // Clear previous listener if any (although onSnapshot automatically handles updates)
     if (container.unsubscribe) container.unsubscribe();
 
     container.innerHTML = '';
@@ -559,7 +554,7 @@
             const msg = d.data();
             const isMe = msg.senderId === currentUser.uid;
             
-            // Check for system messages (no avatar, centered text)
+            // System message display
             const isSystem = msg.senderId === 'system';
             if (isSystem) {
                 const sysDiv = document.createElement('div');
@@ -627,7 +622,7 @@
         input.value = '';
         input.style.height = 'auto'; // Reset textarea height
 
-        // Trigger AI Logic
+        // Trigger AI Logic for the *recipient*
         checkAIResponse(currentChatUser.uid, text);
 
     } catch(e) { console.error("Error sending message:", e); }
@@ -642,7 +637,6 @@
       formData.append("file", file);
       formData.append("upload_preset", CLOUDINARY_PRESET);
       
-      // Basic Loading Indicator (Optional but professional)
       const sendBtn = document.querySelector('.send-button');
       const originalIcon = sendBtn.innerHTML;
       sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
@@ -671,7 +665,7 @@
       } finally {
           sendBtn.innerHTML = originalIcon;
           sendBtn.disabled = false;
-          e.target.value = ''; // Clear file input
+          e.target.value = ''; 
       }
   };
 
@@ -689,7 +683,6 @@
       }
       
       try {
-          // Simple search: get all users (for small user base demo) and filter client side
           const q = query(collection(db, "users")); 
           const snap = await getDocs(q);
           let foundCount = 0;
@@ -724,37 +717,46 @@
       }
   };
 
+  /**
+   * Starts a new chat, creating the document with the deterministic ID (UID1_UID2) 
+   * and the 'users' array required by the security rules.
+   */
   async function startNewChat(targetUid, targetUser) {
-      if (!currentUser) return;
+      if (!currentUser) return console.error("Current user not authenticated.");
 
-      const chatId = [currentUser.uid, targetUid].sort().join('_');
+      // 1. Create a deterministic chat ID by sorting UIDs
+      const uids = [currentUser.uid, targetUid].sort();
+      const chatId = uids.join('_');
       
       try {
           const chatDocRef = doc(db, "chats", chatId);
           const chatDoc = await getDoc(chatDocRef);
           
           if(!chatDoc.exists()) {
+              // 2. Create the new chat document, including the 'users' array
+              // This data structure matches the Firestore Security Rule validation
               await setDoc(chatDocRef, {
-                  users: [currentUser.uid, targetUid],
+                  users: uids, // Crucial: Send the exact array used to generate chatId
                   lastUpdated: serverTimestamp(),
                   lastMessage: 'Chat started'
               });
               
+              // 3. Add a system message for initial conversation history
               await addDoc(collection(db, `chats/${chatId}/messages`), {
                   text: 'Conversation started.',
-                  senderId: 'system',
+                  senderId: 'system', // Rule allows senderId 'system'
                   createdAt: serverTimestamp()
               });
           }
           
           closeSearchModal();
-          // Pass the complete user object to openChat
+          // Open the chat interface
           openChat(chatId, {...targetUser, uid: targetUid});
-          loadConversations(); // Refresh sidebar
+          loadConversations(); // Refresh sidebar to show new chat
           
       } catch (e) {
           console.error("Failed to start new chat:", e);
-          alert("Could not start chat. See console for details.");
+          alert("Could not start chat. Ensure you published the corrected Firebase rules and cleared browser cache.");
       }
   }
 
@@ -764,35 +766,28 @@
       contextMsgId = msgId;
       const menu = document.getElementById('contextMenu');
       
-      // Hide if click occurs outside of messages container
       if (!e.target.closest('.message-bubble')) return;
       
       menu.style.display = 'block';
       
-      // Calculate position relative to the viewport
       const menuWidth = menu.offsetWidth;
       const menuHeight = menu.offsetHeight;
       
       let x = e.clientX;
       let y = e.clientY;
       
-      // Adjust X position
       if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
-      
-      // Adjust Y position
       if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
       
       menu.style.left = x + 'px';
       menu.style.top = y + 'px';
       
-      // Hide Edit/Delete if not the current user's message
       document.getElementById('editMessageItem').style.display = isMe ? 'flex' : 'none';
       document.getElementById('deleteMessageItem').style.display = isMe ? 'flex' : 'none';
   }
 
   window.onclick = (e) => {
     const menu = document.getElementById('contextMenu');
-    // Hide if click is outside the menu
     if (menu.style.display === 'block' && !menu.contains(e.target)) {
         menu.style.display = 'none';
     }
@@ -810,7 +805,6 @@
   async function checkAIResponse(targetUid, incomeText) {
       const targetDoc = await getDoc(doc(db, "users", targetUid));
       
-      // Check if the recipient has AI Mode enabled
       if(targetDoc.exists() && targetDoc.data().aiMode) {
           setTimeout(async () => {
               const targetDisplayName = targetDoc.data().displayName || 'The User';
@@ -820,7 +814,7 @@
 
               await addDoc(collection(db, `chats/${currentChatId}/messages`), {
                   text: aiMessage,
-                  senderId: targetUid, // IMPORTANT: AI message comes from the other user
+                  senderId: targetUid, // Sender is the target user, allowed by rule: senderId == request.auth.uid
                   createdAt: serverTimestamp()
               }).catch(console.error);
               
