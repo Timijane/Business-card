@@ -3,24 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Meetrader</title>
+<title>MEET | Meetversity</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* --- BASE STYLES FROM FEED.HTML (DO NOT CHANGE) --- */
+  /* --- CSS VARIABLES & BASE STYLES --- */
   :root {
     --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --warning: #F59E0B;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
     --secondary-text: #65676b;
     --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
+    --edu-primary: #0061FF;
+    --edu-accent: #5AE4A8;
+    --edu-gradient: linear-gradient(135deg, var(--edu-primary) 0%, var(--edu-accent) 100%);
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    --success: #10B981;
+    --error: #EF4444;
   }
 
   body.dark-mode {
@@ -29,243 +30,118 @@
     --text-color: #e4e6eb;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
+    --shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow-x: hidden; font-size: 18px; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; font-size: 15px; }
   
-  .app-container { display: flex; min-height: 100vh; position: relative; }
+  .app-container { display: flex; min-height: 100vh; }
 
-  /* --- SIDEBAR (MATCHING FEED) --- */
+  /* --- SIDEBAR --- */
   .sidebar {
     position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color); overflow-y: auto; z-index: 100; padding: 15px; color: white;
+    z-index: 100; padding: 15px; color: white;
   }
-  .sidebar-header { padding: 5px 0 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 15px; }
+  .sidebar-header { margin-bottom: 20px; font-weight: 700; font-size: 20px; }
   .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 6px; }
   .sidebar-menu a {
     display: flex; align-items: center; padding: 10px; text-decoration: none; color: white;
-    border-radius: 8px; transition: background 0.3s; min-height: 40px; font-size: 16px;
+    border-radius: 8px; margin-bottom: 5px; transition: background 0.2s;
   }
-  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
-  .sidebar-menu i { margin-right: 10px; font-size: 18px; width: 22px; text-align: center; }
+  .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { width: 25px; text-align: center; margin-right: 10px; }
 
-  /* Icons Colors */
-  .sidebar-menu a[href="feed.html"] i { color: #fff; }
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; }
-  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
-  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; }
-  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; }
-  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; }
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; }
-
-  .main-content { flex: 1; margin-left: 180px; padding: 15px; min-height: 100vh; font-size: 18px; }
-
-  /* --- NAVBAR (MATCHING FEED) --- */
+  .main-content { flex: 1; margin-left: 180px; padding: 20px; }
+  
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
-    display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: white; flex-wrap: wrap; gap: 8px;
+    padding: 12px 20px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; color: white;
   }
-  .nav-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .search-bar {
-    display: flex; align-items: center; background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px; padding: 6px 12px; margin-right: 10px;
-  }
-  .search-bar input { background: transparent; border: none; color: white; outline: none; width: 180px; font-size: 16px; }
-  .search-bar input::placeholder { color: rgba(255, 255, 255, 0.7); }
+  .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .btn-nav { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+  /* --- MEETVERSITY UI --- */
+  .meetversity-container { max-width: 1200px; margin: 0 auto; }
   
-  .user-profile-nav {
-    display: flex; align-items: center; gap: 8px; padding: 4px 8px;
-    border-radius: 20px; background: rgba(255, 255, 255, 0.2);
-    cursor: pointer; position: relative; min-height: 36px;
-  }
-  .user-avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; cursor: pointer; position: relative; min-width: 36px; font-size: 16px; overflow: hidden;
-  }
-  .user-avatar.small { width: 28px; height: 28px; font-size: 14px; min-width: 28px; }
-  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.2); color: white; border: none;
-    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    transition: background 0.3s; display: flex; align-items: center; gap: 6px;
-    font-size: 16px; min-height: 36px;
-  }
-  .btn i { font-size: 18px; }
-  #notificationsBtn i { color: #FFC107; }
-  #nightToggleBtn i { color: #9C27B0; }
-  #logoutBtn i { color: #EF4444; }
-  .btn:hover { background: rgba(255, 255, 255, 0.3); }
+  .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  .page-title { font-size: 28px; font-weight: 800; background: var(--edu-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  .unread-badge {
-    background: var(--error); color: white; border-radius: 50%;
-    padding: 2px 5px; font-size: 10px; display: none;
-    min-width: 16px; justify-content: center; align-items: center;
+  .create-btn {
+    background: var(--edu-primary); color: white; border: none; padding: 12px 24px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,97,255,0.3); transition: transform 0.2s;
   }
+  .create-btn:hover { transform: translateY(-2px); }
 
-  /* --- MEETRADER SPECIFIC STYLES --- */
+  /* Stats Cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+  .stat-val { font-size: 28px; font-weight: 700; color: var(--edu-primary); }
+  .stat-lbl { font-size: 13px; color: var(--secondary-text); }
+
+  /* Course Card */
+  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   
-  /* Filter Section */
-  .filters-container {
-    background: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 15px; align-items: center;
+  .course-card {
+    background: var(--card-bg); border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column;
   }
-  .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
-  .filter-label { font-size: 14px; color: var(--secondary-text); font-weight: 600; }
-  .filter-select, .filter-input {
-    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
-    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
-  }
-  .filter-btn {
-    background: var(--primary); color: white; border: none; padding: 10px 20px;
-    border-radius: 8px; cursor: pointer; font-weight: 600; height: 40px; align-self: flex-end;
-  }
-
-  /* Product Grid */
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-
-  /* Product Card */
-  .product-card {
-    background: var(--card-bg); border-radius: 10px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;
-    display: flex; flex-direction: column; position: relative;
-  }
-  .product-card:hover { transform: translateY(-5px); }
-
-  /* Instagram-like Carousel */
-  .ad-carousel { position: relative; width: 100%; height: 250px; background: #000; overflow: hidden; }
-  .ad-images-container { display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out; }
-  .ad-img { min-width: 100%; width: 100%; height: 100%; object-fit: cover; }
-
-  /* Counter Badge (1/3) */
-  .ad-counter {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(0, 0, 0, 0.6); color: white;
-    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; z-index: 10;
-  }
-
-  /* Navigation Arrows */
-  .ad-nav-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
-    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; z-index: 10;
-    opacity: 0.7; transition: opacity 0.2s;
-  }
-  .ad-nav-btn:hover { opacity: 1; background: white; }
-  .ad-prev { left: 10px; }
-  .ad-next { right: 10px; }
-
-  /* Product Details */
-  .product-details { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-  .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .product-title { font-weight: 700; font-size: 18px; color: var(--text-color); }
-  .product-price { color: var(--success); font-weight: 700; font-size: 18px; }
-  .product-seller { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; color: var(--secondary-text); }
-  .seller-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; overflow: hidden; }
-  .seller-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .product-desc { font-size: 14px; color: var(--secondary-text); margin-bottom: 15px; flex: 1; line-height: 1.4; }
+  .course-card:hover { transform: translateY(-5px); }
+  .course-thumb { height: 180px; width: 100%; object-fit: cover; background: #eee; position: relative;}
+  .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); opacity: 0; transition: 0.2s; }
+  .course-card:hover .play-overlay { opacity: 1; }
+  .course-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
   
-  /* NEW: Rating Display */
-  .product-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 13px; color: gold; }
-  .product-rating span { color: var(--secondary-text); font-weight: 600; }
+  .creator-info { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .creator-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .creator-name { font-size: 12px; color: var(--secondary-text); font-weight: 600; }
+
+  .c-title { font-size: 16px; font-weight: 700; margin: 5px 0; line-height: 1.3; }
+  .c-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--secondary-text); margin-bottom: 10px; }
+  .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-top: 5px; }
   
-  .product-actions { display: flex; gap: 10px; margin-top: auto; }
-  .action-btn-product {
-    flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
-    font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .btn-msg { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
-  .btn-buy { background: var(--primary); color: white; }
+  .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
+  .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn-join.joined { background: var(--success); cursor: default; }
+  .btn-review { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
 
-  /* Post Button */
-  .post-item-btn {
-    background: var(--primary); color: white; border: none; padding: 10px 20px;
-    border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
-  }
-
-  /* Loading & Modals */
-  .loading { text-align: center; padding: 20px; color: var(--secondary-text); width: 100%; }
-  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
-  .modal-content { background: var(--card-bg); border-radius: 10px; width: 600px; max-width: 90%; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
-  .modal-header { padding: 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
-  .modal-body { padding: 14px; }
-  .close-modal { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--secondary-text); }
-
-  /* Forms */
+  /* Modal Styles */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: var(--card-bg); width: 100%; max-width: 700px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+  .modal-body { padding: 20px; }
+  
+  /* Form Elements */
   .form-group { margin-bottom: 15px; }
-  .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-  .form-input, .form-select, .form-textarea {
-    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
-    background: var(--bg-color); color: var(--text-color); outline: none; font-size: 15px;
-  }
-  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: inherit; }
+  .form-textarea { min-height: 80px; resize: vertical; }
   
-  /* Radio Group */
-  .radio-group { display: flex; flex-direction: column; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); }
-  .radio-item { display: flex; align-items: center; gap: 10px; }
-  .radio-item input[type="radio"] { accent-color: var(--primary); transform: scale(1.2); }
-  
-  /* Image Upload Grid */
-  .image-upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 5px; }
-  .image-upload-box {
-    height: 80px; border: 2px dashed var(--border-color); border-radius: 6px;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    position: relative; overflow: hidden;
-  }
-  .image-upload-box img { width: 100%; height: 100%; object-fit: cover; }
-  .remove-img { position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 10px; cursor: pointer; }
+  /* Upload Box */
+  .file-area { border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; margin-top: 5px; position: relative; background: var(--bg-color); }
+  .file-area:hover { border-color: var(--edu-primary); }
+  .file-status { font-size: 12px; color: var(--success); margin-top: 5px; font-weight: 600; display: none; }
 
-  /* Details Modal Specifics */
-  .detail-gallery { height: 300px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; border-radius: 8px; overflow: hidden; }
-  .detail-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .nav-btn { position: absolute; background: rgba(255,255,255,0.3); color: white; border: none; padding: 10px; cursor: pointer; border-radius: 50%; margin: 0 10px; }
-  .nav-btn:hover { background: rgba(255,255,255,0.6); }
-  
-  .detail-info h2 { margin-bottom: 5px; font-size: 22px; }
-  .detail-price { font-size: 20px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
-  .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 10px 0; font-size: 14px; }
-  
-  /* Reviews */
-  .reviews-section { margin-top: 20px; border-top: 2px solid var(--border-color); padding-top: 15px; }
-  .review-item { background: var(--bg-color); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-  .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: var(--secondary-text); }
-  .delete-review { color: var(--error); cursor: pointer; font-size: 12px; }
+  /* Type Tabs */
+  .type-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-color); padding: 5px; border-radius: 8px; }
+  .type-tab { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--secondary-text); transition: 0.2s; }
+  .type-tab.active { background: white; color: var(--edu-primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-  /* Notification Items */
-  .notif-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
-  .notif-unread { background: #f0f9ff; }
-  .notif-actions { display: flex; gap: 8px; }
-  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 13px; }
-  
-  /* Users List */
-  .user-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
-  .association-btn { padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
-  .associate-btn { background: var(--primary); color: white; }
-  .disassociate-btn { background: var(--error); color: white; }
+  /* Course Details Overlay */
+  .course-details-overlay { display: none; margin-top: 15px; padding: 15px; background: var(--bg-color); border-radius: 8px; font-size: 13px; }
 
   /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 60px; padding: 8px 4px; }
-    .sidebar-header { display: none; }
-    .sidebar-menu a { flex-direction: column; padding: 8px 4px; font-size: 12px; text-align: center; }
-    .sidebar-menu i { margin-right: 0; margin-bottom: 4px; font-size: 18px; }
-    .main-content { margin-left: 60px; padding: 8px; width: calc(100% - 60px); }
+    .sidebar { width: 60px; padding: 10px 5px; }
+    .sidebar-header, .sidebar-menu span { display: none; }
+    .sidebar-menu i { margin: 0; width: 100%; font-size: 20px; }
+    .main-content { margin-left: 60px; padding: 15px; }
+    .grid-layout { grid-template-columns: 1fr; }
     .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .search-bar, .user-profile-nav span, .btn span { display: none; }
     .nav-controls { width: 100%; justify-content: space-between; }
-    .btn { padding: 6px; flex: 1; justify-content: center; }
-    .filters-container { flex-direction: column; align-items: stretch; }
-    .filter-btn { width: 100%; }
-    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .ad-carousel { height: 150px; }
   }
 </style>
 </head>
@@ -273,874 +149,495 @@
 
 <div class="app-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white; font-size: 20px;">MEET</h2>
-    </div>
+    <div class="sidebar-header">MEET</div>
     <ul class="sidebar-menu">
       <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="#" class="active"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
       <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white; font-size: 20px;">Meetrader</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search...">
+      <h3>Meetversity</h3>
+      <div class="nav-controls">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div id="userAvatar" style="width:32px; height:32px; background:white; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; overflow:hidden;">U</div>
+          <span id="userNameDisplay" style="font-size:14px;">Guest</span>
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName" style="font-size: 15px;">User</span>
-          </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i> <span style="font-size: 15px;">Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span style="font-size: 15px;">Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span style="font-size: 15px;">Logout</span>
-          </button>
+        <button class="btn-nav" id="toggleDark"><i class="fas fa-moon"></i></button>
+        <button class="btn-nav" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="meetversity-container">
+      <div class="header-section">
+        <h1 class="page-title">MEETVERSITY</h1>
+        <button class="create-btn" onclick="openCreateModal()">
+          <i class="fas fa-plus-circle"></i> Create Course
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statCourses">0</div>
+          <div class="stat-lbl">Courses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statLearners">0</div>
+          <div class="stat-lbl">Learners</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statDocs">0</div>
+          <div class="stat-lbl">Docs</div>
         </div>
       </div>
-    </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h1 style="margin:0; font-size:24px;">Marketplace</h1>
-        <button class="post-item-btn" onclick="openPostModal()"><i class="fas fa-plus"></i> Post Item</button>
-    </div>
-
-    <div class="filters-container">
-      <div class="filter-group">
-        <label class="filter-label">Keywords</label>
-        <input type="text" class="filter-input" id="filterKeywords" placeholder="e.g. Laptop, Shoes...">
+      <div class="section-head" style="margin-top:10px;">
+        <h2>Explore Content</h2>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Category</label>
-        <select class="filter-select" id="filterCategory">
-          <option value="all">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Fashion">Fashion</option>
-          <option value="Furniture">Furniture</option>
-          <option value="Services">Services</option>
-          <option value="Other">Other</option>
-        </select>
+      <div class="grid-layout" id="coursesFeed">
+        <div style="padding:20px; text-align:center; color:var(--secondary-text); grid-column:1/-1;">
+          <i class="fas fa-spinner fa-spin"></i> Loading courses...
+        </div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Max Price</label>
-        <input type="number" class="filter-input" id="filterPrice" placeholder="Any price">
-      </div>
-      <button class="filter-btn" onclick="applyFilters()">Filter Results</button>
-    </div>
-
-    <div class="products-grid" id="productsContainer">
-      <div class="loading">Loading ads...</div>
     </div>
   </div>
 </div>
 
-<div class="modal" id="postModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Post New Item</h3>
-      <button class="close-modal" onclick="closePostModal()">&times;</button>
+<div class="modal" id="createModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Create New Content</h3>
+      <button onclick="closeCreateModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
     </div>
     <div class="modal-body">
-      <form id="postForm">
+      <div class="type-tabs">
+        <button class="type-tab active" onclick="setType('long-video', this)">Full Course</button>
+        <button class="type-tab" onclick="setType('quick-video', this)">Short Video</button>
+        <button class="type-tab" onclick="setType('document', this)">Document</button>
+      </div>
+
+      <form id="createForm">
         <div class="form-group">
-            <label class="form-label">Item Title</label>
-            <input type="text" id="pTitle" class="form-input" required>
+          <label class="form-label">Content Title</label>
+          <input type="text" id="cTitle" class="form-input" placeholder="e.g. Web Development Masterclass" required>
         </div>
 
-        <div style="display:flex; gap:10px;">
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Currency</label>
-                <select id="pCurrency" class="form-select">
-                    <option value="NGN">₦ NGN - Nigerian Naira</option>
-                    <option value="USD">$ USD - US Dollar</option>
-                    <option value="EUR">€ EUR - Euro</option>
-                    <option value="GBP">£ GBP - British Pound</option>
-                    <option value="JPY">¥ JPY - Japanese Yen</option>
-                    <option value="CAD">$ CAD - Canadian Dollar</option>
-                    <option value="AUD">$ AUD - Australian Dollar</option>
-                    <option value="CHF">CHF - Swiss Franc</option>
-                    <option value="CNY">¥ CNY - Chinese Yuan</option>
-                    <option value="SEK">kr SEK - Swedish Krona</option>
-                    <option value="NZD">$ NZD - New Zealand Dollar</option>
-                    <option value="MXN">$ MXN - Mexican Peso</option>
-                    <option value="SGD">$ SGD - Singapore Dollar</option>
-                    <option value="HKD">$ HKD - Hong Kong Dollar</option>
-                    <option value="NOK">kr NOK - Norwegian Krone</option>
-                    <option value="KRW">₩ KRW - South Korean Won</option>
-                    <option value="INR">₹ INR - Indian Rupee</option>
-                    <option value="BRL">R$ BRL - Brazilian Real</option>
-                    <option value="ZAR">R ZAR - South African Rand</option>
-                    <option value="AED">د.إ AED - UAE Dirham</option>
-                    <option value="SAR">ر.س SAR - Saudi Riyal</option>
-                    <option value="RUB">₽ RUB - Russian Ruble</option>
-                    <option value="TRY">₺ TRY - Turkish Lira</option>
-                    <option value="EGP">£ EGP - Egyptian Pound</option>
-                    <option value="GHS">₵ GHS - Ghanaian Cedi</option>
-                    <option value="KES">KSh KES - Kenyan Shilling</option>
-                    <option value="MAD">DH MAD - Moroccan Dirham</option>
-                    <option value="XOF">CFA XOF - West African CFA</option>
-                    <option value="PLN">zł PLN - Polish Złoty</option>
-                    <option value="THB">฿ THB - Thai Baht</option>
-                    <option value="IDR">Rp IDR - Indonesian Rupiah</option>
-                    <option value="MYR">RM MYR - Malaysian Ringgit</option>
-                    <option value="PHP">₱ PHP - Philippine Peso</option>
-                    <option value="VND">₫ VND - Vietnamese Đồng</option>
-                    <option value="PKR">₨ PKR - Pakistani Rupee</option>
-                    <option value="UAH">₴ UAH - Ukrainian Hryvnia</option>
-                    <option value="CZK">Kč CZK - Czech Koruna</option>
-                    <option value="HUF">Ft HUF - Hungarian Forint</option>
-                    <option value="ILS">₪ ILS - Israeli Shekel</option>
-                    <option value="CLP">$ CLP - Chilean Peso</option>
-                    <option value="COP">$ COP - Colombian Peso</option>
-                    <option value="PEN">S/ PEN - Peruvian Sol</option>
-                    <option value="QAR">ر.ق QAR - Qatari Riyal</option>
-                    <option value="KWD">د.ك KWD - Kuwaiti Dinar</option>
-                    <option value="BHD">.د.ب BHD - Bahraini Dinar</option>
-                </select>
-            </div>
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Price</label>
-                <input type="number" id="pPrice" class="form-input" required>
-            </div>
-        </div>
-
-        <div style="display:flex; gap:10px;">
-             <div class="form-group" style="flex:1">
-                <label class="form-label">Quantity</label>
-                <input type="number" id="pQty" class="form-input" value="1" required>
-            </div>
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Condition</label>
-                <select id="pCondition" class="form-select">
-                    <option value="New">New</option>
-                    <option value="Like New">Like New</option>
-                    <option value="Used">Used</option>
-                    <option value="Fair">Fair</option>
-                    <option value="Old">Old</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="form-group">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div class="form-group">
             <label class="form-label">Category</label>
-            <select id="pCategory" class="form-select">
-                <option value="Electronics">Electronics</option>
-                <option value="Fashion">Fashion</option>
-                <option value="Furniture">Furniture</option>
-                <option value="Services">Services</option>
-                <option value="Other">Other</option>
+            <select id="cCategory" class="form-select">
+              <option>Technology</option>
+              <option>Business</option>
+              <option>Design</option>
+              <option>Marketing</option>
+              <option>Personal Dev</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration / Pages</label>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 20 Pages" required>
+          </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea id="pDesc" class="form-textarea" placeholder="Describe item details..." required></textarea>
+            <label class="form-label">What they'll learn (Outcomes)</label>
+            <textarea id="cOutcomes" class="form-textarea" placeholder="• Understand React basics&#10;• Build a real project"></textarea>
         </div>
 
-        <div style="display:flex; gap:10px;">
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Seller Phone</label>
-                <input type="tel" id="pPhone" class="form-input" required>
-            </div>
-            <div class="form-group" style="flex:1">
-                <label class="form-label">Email</label>
-                <input type="email" id="pEmail" class="form-input" required>
-            </div>
-        </div>
-        
         <div class="form-group">
-          <label class="form-label">Location</label>
-          <input type="text" class="form-input" id="pLocation" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Payment Method</label>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" name="pPayment" value="Meetpay" checked id="pay1">
-                    <label for="pay1">Pay via Meetpay</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" name="pPayment" value="Pay Before Delivery" id="pay3">
-                    <label for="pay3">Pay Before Delivery</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" name="pPayment" value="Cash on Delivery" id="pay2">
-                    <label for="pay2">Cash on Delivery</label>
-                </div>
+            <label class="form-label">Course Outline (Optional)</label>
+            <div style="display:flex; gap:10px; margin-bottom:5px;">
+                <button type="button" class="btn-nav" style="color:var(--text-color); background:var(--bg-color); border:1px solid var(--border-color);" onclick="document.getElementById('outlineText').style.display='block'; document.getElementById('outlineFileArea').style.display='none'">Write</button>
+                <button type="button" class="btn-nav" style="color:var(--text-color); background:var(--bg-color); border:1px solid var(--border-color);" onclick="document.getElementById('outlineText').style.display='none'; document.getElementById('outlineFileArea').style.display='block'">Upload PDF</button>
+            </div>
+            <textarea id="outlineText" class="form-textarea" placeholder="Module 1: Introduction..." style="display:block;"></textarea>
+            <div class="file-area" id="outlineFileArea" style="display:none;" onclick="document.getElementById('cOutlineFile').click()">
+                <i class="fas fa-file-pdf"></i> Upload Outline PDF
+                <input type="file" id="cOutlineFile" accept="application/pdf" style="display:none" onchange="updateFileName(this, 'outlineStatus')">
+                <div id="outlineStatus" class="file-status">File Selected</div>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Delivery Method</label>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" name="pDelivery" value="Pickup by Buyer" checked id="del1">
-                    <label for="del1">Pickup by Buyer</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" name="pDelivery" value="Delivered by Seller" id="del3">
-                    <label for="del3">Delivered by Seller</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" name="pDelivery" value="Pickup by Third Party" id="del2">
-                    <label for="del2">Pickup by Third Party</label>
-                </div>
-            </div>
+          <label class="form-label" id="mediaLabel">Upload Main Video</label>
+          <div class="file-area" onclick="document.getElementById('cMediaFile').click()">
+            <i class="fas fa-cloud-upload-alt" style="font-size:24px;"></i>
+            <p>Click to upload file (Video/PDF)</p>
+            <input type="file" id="cMediaFile" accept="video/*, application/pdf" style="display:none" onchange="updateFileName(this, 'mediaStatus')">
+            <div id="mediaStatus" class="file-status">File Selected</div>
+          </div>
         </div>
-        
+
         <div class="form-group">
-            <label class="form-label">Images (Max 5, reduced quality)</label>
-            <div class="image-upload-grid" id="uploadGrid">
-                <div class="image-upload-box" onclick="document.getElementById('pImages').click()">
-                    <i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i>
-                </div>
-            </div>
-            <input type="file" id="pImages" accept="image/*" multiple style="display:none">
+          <label class="form-label">Cover Image / Thumbnail</label>
+          <div class="file-area" onclick="document.getElementById('cThumb').click()">
+            <i class="fas fa-image"></i> Upload Image
+            <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)">
+          </div>
+          <img id="thumbPreview" style="width:100%; height:150px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
         </div>
-        
-        <button type="submit" class="post-item-btn" style="width:100%; justify-content:center;">Post Item</button>
+
+        <div class="form-group">
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="cCert"> Offer MEET Certificate upon completion
+          </label>
+        </div>
+
+        <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center;" onclick="submitCourse()">
+          Post Content
+        </button>
       </form>
     </div>
   </div>
 </div>
 
-<div class="modal" id="detailModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Item Details</h3>
-            <button class="close-modal" onclick="closeDetailModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="detail-gallery">
-                <button class="nav-btn" style="left:0" onclick="swapDetailImage(-1)"><i class="fas fa-chevron-left"></i></button>
-                <img id="dMainImg" class="detail-img" src="">
-                <button class="nav-btn" style="right:0" onclick="swapDetailImage(1)"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            
-            <div class="detail-info">
-                <h2 id="dTitle">Item Title</h2>
-                <div class="detail-price" id="dPrice"></div>
-                
-                <div class="detail-row">
-                    <span>Seller:</span> <span id="dSeller"></span>
-                </div>
-                 <div class="detail-row">
-                    <span>Contact:</span> <span id="dContact"></span>
-                </div>
-                 <div class="detail-row">
-                    <span>Email:</span> <span id="dEmail"></span>
-                </div>
-                <div class="detail-row">
-                    <span>Condition:</span> <span id="dCondition"></span>
-                </div>
-                 <div class="detail-row">
-                    <span>Available:</span> <span id="dQty"></span>
-                </div>
-                <div class="detail-row">
-                    <span>Payment:</span> <span id="dPayment"></span>
-                </div>
-                <div class="detail-row">
-                    <span>Delivery:</span> <span id="dDelivery"></span>
-                </div>
-                <div class="detail-row">
-                    <span>Location:</span> <span id="dLocation"></span>
-                </div>
-                <div style="margin-top:15px;">
-                    <strong>Description:</strong>
-                    <p id="dDesc" style="margin-top:5px; color:var(--secondary-text);"></p>
-                </div>
-            </div>
-
-            <div class="reviews-section">
-                <h4>Reviews & Ratings</h4>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="newRating" class="form-select" style="width:100px;">
-                        <option value="5">5 ★★★★★</option>
-                        <option value="4">4 ★★★★</option>
-                        <option value="3">3 ★★★</option>
-                        <option value="2">2 ★★</option>
-                        <option value="1">1 ★</option>
-                    </select>
-                    <input type="text" id="newReviewText" class="form-input" placeholder="Write a review...">
-                    <button class="btn" style="background:var(--primary);" onclick="submitReview()">Post</button>
-                </div>
-                <div id="reviewsList"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="notificationsModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
+<div class="modal" id="reviewModal">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-head">
+      <h3>Write a Review</h3>
+      <button onclick="document.getElementById('reviewModal').style.display='none'" style="background:none; border:none;">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="notificationsList"></div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="usersList"><div class="loading">Loading users...</div></div>
+      <input type="hidden" id="reviewCourseId">
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <select id="rRating" class="form-select">
+          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+          <option value="4">⭐⭐⭐⭐ (4)</option>
+          <option value="3">⭐⭐⭐ (3)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Review</label>
+        <textarea id="rText" class="form-textarea" placeholder="What did you think?"></textarea>
+      </div>
+      <button class="create-btn" style="width:100%; justify-content:center;" onclick="submitReview()">Submit Review</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { 
-        getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-        authDomain: "meet-6e159.firebaseapp.com",
-        databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-        projectId: "meet-6e159",
-        storageBucket: "meet-6e159-firebasestorage.app",
-        messagingSenderId: "252353608421",
-        appId: "1:252353608421:web:6706056048e9a8f12db20c"
-    };
+  // --- CONFIGURATION ---
+  const firebaseConfig = {
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+      projectId: "meet-6e159",
+      storageBucket: "meet-6e159-firebasestorage.app",
+      messagingSenderId: "252353608421",
+      appId: "1:252353608421:web:6706056048e9a8f12db20c"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+  // *** REPLACE THESE WITH YOUR CLOUDINARY DETAILS FOR REAL UPLOADS ***
+  const CLOUD_NAME = 'YOUR_CLOUD_NAME'; // e.g., 'demo'
+  const UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET'; // e.g., 'ml_default'
 
-    let currentUser = null;
-    let uploadedImages = [];
-    let allItems = []; // For filtering
-    let currentItem = null; // For details view
-    let currentDetailImgIdx = 0; // For details view gallery
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  window.auth = auth; 
 
-    // --- HELPER FUNCTIONS ---
-    function getAvatarHTML(photoURL, name, size = 'medium') {
-        const initial = name ? name.charAt(0).toUpperCase() : 'U';
-        const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
-        if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-        return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+  let currentUser = null;
+  let currentType = 'long-video';
+  let thumbBase64 = null;
+
+  // --- AUTH LISTENER ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('userNameDisplay').innerText = user.displayName || 'User';
+      if(user.photoURL) document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
     }
+  });
 
-    function calculateAverageRating(reviews) {
-        if (!reviews || reviews.length === 0) return { avg: 0, count: 0 };
-        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-        return { avg: total / reviews.length, count: reviews.length };
-    }
+  // --- REAL TIME FEED ---
+  const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
+  
+  onSnapshot(q, (snapshot) => {
+    const courses = [];
+    let totalLearners = 0;
+    let totalDocs = 0;
 
-    window.viewProfile = (targetId) => { if(targetId) window.location.href = `profile.html?uid=${targetId}`; };
-
-    // --- AUTH & INIT ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const userData = userDoc.exists() ? userDoc.data() : {};
-            
-            // Fix: Update currentUser displayName/photoURL with data from Firestore
-            currentUser.displayName = userData.displayName || user.displayName;
-            currentUser.photoURL = userData.photoURL || user.photoURL;
-
-            document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(currentUser.photoURL, currentUser.displayName || 'User', 'small');
-            document.getElementById('userName').textContent = currentUser.displayName || 'User';
-            
-            setupNotificationsCount();
-            loadItems();
-        } else {
-            window.location.href = 'login.html';
-        }
+    snapshot.forEach((doc) => {
+      const data = { id: doc.id, ...doc.data() };
+      totalLearners += (data.learners ? data.learners.length : 0);
+      if(data.type === 'document') totalDocs++;
+      courses.push(data);
     });
 
-    // --- LOAD ITEMS & FILTERING ---
-    function loadItems() {
-        // Listen to real-time updates for Meetrader items
-        const q = query(collection(db, "meetrader"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snap) => {
-            allItems = [];
-            snap.forEach(doc => allItems.push({ id: doc.id, ...doc.data() }));
-            renderProducts(allItems);
-        });
+    // Update Stats
+    document.getElementById('statCourses').innerText = courses.length;
+    document.getElementById('statLearners').innerText = totalLearners;
+    document.getElementById('statDocs').innerText = totalDocs;
+
+    // Render
+    const container = document.getElementById('coursesFeed');
+    container.innerHTML = '';
+
+    if(courses.length === 0) {
+      container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--secondary-text);">No courses available yet.</div>`;
+      return;
     }
 
-    window.applyFilters = () => {
-        const keyword = document.getElementById('filterKeywords').value.toLowerCase();
-        const category = document.getElementById('filterCategory').value;
-        const maxPrice = document.getElementById('filterPrice').value;
+    courses.forEach(item => {
+        const isJoined = currentUser && item.learners && item.learners.includes(currentUser.uid);
+        const learnerCount = item.learners ? item.learners.length : 0;
+        
+        // Calculate Ratings
+        let rating = "New";
+        if(item.reviews && item.reviews.length > 0) {
+            const sum = item.reviews.reduce((a, b) => a + b.rating, 0);
+            rating = (sum / item.reviews.length).toFixed(1);
+        }
 
-        const filtered = allItems.filter(item => {
-            const matchesKeyword = item.title.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword);
-            const matchesCategory = category === 'all' || item.category === category;
-            const matchesPrice = !maxPrice || (item.price && parseFloat(item.price) <= parseFloat(maxPrice));
-            return matchesKeyword && matchesCategory && matchesPrice;
-        });
-        renderProducts(filtered);
-    };
+        const div = document.createElement('div');
+        div.className = 'course-card';
+        
+        // Icons based on type
+        let typeIcon = 'play-circle';
+        if(item.type === 'document') typeIcon = 'file-alt';
+        if(item.type === 'quick-video') typeIcon = 'bolt';
+
+        div.innerHTML = `
+            <div class="course-thumb" style="background-image:url('${item.thumbnail || ''}'); background-size:cover; background-position:center;">
+                <div class="play-overlay"><i class="fas fa-${typeIcon}" style="font-size:40px; color:white;"></i></div>
+            </div>
+            <div class="course-body">
+                <div class="creator-info">
+                    <img src="${item.creatorPhoto || 'https://via.placeholder.com/30'}" class="creator-img">
+                    <span class="creator-name">${item.creatorName || 'Instructor'}</span>
+                </div>
+                <div style="font-size:11px; text-transform:uppercase; color:var(--primary); font-weight:700;">${item.category} • ${item.type === 'long-video' ? 'Course' : item.type}</div>
+                <div class="c-title">${item.title}</div>
+                
+                <div class="c-meta">
+                    <span><i class="fas fa-star" style="color:gold;"></i> ${rating}</span>
+                    <span><i class="fas fa-user-graduate"></i> ${learnerCount}</span>
+                </div>
+                
+                ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
+
+                <div id="details-${item.id}" class="course-details-overlay">
+                    <strong>What you'll learn:</strong><br>${item.outcomes || 'Not specified'}<br><br>
+                    <strong>Outline:</strong><br>
+                    ${item.outlineUrl ? `<a href="${item.outlineUrl}" target="_blank" style="color:var(--primary);">Download PDF</a>` : (item.outlineText || 'No outline')}
+                    <br><br>
+                    ${isJoined ? `<a href="${item.mediaUrl}" target="_blank" style="display:block; background:var(--primary); color:white; text-align:center; padding:5px; border-radius:4px; text-decoration:none;">Access Content</a>` : ''}
+                </div>
+
+                <div class="c-footer">
+                    <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="toggleDetails('${item.id}')">
+                       ${isJoined ? 'Open Content' : 'View Details'}
+                    </button>
+                    ${!isJoined ? `<button class="btn-join" onclick="joinCourse('${item.id}')" style="background:var(--text-color);">Join</button>` : ''}
+                    <button class="btn-review" onclick="openReview('${item.id}')"><i class="fas fa-pen"></i></button>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+  });
+
+  // --- UPLOAD HELPER (CLOUDINARY) ---
+  async function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+
+      // Determine resource type
+      let resourceType = 'auto';
+      if (file.type.includes('image')) resourceType = 'image';
+      else if (file.type.includes('video')) resourceType = 'video';
+      else resourceType = 'raw'; // For PDFs sometimes 'raw' or 'image' (pages) depending on config, 'auto' usually works
+
+      try {
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
+              method: 'POST',
+              body: formData
+          });
+          const data = await res.json();
+          if(data.error) throw new Error(data.error.message);
+          return data.secure_url;
+      } catch (err) {
+          console.error("Upload Error:", err);
+          alert("File upload failed: " + err.message + ". Did you set your Cloud Name/Preset?");
+          return null;
+      }
+  }
+
+  // --- CREATION LOGIC ---
+  window.openCreateModal = () => {
+    if(!currentUser) { alert("Please log in first."); return; }
+    document.getElementById('createModal').style.display = 'flex';
+  }
+  window.closeCreateModal = () => {
+    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createForm').reset();
+    document.getElementById('thumbPreview').style.display='none';
+    document.getElementById('outlineStatus').style.display='none';
+    document.getElementById('mediaStatus').style.display='none';
+    thumbBase64 = null;
+  }
+
+  window.setType = (type, btn) => {
+    currentType = type;
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
     
-    // Renders the product card HTML (Modified for short display and rating)
-    function renderProducts(items) {
-        const container = document.getElementById('productsContainer');
-        container.innerHTML = '';
-
-        if(items.length === 0) {
-            container.innerHTML = '<div class="loading">No items found matching criteria.</div>';
-            return;
-        }
-
-        items.forEach(item => {
-            const hasMultiple = item.images && item.images.length > 1;
-            const imagesHTML = item.images ? item.images.map(img => `<img src="${img}" class="ad-img">`).join('') : '';
-            const { avg, count } = calculateAverageRating(item.reviews);
-            const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
-            
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <div class="ad-carousel" id="carousel-${item.id}" data-index="0" data-total="${item.images ? item.images.length : 0}">
-                    <div class="ad-images-container" style="width: ${item.images ? item.images.length * 100 : 100}%">
-                        ${imagesHTML || '<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;color:#888;">No Image</div>'}
-                    </div>
-                    ${hasMultiple ? `
-                        <div class="ad-counter" id="counter-${item.id}">1/${item.images.length}</div>
-                        <button class="ad-nav-btn ad-prev" onclick="event.stopPropagation(); slideImage('${item.id}', -1);">&#10094;</button>
-                        <button class="ad-nav-btn ad-next" onclick="event.stopPropagation(); slideImage('${item.id}', 1);">&#10095;</button>
-                    ` : ''}
-                </div>
-                <div class="product-details">
-                    <div class="product-header">
-                        <div class="product-title">${item.title}</div>
-                        <div class="product-price">${item.currency} ${item.price}</div>
-                    </div>
-                    <div class="product-seller">
-                        <div class="seller-avatar">${getAvatarHTML(item.sellerPhoto, item.sellerName, 'small')}</div>
-                        <span>${item.sellerName}</span>
-                    </div>
-                    <div class="product-rating">
-                        ${stars}
-                        <span>(${count} reviews)</span>
-                    </div>
-                    <div class="product-actions">
-                        <button class="action-btn-product btn-msg" onclick="viewProfile('${item.sellerId}')"><i class="fas fa-comment"></i> Chat</button>
-                        <button class="action-btn-product btn-buy" onclick="openDetail('${item.id}')"><i class="fas fa-search"></i> Details</button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
+    const mediaFile = document.getElementById('cMediaFile');
+    if(type === 'document') {
+        mediaFile.accept = "application/pdf";
+        document.getElementById('mediaLabel').innerText = "Upload Document PDF";
+    } else {
+        mediaFile.accept = "video/*";
+        document.getElementById('mediaLabel').innerText = "Upload Video File";
     }
+  }
 
-    // --- CAROUSEL LOGIC ---
-    window.slideImage = (id, direction) => {
-        const carousel = document.getElementById(`carousel-${id}`);
-        if (!carousel) return;
+  window.updateFileName = (input, statusId) => {
+      if(input.files[0]) {
+          const el = document.getElementById(statusId);
+          el.style.display = 'block';
+          el.innerText = "Selected: " + input.files[0].name;
+      }
+  }
 
-        const container = carousel.querySelector('.ad-images-container');
-        const counter = document.getElementById(`counter-${id}`);
-        
-        let currentIndex = parseInt(carousel.dataset.index);
-        const total = parseInt(carousel.dataset.total);
-        
-        let newIndex = currentIndex + direction;
-        if (newIndex < 0) newIndex = total - 1; // Loop back
-        if (newIndex >= total) newIndex = 0; // Loop forward
-
-        container.style.transform = `translateX(-${newIndex * 100}%)`;
-        if (counter) counter.innerText = `${newIndex + 1}/${total}`;
-        carousel.dataset.index = newIndex;
-    };
-
-
-    // --- POST ITEM LOGIC ---
-    window.openPostModal = () => document.getElementById('postModal').style.display = 'flex';
-    window.closePostModal = () => {
-        document.getElementById('postModal').style.display = 'none';
-        uploadedImages = [];
-        // Clear previews and reset the camera button
-        const uploadGrid = document.getElementById('uploadGrid');
-        uploadGrid.innerHTML = '';
-        uploadGrid.innerHTML = `<div class="image-upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i></div>`;
-        document.getElementById('postForm').reset();
-    };
-
-    // Image Compression/Resizing Logic (Simplified for a web environment without dedicated server-side compression)
-    const compressImage = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    // Target max width/height for compression (e.g., 800px)
-                    const MAX_WIDTH = 800;
-                    const scaleFactor = Math.min(MAX_WIDTH / img.width, 1);
-                    
-                    canvas.width = img.width * scaleFactor;
-                    canvas.height = img.height * scaleFactor;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    // Convert canvas to a compressed JPEG data URL (Quality 0.7)
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); 
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    };
-
-    // Image Upload Handler (Modified to use compression)
-    document.getElementById('pImages').onchange = async (e) => {
-        const files = Array.from(e.target.files);
-        const uploadGrid = document.getElementById('uploadGrid');
-
-        for(const file of files) {
-            if (uploadedImages.length >= 5) { alert("Max 5 images allowed."); break; }
-
-            const compressed = await compressImage(file);
-            uploadedImages.push(compressed);
-
-            // Add new image preview BEFORE the camera button
-            const div = document.createElement('div');
-            div.className = 'image-upload-box';
-            div.innerHTML = `<img src="${compressed}"><div class="remove-img" data-index="${uploadedImages.length - 1}">&times;</div>`;
-            uploadGrid.insertBefore(div, uploadGrid.lastElementChild);
-        }
-        e.target.value = null; // Clear file input
-        
-        // Re-attach removal handler dynamically
-        uploadGrid.querySelectorAll('.remove-img').forEach(btn => {
-            btn.onclick = function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                uploadedImages.splice(index, 1);
-                this.parentElement.remove();
-                // Re-render the grid to update indices (simplest fix)
-                renderImageUploadGrid();
-            };
-        });
-    };
-
-    function renderImageUploadGrid() {
-        const uploadGrid = document.getElementById('uploadGrid');
-        uploadGrid.innerHTML = '';
-
-        uploadedImages.forEach((imgSrc, index) => {
-            const div = document.createElement('div');
-            div.className = 'image-upload-box';
-            div.innerHTML = `<img src="${imgSrc}"><div class="remove-img" data-index="${index}">&times;</div>`;
-            uploadGrid.appendChild(div);
+  // Thumbnail Compression (Canvas)
+  window.previewThumb = (input) => {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            // Compress to max 500px width
+            const scale = Math.min(500 / img.width, 1);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            thumbBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
             
-            div.querySelector('.remove-img').onclick = function() {
-                uploadedImages.splice(index, 1);
-                renderImageUploadGrid();
-            };
-        });
-
-        if (uploadedImages.length < 5) {
-            uploadGrid.innerHTML += `<div class="image-upload-box" onclick="document.getElementById('pImages').click()"><i class="fas fa-camera" style="font-size:24px; color:var(--secondary-text);"></i></div>`;
-        }
-    }
-
-
-    document.getElementById('postForm').onsubmit = async (e) => {
-        e.preventDefault();
-        if(uploadedImages.length === 0) { alert("Please add at least one image"); return; }
-        
-        const btn = e.target.querySelector('button');
-        btn.innerText = "Posting..."; btn.disabled = true;
-
-        try {
-            const payment = document.querySelector('input[name="pPayment"]:checked').value;
-            const delivery = document.querySelector('input[name="pDelivery"]:checked').value;
-            
-            await addDoc(collection(db, "meetrader"), {
-                sellerId: currentUser.uid,
-                sellerName: currentUser.displayName || "User",
-                sellerPhoto: currentUser.photoURL || null,
-                title: document.getElementById('pTitle').value,
-                price: document.getElementById('pPrice').value,
-                currency: document.getElementById('pCurrency').value,
-                qty: document.getElementById('pQty').value,
-                condition: document.getElementById('pCondition').value,
-                category: document.getElementById('pCategory').value,
-                description: document.getElementById('pDesc').value,
-                phone: document.getElementById('pPhone').value,
-                email: document.getElementById('pEmail').value,
-                location: document.getElementById('pLocation').value,
-                payment: payment,
-                delivery: delivery,
-                images: uploadedImages,
-                reviews: [], // Initialize reviews array
-                createdAt: serverTimestamp()
-            });
-            
-            alert("Item Posted!");
-            closePostModal();
-            // Note: loadItems() is triggered by onSnapshot, which will handle the re-render.
-        } catch (err) { console.error("Error posting item:", err); alert("Error posting item"); }
-        finally { btn.innerText = "Post Item"; btn.disabled = false; }
-    };
-
-    // --- DETAILS & REVIEWS ---
-    window.openDetail = async (id) => {
-        const item = allItems.find(i => i.id === id);
-        if(!item) return;
-        currentItem = item;
-        currentDetailImgIdx = 0;
-
-        document.getElementById('dMainImg').src = item.images ? item.images[0] : '';
-        document.getElementById('dTitle').innerText = item.title;
-        document.getElementById('dPrice').innerText = `${item.currency} ${item.price}`;
-        document.getElementById('dSeller').innerText = item.sellerName;
-        document.getElementById('dContact').innerText = item.phone;
-        document.getElementById('dEmail').innerText = item.email;
-        document.getElementById('dCondition').innerText = item.condition;
-        document.getElementById('dQty').innerText = item.qty;
-        document.getElementById('dPayment').innerText = item.payment;
-        document.getElementById('dDelivery').innerText = item.delivery;
-        document.getElementById('dLocation').innerText = item.location; // Added location
-        document.getElementById('dDesc').innerText = item.description;
-        
-        // Show/hide nav buttons
-        const navBtns = document.querySelectorAll('.detail-gallery .nav-btn');
-        navBtns.forEach(btn => btn.style.display = (item.images && item.images.length > 1) ? 'flex' : 'none');
-
-        renderReviews();
-        document.getElementById('detailModal').style.display = 'flex';
-    };
-
-    window.closeDetailModal = () => document.getElementById('detailModal').style.display = 'none';
-
-    window.swapDetailImage = (dir) => {
-        if(!currentItem || !currentItem.images || currentItem.images.length === 0) return;
-        currentDetailImgIdx += dir;
-        if(currentDetailImgIdx < 0) currentDetailImgIdx = currentItem.images.length - 1;
-        if(currentDetailImgIdx >= currentItem.images.length) currentDetailImgIdx = 0;
-        document.getElementById('dMainImg').src = currentItem.images[currentDetailImgIdx];
-    };
-
-    function renderReviews() {
-        const list = document.getElementById('reviewsList');
-        list.innerHTML = '';
-        const reviews = currentItem.reviews || [];
-        
-        if (reviews.length === 0) {
-             list.innerHTML = '<div style="text-align:center; padding:10px; color:#888;">No reviews yet.</div>';
-             return;
-        }
-
-        reviews.forEach((r, idx) => {
-            const div = document.createElement('div');
-            div.className = 'review-item';
-            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-            div.innerHTML = `
-                <div class="review-header">
-                    <strong>${r.name} <span style="color:gold">${stars}</span></strong>
-                    ${r.uid === currentUser.uid ? `<span class="delete-review" onclick="deleteReview('${currentItem.id}', ${idx})">Delete</span>` : ''}
-                </div>
-                <div>${r.text}</div>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    window.submitReview = async () => {
-        const textInput = document.getElementById('newReviewText');
-        const text = textInput.value.trim();
-        const rating = document.getElementById('newRating').value;
-        if(!text) return;
-        if (!currentItem || !currentItem.id) return;
-
-        const newReview = {
-            uid: currentUser.uid,
-            name: currentUser.displayName || 'User',
-            text: text,
-            rating: parseInt(rating),
-            date: new Date().toISOString()
+            const preview = document.getElementById('thumbPreview');
+            preview.src = thumbBase64;
+            preview.style.display = 'block';
         };
-        
-        // Prevent duplicate review by the same user (simple check, could be more robust)
-        if (currentItem.reviews && currentItem.reviews.some(r => r.uid === currentUser.uid)) {
-            alert("You have already reviewed this item.");
-            return;
-        }
-
-        try {
-            // Update Firestore
-            await updateDoc(doc(db, "meetrader", currentItem.id), {
-                reviews: arrayUnion(newReview)
-            });
-            
-            // Optimistic update for immediate display
-            currentItem.reviews = currentItem.reviews || [];
-            currentItem.reviews.push(newReview);
-            renderReviews();
-            textInput.value = '';
-            
-            // Re-render products to update the review count/stars on the main page (real-time listener handles this better, but this ensures update)
-            loadItems(); 
-
-        } catch(e) { console.error("Failed to submit review:", e); alert("Failed to submit review. Please try again."); }
-    };
-    
-    // Expose deleteReview for onclick usage (needs window scope)
-    window.deleteReview = async (itemId, idx) => {
-        if(!confirm("Delete review?")) return;
-        
-        // Find the item in allItems and the specific review
-        const item = allItems.find(i => i.id === itemId);
-        if (!item || !item.reviews || !item.reviews[idx]) return;
-        
-        const reviewToDelete = item.reviews[idx];
-
-        try {
-            await updateDoc(doc(db, "meetrader", itemId), {
-                reviews: arrayRemove(reviewToDelete)
-            });
-            
-            // Update the local currentItem and re-render reviews
-            if (currentItem && currentItem.id === itemId) {
-                currentItem.reviews.splice(idx, 1);
-                renderReviews();
-            }
-            
-            // Re-render products on main page
-            loadItems();
-
-        } catch(e) { console.error("Failed to delete review:", e); alert("Failed to delete review. Please try again."); }
-    };
-
-    // --- NOTIFICATIONS LOGIC (Copied from Feed) ---
-    function setupNotificationsCount() {
-        const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
-        onSnapshot(q, (snap) => {
-            const badge = document.getElementById('unreadBadge');
-            if(!snap.empty) {
-                badge.style.display = 'flex';
-                badge.innerText = snap.size;
-            } else {
-                badge.style.display = 'none';
-            }
-        });
+      };
+      reader.readAsDataURL(input.files[0]);
     }
+  }
 
-    window.openNotificationsModal = () => {
-        const modal = document.getElementById('notificationsModal');
-        const list = document.getElementById('notificationsList');
-        modal.style.display = 'flex';
-        list.innerHTML = '<div class="loading">Loading...</div>';
-        
-        const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snap) => {
-            list.innerHTML = '';
-            if (snap.empty) {
-                list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No notifications.</div>';
-                return;
-            }
-            snap.forEach(d => {
-                const n = d.data();
-                const id = d.id;
-                list.innerHTML += `
-                    <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
-                        <div style="flex:1;">
-                            ${n.text}
-                            <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div>
-                        </div>
-                        <div class="notif-actions">
-                            ${!n.read ? `<i class="fas fa-check notif-btn" title="Mark as read" onclick="markNotifRead('${id}')"></i>` : ''}
-                            <i class="fas fa-trash notif-btn delete" title="Delete" onclick="deleteNotif('${id}')"></i>
-                        </div>
-                    </div>
-                `;
-            });
-        });
-    };
+  window.submitCourse = async () => {
+    if(!currentUser) return;
 
-    window.markNotifRead = async (id) => await updateDoc(doc(db, "notifications", id), { read: true });
-    window.deleteNotif = async (id) => await deleteDoc(doc(db, "notifications", id));
+    const title = document.getElementById('cTitle').value;
+    const category = document.getElementById('cCategory').value;
+    const duration = document.getElementById('cDuration').value;
+    const outcomes = document.getElementById('cOutcomes').value;
+    const outlineText = document.getElementById('outlineText').value;
+    const hasCert = document.getElementById('cCert').checked;
 
-    // Basic controls
-    document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
-    document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
-    document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
-    
-    // --- USERS MODAL (Reused) ---
-    window.openUsersModal = async () => {
-        document.getElementById('usersModal').style.display = 'flex';
-        const list = document.getElementById('usersList');
-        list.innerHTML = '<div class="loading">Loading users...</div>';
-        
-        try {
-            const snap = await getDocs(collection(db, "users"));
-            let html = '';
-            // Fetch current user's associates for proper button display
-            const associateDocs = await getDocs(collection(db, `users/${currentUser.uid}/associates`));
-            const associates = new Set(associateDocs.docs.map(doc => doc.id));
+    // Files
+    const mediaFile = document.getElementById('cMediaFile').files[0];
+    const outlineFile = document.getElementById('cOutlineFile').files[0];
 
-            for (const userDoc of snap.docs) {
-                if (userDoc.id === currentUser.uid) continue;
-                const user = userDoc.data();
-                const isAssoc = associates.has(userDoc.id);
+    if(!title || !duration || !outcomes) { alert("Please fill all text fields."); return; }
+    if(!thumbBase64) { alert("Please upload a thumbnail."); return; }
+    if(!mediaFile) { alert("Please upload the main course file."); return; }
 
-                html += `
-                  <div class="user-item">
-                     <div style="display:flex; align-items:center; gap:10px;">
-                        ${getAvatarHTML(user.photoURL, user.displayName, 'small')}
-                        <span onclick="viewProfile('${userDoc.id}')" style="cursor:pointer; font-weight:600;">${user.displayName || 'User'}</span>
-                     </div>
-                     <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
-                        onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
-                        ${isAssoc ? 'Disassociate' : 'Associate'}
-                     </button>
-                  </div>
-                `;
-            }
-            list.innerHTML = html;
-        } catch(e) {
-            console.error("Error loading users:", e);
-            list.innerHTML = '<div class="loading">Error loading users.</div>';
-        }
-    };
-    
-    window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
-        try {
-            if (isCurrentlyAssociated) {
-                await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
-                await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
-            } else {
-                await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), { timestamp: serverTimestamp() });
-                // Note: associatedWith logic implies one-way following in some systems, but here it acts as mutual association.
-                await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
-            }
-            // Re-open modal to refresh the list and buttons
-            window.openUsersModal(); 
-        } catch (e) { console.error("Error toggling associate:", e); }
-    };
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "Uploading Files... (Please Wait)"; 
+    btn.disabled = true;
 
-    window.auth = auth;
+    try {
+      // 1. Upload Main Media
+      const mediaUrl = await uploadToCloudinary(mediaFile);
+      if(!mediaUrl) throw new Error("Media upload failed");
+
+      // 2. Upload Outline PDF (if exists)
+      let outlineUrl = null;
+      if(outlineFile) {
+          outlineUrl = await uploadToCloudinary(outlineFile);
+      }
+
+      // 3. Save to Firestore
+      await addDoc(collection(db, "meetversity_courses"), {
+        title, category, duration, outcomes, 
+        outlineText, outlineUrl,
+        type: currentType,
+        mediaUrl,
+        thumbnail: thumbBase64, // Compressed Base64
+        hasCert,
+        creatorId: currentUser.uid,
+        creatorName: currentUser.displayName || 'Instructor',
+        creatorPhoto: currentUser.photoURL || null,
+        learners: [],
+        reviews: [],
+        createdAt: serverTimestamp()
+      });
+
+      alert("Course Posted Successfully!");
+      window.closeCreateModal();
+
+    } catch(e) {
+      console.error(e);
+      alert("Error posting: " + e.message);
+    } finally {
+      btn.innerText = "Post Content"; 
+      btn.disabled = false;
+    }
+  }
+
+  // --- ACTIONS ---
+  window.toggleDetails = (id) => {
+      const el = document.getElementById(`details-${id}`);
+      if(el.style.display === 'block') el.style.display = 'none';
+      else el.style.display = 'block';
+  }
+
+  window.joinCourse = async (id) => {
+    if(!currentUser) { alert("Please login."); return; }
+    try {
+      const ref = doc(db, "meetversity_courses", id);
+      await updateDoc(ref, { learners: arrayUnion(currentUser.uid) });
+      // Force details open
+      document.getElementById(`details-${id}`).style.display = 'block';
+    } catch(e) { console.error(e); }
+  }
+
+  window.openReview = (id) => {
+      document.getElementById('reviewCourseId').value = id;
+      document.getElementById('reviewModal').style.display = 'flex';
+  }
+
+  window.submitReview = async () => {
+      const id = document.getElementById('reviewCourseId').value;
+      const rating = parseInt(document.getElementById('rRating').value);
+      const text = document.getElementById('rText').value;
+      
+      try {
+          await updateDoc(doc(db, "meetversity_courses", id), {
+              reviews: arrayUnion({
+                  uid: currentUser.uid,
+                  name: currentUser.displayName,
+                  rating, text, date: new Date().toISOString()
+              })
+          });
+          document.getElementById('reviewModal').style.display = 'none';
+      } catch(e) { console.error(e); }
+  }
+
+  // Dark mode toggler
+  document.getElementById('toggleDark').onclick = () => document.body.classList.toggle('dark-mode');
 </script>
 </body>
 </html>
