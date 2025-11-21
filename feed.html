@@ -3,23 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Feed</title>
+<title>MEET | Meetversity</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+  /* --- CSS VARIABLES --- */
   :root {
     --primary: #0080FF;
-    --primary-dark: #0066CC;
-    --error: #EF4444;
-    --success: #10B981;
-    --warning: #F59E0B;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
     --secondary-text: #65676b;
     --border-color: #dddfe2;
-    --online: #10B981;
-    --offline: #EF4444;
+    --edu-primary: #0061FF;
+    --edu-accent: #5AE4A8;
+    --edu-gradient: linear-gradient(135deg, var(--edu-primary) 0%, var(--edu-accent) 100%);
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    --success: #10B981;
   }
 
   body.dark-mode {
@@ -28,606 +29,134 @@
     --text-color: #e4e6eb;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
+    --shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; min-height: 100vh; font-size: 15px; }
+  
+  .app-container { display: flex; min-height: 100vh; }
 
-  html, body {
-    height: 100%;
-    overflow-x: hidden;
-    font-size: 18px;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    min-height: 100vh;
-  }
-
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-  }
-
-  /* 3. Reduced Sidebar Width (Side Menu Bar) */
+  /* --- SIDEBAR & NAVBAR --- */
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 180px; /* Reduced from 220px/280px */
+    position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 15px; /* Reduced padding */
-    color: white;
+    z-index: 100; padding: 15px; color: white;
   }
-
-  .sidebar-header {
-    padding: 5px 0 15px; /* Reduced padding */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 15px; /* Reduced margin */
-  }
-
-  .sidebar-menu {
-    list-style: none;
-  }
-
-  .sidebar-menu li {
-    margin-bottom: 6px; /* Reduced margin */
-  }
-
+  .sidebar-header { margin-bottom: 20px; font-weight: 700; font-size: 20px; }
+  .sidebar-menu { list-style: none; }
   .sidebar-menu a {
-    display: flex;
-    align-items: center;
-    padding: 10px; /* Reduced padding */
-    text-decoration: none;
-    color: white;
-    border-radius: 8px;
-    transition: background 0.3s;
-    min-height: 40px; /* Reduced min-height */
-    font-size: 16px; /* Reduced font-size */
+    display: flex; align-items: center; padding: 10px; text-decoration: none; color: white;
+    border-radius: 8px; margin-bottom: 5px; transition: background 0.2s;
   }
+  .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { width: 25px; text-align: center; margin-right: 10px; }
 
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  /* 2. Realistic Icons in Menu Bar (Sidebar) */
-  .sidebar-menu i {
-    margin-right: 10px; /* Reduced margin */
-    font-size: 18px; /* Adjusted size */
-    width: 22px; /* Adjusted width */
-    text-align: center;
-    /* Adding realistic color for visual distinctiveness */
-    /* Note: Only colors/styles change, structure/fa class remains for requirement 2 */
-  }
-  .sidebar-menu a[href="feed.html"] i { color: #fff; } /* Home - Primary */
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; } /* User - Gold/Yellow */
-  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; } /* Comment - Green */
-  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; } /* Chart - Orange/Red */
-  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; } /* Cap - Purple */
-  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; } /* Sitemap - Cyan */
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; } /* Users - Pink */
-
-
-  .main-content {
-    flex: 1;
-    margin-left: 180px; /* Matches NEW sidebar width */
-    padding: 15px; /* Reduced padding (Top Menu Bar Reduction) */
-    min-height: 100vh;
-    font-size: 18px;
-  }
-
-  /* 3. Reduced Top Menu Bar */
+  .main-content { flex: 1; margin-left: 180px; padding: 20px; }
+  
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 10px 15px; /* Reduced padding */
-    border-radius: 10px; /* Reduced border radius */
-    margin-bottom: 15px; /* Reduced margin */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* Reduced shadow */
-    color: white;
-    flex-wrap: wrap;
-    gap: 8px; /* Reduced gap */
+    padding: 12px 20px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; color: white;
   }
+  .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .btn-nav { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-  .nav-controls {
-    display: flex;
-    gap: 8px; /* Reduced gap */
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 6px 12px; /* Reduced padding */
-    margin-right: 10px; /* Reduced margin */
-  }
-
-  .search-bar input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 180px; /* Reduced width */
-    font-size: 16px; /* Reduced font-size */
-  }
-
-  .search-bar input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Reduced gap */
-    padding: 4px 8px; /* Reduced padding */
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    position: relative;
-    min-height: 36px; /* Reduced min-height */
-  }
-
-  .user-avatar {
-    width: 36px; /* Reduced size */
-    height: 36px; /* Reduced size */
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    min-width: 36px;
-    font-size: 16px; /* Reduced font-size */
-    overflow: hidden;
-  }
-
-  .user-avatar.small {
-    width: 28px; /* Reduced size */
-    height: 28px; /* Reduced size */
-    font-size: 14px; /* Reduced font-size */
-    min-width: 28px;
-  }
-
-  .user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 6px 12px; /* Reduced padding */
-    border-radius: 6px; /* Reduced border radius */
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 6px; /* Reduced gap */
-    font-size: 16px; /* Reduced font-size */
-    min-height: 36px; /* Reduced min-height */
-  }
+  /* --- MEETVERSITY UI --- */
+  .meetversity-container { max-width: 1200px; margin: 0 auto; }
   
-  /* 2. Realistic Icons in Menu Bar (Navbar) */
-  .btn i {
-    font-size: 18px;
-    /* Adding realistic color for visual distinctiveness */
-  }
-  #notificationsBtn i { color: #FFC107; } /* Bell - Yellow/Amber */
-  #nightToggleBtn i { color: #9C27B0; } /* Moon - Purple */
-  #logoutBtn i { color: #EF4444; } /* Sign Out - Red */
-
-  .btn:hover { background: rgba(255, 255, 255, 0.3); }
-
-  .unread-badge {
-    background: var(--error);
-    color: white;
-    border-radius: 50%;
-    padding: 2px 5px;
-    font-size: 10px; /* Reduced font size */
-    display: none;
-    min-width: 16px; /* Reduced min-width */
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Post Composer */
-  .post-composer {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .composer-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .composer-input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 10px 14px; /* Reduced padding */
-    border-radius: 25px;
-    color: var(--text-color);
-    font-size: 16px; /* Reduced font size */
-    cursor: pointer;
-    min-height: 40px; /* Reduced min-height */
-  }
-
-  /* MeetAI */
-  .meetai-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 50px; /* Reduced size */
-    height: 50px; /* Reduced size */
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00C6FF 0%, #80b3ff 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px; /* Reduced font size */
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    z-index: 99;
-  }
-
-  .meetai-assistant {
-    position: fixed;
-    bottom: 80px; /* Adjusted position */
-    right: 20px;
-    width: 280px; /* Reduced width */
-    background: var(--card-bg);
-    border-radius: 10px; /* Reduced radius */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 98;
-    display: none;
-    flex-direction: column;
-    max-height: 350px; /* Reduced max-height */
-  }
-
-  .meetai-header {
-    padding: 10px 14px; /* Reduced padding */
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    color: white;
-    border-radius: 10px 10px 0 0; /* Adjusted radius */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .meetai-messages {
-    flex: 1;
-    padding: 10px; /* Reduced padding */
-    overflow-y: auto;
-    max-height: 250px; /* Adjusted max-height */
-  }
-
-  .meetai-message {
-    margin-bottom: 6px; /* Reduced margin */
-    padding: 6px 10px; /* Reduced padding */
-    border-radius: 8px;
-    font-size: 13px; /* Reduced font size */
-  }
-
-  .meetai-user { background: var(--primary); color: white; margin-left: 20px; }
-  .meetai-bot { background: var(--bg-color); margin-right: 20px; }
-
-  .meetai-input {
-    display: flex;
-    padding: 10px; /* Reduced padding */
-    gap: 6px; /* Reduced gap */
-  }
-
-  .meetai-input input {
-    flex: 1;
-    padding: 6px 10px; /* Reduced padding */
-    border: 1px solid var(--border-color);
-    border-radius: 18px; /* Reduced radius */
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-size: 15px; /* Reduced font size */
-  }
-
-  /* Modals */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 15px; /* Reduced padding */
-  }
-
-  .modal-content {
-    background: var(--card-bg);
-    border-radius: 10px; /* Reduced radius */
-    width: 450px; /* Reduced width */
-    max-width: 90%;
-    max-height: 85vh; /* Reduced max-height */
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    padding: 14px; /* Reduced padding */
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-body { padding: 14px; } /* Reduced padding */
+  .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  .page-title { font-size: 24px; font-weight: 800; background: var(--edu-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 22px; /* Reduced font size */
-    cursor: pointer;
-    color: var(--secondary-text);
+  /* REDUCED BUTTON SIZE */
+  .create-btn {
+    background: var(--edu-primary); color: white; border: none; padding: 8px 16px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 13px; box-shadow: 0 4px 10px rgba(0,97,255,0.3); transition: transform 0.2s;
   }
+  .create-btn:hover { transform: translateY(-2px); }
+  .create-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-  /* Posts */
-  .posts { display: flex; flex-direction: column; gap: 14px; } /* Reduced gap */
+  /* Stats Cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: var(--card-bg); padding: 15px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 700; color: var(--edu-primary); }
+  .stat-lbl { font-size: 12px; color: var(--secondary-text); }
 
-  .post {
-    background: var(--card-bg);
-    border-radius: 10px; /* Reduced radius */
-    padding: 14px; /* Reduced padding */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    position: relative;
-  }
-
-  .post-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px; /* Reduced margin */
-  }
-
-  .post-user { display: flex; align-items: center; gap: 10px; cursor: pointer; } /* Reduced gap */
-  .post-meta { font-size: 14px; /* Reduced font size */ color: var(--secondary-text); }
+  /* Course Grid */
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 15px; }
+  .section-head h2 { font-size: 18px; font-weight: 700; }
   
-  .post-content { margin-bottom: 10px; /* Reduced margin */ font-size: 17px; /* Reduced font size */ line-height: 1.5; }
-
-  .post-media {
-    margin-top: 10px; /* Reduced margin */
-    border-radius: 6px; /* Reduced radius */
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .post-media img, .post-media video {
-    width: 100%;
-    max-height: 500px; /* Reduced max-height */
-    object-fit: contain;
-  }
-
-  .post-interactions {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0; /* Reduced padding */
-    flex-wrap: wrap;
-    border-top: 1px solid var(--border-color);
-    margin-top: 8px; /* Reduced margin */
-  }
-
-  .interaction-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Reduced gap */
-    padding: 6px 10px; /* Reduced padding */
-    border-radius: 4px;
-    cursor: pointer;
-    color: var(--secondary-text);
-    font-weight: 600;
-    min-height: 40px; /* Reduced min-height */
-    font-size: 15px; /* Reduced font size */
-    flex: 1;
-    justify-content: center;
-  }
-  .interaction-btn:hover { background: var(--bg-color); }
-  .interaction-btn.active { color: var(--warning); } /* Star active color */
+  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
   
-  /* Styling for counts */
-  .interaction-btn .count {
-      margin-left: 2px;
-      font-weight: bold;
-      font-size: 14px;
+  .course-card {
+    background: var(--card-bg); border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column;
   }
-
-  /* Dropdown for Post Options (3 dots) */
-  .post-options {
-    position: relative;
-  }
-  .post-options-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--card-bg);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Reduced shadow */
-    border-radius: 6px; /* Reduced radius */
-    z-index: 10;
-    width: 140px; /* Reduced width */
-    overflow: hidden;
-  }
-  .post-options-menu.show { display: block; }
-  .post-option-item {
-    padding: 8px 12px; /* Reduced padding */
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px; /* Reduced gap */
-    font-size: 15px; /* Reduced font size */
-  }
-  .post-option-item:hover { background: var(--bg-color); }
-
-  /* Comments */
-  .comments-section {
-    margin-top: 10px; /* Reduced margin */
-    border-top: 1px solid var(--border-color);
-    padding-top: 10px; /* Reduced padding */
-  }
-  .comment { display: flex; gap: 10px; /* Reduced gap */ margin-bottom: 10px; } /* Reduced margin */
-  .comment-content { flex: 1; background: var(--bg-color); padding: 6px 10px; /* Reduced padding */ border-radius: 16px; /* Reduced radius */ font-size: 15px; } /* Reduced font size */
+  .course-card:hover { transform: translateY(-5px); }
   
-  .view-more-comments {
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: 600;
-    text-align: left;
-    padding: 6px 0; /* Reduced padding */
-    margin-bottom: 6px; /* Reduced margin */
-    font-size: 15px; /* Reduced font size */
-  }
-
-  .comment-input { display: flex; gap: 6px; /* Reduced gap */ margin-top: 10px; /* Reduced margin */ align-items: center; }
-  .comment-input input {
-    flex: 1;
-    background: var(--bg-color);
-    border: none;
-    padding: 6px 10px; /* Reduced padding */
-    border-radius: 16px; /* Reduced radius */
-    color: var(--text-color);
-    font-size: 15px; /* Reduced font size */
-  }
-
-  .send-comment-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px; /* Reduced size */
-    height: 30px; /* Reduced size */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px; /* Reduced font size */
-  }
-
-  /* Modal Specifics */
-  .comments-modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2000;
-    align-items: center; justify-content: center;
-    padding: 15px;
-  }
-  .comments-modal-content {
-    background: var(--card-bg);
-    border-radius: 10px;
-    width: 550px; /* Reduced width */
-    max-width: 90%;
-    max-height: 75vh; /* Reduced max-height */
-    overflow-y: auto;
-    padding: 0;
-    display: flex; flex-direction: column;
-  }
-  .comments-modal-header {
-    padding: 14px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .comments-modal-body { padding: 14px; overflow-y: auto; }
-
-  .post-textarea {
-    width: 100%;
-    min-height: 100px; /* Reduced height */
-    border: 2px solid #0080FF;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 16px; /* Reduced font size */
-    resize: none;
-    outline: none;
-    padding: 10px;
-    border-radius: 6px;
-  }
-
-  /* Users List */
-  .user-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px; /* Reduced padding */
-    background: var(--card-bg);
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 8px; /* Reduced margin */
-  }
-  .association-btn {
-    padding: 5px 10px; /* Reduced padding */
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-size: 13px; /* Reduced font size */
-    font-weight: 600;
-  }
-  .associate-btn { background: var(--primary); color: white; }
-  .disassociate-btn { background: var(--error); color: white; }
-
-  /* Notification Actions */
-  .notif-item {
-    padding: 10px; /* Reduced padding */
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 16px; /* Reduced font size */
-  }
-  .notif-unread { background: #f0f9ff; }
-  .notif-actions { display: flex; gap: 8px; /* Reduced gap */ }
-  .notif-btn { cursor: pointer; color: var(--secondary-text); font-size: 13px; /* Reduced font size */ }
-  .notif-btn:hover { color: var(--primary); }
-  .notif-btn.delete:hover { color: var(--error); }
-
-  .loading { text-align: center; padding: 15px; color: var(--secondary-text); }
+  .course-header { position: relative; height: 150px; }
+  .course-thumb { height: 100%; width: 100%; object-fit: cover; background: #eee; }
   
+  /* Poster Image Overlay */
+  .poster-badge {
+    position: absolute; bottom: -15px; right: 15px;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--card-bg); background: var(--edu-primary);
+    overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;
+  }
+  .poster-badge img { width: 100%; height: 100%; object-fit: cover; }
+
+  .course-body { padding: 20px 15px 15px; flex: 1; display: flex; flex-direction: column; }
+  
+  .c-cat { font-size: 10px; text-transform: uppercase; color: var(--edu-primary); font-weight: 700; letter-spacing: 0.5px; }
+  .c-title { font-size: 15px; font-weight: 700; margin: 5px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  
+  .c-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--secondary-text); margin-bottom: 10px; }
+  .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-bottom: 8px; }
+  
+  .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+  .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn-join.joined { background: var(--success); cursor: default; }
+  
+  /* Modal */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
+  .modal-body { padding: 20px; }
+  
+  /* Form Elements */
+  .form-group { margin-bottom: 15px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: inherit; font-size: 14px; }
+  .form-textarea { min-height: 80px; resize: vertical; }
+  
+  .file-drop { border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+  .file-drop:hover { border-color: var(--edu-primary); background: rgba(0,97,255,0.02); }
+  
+  /* Dynamic List for "What you'll learn" */
+  .learn-item { display: flex; gap: 10px; margin-bottom: 8px; }
+  .btn-icon { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); width: 36px; border-radius: 6px; cursor: pointer; }
+  
+  .type-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-color); padding: 5px; border-radius: 8px; }
+  .type-tab { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--secondary-text); font-size: 13px; }
+  .type-tab.active { background: white; color: var(--edu-primary); shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  
+  .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 5px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: var(--edu-primary); width: 0%; transition: width 0.3s; }
+
   /* Responsive */
   @media (max-width: 768px) {
-    .sidebar { width: 60px; padding: 8px 4px; } /* Further reduced for mobile */
-    .sidebar-header { display: none; }
-    .sidebar-menu a { flex-direction: column; padding: 8px 4px; font-size: 12px; text-align: center; }
-    .sidebar-menu i { margin-right: 0; margin-bottom: 4px; font-size: 18px; }
-    .main-content { margin-left: 60px; padding: 8px; width: calc(100% - 60px); }
+    .sidebar { width: 60px; padding: 10px 5px; }
+    .sidebar-header, .sidebar-menu span { display: none; }
+    .sidebar-menu i { margin: 0; width: 100%; font-size: 20px; }
+    .main-content { margin-left: 60px; padding: 15px; }
+    .grid-layout { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .search-bar, .user-profile-nav span, .btn span { display: none; }
     .nav-controls { width: 100%; justify-content: space-between; }
-    .btn { padding: 6px; flex: 1; justify-content: center; }
+  }
+  @media (max-width: 480px) {
+    .grid-layout { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -635,778 +164,463 @@
 
 <div class="app-container">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <h2 style="color: white; font-size: 20px;">MEET</h2>
-    </div>
+    <div class="sidebar-header">MEET</div>
     <ul class="sidebar-menu">
       <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="#" class="active"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
       <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <h2 style="color: white; font-size: 20px;">Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search...">
+      <h3>Meetversity</h3>
+      <div class="nav-controls">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div id="userAvatar" style="width:32px; height:32px; background:white; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; overflow:hidden;">U</div>
+          <span id="userNameDisplay" style="font-size:14px;">Guest</span>
         </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName" style="font-size: 15px;">User</span>
+        <button class="btn-nav" id="toggleDark"><i class="fas fa-moon"></i></button>
+        <button class="btn-nav" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="meetversity-container">
+      <div class="header-section">
+        <h1 class="page-title">ACADEMY</h1>
+        <button class="create-btn" onclick="openCreateModal()">
+          <i class="fas fa-plus"></i> Create Content
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statCourses">0</div>
+          <div class="stat-lbl">Courses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statLearners">0</div>
+          <div class="stat-lbl">Learners</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statVideos">0</div>
+          <div class="stat-lbl">Quick Vids</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statDocs">0</div>
+          <div class="stat-lbl">Notes</div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>Featured Courses</h2></div>
+      <div class="grid-layout" id="coursesFeed"><div style="padding:20px;">Loading...</div></div>
+
+      <div class="section-head"><h2>Quick Videos</h2></div>
+      <div class="grid-layout" id="videosFeed"></div>
+
+      <div class="section-head"><h2>Notes & Documents</h2></div>
+      <div class="grid-layout" id="docsFeed"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="createModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Create Content</h3>
+      <button onclick="closeCreateModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="type-tabs">
+        <button class="type-tab active" onclick="setType('long-video', this)">Full Course</button>
+        <button class="type-tab" onclick="setType('quick-video', this)">Quick Video</button>
+        <button class="type-tab" onclick="setType('document', this)">Document (Picture of Note)</button>
+      </div>
+
+      <form id="createForm">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" id="cTitle" class="form-input" placeholder="e.g. Advanced React Patterns" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="cCategory" class="form-select">
+              <option>Technology</option>
+              <option>Business</option>
+              <option>Design</option>
+              <option>Marketing</option>
+              <option>Health</option>
+              <option>Academic</option>
+            </select>
           </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i> <span style="font-size: 15px;">Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i> <span style="font-size: 15px;">Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> <span style="font-size: 15px;">Logout</span>
-          </button>
+          <div class="form-group">
+            <label class="form-label">Duration</label>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 1 Image" required>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="post-composer">
-      <div class="composer-header">
-        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-        <div class="composer-input" id="openComposer">Surprise the world</div>
-      </div>
-    </div>
-
-    <div class="meetai-button" onclick="toggleMeetAI()"><span>M</span></div>
-    <div class="meetai-assistant" id="meetaiAssistant">
-      <div class="meetai-header">
-        <h4 style="font-size: 16px;">MeetAI Assistant</h4>
-        <button class="close-modal" onclick="closeMeetAI()">&times;</button>
-      </div>
-      <div class="meetai-messages" id="meetaiMessages">
-        <div class="meetai-message meetai-bot">Hello! I'm MeetAI. How can I help?</div>
-      </div>
-      <div class="meetai-input">
-        <input type="text" id="meetaiInput" placeholder="Ask me anything...">
-        <button class="send-comment-btn" onclick="sendMeetAIMessage()"><i class="fas fa-paper-plane"></i></button>
-      </div>
-    </div>
-
-    <div id="messageContainer"></div>
-
-    <div class="posts" id="postsContainer">
-      <div class="loading">Loading meetcasts...</div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="postModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalTitle" style="font-size: 18px;">Create Meetcast</h3>
-      <button class="close-modal" id="closeModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex; gap:12px; margin-bottom:16px;">
-        <div class="user-avatar" id="modalUserAvatar">U</div>
-        <div>
-          <div id="modalUserName" style="font-weight:600; font-size: 16px;">User Name</div>
-          <select id="privacy" style="border:none; background:var(--bg-color); padding:4px; font-size: 14px;">
-            <option value="public">🌍 Public</option>
-            <option value="friends">👥 Associates</option>
-            <option value="private">🔒 Only Me</option>
-          </select>
+        <div class="form-group">
+          <label class="form-label">Cover Image (Compressed)</label>
+          <div class="file-drop" onclick="document.getElementById('cThumb').click()">
+            <i class="fas fa-image" style="font-size:20px; color:var(--secondary-text);"></i>
+            <p style="font-size:11px; color:var(--secondary-text); margin-top:5px;">Click to upload thumbnail</p>
+            <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)" required>
+          </div>
+          <img id="thumbPreview" style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
         </div>
-      </div>
-      <textarea class="post-textarea" id="postText" placeholder="Surprise the world"></textarea>
-      <div class="media-preview" id="mediaPreview"></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-        <div style="display:flex; gap:10px;">
-            <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
-            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size: 24px; cursor: pointer;"></i>
+
+        <div class="form-group">
+          <label class="form-label" id="mediaLabel">Upload Video File</label>
+          <input type="file" id="cMediaFile" class="form-input" accept="video/*" required>
+          <div class="progress-bar" id="mediaProgress">
+              <div class="progress-fill" id="mediaProgressFill"></div>
+          </div>
+          <small style="color:var(--secondary-text); font-size:10px;">File will be optimized via Cloudinary.</small>
         </div>
-        <button class="btn" id="postBtn" style="background:var(--primary); font-size: 16px;">Post</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="modal" id="usersModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Find Associates</h3>
-      <button class="close-modal" id="closeUsersModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="usersList"><div class="loading">Loading users...</div></div>
-    </div>
-  </div>
-</div>
+        <div class="form-group" id="learnSection">
+          <label class="form-label">Course Outline (What you'll learn)</label>
+          <div id="learnContainer">
+             <div class="learn-item">
+                 <input type="text" class="form-input learn-input" placeholder="e.g. Master CSS Grid">
+                 <button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>
+             </div>
+          </div>
+          <button type="button" onclick="addLearnItem()" style="background:none; border:none; color:var(--primary); font-size:12px; cursor:pointer;">+ Add lesson/outcome</button>
+        </div>
 
-<div class="modal" id="notificationsModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size: 18px;">Notifications</h3>
-      <button class="close-modal" id="closeNotificationsModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="notificationsList"></div>
-    </div>
-  </div>
-</div>
+        <div class="form-group">
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="cCert"> Offer MEET Certificate
+          </label>
+        </div>
 
-<div class="comments-modal" id="commentsModal">
-  <div class="comments-modal-content">
-    <div class="comments-modal-header">
-      <h3 style="font-size: 18px;">All Responses</h3>
-      <button class="close-modal" id="closeCommentsModal">&times;</button>
+        <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center; padding:12px;" onclick="submitCourse()">
+          Post Content
+        </button>
+      </form>
     </div>
-    <div class="comments-modal-body" id="commentsModalBody">
-      </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { 
-    getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-    onSnapshot, query, orderBy, where, setDoc, serverTimestamp, writeBatch, updateDoc
-  } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-  // Cloudinary Config
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-  const CLOUDINARY_PRESET = 'Meet_video';
-
+  // --- FIREBASE CONFIG ---
   const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159-firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c"
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      authDomain: "meet-6e159.firebaseapp.com",
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+      projectId: "meet-6e159",
+      storageBucket: "meet-6e159-firebasestorage.app",
+      messagingSenderId: "252353608421",
+      appId: "1:252353608421:web:6706056048e9a8f12db20c"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  window.auth = auth;
 
-  // Global State
+  // --- CLOUDINARY CONFIG (UNIFIED with Feed Settings) ---
+  const CLOUD_NAME = "dcwof2ngn"; // Cloud name
+  const UPLOAD_PRESET = "Meet_video"; // Unsigned Upload Preset (must allow image/video)
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; // Generic upload URL
+
   let currentUser = null;
-  let editingPostId = null; // Track edit state
-  const userCache = {};
-  
-  // DOM Elements
-  const postsContainer = document.getElementById('postsContainer');
-  
-  // Helper: Show Messages
-  function showMessage(msg, type = 'success') {
-    const el = document.getElementById('messageContainer');
-    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:10px; margin:10px; border-radius:8px; text-align:center;">${msg}</div>`;
-    setTimeout(() => el.innerHTML = '', 3000);
-  }
+  let currentType = 'long-video';
+  let thumbBase64 = null; // For reduced memory thumbnail
 
-  // Helper: Upload Media
-  async function uploadMedia(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_PRESET);
-    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-    const data = await res.json();
-    return data.secure_url;
-  }
-
-  // Helper: Get User Data
-  async function getUserDataWithCache(userId) {
-    if (userCache[userId] && (Date.now() - userCache[userId].timestamp < 60000)) {
-        return userCache[userId].data;
-    }
-    try {
-      const docSnap = await getDoc(doc(db, "users", userId));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        userCache[userId] = { data, timestamp: Date.now() };
-        return data;
-      }
-    } catch (e) { console.error(e); }
-    return null;
-  }
-
-  // Helper: Render Avatar
-  function getAvatarHTML(photoURL, name, size = 'medium') {
-    const initial = name ? name.charAt(0).toUpperCase() : 'U';
-    const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
-    
-    if (photoURL) {
-      return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-    }
-    return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
-  }
-
-  window.viewProfile = (targetId) => {
-    if(!targetId) return;
-    window.location.href = `profile.html?uid=${targetId}`;
-  };
-
-  // AUTH STATE
+  // --- AUTH & USER PROFILE ---
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
+    if (user) {
       currentUser = user;
-      const userData = await getUserDataWithCache(user.uid);
-      const photo = userData?.photoURL || user.photoURL;
-      const name = userData?.displayName || user.displayName || 'User';
+      // Fetch extended profile if available
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
       
-      document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
-      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('userName').textContent = name;
-      document.getElementById('modalUserName').textContent = name;
-      
-      setupFeedListener();
-      setupNotificationsCount();
+      currentUser.displayName = userData.displayName || user.displayName;
+      currentUser.photoURL = userData.photoURL || user.photoURL;
+
+      document.getElementById('userNameDisplay').innerText = currentUser.displayName || 'User';
+      if(currentUser.photoURL) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
+      }
+    } else {
+      document.getElementById('userNameDisplay').innerText = "Guest";
+      // In real app, redirect to login
     }
   });
 
-  // =================== FEED LOGIC ===================
-  function setupFeedListener() {
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    onSnapshot(q, async (snapshot) => {
-      postsContainer.innerHTML = "";
-      if (snapshot.empty) {
-        postsContainer.innerHTML = '<div class="loading">No meetcasts yet.</div>';
-        return;
-      }
-
-      for (const docSnap of snapshot.docs) {
-        const post = docSnap.data();
-        const postId = docSnap.id;
-        
-        const authorData = await getUserDataWithCache(post.userId);
-        const authorName = authorData?.displayName || post.userName || 'Anonymous';
-        const authorPhoto = authorData?.photoURL || post.photoURL;
-
-        // 1. Real-time Count: Star and Response setup
-        const postEl = document.createElement('div');
-        postEl.className = 'post';
-        postEl.dataset.postId = postId;
-        
-        postsContainer.appendChild(postEl);
-        renderPost(postEl, post, postId, authorName, authorPhoto);
-        loadComments(postId); // Load comments once, onSnapshot handles updates
-        setupPostInteractionListeners(postId); // Setup listeners for real-time updates
-      }
+  // --- COMPRESSION LOGIC (For Thumbnails) ---
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 500;
+          const scale = Math.min(MAX / img.width, 1);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Output low quality JPEG
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+      };
+      reader.readAsDataURL(file);
     });
-  }
+  };
 
-  // Helper to render post HTML (for initial load and updates)
-  async function renderPost(postEl, post, postId, authorName, authorPhoto) {
-      const currentUserId = currentUser.uid;
+  // --- CLOUDINARY UPLOAD HELPER (Unified for Image/Video/Base64) ---
+  const uploadToCloudinary = async (fileOrBase64) => {
+    const formData = new FormData();
 
-      // Check star status
-      const starSnap = await getDoc(doc(db, `posts/${postId}/stars/${currentUserId}`));
-      const isStarred = starSnap.exists();
+    if (fileOrBase64 instanceof File) {
+        formData.append("file", fileOrBase64);
+    } else if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:')) {
+        formData.append("file", fileOrBase64); // Base64 Data URL
+    } else {
+        throw new Error("Invalid file or Base64 string provided for upload.");
+    }
+
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+        const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+        const data = await response.json();
+
+        // Check for Cloudinary's specific error object in the response
+        if (data.error || !response.ok) {
+            console.error("Upload Error:", data.error?.message || response.statusText, data);
+            throw new Error(`Cloudinary Error: ${data.error?.message || 'Upload failed.'}`);
+        }
+        
+        return data.secure_url;
+    } catch (err) {
+        console.error("Upload failed in helper:", err.message || err);
+        throw err; // Re-throw for main submitCourse catch block
+    }
+  };
+
+  // --- FEED LOGIC ---
+  const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const courses = [], videos = [], docs = [];
+    let learners = 0;
+
+    snapshot.forEach((doc) => {
+      const data = { id: doc.id, ...doc.data() };
+      learners += (data.learners ? data.learners.length : 0);
+      if(data.type === 'long-video') courses.push(data);
+      else if(data.type === 'quick-video') videos.push(data);
+      else docs.push(data);
+    });
+
+    // Update stats
+    document.getElementById('statCourses').innerText = courses.length;
+    document.getElementById('statVideos').innerText = videos.length;
+    document.getElementById('statDocs').innerText = docs.length;
+    document.getElementById('statLearners').innerText = learners;
+
+    renderGrid('coursesFeed', courses);
+    renderGrid('videosFeed', videos);
+    renderGrid('docsFeed', docs);
+  });
+
+  function renderGrid(id, items) {
+    const container = document.getElementById(id);
+    container.innerHTML = '';
+    if(!items.length) { container.innerHTML = '<div style="padding:10px; color:#888;">No content yet.</div>'; return; }
+
+    items.forEach(item => {
+      const isJoined = currentUser && item.learners?.includes(currentUser.uid);
+      const lCount = item.learners ? item.learners.length : 0;
       
-      // Get Star Count (Use a dedicated query for a robust count)
-      const starCountSnap = await getDocs(collection(db, `posts/${postId}/stars`));
-      const starCount = starCountSnap.size;
+      // Poster Image Logic
+      const posterImg = item.instructorPhoto 
+        ? `<img src="${item.instructorPhoto}">` 
+        : `<div style="width:100%;height:100%;background:#0080FF;color:white;display:flex;align-items:center;justify-content:center;">${item.instructorName?.[0]||'U'}</div>`;
 
-      // HTML Structure with counts and current star status
-      postEl.innerHTML = `
-        <div class="post-header">
-          <div class="post-user" onclick="viewProfile('${post.userId}')">
-            <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
-            <div>
-              <div style="font-weight:600; color:var(--primary); font-size: 16px;">${authorName}</div>
-              <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
-            </div>
+      const div = document.createElement('div');
+      div.className = 'course-card';
+      div.innerHTML = `
+        <div class="course-header">
+            <img src="${item.thumbnail || 'https://via.placeholder.com/300'}" class="course-thumb">
+            <div class="poster-badge">${posterImg}</div>
+        </div>
+        <div class="course-body">
+          ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
+          <div class="c-cat">${item.category}</div>
+          <div class="c-title">${item.title}</div>
+          <div class="c-meta">
+            <span>${item.instructorName}</span>
+            <span>${lCount} Learners</span>
           </div>
-          ${post.userId === currentUserId ? `
-            <div class="post-options">
-              <i class="fas fa-ellipsis-h" onclick="togglePostMenu('${postId}')" style="cursor:pointer; color:var(--secondary-text);"></i>
-              <div class="post-options-menu" id="menu-${postId}">
-                <div class="post-option-item" onclick="editPost('${postId}', '${post.text?.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit Post</div>
-                <div class="post-option-item" onclick="deletePost('${postId}')" style="color:var(--error);"><i class="fas fa-trash"></i> Delete Post</div>
-              </div>
-            </div>
-          ` : ''}
-        </div>
-        <div class="post-content" id="content-${postId}">${post.text}</div>
-        ${post.media ? `<div class="post-media" onclick="openMediaModal('${post.media}')">
-           ${post.mediaType === 'video' ? `<video src="${post.media}" controls></video>` : `<img src="${post.media}">`}
-        </div>` : ''}
-        
-        <div class="post-interactions">
-           <div class="interaction-btn ${isStarred ? 'active' : ''}" id="star-btn-${postId}" onclick="toggleStar('${postId}')">
-              <i class="${isStarred ? 'fas' : 'far'} fa-star"></i> Star
-              <span class="count" id="star-count-${postId}">${starCount}</span>
-           </div>
-           <div class="interaction-btn" onclick="focusComment('${postId}')">
-              <i class="fas fa-comment" style="color: #4CAF50;"></i> Respond
-              <span class="count" id="response-count-${postId}">0</span>
-           </div>
-           <div class="interaction-btn" onclick="sharePost('${postId}')">
-              <i class="fas fa-share" style="color: #00BCD4;"></i> Share
-              <span class="count" id="share-count-${postId}">0</span>
-           </div>
-        </div>
-
-        <div class="comments-section" id="comments-${postId}"></div>
-        
-        <div class="comment-input">
-          ${getAvatarHTML(document.getElementById('currentUserAvatar').querySelector('img')?.src, 'Me', 'small')}
-          <input type="text" id="input-${postId}" placeholder="Write a response...">
-          <button class="send-comment-btn" onclick="sendResponse('${postId}')"><i class="fas fa-paper-plane"></i></button>
+          <div class="c-footer">
+             <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="joinCourse('${item.id}')">
+              ${isJoined ? 'Joined' : 'Join'}
+            </button>
+             <button style="background:none; border:1px solid #ddd; padding:6px; border-radius:6px; cursor:pointer;" onclick="viewDetails('${item.id}')">Details</button>
+          </div>
         </div>
       `;
-  }
-  
-  // 1. Real-time Update Listeners for Star and Response
-  function setupPostInteractionListeners(postId) {
-    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postEl) return;
-    
-    // Star Listener
-    onSnapshot(collection(db, `posts/${postId}/stars`), (snap) => {
-        const starCount = snap.size;
-        const starCountEl = document.getElementById(`star-count-${postId}`);
-        if (starCountEl) starCountEl.textContent = starCount;
-
-        const starBtn = document.getElementById(`star-btn-${postId}`);
-        const isStarred = snap.docs.some(doc => doc.id === currentUser.uid);
-        if(starBtn) {
-            starBtn.classList.toggle('active', isStarred);
-            starBtn.querySelector('i').className = isStarred ? 'fas fa-star' : 'far fa-star';
-        }
-    });
-
-    // Response Listener
-    onSnapshot(collection(db, `posts/${postId}/responses`), (snap) => {
-        const responseCount = snap.size;
-        const responseCountEl = document.getElementById(`response-count-${postId}`);
-        if (responseCountEl) responseCountEl.textContent = responseCount;
+      container.appendChild(div);
     });
   }
 
-  // =================== FEED ACTIONS (Star, Share, Delete/Edit) ===================
-  
-  // A.2 Star Functionality
-  window.toggleStar = async (postId) => {
-    try {
-      const starRef = doc(db, `posts/${postId}/stars/${currentUser.uid}`);
-      const starSnap = await getDoc(starRef);
+  // --- CREATION FORM LOGIC ---
+  window.openCreateModal = () => {
+      if(!currentUser) { alert("Login required"); return; }
+      document.getElementById('createModal').style.display = 'flex';
+      setType(currentType, document.querySelector(`.type-tab[onclick*="${currentType}"]`));
+  };
+  window.closeCreateModal = () => {
+      document.getElementById('createModal').style.display = 'none';
+      document.getElementById('createForm').reset();
+      thumbBase64 = null;
+      document.getElementById('thumbPreview').style.display = 'none';
+      document.getElementById('mediaProgress').style.display = 'none';
+      // Re-initialize to default type
+      setType('long-video', document.querySelector(`.type-tab[onclick*="long-video"]`));
+  };
+
+  // Form Tabs & toggles
+  window.setType = (type, btn) => {
+      currentType = type;
+      document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
       
-      if (starSnap.exists()) {
-        await deleteDoc(starRef);
+      const mediaInput = document.getElementById('cMediaFile');
+      const label = document.getElementById('mediaLabel');
+      const learnSection = document.getElementById('learnSection');
+      
+      if(type === 'document') {
+          // Document (Picture of Note) - Image upload
+          label.innerText = "Upload Picture of Note/Document";
+          mediaInput.accept = "image/*";
+          document.getElementById('cDuration').placeholder = 'e.g. 1 Image';
+          learnSection.style.display = 'none'; 
+          document.getElementById('cCert').parentElement.style.display = 'none';
       } else {
-        await setDoc(starRef, { timestamp: serverTimestamp() });
-        // Notify author if not self
-        const postSnap = await getDoc(doc(db, "posts", postId));
-        if(postSnap.data().userId !== currentUser.uid) {
-           const userData = await getUserDataWithCache(currentUser.uid);
-           await addDoc(collection(db, "notifications"), {
-             targetUserId: postSnap.data().userId,
-             type: 'star',
-             text: `${userData?.displayName || 'Someone'} starred your meetcast`,
-             read: false,
-             createdAt: serverTimestamp()
-           });
-        }
+          // Video types
+          label.innerText = "Upload Video File";
+          mediaInput.accept = "video/*";
+          document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
+          learnSection.style.display = 'block'; 
+          document.getElementById('cCert').parentElement.style.display = 'flex';
       }
-      // Listener auto-updates UI
-    } catch (e) { console.error(e); }
+      mediaInput.value = ''; // Reset file input
   };
 
-  // A.3 Share Functionality (Count remains 0 as it's not tracked server-side)
-  window.sharePost = (postId) => {
-    const postUrl = window.location.origin + `/post.html?id=${postId}`;
-    const postText = document.getElementById(`content-${postId}`).innerText;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this Meetcast',
-        text: postText,
-        url: postUrl
-      }).catch(console.error);
-    } else {
-      navigator.clipboard.writeText(postUrl);
-      showMessage("Link copied to clipboard!");
-    }
+  window.addLearnItem = () => {
+      const div = document.createElement('div');
+      div.className = 'learn-item';
+      div.innerHTML = `<input type="text" class="form-input learn-input" placeholder="Lesson/Outcome..."><button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>`;
+      document.getElementById('learnContainer').appendChild(div);
   };
 
-  // A.4 Post Menu & Delete/Edit
-  window.togglePostMenu = (id) => {
-    const menu = document.getElementById(`menu-${id}`);
-    // Close others
-    document.querySelectorAll('.post-options-menu').forEach(el => {
-        if(el.id !== `menu-${id}`) el.classList.remove('show');
-    });
-    menu.classList.toggle('show');
-  };
-  
-  // Close menus when clicking outside
-  document.addEventListener('click', (e) => {
-    if(!e.target.closest('.post-options')) {
-        document.querySelectorAll('.post-options-menu').forEach(el => el.classList.remove('show'));
-    }
-  });
-
-  window.deletePost = async (postId) => {
-    if(!confirm("Are you sure you want to delete this meetcast?")) return;
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      showMessage("Meetcast deleted");
-    } catch (e) { console.error(e); }
+  // Thumbnail Compression Preview
+  window.previewThumb = async (input) => {
+      if (input.files && input.files[0]) {
+          const compressedDataUrl = await compressImage(input.files[0]);
+          thumbBase64 = compressedDataUrl; // Store compressed string for upload
+          const preview = document.getElementById('thumbPreview');
+          preview.src = thumbBase64;
+          preview.style.display = 'block';
+      }
   };
 
-  window.editPost = (postId, currentText) => {
-    editingPostId = postId;
-    document.getElementById('postText').value = currentText;
-    document.getElementById('modalTitle').innerText = "Edit Meetcast";
-    document.getElementById('postBtn').innerText = "Update";
-    document.getElementById('postModal').style.display = 'flex';
-    // Hide media input for edit simplicity in this version
-    document.getElementById('postMedia').parentElement.style.display = 'none';
-  };
-
-  // =================== COMMENTS LOGIC ===================
-  // Load comments uses onSnapshot, so it naturally handles real-time updates for the list as well.
-  function loadComments(postId) {
-    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
-    onSnapshot(q, async (snapshot) => {
-      const container = document.getElementById(`comments-${postId}`);
-      const allComments = [];
-      for (const d of snapshot.docs) {
-        const c = d.data();
-        const cUser = await getUserDataWithCache(c.userId);
-        allComments.push({
-            id: d.id,
-            ...c,
-            freshPhoto: cUser?.photoURL || c.photoURL,
-            freshName: cUser?.displayName || c.userName
-        });
+  // Main Submit Logic
+  window.submitCourse = async () => {
+      const btn = document.getElementById('submitBtn');
+      const progress = document.getElementById('mediaProgress');
+      const fill = document.getElementById('mediaProgressFill');
+      
+      const title = document.getElementById('cTitle').value;
+      const category = document.getElementById('cCategory').value;
+      const duration = document.getElementById('cDuration').value;
+      
+      const mediaFile = document.getElementById('cMediaFile').files[0];
+      
+      // Gather "What you'll learn" (Only for course/video)
+      const learnInputs = document.querySelectorAll('.learn-input');
+      const outcomes = [];
+      if(currentType !== 'document') {
+          learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
+          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for the course."); return; }
       }
 
-      let html = '';
-      const displayCount = 2;
-      const total = allComments.length;
 
-      allComments.slice(0, displayCount).forEach(c => {
-        html += `
-          <div class="comment">
-             <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(c.freshPhoto, c.freshName, 'small')}</div>
-             <div class="comment-content">
-                <div style="font-weight:600; font-size:14px; cursor:pointer" onclick="viewProfile('${c.userId}')">${c.freshName}</div>
-                <div>${c.text}</div>
-             </div>
-          </div>
-        `;
+      if(!title || !mediaFile) { alert("Title and Media File required"); return; }
+      if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
+
+      btn.innerText = "Uploading...";
+      btn.disabled = true;
+      progress.style.display = 'block';
+      fill.style.width = '10%';
+
+      try {
+          // 1. Upload Thumbnail (Base64 -> Cloudinary) 
+          const thumbUrl = await uploadToCloudinary(thumbBase64);
+          fill.style.width = '40%';
+
+          // 2. Upload Main Content (Video/Image -> Cloudinary)
+          // Since we are using the unified Feed approach, we use the generic upload URL
+          const mediaUrl = await uploadToCloudinary(mediaFile); 
+          fill.style.width = '80%';
+
+          // 3. Save to Firestore
+          await addDoc(collection(db, "meetversity_courses"), {
+              title, category, duration, type: currentType,
+              thumbnail: thumbUrl,
+              mediaUrl: mediaUrl,
+              outcomes: outcomes,
+              hasCert: currentType !== 'document' ? document.getElementById('cCert').checked : false,
+              instructorId: currentUser.uid,
+              instructorName: currentUser.displayName || 'Instructor',
+              instructorPhoto: currentUser.photoURL || null,
+              learners: [],
+              createdAt: serverTimestamp()
+          });
+
+          fill.style.width = '100%';
+          alert("Content Posted Successfully!");
+          closeCreateModal();
+
+      } catch(e) {
+          console.error("Final Submission Error:", e);
+          alert(`Upload failed: ${e.message || "Please check console for details."}. Double-check your Cloudinary preset permissions!`);
+      } finally {
+          btn.innerText = "Post Content";
+          btn.disabled = false;
+          progress.style.display = 'none';
+      }
+  };
+
+  window.joinCourse = async (id) => {
+      if(!currentUser) { alert("Login required"); return; }
+      await updateDoc(doc(db, "meetversity_courses", id), {
+          learners: arrayUnion(currentUser.uid)
       });
-
-      if (total > displayCount) {
-        html += `<div class="view-more-comments" onclick="openFullComments('${postId}')">View ${total - displayCount} more responses...</div>`;
-      }
-      container.innerHTML = html;
-    });
-  }
-
-  window.openFullComments = async (postId) => {
-    document.getElementById('commentsModal').style.display = 'flex';
-    const body = document.getElementById('commentsModalBody');
-    body.innerHTML = '<div class="loading">Loading responses...</div>';
-    
-    // Rerender the modal body every time
-    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
-    onSnapshot(q, async (snap) => {
-        let html = '';
-        for (const d of snap.docs) {
-           const c = d.data();
-           const cUser = await getUserDataWithCache(c.userId);
-           html += `
-              <div class="comment">
-                 <div onclick="viewProfile('${c.userId}')" style="cursor:pointer">${getAvatarHTML(cUser?.photoURL, cUser?.displayName, 'small')}</div>
-                 <div class="comment-content">
-                    <div style="font-weight:600;">${cUser?.displayName || c.userName}</div>
-                    <div>${c.text}</div>
-                 </div>
-              </div>
-           `;
-        }
-        body.innerHTML = html;
-    });
   };
 
-  window.sendResponse = async (postId) => {
-    const input = document.getElementById(`input-${postId}`);
-    const text = input.value.trim();
-    if(!text) return;
-    try {
-        const userDoc = await getUserDataWithCache(currentUser.uid);
-        await addDoc(collection(db, `posts/${postId}/responses`), {
-            userId: currentUser.uid,
-            userName: userDoc?.displayName || currentUser.displayName,
-            photoURL: userDoc?.photoURL || currentUser.photoURL,
-            text: text,
-            createdAt: serverTimestamp()
-        });
-        const postSnap = await getDoc(doc(db, "posts", postId));
-        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
-            await addDoc(collection(db, "notifications"), {
-                targetUserId: postSnap.data().userId,
-                type: 'response',
-                text: `${userDoc?.displayName || 'Someone'} responded to your meetcast`,
-                read: false,
-                createdAt: serverTimestamp()
-            });
-        }
-        input.value = '';
-    } catch(e) { console.error(e); }
+  window.viewDetails = (id) => {
+      alert("Feature: Opens content detail view (Video Player / Image Viewer) using mediaUrl: " + id);
   };
 
-  // =================== NOTIFICATIONS (Instruction A.1) ===================
-  function setupNotificationsCount() {
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
-    onSnapshot(q, (snap) => {
-        const badge = document.getElementById('unreadBadge');
-        if(!snap.empty) {
-            badge.style.display = 'flex';
-            badge.innerText = snap.size;
-        } else {
-            badge.style.display = 'none';
-        }
-    });
-  }
-
-  window.openNotificationsModal = () => {
-    const modal = document.getElementById('notificationsModal');
-    const list = document.getElementById('notificationsList');
-    modal.style.display = 'flex';
-    list.innerHTML = '<div class="loading">Loading...</div>';
-    
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
-    
-    onSnapshot(q, (snap) => {
-        list.innerHTML = '';
-        if (snap.empty) {
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No notifications.</div>';
-            return;
-        }
-        snap.forEach(d => {
-            const n = d.data();
-            const id = d.id;
-            list.innerHTML += `
-                <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
-                    <div style="flex:1;">
-                        ${n.text}
-                        <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div>
-                    </div>
-                    <div class="notif-actions">
-                        ${!n.read ? `<i class="fas fa-check notif-btn" title="Mark as read" onclick="markNotifRead('${id}')"></i>` : ''}
-                        <i class="fas fa-trash notif-btn delete" title="Delete" onclick="deleteNotif('${id}')"></i>
-                    </div>
-                </div>
-            `;
-        });
-    });
-  };
-
-  window.markNotifRead = async (id) => {
-      await updateDoc(doc(db, "notifications", id), { read: true });
-  };
-
-  window.deleteNotif = async (id) => {
-      await deleteDoc(doc(db, "notifications", id));
-  };
-
-  // =================== ASSOCIATES ===================
-  window.openUsersModal = async () => {
-    document.getElementById('usersModal').style.display = 'flex';
-    const list = document.getElementById('usersList');
-    list.innerHTML = '<div class="loading">Loading users...</div>';
-    
-    const snap = await getDocs(collection(db, "users"));
-    let html = '';
-    
-    for (const userDoc of snap.docs) {
-        if (userDoc.id === currentUser.uid) continue;
-        const user = userDoc.data();
-        
-        const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
-        const isAssoc = assocSnap.exists();
-
-        html += `
-          <div class="user-item">
-             <div style="display:flex; align-items:center; gap:10px;">
-                ${getAvatarHTML(user.photoURL, user.displayName, 'small')}
-                <span onclick="viewProfile('${userDoc.id}')" style="cursor:pointer; font-weight:600;">${user.displayName || 'User'}</span>
-             </div>
-             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
-                onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
-                ${isAssoc ? 'Disassociate' : 'Associate'}
-             </button>
-          </div>
-        `;
-    }
-    list.innerHTML = html;
-  };
-
-  window.toggleAssociate = async (targetId, isCurrentlyAssociated) => {
-    try {
-        if (isCurrentlyAssociated) {
-            await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
-            await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
-            showMessage('Disassociated successfully');
-        } else {
-            await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), {
-                timestamp: serverTimestamp()
-            });
-            await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), {
-                followerId: currentUser.uid,
-                timestamp: serverTimestamp()
-            });
-            
-            const userData = await getUserDataWithCache(currentUser.uid);
-            await addDoc(collection(db, "notifications"), {
-                targetUserId: targetId,
-                type: 'associate',
-                text: `${userData?.displayName || 'Someone'} associated with you.`,
-                read: false,
-                createdAt: serverTimestamp()
-            });
-            showMessage('Associate added!');
-        }
-        window.openUsersModal(); 
-    } catch (e) {
-        console.error(e);
-        showMessage('Action failed', 'error');
-    }
-  };
-
-  // =================== POST CREATION & EDITING ===================
-  document.getElementById('postBtn').addEventListener('click', async () => {
-    const text = document.getElementById('postText').value;
-    const privacy = document.getElementById('privacy').value;
-    
-    if (!text && !editingPostId) return;
-
-    // EDIT MODE
-    if(editingPostId) {
-        try {
-            await updateDoc(doc(db, "posts", editingPostId), {
-                text: text,
-                privacy: privacy
-            });
-            showMessage('Meetcast updated!');
-            closeComposer();
-        } catch(e) { console.error(e); }
-        return;
-    }
-
-    // CREATE MODE
-    const fileInput = document.getElementById('postMedia');
-    let mediaUrl = null;
-    let mediaType = null;
-
-    if (fileInput.files.length) {
-        showMessage('Uploading media...', 'success');
-        mediaUrl = await uploadMedia(fileInput.files[0]);
-        mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
-    }
-
-    try {
-        const userData = await getUserDataWithCache(currentUser.uid);
-        await addDoc(collection(db, "posts"), {
-            userId: currentUser.uid,
-            userName: userData?.displayName || currentUser.displayName,
-            photoURL: userData?.photoURL || currentUser.photoURL,
-            text: text,
-            media: mediaUrl,
-            mediaType: mediaType,
-            privacy: privacy,
-            createdAt: serverTimestamp()
-        });
-        showMessage('Meetcast posted!');
-        closeComposer();
-    } catch (e) {
-        console.error(e);
-        showMessage('Error posting', 'error');
-    }
-  });
-
-  // Media Preview
-  document.getElementById('postMedia').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if(file) {
-          const url = URL.createObjectURL(file);
-          const preview = document.getElementById('mediaPreview');
-          if(file.type.startsWith('video')) {
-              preview.innerHTML = `<video src="${url}" controls style="width:100%; max-height:200px;"></video>`;
-          } else {
-              preview.innerHTML = `<img src="${url}" style="width:100%; max-height:200px; object-fit:contain;">`;
-          }
-      }
-  });
-
-  // Helper to reset and close modal
-  function closeComposer() {
-      document.getElementById('postModal').style.display = 'none';
-      document.getElementById('postText').value = '';
-      document.getElementById('postMedia').value = '';
-      document.getElementById('mediaPreview').innerHTML = '';
-      // Reset to Create Mode
-      editingPostId = null;
-      document.getElementById('modalTitle').innerText = "Create Meetcast";
-      document.getElementById('postBtn').innerText = "Post";
-      document.getElementById('postMedia').parentElement.style.display = 'flex';
-  }
-
-  // Modal Toggle Logic
-  document.getElementById('openComposer').onclick = () => {
-      editingPostId = null;
-      document.getElementById('modalTitle').innerText = "Create Meetcast";
-      document.getElementById('postBtn').innerText = "Post";
-      document.getElementById('postMedia').parentElement.style.display = 'flex';
-      document.getElementById('postModal').style.display = 'flex';
-  };
-
-  document.getElementById('closeModal').onclick = closeComposer;
-  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
-  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
-  document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
-  
-  document.getElementById('nightToggleBtn').onclick = () => {
-      document.body.classList.toggle('dark-mode');
-  };
-  
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
-  window.toggleMeetAI = () => {
-      const el = document.getElementById('meetaiAssistant');
-      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
-  }
-  window.closeMeetAI = () => document.getElementById('meetaiAssistant').style.display = 'none';
-  window.sendMeetAIMessage = () => {
-      const input = document.getElementById('meetaiInput');
-      const container = document.getElementById('meetaiMessages');
-      if(!input.value) return;
-      container.innerHTML += `<div class="meetai-message meetai-user">${input.value}</div>`;
-      setTimeout(() => {
-          container.innerHTML += `<div class="meetai-message meetai-bot">I can help you connect with associates or improve your profile!</div>`;
-          container.scrollTop = container.scrollHeight;
-      }, 1000);
-      input.value = '';
-  }
-
-  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
-  window.auth = auth;
+  // Dark mode toggle
+  document.getElementById('toggleDark').onclick = () => document.body.classList.toggle('dark-mode');
 
 </script>
 </body>
