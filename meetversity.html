@@ -338,9 +338,9 @@
   const auth = getAuth(app);
   window.auth = auth;
 
-  // --- CLOUDINARY CONFIG (REPLACE THESE!) ---
-  const CLOUD_NAME = "demo"; // Replace with your Cloudinary Cloud Name
-  const UPLOAD_PRESET = "docs_upload_example_us_preset"; // Replace with your Unsigned Upload Preset
+  // --- CLOUDINARY CONFIG (FIXED: Using config from profile.html) ---
+  const CLOUD_NAME = "dcwof2ngn"; // Replaced with correct Cloud Name
+  const UPLOAD_PRESET = "Meet_video"; // Replaced with correct Unsigned Upload Preset
 
   let currentUser = null;
   let currentType = 'long-video';
@@ -392,20 +392,40 @@
     });
   };
 
-  // --- CLOUDINARY UPLOAD HELPER ---
-  const uploadToCloudinary = async (file, resourceType) => {
+  // --- CLOUDINARY UPLOAD HELPER (FIXED: Added robust error checking) ---
+  const uploadToCloudinary = async (fileOrBase64, resourceType) => {
     const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
     const formData = new FormData();
-    formData.append("file", file);
+
+    if (fileOrBase64 instanceof File) {
+        formData.append("file", fileOrBase64);
+    } else if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:')) {
+        formData.append("file", fileOrBase64); // Base64 Data URL
+    } else {
+        throw new Error("Invalid file or Base64 string provided for upload.");
+    }
+
     formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
-      const response = await fetch(url, { method: "POST", body: formData });
-      const data = await response.json();
-      return data.secure_url;
+        const response = await fetch(url, { method: "POST", body: formData });
+        const data = await response.json();
+
+        // Check for Cloudinary's specific error object in the response
+        if (data.error) {
+            console.error("Cloudinary API Error:", data.error.message, data);
+            throw new Error(`Cloudinary Error: ${data.error.message}`);
+        }
+
+        if (!response.ok) {
+            console.error("HTTP Error Status:", response.status, response.statusText);
+            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+        }
+        
+        return data.secure_url;
     } catch (err) {
-      console.error("Upload failed", err);
-      throw err;
+        console.error("Upload failed in helper:", err.message || err);
+        throw err; // Re-throw for main submitCourse catch block
     }
   };
 
@@ -561,26 +581,35 @@
       fill.style.width = '20%';
 
       try {
-          // 1. Upload Thumbnail (Base64 -> Cloudinary)
+          // 1. Upload Thumbnail (Base64 -> Cloudinary) - Resource type is 'image'
           const thumbUrl = await uploadToCloudinary(thumbBase64, "image");
           fill.style.width = '40%';
 
           // 2. Upload Main Content (Video/PDF -> Cloudinary)
-          const resourceType = (currentType === 'document') ? 'image' : 'video'; // Cloudinary treats PDFs as images usually, or raw
-          // Note: Large videos might fail on Free Cloudinary tier via browser fetch due to size limits.
-          // For production, signed uploads or chunked uploads are needed.
-          const mediaUrl = await uploadToCloudinary(mediaFile, resourceType === 'image' && mediaFile.type === 'application/pdf' ? 'auto' : resourceType);
+          let mainResourceType;
+          if (currentType === 'long-video' || currentType === 'quick-video') {
+              mainResourceType = 'video';
+          } else if (currentType === 'document') {
+              mainResourceType = 'raw'; // Use 'raw' for document uploads like PDF
+          } else {
+              throw new Error("Invalid content type selected.");
+          }
+
+          // Use the correct resource type for the main media file
+          const mediaUrl = await uploadToCloudinary(mediaFile, mainResourceType); 
           fill.style.width = '70%';
 
           // 3. Upload Outline PDF if selected
           let outlineUrl = null;
           let outlineText = null;
-          const outlineType = document.querySelector('input[name="outlineType"]:checked').value;
           
-          if(currentType !== 'document') {
+          // Only attempt outline processing if it's not a document type
+          if(currentType !== 'document') { 
+              const outlineType = document.querySelector('input[name="outlineType"]:checked').value;
+              
               if(outlineType === 'file') {
                   const oFile = document.getElementById('cOutlineFile').files[0];
-                  if(oFile) outlineUrl = await uploadToCloudinary(oFile, "auto");
+                  if(oFile) outlineUrl = await uploadToCloudinary(oFile, "raw"); // Use 'raw' for outline PDF
               } else {
                   outlineText = document.getElementById('cOutlineText').value;
               }
@@ -593,7 +622,7 @@
               thumbnail: thumbUrl,
               mediaUrl: mediaUrl,
               outcomes: outcomes,
-              outlineType: outlineType,
+              outlineType: currentType !== 'document' ? (document.querySelector('input[name="outlineType"]:checked').value) : null,
               outlineUrl: outlineUrl,
               outlineText: outlineText,
               hasCert: document.getElementById('cCert').checked,
@@ -609,8 +638,9 @@
           closeCreateModal();
 
       } catch(e) {
-          console.error(e);
-          alert("Upload failed. Check console. (Cloudinary config might be missing)");
+          console.error("Final Submission Error:", e);
+          // Show the specific error message caught by the robust helper function
+          alert(`Upload failed: ${e.message || "Please check console for details."}`);
       } finally {
           btn.innerText = "Post Content";
           btn.disabled = false;
