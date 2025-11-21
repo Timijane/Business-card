@@ -132,6 +132,7 @@ body {
   border-color: var(--error);
 }
 
+/* === PASSWORD TOGGLE CHANGES START === */
 .password-toggle {
   position: absolute;
   right: 10px;
@@ -140,10 +141,19 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Slightly larger for better tap target */
   color: var(--text-light);
   z-index: 2;
+  padding: 0; /* Remove default padding */
+  transition: color 0.2s;
+  /* Key change: Ensure the button doesn't take the focus, preventing the "blue" outline/overlay on click */
+  outline: none; 
 }
+
+.password-toggle:hover {
+  color: var(--primary); /* Visual feedback on hover */
+}
+/* === PASSWORD TOGGLE CHANGES END === */
 
 select.form-input {
   appearance: none;
@@ -283,7 +293,6 @@ button:disabled {
 </head>
 <body>
 
-<!-- LOGO HERO -->
 <div class="logo-container">
   <div class="logo-icon">
     <div class="logo-stroke logo-black"></div>
@@ -295,12 +304,10 @@ button:disabled {
   <div class="tagline">Where People and Opportunity Connect</div>
 </div>
 
-<!-- AUTH CARD -->
 <div class="form-card">
   <h2 id="formTitle">Login to MEET</h2>
   <div id="messageContainer"></div>
 
-  <!-- Login Form -->
   <form id="loginForm">
     <div class="form-group">
       <label class="form-label" for="loginEmail">Email Address</label>
@@ -325,7 +332,6 @@ button:disabled {
     </div>
   </form>
 
-  <!-- Signup Form -->
   <form id="signupForm" style="display: none;">
     <div class="form-group">
       <label class="form-label" for="signupFullName">Full Name</label>
@@ -388,7 +394,6 @@ button:disabled {
     </div>
   </form>
 
-  <!-- Forgot Password Form -->
   <form id="forgotPasswordForm" style="display: none;">
     <div class="form-group">
       <label class="form-label" for="forgotPasswordEmail">Email Address</label>
@@ -404,7 +409,6 @@ button:disabled {
   </form>
 </div>
 
-<!-- Firebase SDK & Logic -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
@@ -502,13 +506,25 @@ function sanitizeFormInputs() {
 function setupPasswordToggle(passwordInputId, toggleButtonId) {
   const passwordInput = document.getElementById(passwordInputId);
   const toggleButton = document.getElementById(toggleButtonId);
+  
+  // *** KEY CHANGE FOR SMOOTHER TOGGLE ***
+  // Prevent the button from taking focus on click (which can cause the visual "blue" flash/cover).
+  // The mousedown event fires before the click event and before the input loses focus.
+  toggleButton.addEventListener('mousedown', (e) => {
+    e.preventDefault(); 
+  });
+
   toggleButton.addEventListener('click', () => {
     const type = passwordInput.type === 'password' ? 'text' : 'password';
     passwordInput.type = type;
+    
+    // Change icon to reflect current state
     toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
+    
+    // Keep focus on the password input for better UX (optional but recommended)
+    passwordInput.focus();
   });
 }
-
 // Setup all password toggles
 setupPasswordToggle('loginPassword', 'loginPasswordToggle');
 setupPasswordToggle('signupPassword', 'signupPasswordToggle');
@@ -660,6 +676,8 @@ function showForm(formToShow) {
 showSignup.addEventListener('click', e => {
   e.preventDefault();
   showForm(signupForm);
+  // Ensure real-time validation is set up when form is shown
+  setupRealTimeValidation(); 
 });
 
 showLogin.addEventListener('click', e => {
@@ -902,7 +920,9 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Initialize real-time validation
-setupRealTimeValidation();
+// Note: This is now called within showSignup to ensure it runs only when the form is visible/relevant
+// but for initial load of the script, it's safer to keep it here if Signup is the default view. 
+// Since Login is the default view, validation will be set up when the Signup form is requested.
 </script>
 </body>
 </html>
