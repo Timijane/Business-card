@@ -191,7 +191,7 @@
       <div class="header-section">
         <h1 class="page-title">ACADEMY</h1>
         <button class="create-btn" onclick="openCreateModal()">
-          <i class="fas fa-plus"></i> Create Course
+          <i class="fas fa-plus"></i> Create Content
         </button>
       </div>
 
@@ -210,7 +210,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-val" id="statDocs">0</div>
-          <div class="stat-lbl">Docs</div>
+          <div class="stat-lbl">Notes</div>
         </div>
       </div>
 
@@ -220,7 +220,7 @@
       <div class="section-head"><h2>Quick Videos</h2></div>
       <div class="grid-layout" id="videosFeed"></div>
 
-      <div class="section-head"><h2>Documents</h2></div>
+      <div class="section-head"><h2>Notes & Documents</h2></div>
       <div class="grid-layout" id="docsFeed"></div>
     </div>
   </div>
@@ -236,7 +236,7 @@
       <div class="type-tabs">
         <button class="type-tab active" onclick="setType('long-video', this)">Full Course</button>
         <button class="type-tab" onclick="setType('quick-video', this)">Quick Video</button>
-        <button class="type-tab" onclick="setType('document', this)">Document (PDF)</button>
+        <button class="type-tab" onclick="setType('document', this)">Document (Picture of Note)</button>
       </div>
 
       <form id="createForm">
@@ -259,7 +259,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Duration</label>
-            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 15 Pages" required>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 1 Image" required>
           </div>
         </div>
 
@@ -268,39 +268,29 @@
           <div class="file-drop" onclick="document.getElementById('cThumb').click()">
             <i class="fas fa-image" style="font-size:20px; color:var(--secondary-text);"></i>
             <p style="font-size:11px; color:var(--secondary-text); margin-top:5px;">Click to upload thumbnail</p>
-            <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)">
+            <input type="file" id="cThumb" accept="image/*" style="display:none" onchange="previewThumb(this)" required>
           </div>
           <img id="thumbPreview" style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:none; margin-top:10px;">
         </div>
 
         <div class="form-group">
           <label class="form-label" id="mediaLabel">Upload Video File</label>
-          <input type="file" id="cMediaFile" class="form-input" accept="video/*">
+          <input type="file" id="cMediaFile" class="form-input" accept="video/*" required>
           <div class="progress-bar" id="mediaProgress">
               <div class="progress-fill" id="mediaProgressFill"></div>
           </div>
           <small style="color:var(--secondary-text); font-size:10px;">File will be optimized via Cloudinary.</small>
         </div>
 
-        <div class="form-group" id="outlineSection">
-          <label class="form-label">Course Outline</label>
-          <div style="display:flex; gap:10px; margin-bottom:10px; font-size:13px;">
-            <label><input type="radio" name="outlineType" value="text" checked onclick="toggleOutline('text')"> Write Text</label>
-            <label><input type="radio" name="outlineType" value="file" onclick="toggleOutline('file')"> Upload PDF</label>
-          </div>
-          
-          <textarea id="cOutlineText" class="form-textarea" placeholder="Week 1: Introduction..."></textarea>
-          <input type="file" id="cOutlineFile" class="form-input" accept=".pdf" style="display:none;">
-        </div>
-
         <div class="form-group" id="learnSection">
-          <label class="form-label">What you'll learn</label>
+          <label class="form-label">Course Outline (What you'll learn)</label>
           <div id="learnContainer">
              <div class="learn-item">
                  <input type="text" class="form-input learn-input" placeholder="e.g. Master CSS Grid">
+                 <button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>
              </div>
           </div>
-          <button type="button" onclick="addLearnItem()" style="background:none; border:none; color:var(--primary); font-size:12px; cursor:pointer;">+ Add another outcome</button>
+          <button type="button" onclick="addLearnItem()" style="background:none; border:none; color:var(--primary); font-size:12px; cursor:pointer;">+ Add lesson/outcome</button>
         </div>
 
         <div class="form-group">
@@ -338,19 +328,20 @@
   const auth = getAuth(app);
   window.auth = auth;
 
-  // --- CLOUDINARY CONFIG (FIXED: Using config from profile.html) ---
-  const CLOUD_NAME = "dcwof2ngn"; // Replaced with correct Cloud Name
-  const UPLOAD_PRESET = "Meet_video"; // Replaced with correct Unsigned Upload Preset
+  // --- CLOUDINARY CONFIG (UNIFIED to Match Working Feed) ---
+  const CLOUD_NAME = "dcwof2ngn"; 
+  const UPLOAD_PRESET = "Meet_video"; // Unsigned Upload Preset
+  // *** SIMPLIFIED URL: Use the generic upload endpoint that Cloudinary automatically routes ***
+  const CLOUDINARY_GENERIC_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; 
 
   let currentUser = null;
   let currentType = 'long-video';
-  let thumbBase64 = null; // For reduced memory thumbnail
+  let thumbBase64 = null; 
 
   // --- AUTH & USER PROFILE ---
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      // Fetch extended profile if available
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
       
@@ -363,11 +354,10 @@
       }
     } else {
       document.getElementById('userNameDisplay').innerText = "Guest";
-      // In real app, redirect to login
     }
   });
 
-  // --- COMPRESSION LOGIC (Meetrader Style) ---
+  // --- COMPRESSION LOGIC (For Thumbnails) ---
   const compressImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -376,7 +366,6 @@
         img.src = e.target.result;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          // Max dim 500px for thumbnails to save memory
           const MAX = 500;
           const scale = Math.min(MAX / img.width, 1);
           canvas.width = img.width * scale;
@@ -384,7 +373,6 @@
           
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          // Output low quality JPEG
           resolve(canvas.toDataURL('image/jpeg', 0.6));
         };
       };
@@ -392,9 +380,8 @@
     });
   };
 
-  // --- CLOUDINARY UPLOAD HELPER (FIXED: Added robust error checking) ---
-  const uploadToCloudinary = async (fileOrBase64, resourceType) => {
-    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
+  // --- CLOUDINARY UPLOAD HELPER (SIMPLIFIED: Uses the generic URL) ---
+  const uploadToCloudinary = async (fileOrBase64) => {
     const formData = new FormData();
 
     if (fileOrBase64 instanceof File) {
@@ -406,30 +393,25 @@
     }
 
     formData.append("upload_preset", UPLOAD_PRESET);
-
+    
+    // *** Use the generic URL, trusting Cloudinary's content detection, like the Feed ***
     try {
-        const response = await fetch(url, { method: "POST", body: formData });
+        const response = await fetch(CLOUDINARY_GENERIC_URL, { method: "POST", body: formData });
         const data = await response.json();
 
-        // Check for Cloudinary's specific error object in the response
-        if (data.error) {
-            console.error("Cloudinary API Error:", data.error.message, data);
-            throw new Error(`Cloudinary Error: ${data.error.message}`);
-        }
-
-        if (!response.ok) {
-            console.error("HTTP Error Status:", response.status, response.statusText);
-            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+        if (data.error || !response.ok) {
+            console.error("Upload Error:", data.error?.message || response.statusText, data);
+            throw new Error(`Cloudinary Error: ${data.error?.message || 'Upload failed.'}`);
         }
         
         return data.secure_url;
     } catch (err) {
         console.error("Upload failed in helper:", err.message || err);
-        throw err; // Re-throw for main submitCourse catch block
+        throw err;
     }
   };
 
-  // --- FEED LOGIC ---
+  // --- FEED & UI LOGIC (Remains the same) ---
   const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
   onSnapshot(q, (snapshot) => {
     const courses = [], videos = [], docs = [];
@@ -443,7 +425,6 @@
       else docs.push(data);
     });
 
-    // Update stats
     document.getElementById('statCourses').innerText = courses.length;
     document.getElementById('statVideos').innerText = videos.length;
     document.getElementById('statDocs').innerText = docs.length;
@@ -463,7 +444,6 @@
       const isJoined = currentUser && item.learners?.includes(currentUser.uid);
       const lCount = item.learners ? item.learners.length : 0;
       
-      // Poster Image Logic
       const posterImg = item.instructorPhoto 
         ? `<img src="${item.instructorPhoto}">` 
         : `<div style="width:100%;height:100%;background:#0080FF;color:white;display:flex;align-items:center;justify-content:center;">${item.instructorName?.[0]||'U'}</div>`;
@@ -499,15 +479,17 @@
   window.openCreateModal = () => {
       if(!currentUser) { alert("Login required"); return; }
       document.getElementById('createModal').style.display = 'flex';
+      setType(currentType, document.querySelector(`.type-tab[onclick*="${currentType}"]`));
   };
   window.closeCreateModal = () => {
       document.getElementById('createModal').style.display = 'none';
       document.getElementById('createForm').reset();
       thumbBase64 = null;
       document.getElementById('thumbPreview').style.display = 'none';
+      document.getElementById('mediaProgress').style.display = 'none';
+      setType('long-video', document.querySelector(`.type-tab[onclick*="long-video"]`));
   };
 
-  // Form Tabs & toggles
   window.setType = (type, btn) => {
       currentType = type;
       document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -515,40 +497,35 @@
       
       const mediaInput = document.getElementById('cMediaFile');
       const label = document.getElementById('mediaLabel');
+      const learnSection = document.getElementById('learnSection');
       
       if(type === 'document') {
-          label.innerText = "Upload PDF Document";
-          mediaInput.accept = ".pdf";
-          document.getElementById('outlineSection').style.display = 'none'; // Docs don't need outline usually
+          label.innerText = "Upload Picture of Note/Document";
+          mediaInput.accept = "image/*";
+          document.getElementById('cDuration').placeholder = 'e.g. 1 Image';
+          learnSection.style.display = 'none'; 
+          document.getElementById('cCert').parentElement.style.display = 'none';
       } else {
           label.innerText = "Upload Video File";
           mediaInput.accept = "video/*";
-          document.getElementById('outlineSection').style.display = 'block';
+          document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
+          learnSection.style.display = 'block'; 
+          document.getElementById('cCert').parentElement.style.display = 'flex';
       }
-  };
-
-  window.toggleOutline = (val) => {
-      if(val === 'text') {
-          document.getElementById('cOutlineText').style.display = 'block';
-          document.getElementById('cOutlineFile').style.display = 'none';
-      } else {
-          document.getElementById('cOutlineText').style.display = 'none';
-          document.getElementById('cOutlineFile').style.display = 'block';
-      }
+      mediaInput.value = ''; 
   };
 
   window.addLearnItem = () => {
       const div = document.createElement('div');
       div.className = 'learn-item';
-      div.innerHTML = `<input type="text" class="form-input learn-input" placeholder="Outcome..."><button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>`;
+      div.innerHTML = `<input type="text" class="form-input learn-input" placeholder="Lesson/Outcome..."><button type="button" class="btn-icon" onclick="this.parentElement.remove()">&times;</button>`;
       document.getElementById('learnContainer').appendChild(div);
   };
 
-  // Thumbnail Compression Preview
   window.previewThumb = async (input) => {
       if (input.files && input.files[0]) {
           const compressedDataUrl = await compressImage(input.files[0]);
-          thumbBase64 = compressedDataUrl; // Store compressed string for upload
+          thumbBase64 = compressedDataUrl;
           const preview = document.getElementById('thumbPreview');
           preview.src = thumbBase64;
           preview.style.display = 'block';
@@ -567,10 +544,12 @@
       
       const mediaFile = document.getElementById('cMediaFile').files[0];
       
-      // Gather "What you'll learn"
       const learnInputs = document.querySelectorAll('.learn-input');
       const outcomes = [];
-      learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
+      if(currentType !== 'document') {
+          learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
+          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for the course."); return; }
+      }
 
       if(!title || !mediaFile) { alert("Title and Media File required"); return; }
       if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
@@ -578,54 +557,24 @@
       btn.innerText = "Uploading...";
       btn.disabled = true;
       progress.style.display = 'block';
-      fill.style.width = '20%';
+      fill.style.width = '10%';
 
       try {
-          // 1. Upload Thumbnail (Base64 -> Cloudinary) - Resource type is 'image'
-          const thumbUrl = await uploadToCloudinary(thumbBase64, "image");
+          // 1. Upload Thumbnail (Base64 -> Cloudinary) - Should work as it's an image upload.
+          const thumbUrl = await uploadToCloudinary(thumbBase64);
           fill.style.width = '40%';
 
-          // 2. Upload Main Content (Video/PDF -> Cloudinary)
-          let mainResourceType;
-          if (currentType === 'long-video' || currentType === 'quick-video') {
-              mainResourceType = 'video';
-          } else if (currentType === 'document') {
-              mainResourceType = 'raw'; // Use 'raw' for document uploads like PDF
-          } else {
-              throw new Error("Invalid content type selected.");
-          }
+          // 2. Upload Main Content (Video/Image -> Cloudinary) - This is the line that must now work.
+          const mediaUrl = await uploadToCloudinary(mediaFile); 
+          fill.style.width = '80%';
 
-          // Use the correct resource type for the main media file
-          const mediaUrl = await uploadToCloudinary(mediaFile, mainResourceType); 
-          fill.style.width = '70%';
-
-          // 3. Upload Outline PDF if selected
-          let outlineUrl = null;
-          let outlineText = null;
-          
-          // Only attempt outline processing if it's not a document type
-          if(currentType !== 'document') { 
-              const outlineType = document.querySelector('input[name="outlineType"]:checked').value;
-              
-              if(outlineType === 'file') {
-                  const oFile = document.getElementById('cOutlineFile').files[0];
-                  if(oFile) outlineUrl = await uploadToCloudinary(oFile, "raw"); // Use 'raw' for outline PDF
-              } else {
-                  outlineText = document.getElementById('cOutlineText').value;
-              }
-          }
-          fill.style.width = '90%';
-
-          // 4. Save to Firestore
+          // 3. Save to Firestore
           await addDoc(collection(db, "meetversity_courses"), {
               title, category, duration, type: currentType,
               thumbnail: thumbUrl,
               mediaUrl: mediaUrl,
               outcomes: outcomes,
-              outlineType: currentType !== 'document' ? (document.querySelector('input[name="outlineType"]:checked').value) : null,
-              outlineUrl: outlineUrl,
-              outlineText: outlineText,
-              hasCert: document.getElementById('cCert').checked,
+              hasCert: currentType !== 'document' ? document.getElementById('cCert').checked : false,
               instructorId: currentUser.uid,
               instructorName: currentUser.displayName || 'Instructor',
               instructorPhoto: currentUser.photoURL || null,
@@ -639,8 +588,8 @@
 
       } catch(e) {
           console.error("Final Submission Error:", e);
-          // Show the specific error message caught by the robust helper function
-          alert(`Upload failed: ${e.message || "Please check console for details."}`);
+          // *** If the error is still 'missing permission', the issue is 100% on the Cloudinary preset 'Meet_video'. ***
+          alert(`Upload failed: ${e.message || "Please check console for details."}. CRITICAL: If still failing, check Cloudinary preset 'Meet_video' settings!`);
       } finally {
           btn.innerText = "Post Content";
           btn.disabled = false;
@@ -656,7 +605,7 @@
   };
 
   window.viewDetails = (id) => {
-      alert("Feature: Opens course detail view (Video Player / PDF Viewer) using mediaUrl: " + id);
+      alert("Feature: Opens content detail view (Video Player / Image Viewer) using mediaUrl: " + id);
   };
 
   // Dark mode toggle
