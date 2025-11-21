@@ -331,7 +331,7 @@
   // --- CLOUDINARY CONFIG (UNIFIED with Feed Settings) ---
   const CLOUD_NAME = "dcwof2ngn"; // Cloud name
   const UPLOAD_PRESET = "Meet_video"; // Unsigned Upload Preset (must allow image/video)
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; // Generic upload URL
+  // Removed CLOUDINARY_URL fixed variable, now it's generated dynamically.
 
   let currentUser = null;
   let currentType = 'long-video';
@@ -354,7 +354,7 @@
       }
     } else {
       document.getElementById('userNameDisplay').innerText = "Guest";
-      // In real app, redirect to login
+      // In a real app, you would redirect to login here
     }
   });
 
@@ -382,8 +382,13 @@
     });
   };
 
-  // --- CLOUDINARY UPLOAD HELPER (Unified for Image/Video/Base64) ---
-  const uploadToCloudinary = async (fileOrBase64) => {
+  // --- CLOUDINARY UPLOAD HELPER (FIXED: Dynamic Resource Type URL) ---
+  /**
+   * Uploads file or base64 to Cloudinary using the specified resourceType endpoint.
+   * @param {File|string} fileOrBase64 - The file object or Base64 data URL.
+   * @param {string} resourceType - 'image' or 'video'. Determines the API endpoint.
+   */
+  const uploadToCloudinary = async (fileOrBase64, resourceType = 'image') => {
     const formData = new FormData();
 
     if (fileOrBase64 instanceof File) {
@@ -395,9 +400,12 @@
     }
 
     formData.append("upload_preset", UPLOAD_PRESET);
+    
+    // *** CRITICAL FIX: Construct the URL dynamically with the resourceType ***
+    const dynamicUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
 
     try {
-        const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+        const response = await fetch(dynamicUrl, { method: "POST", body: formData });
         const data = await response.json();
 
         // Check for Cloudinary's specific error object in the response
@@ -483,6 +491,7 @@
   window.openCreateModal = () => {
       if(!currentUser) { alert("Login required"); return; }
       document.getElementById('createModal').style.display = 'flex';
+      // Ensure UI reflects current type on open
       setType(currentType, document.querySelector(`.type-tab[onclick*="${currentType}"]`));
   };
   window.closeCreateModal = () => {
@@ -512,6 +521,7 @@
           document.getElementById('cDuration').placeholder = 'e.g. 1 Image';
           learnSection.style.display = 'none'; 
           document.getElementById('cCert').parentElement.style.display = 'none';
+          mediaInput.required = true;
       } else {
           // Video types
           label.innerText = "Upload Video File";
@@ -519,6 +529,7 @@
           document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
           learnSection.style.display = 'block'; 
           document.getElementById('cCert').parentElement.style.display = 'flex';
+          mediaInput.required = true;
       }
       mediaInput.value = ''; // Reset file input
   };
@@ -565,19 +576,29 @@
       if(!title || !mediaFile) { alert("Title and Media File required"); return; }
       if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
 
+      // *** NEW LOGIC: Determine the correct resource type for the main media ***
+      let mediaResourceType = 'image';
+      if (currentType === 'long-video' || currentType === 'quick-video') {
+          mediaResourceType = 'video';
+      } else if (currentType === 'document') {
+          // 'document' is now a picture of a note, so it's an image.
+          mediaResourceType = 'image'; 
+      }
+      // Thumbnail is always an image (Base64)
+      const thumbResourceType = 'image'; 
+
       btn.innerText = "Uploading...";
       btn.disabled = true;
       progress.style.display = 'block';
       fill.style.width = '10%';
 
       try {
-          // 1. Upload Thumbnail (Base64 -> Cloudinary) 
-          const thumbUrl = await uploadToCloudinary(thumbBase64);
+          // 1. Upload Thumbnail (Base64 -> Cloudinary, resourceType='image')
+          const thumbUrl = await uploadToCloudinary(thumbBase64, thumbResourceType);
           fill.style.width = '40%';
 
-          // 2. Upload Main Content (Video/Image -> Cloudinary)
-          // Since we are using the unified Feed approach, we use the generic upload URL
-          const mediaUrl = await uploadToCloudinary(mediaFile); 
+          // 2. Upload Main Content (Video/Image -> Cloudinary, resourceType is dynamic)
+          const mediaUrl = await uploadToCloudinary(mediaFile, mediaResourceType); 
           fill.style.width = '80%';
 
           // 3. Save to Firestore
