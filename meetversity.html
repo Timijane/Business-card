@@ -210,7 +210,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-val" id="statDocs">0</div>
-          <div class="stat-lbl">Notes</div>
+          <div class="stat-lbl">Notes/Docs</div>
         </div>
       </div>
 
@@ -234,16 +234,22 @@
     </div>
     <div class="modal-body">
       <div class="type-tabs">
-        <button class="type-tab active" onclick="setType('long-video', this)">Full Course</button>
+        <button class="type-tab active" onclick="setType('long-video', this)">Full Course (Video)</button>
         <button class="type-tab" onclick="setType('quick-video', this)">Quick Video</button>
-        <button class="type-tab" onclick="setType('document', this)">Document (Picture of Note)</button>
+        <button class="type-tab" onclick="setType('document', this)">Document (PDF/Note)</button>
       </div>
 
       <form id="createForm">
         <div class="form-group">
-          <label class="form-label">Title</label>
+          <label class="form-label">Course Title</label>
           <input type="text" id="cTitle" class="form-input" placeholder="e.g. Advanced React Patterns" required>
         </div>
+        
+        <div class="form-group">
+          <label class="form-label">Description / Summary</label>
+          <textarea id="cDescription" class="form-textarea" placeholder="Briefly describe what this content covers (min 10 chars)" required></textarea>
+        </div>
+
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
           <div class="form-group">
@@ -258,10 +264,31 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Duration</label>
-            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 1 Image" required>
+            <label class="form-label">Duration / File Count</label>
+            <input type="text" id="cDuration" class="form-input" placeholder="e.g. 2h 30m or 1 PDF" required>
           </div>
         </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <div class="form-group">
+            <label class="form-label">Price ($)</label>
+            <input type="number" id="cPrice" class="form-input" placeholder="e.g. 9.99 (0 for free)" value="0" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select id="cCurrency" class="form-select">
+              <option>USD</option>
+              <option>NGN</option>
+              <option>EUR</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Instructor Bio (Optional)</label>
+          <textarea id="cInstructorBio" class="form-textarea" placeholder="A short bio for your course page (max 500 chars)"></textarea>
+        </div>
+
 
         <div class="form-group">
           <label class="form-label">Cover Image (Compressed)</label>
@@ -279,7 +306,7 @@
           <div class="progress-bar" id="mediaProgress">
               <div class="progress-fill" id="mediaProgressFill"></div>
           </div>
-          <small style="color:var(--secondary-text); font-size:10px;">File will be optimized via Cloudinary.</small>
+          <small style="color:var(--secondary-text); font-size:10px;">File will be uploaded via Cloudinary.</small>
         </div>
 
         <div class="form-group" id="learnSection">
@@ -328,10 +355,9 @@
   const auth = getAuth(app);
   window.auth = auth;
 
-  // --- CLOUDINARY CONFIG (UNIFIED to Match Working Feed) ---
+  // --- CLOUDINARY CONFIG (Set to use generic endpoint for multi-type files) ---
   const CLOUD_NAME = "dcwof2ngn"; 
   const UPLOAD_PRESET = "Meet_video"; // Unsigned Upload Preset
-  // *** SIMPLIFIED URL: Use the generic upload endpoint that Cloudinary automatically routes ***
   const CLOUDINARY_GENERIC_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; 
 
   let currentUser = null;
@@ -380,21 +406,20 @@
     });
   };
 
-  // --- CLOUDINARY UPLOAD HELPER (SIMPLIFIED: Uses the generic URL) ---
+  // --- CLOUDINARY UPLOAD HELPER (Uses generic URL for multi-type files) ---
   const uploadToCloudinary = async (fileOrBase64) => {
     const formData = new FormData();
 
     if (fileOrBase64 instanceof File) {
         formData.append("file", fileOrBase64);
     } else if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:')) {
-        formData.append("file", fileOrBase64); // Base64 Data URL
+        formData.append("file", fileOrBase64); // Base64 Data URL for thumbnail
     } else {
         throw new Error("Invalid file or Base64 string provided for upload.");
     }
 
     formData.append("upload_preset", UPLOAD_PRESET);
     
-    // *** Use the generic URL, trusting Cloudinary's content detection, like the Feed ***
     try {
         const response = await fetch(CLOUDINARY_GENERIC_URL, { method: "POST", body: formData });
         const data = await response.json();
@@ -411,7 +436,7 @@
     }
   };
 
-  // --- FEED & UI LOGIC (Remains the same) ---
+  // --- FEED & UI LOGIC ---
   const q = query(collection(db, "meetversity_courses"), orderBy("createdAt", "desc"));
   onSnapshot(q, (snapshot) => {
     const courses = [], videos = [], docs = [];
@@ -490,6 +515,7 @@
       setType('long-video', document.querySelector(`.type-tab[onclick*="long-video"]`));
   };
 
+  // Set file input based on content type
   window.setType = (type, btn) => {
       currentType = type;
       document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -500,12 +526,14 @@
       const learnSection = document.getElementById('learnSection');
       
       if(type === 'document') {
-          label.innerText = "Upload Picture of Note/Document";
-          mediaInput.accept = "image/*";
-          document.getElementById('cDuration').placeholder = 'e.g. 1 Image';
+          // Document: accepts PDF, common document formats, and image files (for notes/diagrams)
+          label.innerText = "Upload Document (PDF, Image, or DOC)";
+          mediaInput.accept = "image/*, application/pdf, .doc, .docx";
+          document.getElementById('cDuration').placeholder = 'e.g. 1 PDF or 3 Images';
           learnSection.style.display = 'none'; 
           document.getElementById('cCert').parentElement.style.display = 'none';
       } else {
+          // Video types: accepts video files
           label.innerText = "Upload Video File";
           mediaInput.accept = "video/*";
           document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
@@ -538,20 +566,34 @@
       const progress = document.getElementById('mediaProgress');
       const fill = document.getElementById('mediaProgressFill');
       
+      // Get all new fields
       const title = document.getElementById('cTitle').value;
+      const description = document.getElementById('cDescription').value;
       const category = document.getElementById('cCategory').value;
       const duration = document.getElementById('cDuration').value;
+      const price = parseFloat(document.getElementById('cPrice').value);
+      const currency = document.getElementById('cCurrency').value;
+      const instructorBio = document.getElementById('cInstructorBio').value;
       
       const mediaFile = document.getElementById('cMediaFile').files[0];
       
+      // Validation checks
+      if(!title || !mediaFile || !description || isNaN(price) || price < 0) {
+        alert("Please fill in all required fields (Title, Description, Price, Media File).");
+        return;
+      }
+      if(description.length < 10) {
+        alert("Description must be at least 10 characters long.");
+        return;
+      }
+
       const learnInputs = document.querySelectorAll('.learn-input');
       const outcomes = [];
       if(currentType !== 'document') {
           learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
-          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for the course."); return; }
+          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for video content."); return; }
       }
 
-      if(!title || !mediaFile) { alert("Title and Media File required"); return; }
       if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
 
       btn.innerText = "Uploading...";
@@ -560,17 +602,24 @@
       fill.style.width = '10%';
 
       try {
-          // 1. Upload Thumbnail (Base64 -> Cloudinary) - Should work as it's an image upload.
+          // 1. Upload Thumbnail (Base64 -> Cloudinary)
           const thumbUrl = await uploadToCloudinary(thumbBase64);
           fill.style.width = '40%';
 
-          // 2. Upload Main Content (Video/Image -> Cloudinary) - This is the line that must now work.
+          // 2. Upload Main Content (Video/Image/PDF -> Cloudinary)
           const mediaUrl = await uploadToCloudinary(mediaFile); 
           fill.style.width = '80%';
 
           // 3. Save to Firestore
           await addDoc(collection(db, "meetversity_courses"), {
-              title, category, duration, type: currentType,
+              title, 
+              description, // New field
+              category, 
+              duration, 
+              price, // New field
+              currency, // New field
+              instructorBio: instructorBio || null, // New field
+              type: currentType,
               thumbnail: thumbUrl,
               mediaUrl: mediaUrl,
               outcomes: outcomes,
@@ -588,8 +637,7 @@
 
       } catch(e) {
           console.error("Final Submission Error:", e);
-          // *** If the error is still 'missing permission', the issue is 100% on the Cloudinary preset 'Meet_video'. ***
-          alert(`Upload failed: ${e.message || "Please check console for details."}. CRITICAL: If still failing, check Cloudinary preset 'Meet_video' settings!`);
+          alert(`Upload failed: ${e.message || "An unknown error occurred."}`);
       } finally {
           btn.innerText = "Post Content";
           btn.disabled = false;
@@ -605,11 +653,16 @@
   };
 
   window.viewDetails = (id) => {
-      alert("Feature: Opens content detail view (Video Player / Image Viewer) using mediaUrl: " + id);
+      alert("Feature: Opens content detail view (Video Player / Document Viewer) for course ID: " + id);
   };
 
   // Dark mode toggle
   document.getElementById('toggleDark').onclick = () => document.body.classList.toggle('dark-mode');
+
+  // Initialize form to correct state on load
+  document.addEventListener('DOMContentLoaded', () => {
+    setType(currentType, document.querySelector(`.type-tab[onclick*="long-video"]`));
+  });
 
 </script>
 </body>
