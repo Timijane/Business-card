@@ -22,6 +22,8 @@
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
     --success: #10B981;
     --heart-color: #FF4136; /* Added for Love button */
+    /* NEW: Course Details Blue Color */
+    --detail-blue: #007bff; 
   }
 
   body.dark-mode {
@@ -138,6 +140,19 @@
 
   .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
   .btn-join.joined { background: var(--success); cursor: default; }
+
+  /* NEW: Course Details Button Style */
+  .btn-course-details {
+    flex: 1;
+    background: var(--detail-blue); /* Blue background */
+    color: white; 
+    border: none; /* No border for a solid look */
+    padding: 6px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    font-size: 13px;
+  }
   
   /* Modal */
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
@@ -220,8 +235,8 @@
     <div class="meetversity-container">
       <div class="header-section">
         <h1 class="page-title">ACADEMY</h1>
-        <button class="create-btn" onclick="openCreateModal()">
-          <i class="fas fa-plus"></i> Create Content
+        <button class="create-btn" onclick="window.openCreateModal()">
+          <i class="fas fa-plus"></i> Create Course 
         </button>
       </div>
 
@@ -469,6 +484,10 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
   window.auth = auth;
+  
+  // Expose modal functions globally for inline HTML calls (Error 1 fix)
+  window.openCreateModal = () => { document.getElementById('createModal').style.display = 'flex'; };
+  window.closeCreateModal = () => { document.getElementById('createModal').style.display = 'none'; document.getElementById('createForm').reset(); document.getElementById('thumbPreview').style.display = 'none'; thumbBase64 = null; };
 
   // --- CLOUDINARY CONFIG (Set to use generic endpoint for multi-type files) ---
   const CLOUD_NAME = "dcwof2ngn"; 
@@ -600,18 +619,22 @@
         ? `<img src="${item.instructorPhoto}" style="width:100%;height:100%;object-fit:cover;">` 
         : `<div style="width:100%;height:100%;background:#0080FF;color:white;display:flex;align-items:center;justify-content:center;">${item.instructorName?.[0]||'U'}</div>`;
 
-      let actionButton;
+      let actionButtons;
       let hasCertificate = item.hasCert && item.type !== 'document'; // Certificate logic (Req 5.3)
 
       if (item.type === 'long-video') {
-          // Full Course: Join Class button
-          actionButton = `<button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
-              ${isJoined ? 'Enrolled' : 'Join Class'}
-            </button>`;
+          // Full Course: ADDED Course Details button (Error 2 Fix)
+          actionButtons = `
+            <button class="btn-course-details" onclick="viewDetails('${item.id}')">Course Details</button>
+            <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
+              ${isJoined ? 'Enrolled' : 'Enroll'}
+            </button>
+          `;
+          hasCertificate = item.hasCert; // Only for long-video now
       } else {
-          // Quick Video / Document: Details button (Req 5.3)
-          actionButton = `<button class="btn-detail" onclick="viewDetails('${item.id}')">Details</button>`;
-          hasCertificate = item.hasCert && item.type === 'quick-video'; // Quick video can have cert, Document cannot
+          // Quick Video / Document: Only Details button 
+          actionButtons = `<button class="btn-detail" onclick="viewDetails('${item.id}')">Details</button>`;
+          hasCertificate = item.hasCert && item.type === 'quick-video'; 
       }
 
       const div = document.createElement('div');
@@ -636,7 +659,7 @@
              <button class="btn-love ${isLoved ? 'loved' : ''}" onclick="toggleLove('${item.id}')">
                 <i class="fas fa-heart"></i> <span class="love-count" data-id="${item.id}">${loves}</span>
             </button>
-             ${actionButton}
+             ${actionButtons}
           </div>
         </div>
       `;
@@ -717,7 +740,7 @@
         joinBtn.style.display = 'block';
         joinBtn.dataset.courseId = courseId;
         joinBtn.dataset.courseTitle = data.title;
-        joinBtn.innerText = data.learners?.includes(currentUser.uid) ? 'Enrolled' : 'Join Class';
+        joinBtn.innerText = data.learners?.includes(currentUser.uid) ? 'Enrolled' : 'Enroll';
         joinBtn.disabled = data.learners?.includes(currentUser.uid);
     } else if (data.type === 'quick-video') {
          // Quick video has details but no join class (Req 5.3)
