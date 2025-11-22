@@ -1152,7 +1152,7 @@
             <div class="current-chat-name" id="currentChatName">
               <span id="chatUserName"></span>
             </div>
-            <div class="current-chat-status" id="currentChatStatus">Online</div>
+            <div class="current-chat-status" id="currentChatStatus"></div>
           </div>
           <div class="chat-actions">
             <button class="chat-action-btn" onclick="viewProfile()" title="View Profile">
@@ -1228,14 +1228,15 @@
   // Firebase imports
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, arrayUnion, arrayRemove, limit
+    query, orderBy, where, setDoc, limit
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
   // --- Firebase Configuration ---
   const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    // IMPORTANT: Replace with your actual Firebase configuration
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM", 
     authDomain: "meet-6e159.firebaseapp.com",
     databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
     projectId: "meet-6e159",
@@ -1266,7 +1267,7 @@
   const newChatBtn = document.getElementById('newChatBtn');
   const startNewChatBtn = document.getElementById('startNewChatBtn');
   const chatSearch = document.getElementById('chatSearch');
-  const searchInput = document.getElementById('searchInput'); // Main navbar search
+  // const searchInput = document.getElementById('searchInput'); // Main navbar search (omitted from listener setup to simplify, focusing on chat search)
   const logoutBtn = document.getElementById('logoutBtn');
   const nightToggleBtn = document.getElementById('nightToggleBtn');
   const currentUserAvatar = document.getElementById('currentUserAvatar');
@@ -1290,10 +1291,51 @@
   let isTyping = false;
   let editingMessageId = null;
 
-  // Default Avatar function
-  const getDefaultAvatarUrl = (uid) => {
-    return `https://ui-avatars.com/api/?name=${uid.substring(0, 2)}&background=0080FF&color=fff&size=50`;
+  // --- Avatar/Profile Utility Functions (FIXED) ---
+
+  function getInitialsForUrl(user) {
+    // 1. Use the user's name
+    if (user.name && user.name.trim().length > 0) {
+        // Use first name initial for simple display, or full name for UI-Avatars URL generation
+        return user.name; 
+    }
+    // 2. Use the email (part before @)
+    if (user.email && user.email.trim().length > 0) {
+        return user.email.split('@')[0];
+    }
+    // 3. Fallback to the first 2 chars of the UID (to ensure unique avatar color/pattern)
+    return user.uid ? user.uid.substring(0, 2) : '??';
+  }
+
+  const getDefaultAvatarUrl = (user) => {
+    // Requires a user object {uid, name, email}
+    if (!user || !user.uid) return '';
+    const initials = getInitialsForUrl(user);
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0080FF&color=fff&size=50`;
   };
+
+  async function getUserProfile(userId) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      
+      // Combine user data with a minimal structure for avatar/name
+      const user = { 
+          uid: userId, 
+          name: userData.name || userData.displayName || 'User', 
+          email: userData.email || 'N/A', 
+          avatar: userData.avatar || userData.photoURL
+      };
+
+      // Ensure the avatar field uses the generated URL if no photo is set
+      user.avatar = user.avatar || getDefaultAvatarUrl(user);
+      
+      return user;
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return { uid: userId, name: 'Error User', email: 'N/A', avatar: getDefaultAvatarUrl({uid: userId, name: 'Error'}) };
+    }
+  }
 
   // --- Utility Functions ---
 
@@ -1340,51 +1382,7 @@
     return date.toLocaleDateString();
   }
   
-  // --- Profile/User Functions ---
-
-  async function getUserProfile(userId) {
-    try {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        return { uid: userId, ...userDoc.data() };
-      }
-      return { uid: userId, name: 'User', email: 'N/A', avatar: getDefaultAvatarUrl(userId) };
-    } catch (error) {
-      console.error('Error getting user profile:', error);
-      return { uid: userId, name: 'Error User', email: 'N/A', avatar: getDefaultAvatarUrl(userId) };
-    }
-  }
-
-  // Get Avatar/Initial
-  function getAvatarElement(user) {
-    let avatarSrc = user.avatar || user.photoURL || getDefaultAvatarUrl(user.uid);
-    let initials = user.name ? user.name.charAt(0).toUpperCase() : user.uid.charAt(0).toUpperCase();
-
-    // Check if the source is likely a default UI-Avatars URL or if photoURL/avatar is null/undefined
-    if (!user.photoURL && !user.avatar || avatarSrc.includes('ui-avatars.com') || avatarSrc.includes('pravatar.cc')) {
-      const avatarDiv = document.createElement('div');
-      avatarDiv.className = 'user-avatar small';
-      avatarDiv.textContent = initials;
-      avatarDiv.style.minWidth = '40px';
-      avatarDiv.style.height = '40px';
-      avatarDiv.style.width = '40px';
-      avatarDiv.style.borderRadius = '50%';
-      return avatarDiv;
-    } else {
-      const avatarImg = document.createElement('img');
-      avatarImg.className = 'user-avatar small';
-      avatarImg.src = avatarSrc;
-      avatarImg.alt = initials;
-      avatarImg.style.minWidth = '40px';
-      avatarImg.style.height = '40px';
-      avatarImg.style.width = '40px';
-      avatarImg.style.borderRadius = '50%';
-      avatarImg.onerror = () => { avatarImg.style.display = 'none'; }; // Hide broken images
-      return avatarImg;
-    }
-  }
-
-  // --- Search Functions (Req. 1) ---
+  // --- Search Functions (FIXED) ---
 
   function openUserSearchOverlay() {
     userSearchOverlay.style.display = 'flex';
@@ -1397,7 +1395,6 @@
     userSearchInput.value = '';
   }
 
-  // Combined search function for navbar and chat overlay
   async function handleUserSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
     if (searchTerm.length < 2) {
@@ -1410,25 +1407,48 @@
     try {
         const usersRef = collection(db, "users");
         
-        // Use a less restrictive query for demonstration since full-text search is complex in Firestore
-        // In a real app, you would use a dedicated search service (e.g., Algolia)
-        const q1 = query(usersRef, where("name", ">=", searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1)), where("name", "<=", searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '\uf8ff'), limit(5));
-        const q2 = query(usersRef, where("email", ">=", searchTerm), where("email", "<=", searchTerm + '\uf8ff'), limit(5));
+        // 1. Search by Name (using capitalized prefix for basic 'starts with')
+        // NOTE: This assumes names are stored capitalized (e.g., "John Doe")
+        const searchTermCapitalized = searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1);
+        const q1 = query(
+            usersRef, 
+            where("name", ">=", searchTermCapitalized), 
+            where("name", "<=", searchTermCapitalized + '\uf8ff'), 
+            limit(5)
+        );
+        
+        // 2. Search by Email (all lowercase is standard)
+        const q2 = query(
+            usersRef, 
+            where("email", ">=", searchTerm), 
+            where("email", "<=", searchTerm + '\uf8ff'), 
+            limit(5)
+        );
 
         const snapshot1 = await getDocs(q1);
         const snapshot2 = await getDocs(q2);
 
         const results = new Map();
-        snapshot1.forEach(doc => {
-            if (doc.id !== currentUser.uid) {
-                results.set(doc.id, { uid: doc.id, ...doc.data() });
-            }
-        });
-        snapshot2.forEach(doc => {
-            if (doc.id !== currentUser.uid) {
-                results.set(doc.id, { uid: doc.id, ...doc.data() });
-            }
-        });
+        
+        const processSnapshot = (snapshot) => {
+             snapshot.forEach(doc => {
+                if (doc.id !== currentUser.uid) {
+                    // Normalize data for consistent avatar generation
+                    const userData = doc.data();
+                    const user = { 
+                        uid: doc.id, 
+                        name: userData.name || userData.displayName || 'User',
+                        email: userData.email || 'No email',
+                        avatar: userData.avatar || userData.photoURL
+                    };
+                    user.avatar = user.avatar || getDefaultAvatarUrl(user);
+                    results.set(doc.id, user);
+                }
+            });
+        };
+        
+        processSnapshot(snapshot1);
+        processSnapshot(snapshot2);
 
         if (results.size === 0) {
             userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">No users found matching your query.</p>';
@@ -1440,22 +1460,29 @@
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
             resultItem.innerHTML = `
-                <img src="${user.avatar || getDefaultAvatarUrl(user.uid)}" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
+                <img src="${user.avatar}" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
                 <div class="search-user-info">
-                    <div class="name">${user.name || 'User'}</div>
-                    <div class="email">${user.email || 'No email'}</div>
+                    <div class="name">${user.name}</div>
+                    <div class="email">${user.email}</div>
                 </div>
                 <button class="search-start-btn">Chat</button>
             `;
             
             resultItem.querySelector('.search-start-btn').addEventListener('click', async () => {
-                const chatId = await createOrGetConversation(user.uid);
-                loadChat(chatId, user.uid);
-                closeUserSearchOverlay();
-                // Ensure the new chat is selected in the sidebar
-                document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
-                const newConvItem = document.getElementById(`conversation-${chatId}`);
-                if (newConvItem) newConvItem.classList.add('active');
+                // This logic is crucial for opening the chat interface
+                try {
+                    const chatId = await createOrGetConversation(user.uid);
+                    await loadChat(chatId, user.uid);
+                    closeUserSearchOverlay();
+                    
+                    // Highlight the new conversation in the sidebar
+                    document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+                    const newConvItem = document.getElementById(`conversation-${chatId}`);
+                    if (newConvItem) newConvItem.classList.add('active');
+                } catch (e) {
+                    console.error("Failed to start chat from search:", e);
+                    showMessage("Failed to start chat. Check permissions or network.", 'error');
+                }
             });
 
             userSearchResults.appendChild(resultItem);
@@ -1469,7 +1496,6 @@
 
   // --- Chat/Conversation Functions ---
 
-  // Create or get conversation (Req. 2)
   async function createOrGetConversation(otherUserId) {
     const currentUserId = auth.currentUser.uid;
     
@@ -1492,34 +1518,30 @@
       type: 'direct',
       participants: participantsSorted,
       participantNames: {
-        [currentUserId]: currentUserProfile?.name || currentUser.displayName || 'You',
-        [otherUserId]: otherUserProfile?.name || otherUserProfile.uid.substring(0, 5)
+        [currentUserId]: currentUserProfile.name,
+        [otherUserId]: otherUserProfile.name
       },
       participantAvatars: {
-        [currentUserId]: currentUserProfile?.avatar || currentUser.photoURL || getDefaultAvatarUrl(currentUserId),
-        [otherUserId]: otherUserProfile?.avatar || getDefaultAvatarUrl(otherUserId)
+        [currentUserId]: currentUserProfile.avatar,
+        [otherUserId]: otherUserProfile.avatar
       },
       lastMessage: '',
       lastMessageTime: serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      // Add a status subcollection for online/typing status
       status: {
         [currentUserId]: { isOnline: true, isTyping: false },
-        [otherUserId]: { isOnline: true, isTyping: false }
+        [otherUserId]: { isOnline: false, isTyping: false } // Assume offline initially
       }
     };
     
-    // Use setDoc with the deterministic ID (chatId)
     await setDoc(chatDocRef, conversationData);
     return chatId;
   }
 
-  // Load conversations (Req. 3, 4, 8)
   function loadConversations() {
     const currentUserId = auth.currentUser.uid;
     const conversationsRef = collection(db, "conversations");
-    // Order by updated time for "last message" effect
     const q = query(
       conversationsRef, 
       where("participants", "array-contains", currentUserId),
@@ -1529,16 +1551,16 @@
     onSnapshot(q, (snapshot) => {
       conversations = [];
       snapshot.forEach((doc) => {
-        const conversation = doc.data();
         conversations.push({
           id: doc.id,
-          ...conversation
+          ...doc.data()
         });
       });
       
       renderConversations();
     }, error => {
       console.error('Error loading conversations:', error);
+      showMessage('Failed to load conversations.', 'error');
     });
   }
 
@@ -1559,7 +1581,8 @@
     conversations.forEach(conversation => {
       const otherParticipantId = conversation.participants.find(id => id !== auth.currentUser.uid);
       const otherUserName = conversation.participantNames?.[otherParticipantId] || 'User';
-      const otherUserAvatar = conversation.participantAvatars?.[otherParticipantId] || getDefaultAvatarUrl(otherParticipantId);
+      const otherUser = { uid: otherParticipantId, name: otherUserName };
+      const otherUserAvatar = conversation.participantAvatars?.[otherParticipantId] || getDefaultAvatarUrl(otherUser);
       const lastMessageText = conversation.lastMessage || 'Start a conversation';
       const lastMessageTime = conversation.updatedAt?.toDate() ? formatTime(conversation.updatedAt.toDate()) : '';
       
@@ -1568,7 +1591,7 @@
       conversationElement.className = `conversation-item ${conversation.id === currentChatId ? 'active' : ''}`;
       conversationElement.innerHTML = `
         <div style="position:relative">
-          <img src="${otherUserAvatar}" onerror="this.src='${getDefaultAvatarUrl(otherParticipantId)}'" alt="${otherUserName}" class="conversation-avatar">
+          <img src="${otherUserAvatar}" onerror="this.src='${getDefaultAvatarUrl(otherUser)}'" alt="${otherUserName}" class="conversation-avatar">
           <div class="online-indicator" id="online-indicator-${otherParticipantId}"></div>
         </div>
         <div class="conversation-info">
@@ -1592,74 +1615,61 @@
       conversationsList.appendChild(conversationElement);
     });
     
-    // Re-select active chat if it exists
     if (currentChatId) {
       const activeConv = document.getElementById(`conversation-${currentChatId}`);
       if (activeConv) activeConv.classList.add('active');
     }
   }
 
-  // Load chat (Req. 2, 8)
   async function loadChat(conversationId, otherUserId) {
     if (currentChatId === conversationId) return;
 
     currentChatId = conversationId;
     currentChatUser = otherUserId;
     
-    // Unsubscribe from previous chat's messages
     if (currentMessageSnapshotUnsubscribe) {
         currentMessageSnapshotUnsubscribe();
     }
 
-    // Show chat area and hide empty state
+    // --- Show Chat Area (FIXED UI BUG) ---
     emptyChat.style.display = 'none';
     chatHeader.style.display = 'flex';
     messagesContainer.style.display = 'flex';
     messageInputContainer.style.display = 'block';
 
-    // Clear messages for new chat
     messagesContainer.innerHTML = '';
     
-    // Load other user's profile
     const otherUserProfile = await getUserProfile(otherUserId);
-    const otherUserName = otherUserProfile?.name || 'User';
-    const otherUserAvatar = otherUserProfile?.avatar || getDefaultAvatarUrl(otherUserId);
     
-    // Update chat header
-    currentChatAvatar.src = otherUserAvatar;
-    currentChatAvatar.onerror = () => { currentChatAvatar.src = getDefaultAvatarUrl(otherUserId); };
-    chatUserName.textContent = otherUserName;
+    // Update chat header with correct avatar/name
+    currentChatAvatar.src = otherUserProfile.avatar;
+    currentChatAvatar.onerror = () => { currentChatAvatar.src = getDefaultAvatarUrl(otherUserProfile); };
+    chatUserName.textContent = otherUserProfile.name;
     
-    // Load messages and status
     loadMessages(conversationId);
     watchChatStatus(conversationId, otherUserId);
 
-    // Scroll conversations list to show active chat
     const activeConv = document.getElementById(`conversation-${conversationId}`);
     if (activeConv) {
         activeConv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
-  // Load messages (Req. 3)
   function loadMessages(conversationId) {
     const messagesRef = collection(db, "conversations", conversationId, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
     
     currentMessageSnapshotUnsubscribe = onSnapshot(q, (snapshot) => {
-      // Clear messages only on the first load or if the chat ID changes
-      // Using a simpler approach: re-render all messages, but maintain scroll
-      const shouldScrollToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
+      const shouldScrollToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 50; // Add buffer
 
-      messagesContainer.innerHTML = ''; // Clear and re-render all for simplicity and accuracy
+      messagesContainer.innerHTML = ''; 
       
-      snapshot.forEach((doc) => {
+      snapshot.forEach(async (doc) => { // Use async here since getUserProfile is awaited inside renderMessage
         const message = { id: doc.id, ...doc.data() };
-        renderMessage(message);
+        await renderMessage(message); // Await for correct message order (though DOM manipulation is fast)
       });
       
-      // Scroll to bottom only if it was already at the bottom or if it's the initial load
-      if (shouldScrollToBottom || snapshot.docChanges().length > 0 && messagesContainer.scrollTop === 0) {
+      if (shouldScrollToBottom) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     }, error => {
@@ -1667,23 +1677,22 @@
     });
   }
 
-  // Render message (Req. 3, 7, 8)
   async function renderMessage(message) {
     const messageElement = document.createElement('div');
     const isSent = message.senderId === auth.currentUser.uid;
-    const senderProfile = isSent ? currentUser : await getUserProfile(currentChatUser);
+    // We fetch the full profile here to ensure we have the most up-to-date avatar/name
+    const senderProfile = isSent ? await getUserProfile(currentUser.uid) : await getUserProfile(currentChatUser);
     const messageContent = message.text || (message.imageUrl ? `<img src="${message.imageUrl}" style="max-width: 100%; border-radius: 8px;">` : 'File/Media');
     
     messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
     
-    // Message bubble content
     let bubbleContent = `
       <p class="message-text">${messageContent} ${message.edited ? '<span class="edited-mark">(edited)</span>' : ''}</p>
       <div class="message-time">${formatTime(message.timestamp)}</div>
     `;
 
-    // Add edit/delete actions for sent messages
     if (isSent) {
+      // Message actions for editing/deleting your own messages
       bubbleContent += `
         <div class="message-actions">
           <button class="message-action-btn" title="Edit" onclick="editMessage('${message.id}', '${message.text.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button>
@@ -1692,19 +1701,17 @@
       `;
     }
 
-    // Full message HTML structure
     messageElement.innerHTML = `
-      <img src="${senderProfile.avatar || senderProfile.photoURL || getDefaultAvatarUrl(senderProfile.uid)}" 
-           alt="${senderProfile.name || 'User'}" 
+      <img src="${senderProfile.avatar}" 
+           alt="${senderProfile.name}" 
            class="message-avatar"
-           onerror="this.src='${getDefaultAvatarUrl(senderProfile.uid)}'">
+           onerror="this.src='${getDefaultAvatarUrl(senderProfile)}'">
       <div class="message-bubble">${bubbleContent}</div>
     `;
     
     messagesContainer.appendChild(messageElement);
   }
 
-  // Send message (Req. 3)
   async function sendMessage() {
     const text = messageInput.value.trim();
     if (!text && !editingMessageId) return;
@@ -1715,17 +1722,15 @@
 
     try {
       if (editingMessageId) {
-        // Handle edit (Req. 6)
         await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
           text: text,
           edited: true,
-          timestamp: serverTimestamp() // Update timestamp to re-sort if necessary, or use an editedTimestamp field
+          timestamp: serverTimestamp() 
         });
         
-        cancelEdit(); // Reset editing state
+        cancelEdit(); 
         showMessage('Message edited successfully.', 'success');
       } else {
-        // Handle new message
         const messageData = {
           senderId: auth.currentUser.uid,
           text: text,
@@ -1734,38 +1739,32 @@
           edited: false
         };
         
-        // Add message to subcollection
         await addDoc(collection(db, "conversations", currentChatId, "messages"), messageData);
         
-        // Update conversation last message and time (Req. 4)
         await updateDoc(doc(db, "conversations", currentChatId), {
           lastMessage: text,
-          updatedAt: serverTimestamp() // Use updatedAt for sorting conversations
+          updatedAt: serverTimestamp() 
         });
       }
       
-      // Clear input
       messageInput.value = '';
       messageInput.style.height = 'auto';
-      updateTypingStatus(false); // Stop typing after sending
+      updateTypingStatus(false);
       
     } catch (error) {
       console.error('Error sending/editing message:', error);
-      showMessage('Failed to send or edit message. Please try again.');
+      showMessage('Failed to send or edit message. Please check network/Firestore rules.', 'error');
     }
   }
 
-  // Edit message functionality (Req. 6)
   window.editMessage = async (messageId, currentText) => {
     editingMessageId = messageId;
     messageInput.value = currentText;
     messageInput.focus();
 
-    // Show editing UI
     editingMessageContainer.style.display = 'block';
     editingMessagePreview.textContent = currentText.substring(0, 50) + (currentText.length > 50 ? '...' : '');
 
-    // Adjust textarea height
     messageInput.style.height = 'auto';
     messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
   };
@@ -1778,7 +1777,6 @@
     messageInput.style.height = 'auto';
   };
 
-  // Delete message functionality (Req. 6)
   window.deleteMessage = async (messageId) => {
     if (!currentChatId || !messageId) return;
     if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) return;
@@ -1787,7 +1785,6 @@
       await deleteDoc(doc(db, "conversations", currentChatId, "messages", messageId));
       showMessage('Message deleted successfully.', 'success');
 
-      // Update conversation's last message if the deleted message was the last one
       const messagesRef = collection(db, "conversations", currentChatId, "messages");
       const q = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
       const snapshot = await getDocs(q);
@@ -1804,33 +1801,30 @@
 
     } catch (error) {
       console.error('Error deleting message:', error);
-      showMessage('Failed to delete message. Please try again.');
+      showMessage('Failed to delete message. Please try again.', 'error');
     }
   };
 
-  // Typing status update (Req. 5)
   async function updateTypingStatus(status) {
     if (!currentUser || !currentChatId) return;
     
-    if (isTyping === status) return; // Prevent unnecessary writes
+    if (isTyping === status) return;
     isTyping = status;
 
     const chatDocRef = doc(db, "conversations", currentChatId);
     try {
         await updateDoc(chatDocRef, {
             [`status.${currentUser.uid}.isTyping`]: status,
-            [`status.${currentUser.uid}.lastActive`]: serverTimestamp() // Can be used for online status
+            [`status.${currentUser.uid}.lastActive`]: serverTimestamp()
         });
     } catch (error) {
-        console.error("Error updating typing status:", error);
+        // console.error("Error updating typing status:", error);
     }
   }
 
-  // Watch chat status (Online/Typing) (Req. 5)
   function watchChatStatus(conversationId, otherUserId) {
     const chatDocRef = doc(db, "conversations", conversationId);
     
-    // Watch for chat status updates
     onSnapshot(chatDocRef, (docSnap) => {
         if (!docSnap.exists()) return;
         
@@ -1838,37 +1832,33 @@
         const otherUserStatus = chatData.status?.[otherUserId];
         
         if (otherUserStatus) {
-            // Typing Indicator
+            const lastActiveTime = otherUserStatus.lastActive?.toDate();
+            // User is considered online if last activity was within the last 3 minutes
+            const isOnline = lastActiveTime && (new Date() - lastActiveTime) < 180000; 
+
+            // Update typing indicator
             if (otherUserStatus.isTyping) {
                 typingIndicatorWrapper.style.display = 'block';
                 currentChatStatus.textContent = 'Typing...';
             } else {
                 typingIndicatorWrapper.style.display = 'none';
-                currentChatStatus.textContent = 'Online'; // Fallback
-            }
-            
-            // Online Status (simple check, could use 'lastActive')
-            const lastActiveTime = otherUserStatus.lastActive?.toDate();
-            const isOnline = lastActiveTime && (new Date() - lastActiveTime) < 180000; // 3 minutes
-            
-            // Update online indicator in header
-            const statusIndicator = document.getElementById('chatUserStatus');
-            if (isOnline) {
-                currentChatStatus.textContent = otherUserStatus.isTyping ? 'Typing...' : 'Online';
-                // Note: The original CSS used a generic 'chatUserStatus' indicator which is now removed,
-                // rely on the currentChatStatus text for a cleaner look.
-            } else {
-                currentChatStatus.textContent = lastActiveTime ? `Last seen ${formatTime(lastActiveTime)}` : 'Offline';
+                
+                // Update online status text
+                if (isOnline) {
+                    currentChatStatus.textContent = 'Online';
+                } else {
+                    currentChatStatus.textContent = lastActiveTime ? `Last seen ${formatTime(lastActiveTime)}` : 'Offline';
+                }
             }
         }
+    }, error => {
+        console.error("Error watching chat status:", error);
     });
   }
-
 
   // --- Event Handlers & Init ---
 
   function setupEventListeners() {
-    // ... (Theme toggle and Logout logic remains the same)
     nightToggleBtn.addEventListener('click', () => {
       if (document.body.classList.contains('dark-mode')) {
         document.body.classList.remove('dark-mode');
@@ -1891,13 +1881,9 @@
       }
     });
 
-
-    // Send message
     sendButton.addEventListener('click', sendMessage);
     
-    // Send message on Enter key and typing status update
     messageInput.addEventListener('keydown', (e) => {
-      // Typing status update (with debounce)
       if (currentChatId) {
         updateTypingStatus(true);
         clearTimeout(typingTimeout);
@@ -1909,27 +1895,21 @@
         sendMessage();
       }
       
-      // Auto-resize textarea
       messageInput.style.height = 'auto';
       messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
     });
 
-    // Back button for mobile
     backButton.addEventListener('click', showConversationsView);
 
-    // New chat buttons (Req. 1)
     newChatBtn.addEventListener('click', openUserSearchOverlay);
     startNewChatBtn.addEventListener('click', openUserSearchOverlay);
     userSearchInput.addEventListener('input', handleUserSearch);
 
-    // Search existing conversations
     chatSearch.addEventListener('input', handleConversationSearch);
     
-    // Window resize handler
     window.addEventListener('resize', checkMobileLayout);
   }
   
-  // Handle existing conversation search
   function handleConversationSearch() {
     const query = chatSearch.value.toLowerCase().trim();
     
@@ -1970,76 +1950,49 @@
   }
 
   // Placeholder functions for additional features
-  function attachFile() {
-    showMessage('File attachment feature would open file picker (requires Firebase Storage)', 'success');
-  }
+  window.attachFile = () => showMessage('File attachment feature requires Firebase Storage and further implementation.', 'success');
+  window.sendImage = () => showMessage('Image sharing feature requires Firebase Storage and further implementation.', 'success');
+  window.openEmojiPicker = () => showMessage('Emoji picker would open here.', 'success');
+  window.viewProfile = () => { if (currentChatUser) showMessage(`Viewing profile of user ${currentChatUser}`, 'success'); };
+  window.startVoiceCall = () => showMessage('Voice call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
+  window.startVideoCall = () => showMessage('Video call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
 
-  function sendImage() {
-    // This function will need a lot more logic to upload an image to Firebase Storage
-    // For now, it's a placeholder.
-    showMessage('Image sharing feature would open camera or gallery (requires Firebase Storage)', 'success');
-  }
-
-  function openEmojiPicker() {
-    showMessage('Emoji picker would open here', 'success');
-  }
-
-  function viewProfile() {
-    if (currentChatUser) {
-      showMessage(`Viewing profile of user ${currentChatUser}`, 'success');
-    }
-  }
-
-  function startVoiceCall() {
-    showMessage('Voice call feature would start here', 'success');
-  }
-
-  function startVideoCall() {
-    showMessage('Video call feature would start here', 'success');
-  }
 
   // --- Initialization ---
 
-  // Update user online status on authentication change and before unmounting
   async function updateUserStatus(isOnline) {
     if (!currentUser) return;
     try {
         const userDocRef = doc(db, "users", currentUser.uid);
+        // Only update status and lastActive
         await setDoc(userDocRef, { isOnline: isOnline, lastActive: serverTimestamp() }, { merge: true });
     } catch (error) {
-        console.error("Error updating user status:", error);
+        // console.error("Error updating user status:", error);
     }
   }
 
   onAuthStateChanged(auth, async user => {
     if (!user) {
-      // Ensure status is set to offline before redirect
       await updateUserStatus(false);
       window.location.href = 'login.html';
     } else {
       currentUser = user;
       
-      // Load and set user profile
       const userProfile = await getUserProfile(user.uid);
       currentUser.name = user.displayName || userProfile.name;
-      currentUser.photoURL = user.photoURL || userProfile.avatar;
+      currentUser.photoURL = user.photoURL || userProfile.avatar; // Use the fixed avatar logic
 
-      // Update user info in UI
       const userNameText = currentUser.name || 'User';
-      const userInitial = userNameText.charAt(0).toUpperCase();
       
-      // Update main avatar (using IMG tag for better consistency)
-      currentUserAvatar.src = currentUser.photoURL || getDefaultAvatarUrl(currentUser.uid);
-      currentUserAvatar.alt = userInitial;
+      // Set the user avatar in the main navbar (FIXED)
+      currentUserAvatar.src = currentUser.photoURL || getDefaultAvatarUrl(currentUser);
+      currentUserAvatar.onerror = function() { this.src = getDefaultAvatarUrl(currentUser); };
       userName.textContent = userNameText;
       
-      // Update user status to online
       await updateUserStatus(true);
       
-      // Load conversations
       loadConversations();
       
-      // Handle user leaving/closing the page
       window.addEventListener('beforeunload', () => updateUserStatus(false));
     }
   });
