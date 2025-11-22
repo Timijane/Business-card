@@ -62,7 +62,7 @@ body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #f0f
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, where, getDocs, onSnapshot, updateDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, where, getDocs, onSnapshot, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-auth.js";
 
 // Firebase config
@@ -79,13 +79,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Globals
 let currentUser = null;
 let currentChatId = null;
 let chatUnsubscribe = null;
 let chatPartner = null;
 
-// Demo Login
+// Demo login (replace with your auth)
 async function demoLogin() {
   const email = prompt("Enter email:");
   const password = prompt("Enter password:");
@@ -111,6 +110,8 @@ searchInput.addEventListener("input", async () => {
   if(!searchText) return;
 
   const usersRef = collection(db, "users");
+
+  // Search by name or email
   const qName = query(usersRef, where("name_lower", ">=", searchText), where("name_lower", "<=", searchText+"\uf8ff"));
   const qEmail = query(usersRef, where("email_lower", ">=", searchText), where("email_lower", "<=", searchText+"\uf8ff"));
 
@@ -144,7 +145,7 @@ async function openChat(uid, user) {
   const chatDoc = doc(db, "chats", currentChatId);
   const chatSnap = await getDoc(chatDoc);
   if(!chatSnap.exists()) {
-    await setDoc(chatDoc, { users: ids, createdAt: serverTimestamp() });
+    await setDoc(chatDoc, { users: ids, createdAt: serverTimestamp(), lastMessage: "", lastMessageTime: null });
   }
 
   if(chatUnsubscribe) chatUnsubscribe();
@@ -180,7 +181,6 @@ sendBtn.addEventListener("click", async () => {
   const messagesRef = collection(db, "chats", currentChatId, "messages");
   await addDoc(messagesRef, { senderId: currentUser.uid, text, status: "sent", timestamp: serverTimestamp() });
   await updateLastMessage(text);
-
   messageInput.value = "";
 
   // AI Auto-reply if offline
@@ -201,7 +201,7 @@ sendBtn.addEventListener("click", async () => {
 
 messageInput.addEventListener("keyup", (e) => { if(e.key==="Enter") sendBtn.click(); });
 
-// Update last message preview
+// Update last message
 async function updateLastMessage(text) {
   const chatDoc = doc(db, "chats", currentChatId);
   await updateDoc(chatDoc, {
