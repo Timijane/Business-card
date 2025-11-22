@@ -4,212 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MEET Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
-.container { display: flex; height: 100vh; }
-.sidebar { width: 320px; background: #fff; border-right: 1px solid #ccc; display: flex; flex-direction: column; }
-.menu-bar { height: 60px; background: #007bff; color: #fff; display: flex; align-items: center; padding: 0 15px; font-weight: 600; justify-content: space-between; }
-.menu-bar .profile { cursor: pointer; }
-.search-box { padding: 10px; }
-.search-box input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-.users-list { flex: 1; overflow-y: auto; }
-.user-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; flex-direction: column; }
-.user-item:hover { background: #f9f9f9; }
-.user-item .name { font-weight: 600; }
-.user-item .last-msg { font-size: 12px; color: #555; }
-.user-item .timestamp { font-size: 10px; color: #999; align-self: flex-end; }
-.chat-area { flex: 1; display: flex; flex-direction: column; background: #e5ddd5; }
-.chat-header { height: 60px; background: #fff; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #ccc; font-weight: 600; }
-.messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; }
-.message { margin-bottom: 10px; max-width: 60%; padding: 8px 12px; border-radius: 15px; position: relative; word-break: break-word; }
-.message.sent { background: #dcf8c6; align-self: flex-end; }
-.message.received { background: #fff; align-self: flex-start; }
-.message .time { font-size: 10px; color: #555; position: absolute; bottom: 2px; right: 8px; }
-.message.seen::after { content: '✓✓'; font-size: 10px; color: blue; margin-left: 3px; }
-.input-area { display: flex; padding: 10px; border-top: 1px solid #ccc; background: #fff; }
-.input-area input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; }
-.input-area button { margin-left: 10px; padding: 10px 15px; border-radius: 50%; border: none; background: #007bff; color: #fff; cursor: pointer; }
-.typing-indicator { font-size: 12px; color: #555; padding-left: 10px; }
+body { font-family: 'Poppins', sans-serif; margin:0; padding:0; background:#f2f2f2; }
+header { background:#4b7bec; color:white; padding:15px; text-align:center; font-size:1.3em; }
+.container { display:flex; height:calc(100vh - 60px); }
+.sidebar { width:300px; background:white; border-right:1px solid #ccc; display:flex; flex-direction:column; }
+.search-box { padding:10px; border-bottom:1px solid #ccc; }
+.search-box input { width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; }
+.user-list { flex:1; overflow-y:auto; }
+.user-item { padding:10px; border-bottom:1px solid #eee; cursor:pointer; }
+.user-item:hover { background:#f0f0f0; }
+.chat-area { flex:1; display:flex; flex-direction:column; background:#f9f9f9; }
+.chat-header { padding:10px; border-bottom:1px solid #ccc; font-weight:600; background:white; display:flex; justify-content:space-between; align-items:center; }
+.chat-messages { flex:1; padding:10px; overflow-y:auto; }
+.message { margin-bottom:10px; padding:8px 12px; border-radius:15px; max-width:70%; }
+.message.self { background:#4b7bec; color:white; margin-left:auto; }
+.message.other { background:#e0e0e0; color:black; margin-right:auto; }
+.chat-input { display:flex; padding:10px; border-top:1px solid #ccc; background:white; }
+.chat-input input { flex:1; padding:8px; border-radius:20px; border:1px solid #ccc; }
+.chat-input button { margin-left:10px; padding:8px 16px; border:none; background:#4b7bec; color:white; border-radius:20px; cursor:pointer; }
+.toggle-container { display:flex; align-items:center; gap:5px; font-size:0.9em; }
 </style>
 </head>
 <body>
 
+<header>MEET Chat</header>
+
 <div class="container">
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="menu-bar">
-      <div class="profile">MEET</div>
-      <div class="menu">☰</div>
-    </div>
     <div class="search-box">
-      <input type="text" id="searchUser" placeholder="Search by name or email">
+      <input type="text" id="searchUser" placeholder="Search by name or email...">
     </div>
-    <div class="users-list" id="usersList"></div>
+    <div class="user-list" id="userList"></div>
   </div>
 
   <!-- Chat Area -->
   <div class="chat-area">
-    <div class="chat-header" id="chatHeader">Select a user to chat</div>
-    <div class="typing-indicator" id="typingIndicator"></div>
-    <div class="messages" id="messages"></div>
-    <div class="input-area">
-      <input type="text" id="messageInput" placeholder="Type a message">
-      <button id="sendBtn">➤</button>
+    <div class="chat-header">
+      <span id="chatWith">Select a user to chat</span>
+      <div class="toggle-container">
+        <label>AI Auto-Reply</label>
+        <input type="checkbox" id="aiToggle">
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, where, getDocs, onSnapshot, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-auth.js";
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+  // ================================
+  // Firebase Config
+  // ================================
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MSG_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+  let currentUser = null;
+  let currentChatId = null;
+  let chatUnsubscribe = null;
 
-let currentUser = null;
-let currentChatId = null;
-let chatUnsubscribe = null;
-let chatPartner = null;
-
-// Demo login (replace with your auth)
-async function demoLogin() {
-  const email = prompt("Enter email:");
-  const password = prompt("Enter password:");
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  currentUser = userCredential.user;
-  console.log("Logged in:", currentUser.uid);
-}
-await demoLogin();
-
-// Elements
-const searchInput = document.getElementById("searchUser");
-const usersList = document.getElementById("usersList");
-const messagesDiv = document.getElementById("messages");
-const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-const chatHeader = document.getElementById("chatHeader");
-const typingIndicator = document.getElementById("typingIndicator");
-
-// Search users
-searchInput.addEventListener("input", async () => {
-  const searchText = searchInput.value.toLowerCase().trim();
-  usersList.innerHTML = "";
-  if(!searchText) return;
-
-  const usersRef = collection(db, "users");
-
-  // Search by name or email
-  const qName = query(usersRef, where("name_lower", ">=", searchText), where("name_lower", "<=", searchText+"\uf8ff"));
-  const qEmail = query(usersRef, where("email_lower", ">=", searchText), where("email_lower", "<=", searchText+"\uf8ff"));
-
-  const resultsName = await getDocs(qName);
-  const resultsEmail = await getDocs(qEmail);
-
-  const combined = new Map();
-  resultsName.forEach(doc => combined.set(doc.id, doc.data()));
-  resultsEmail.forEach(doc => combined.set(doc.id, doc.data()));
-
-  combined.forEach((user, uid) => {
-    if(uid !== currentUser.uid) {
-      const div = document.createElement("div");
-      div.className = "user-item";
-      div.innerHTML = `<span class="name">${user.name}</span>
-                       <span class="last-msg">${user.lastMessage || ''}</span>
-                       <span class="timestamp">${user.lastMessageTime ? new Date(user.lastMessageTime.seconds*1000).toLocaleTimeString() : ''}</span>`;
-      div.onclick = () => openChat(uid, user);
-      usersList.appendChild(div);
-    }
+  // ================================
+  // AUTH (Simple Anonymous Login for Demo)
+  // ================================
+  auth.signInAnonymously().then(() => {
+    currentUser = auth.currentUser;
+    console.log("Signed in as:", currentUser.uid);
   });
-});
 
-// Open chat
-async function openChat(uid, user) {
-  chatPartner = user;
-  chatHeader.textContent = user.name;
-  const ids = [currentUser.uid, uid].sort();
-  currentChatId = ids.join("_");
+  // ================================
+  // SEARCH USERS
+  // ================================
+  const searchInput = document.getElementById('searchUser');
+  const userList = document.getElementById('userList');
 
-  const chatDoc = doc(db, "chats", currentChatId);
-  const chatSnap = await getDoc(chatDoc);
-  if(!chatSnap.exists()) {
-    await setDoc(chatDoc, { users: ids, createdAt: serverTimestamp(), lastMessage: "", lastMessageTime: null });
-  }
+  searchInput.addEventListener('input', async () => {
+    const query = searchInput.value.toLowerCase();
+    userList.innerHTML = '';
+    if(query.length < 1) return;
 
-  if(chatUnsubscribe) chatUnsubscribe();
-  loadMessages();
-}
+    const snapshot = await db.collection('users')
+      .where('searchIndex', 'array-contains', query)
+      .get();
 
-// Load messages
-function loadMessages() {
-  const messagesRef = collection(db, "chats", currentChatId, "messages");
-  chatUnsubscribe = onSnapshot(query(messagesRef, orderBy("timestamp")), snapshot => {
-    messagesDiv.innerHTML = "";
-    snapshot.docs.forEach(doc => {
-      const msg = doc.data();
-      const div = document.createElement("div");
-      div.className = "message " + (msg.senderId === currentUser.uid ? "sent" : "received");
-      div.textContent = msg.text;
-      const time = document.createElement("span");
-      time.className = "time";
-      time.textContent = msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString() : '';
-      div.appendChild(time);
-      if(msg.status === "seen") div.classList.add("seen");
-      messagesDiv.appendChild(div);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    snapshot.forEach(doc => {
+      if(doc.id === currentUser.uid) return; // skip self
+      const user = doc.data();
+      const div = document.createElement('div');
+      div.className = 'user-item';
+      div.textContent = user.name + ' (' + user.email + ')';
+      div.dataset.uid = doc.id;
+      div.addEventListener('click', () => openChat(doc.id, user.name));
+      userList.appendChild(div);
     });
   });
-}
 
-// Send message
-sendBtn.addEventListener("click", async () => {
-  const text = messageInput.value.trim();
-  if(!text || !currentChatId) return;
+  // ================================
+  // OPEN OR CREATE CHAT
+  // ================================
+  async function openChat(otherUid, otherName){
+    document.getElementById('chatWith').textContent = otherName;
+    
+    // deterministic chat ID: sorted uids joined by _
+    const uids = [currentUser.uid, otherUid].sort();
+    currentChatId = uids.join('_');
 
-  const messagesRef = collection(db, "chats", currentChatId, "messages");
-  await addDoc(messagesRef, { senderId: currentUser.uid, text, status: "sent", timestamp: serverTimestamp() });
-  await updateLastMessage(text);
-  messageInput.value = "";
+    const chatRef = db.collection('chats').doc(currentChatId);
 
-  // AI Auto-reply if offline
-  const partnerDoc = await getDoc(doc(db, "users", chatPartner.uid));
-  if(partnerDoc.exists()) {
-    const isOffline = !partnerDoc.data().online;
-    const autoReplyEnabled = partnerDoc.data().aiAutoReply;
-    if(isOffline && autoReplyEnabled) {
-      await addDoc(messagesRef, {
-        senderId: "system",
-        text: "Hi! This is an AI auto-reply because the user is offline.",
-        status: "sent",
-        timestamp: serverTimestamp()
+    const chatDoc = await chatRef.get();
+    if(!chatDoc.exists){
+      // create chat if doesn't exist
+      await chatRef.set({
+        users: uids,
+        lastMessage: '',
+        lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+        aiAutoReply: false
       });
     }
+
+    // Unsubscribe previous listener if exists
+    if(chatUnsubscribe) chatUnsubscribe();
+
+    // Listen to messages in real-time
+    chatUnsubscribe = chatRef.collection('messages').orderBy('timestamp')
+      .onSnapshot(snapshot => {
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '';
+        snapshot.forEach(doc => {
+          const msg = doc.data();
+          const div = document.createElement('div');
+          div.className = 'message ' + (msg.senderId === currentUser.uid ? 'self':'other');
+          div.textContent = msg.text;
+          chatMessages.appendChild(div);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
   }
-});
 
-messageInput.addEventListener("keyup", (e) => { if(e.key==="Enter") sendBtn.click(); });
+  // ================================
+  // SEND MESSAGE
+  // ================================
+  const sendBtn = document.getElementById('sendBtn');
+  const messageInput = document.getElementById('messageInput');
+  const aiToggle = document.getElementById('aiToggle');
 
-// Update last message
-async function updateLastMessage(text) {
-  const chatDoc = doc(db, "chats", currentChatId);
-  await updateDoc(chatDoc, {
-    lastMessage: text,
-    lastMessageTime: serverTimestamp()
+  sendBtn.addEventListener('click', async () => {
+    const text = messageInput.value.trim();
+    if(!text || !currentChatId) return;
+    
+    const chatRef = db.collection('chats').doc(currentChatId);
+    const msgData = {
+      senderId: currentUser.uid,
+      text: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      status: 'sent'
+    };
+    await chatRef.collection('messages').add(msgData);
+
+    // Update last message
+    await chatRef.update({
+      lastMessage: text,
+      lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+      aiAutoReply: aiToggle.checked
+    });
+
+    messageInput.value = '';
+
+    // AI Auto-Reply demo (if enabled)
+    const chatDoc = await chatRef.get();
+    if(chatDoc.data().aiAutoReply && Math.random() > 0.5){ // demo random reply
+      setTimeout(async ()=>{
+        await chatRef.collection('messages').add({
+          senderId: 'system',
+          text: "Hi! I'm AI auto-replying.",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          status: 'sent'
+        });
+      }, 1000);
+    }
   });
-}
-
 </script>
 </body>
 </html>
