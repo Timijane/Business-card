@@ -21,6 +21,7 @@
     --radius: 12px;
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
     --success: #10B981;
+    --heart-color: #FF4136; /* Added for Love button */
   }
 
   body.dark-mode {
@@ -98,12 +99,14 @@
   .course-header { position: relative; height: 150px; }
   .course-thumb { height: 100%; width: 100%; object-fit: cover; background: #eee; }
   
-  /* Poster Image Overlay */
+  /* Poster Image Overlay - Increased size (Req 4) */
   .poster-badge {
-    position: absolute; bottom: -15px; right: 15px;
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 2px solid var(--card-bg); background: var(--edu-primary);
-    overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;
+    position: absolute; bottom: -20px; right: 15px; /* Moved down slightly */
+    width: 48px; height: 48px; /* Increased size */
+    border-radius: 50%;
+    border: 3px solid var(--card-bg); /* Thicker border */
+    background: var(--edu-primary);
+    overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;
   }
   .poster-badge img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -112,10 +115,27 @@
   .c-cat { font-size: 10px; text-transform: uppercase; color: var(--edu-primary); font-weight: 700; letter-spacing: 0.5px; }
   .c-title { font-size: 15px; font-weight: 700; margin: 5px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   
-  .c-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--secondary-text); margin-bottom: 10px; }
+  /* Updated Meta/Stats Section */
+  .c-stats { 
+      display: flex; gap: 10px; font-size: 11px; color: var(--secondary-text); 
+      margin-bottom: 10px; align-items: center; 
+  }
+  .c-stats i { margin-right: 3px; }
+
   .c-cert { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-bottom: 8px; }
   
   .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+  
+  /* Love Button Style (Req 2) */
+  .btn-love {
+      background: none; border: 1px solid var(--border-color); color: var(--secondary-text); 
+      padding: 6px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+      transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-love.loved { color: var(--heart-color); border-color: var(--heart-color); }
+
+  .btn-detail { flex: 1; background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+
   .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
   .btn-join.joined { background: var(--success); cursor: default; }
   
@@ -125,6 +145,16 @@
   .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
   .modal-body { padding: 20px; }
   
+  /* Detail Modal Specific Styles (Req 5) */
+  #detailModal .modal-box { max-width: 750px; text-align: left; }
+  .detail-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+  .detail-title { font-size: 24px; margin-bottom: 10px; font-weight: 700; color: var(--edu-primary); }
+  .detail-creator { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; font-size: 14px; margin-top: 5px;}
+  .detail-bio { margin: 15px 0; padding: 10px; background: var(--bg-color); border-radius: 8px; font-style: italic; font-size: 13px; color: var(--secondary-text); }
+  .detail-section h4 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 2px solid var(--edu-primary); width: fit-content; }
+  .detail-outline li { margin-bottom: 5px; font-size: 14px; list-style-type: none; }
+  .detail-outline li i { color: var(--success); margin-right: 5px; }
+
   /* Form Elements */
   .form-group { margin-bottom: 15px; }
   .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
@@ -198,7 +228,7 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-val" id="statCourses">0</div>
-          <div class="stat-lbl">Courses</div>
+          <div class="stat-lbl">Full Courses</div>
         </div>
         <div class="stat-card">
           <div class="stat-val" id="statLearners">0</div>
@@ -214,7 +244,7 @@
         </div>
       </div>
 
-      <div class="section-head"><h2>Featured Courses</h2></div>
+      <div class="section-head"><h2>Full Course Videos</h2></div>
       <div class="grid-layout" id="coursesFeed"><div style="padding:20px;">Loading...</div></div>
 
       <div class="section-head"><h2>Quick Videos</h2></div>
@@ -261,6 +291,27 @@
               <option>Marketing</option>
               <option>Health</option>
               <option>Academic</option>
+              <option>Lifestyle</option>
+              <option>Life Hack</option>
+              <option>Sport</option>
+              <option>Human Kinetics</option>
+              <option>Guidance & Counseling</option>
+              <option>Psychology</option>
+              <option>Forensic Psychology</option>
+              <option>Pastoral Psychology</option>
+              <option>Ethical Hacking</option>
+              <option>Finance</option>
+              <option>Cooking</option>
+              <option>Photography</option>
+              <option>Personal Development</option>
+              <option>Language Learning</option>
+              <option>Arts & Crafts</option>
+              <option>Travel</option>
+              <option>Gaming</option>
+              <option>History</option>
+              <option>Science</option>
+              <option>Mathematics</option>
+              <option>Music Theory</option>
             </select>
           </div>
           <div class="form-group">
@@ -269,20 +320,8 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-          <div class="form-group">
-            <label class="form-label">Price ($)</label>
-            <input type="number" id="cPrice" class="form-input" placeholder="e.g. 9.99 (0 for free)" value="0" min="0" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Currency</label>
-            <select id="cCurrency" class="form-select">
-              <option>USD</option>
-              <option>NGN</option>
-              <option>EUR</option>
-            </select>
-          </div>
-        </div>
+        <input type="hidden" id="cPrice" value="0">
+        <input type="hidden" id="cCurrency" value="USD">
 
         <div class="form-group">
           <label class="form-label">Instructor Bio (Optional)</label>
@@ -320,23 +359,99 @@
           <button type="button" onclick="addLearnItem()" style="background:none; border:none; color:var(--primary); font-size:12px; cursor:pointer;">+ Add lesson/outcome</button>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="certCheckboxGroup">
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;">
-            <input type="checkbox" id="cCert"> Offer MEET Certificate
+            <input type="checkbox" id="cCert"> Offer MEET Certificate (Only for Full Courses)
           </label>
         </div>
 
         <button type="button" class="create-btn" id="submitBtn" style="width:100%; justify-content:center; padding:12px;" onclick="submitCourse()">
-          Post Content
+          Public Course </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="applicationModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Course Application</h3>
+      <button onclick="closeApplicationModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="applicationForm">
+        <input type="hidden" id="applyCourseId">
+        <p style="margin-bottom: 15px; font-size: 14px; color: var(--secondary-text);">Fill out this form to apply for <strong id="applyCourseTitle"></strong>.</p>
+
+        <div class="form-group">
+          <label class="form-label">Your Full Name</label>
+          <input type="text" id="applicantName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address (For MEET Certificate)</label>
+          <input type="email" id="applicantEmail" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Aspirations for learning this course</label>
+          <textarea id="applicantAspirations" class="form-textarea" placeholder="Why do you want to join? (Min 20 chars)" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Role / Profession</label>
+          <input type="text" id="applicantRole" class="form-input" placeholder="e.g. Student, Software Developer, Chef">
+        </div>
+        
+        <button type="button" class="create-btn" id="submitApplicationBtn" style="width:100%; justify-content:center; padding:12px;" onclick="submitApplication()">
+          Submit Application
         </button>
       </form>
     </div>
   </div>
 </div>
 
+<div class="modal" id="detailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="detailModalTitle">Content Details</h3>
+      <button onclick="closeDetailModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-header">
+          <div class="detail-title" id="courseDetailTitle"></div>
+          <div class="detail-creator">
+              <div id="detailCreatorBadge" class="poster-badge" style="width:36px; height:36px;"></div>
+              <span>By <span id="courseDetailCreator"></span></span>
+          </div>
+          <div class="detail-meta" style="margin-top: 10px; font-size: 12px; color: var(--secondary-text);">
+              <span id="courseDetailCategory"></span> | Duration: <span id="courseDetailDuration"></span>
+          </div>
+      </div>
+
+      <div class="detail-section">
+          <h4>Course Summary</h4>
+          <p id="courseDetailDescription"></p>
+          
+          <h4>Instructor Profile</h4>
+          <p class="detail-bio" id="courseDetailBio"></p>
+      </div>
+
+      <div class="detail-section" id="detailOutlineSection">
+          <h4>Course Outline / Learning Outcomes</h4>
+          <ul id="courseDetailOutline" class="detail-outline"></ul>
+      </div>
+
+      <button class="create-btn" id="detailJoinBtn" style="width:100%; margin-top: 20px; display:none;" onclick="openApplicationModal(this.dataset.courseId, this.dataset.courseTitle)">
+          Enroll / Join Class
+      </button>
+      <div id="detailCertificateInfo" style="margin-top:10px; font-size:12px; font-weight:600; color:var(--success); text-align:center;"></div>
+      <div id="detailMediaEmbed" style="margin-top:20px; text-align: center;"></div>
+    </div>
+  </div>
+</div>
+
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
   // --- FIREBASE CONFIG ---
@@ -363,6 +478,8 @@
   let currentUser = null;
   let currentType = 'long-video';
   let thumbBase64 = null; 
+  let loveCounts = {}; // Real-time love count store
+  let reviewCounts = {}; // Real-time review count store (simulated or real)
 
   // --- AUTH & USER PROFILE ---
   onAuthStateChanged(auth, async (user) => {
@@ -379,6 +496,7 @@
           document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
       }
     } else {
+      currentUser = null;
       document.getElementById('userNameDisplay').innerText = "Guest";
     }
   });
@@ -442,6 +560,13 @@
     const courses = [], videos = [], docs = [];
     let learners = 0;
 
+    snapshot.docChanges().forEach(change => {
+        const data = { id: change.doc.id, ...change.doc.data() };
+        // Update local counts for real-time display (Req 3)
+        loveCounts[data.id] = data.lovedBy ? data.lovedBy.length : 0;
+        reviewCounts[data.id] = data.reviewCount || 0;
+    });
+
     snapshot.forEach((doc) => {
       const data = { id: doc.id, ...doc.data() };
       learners += (data.learners ? data.learners.length : 0);
@@ -455,9 +580,9 @@
     document.getElementById('statDocs').innerText = docs.length;
     document.getElementById('statLearners').innerText = learners;
 
-    renderGrid('coursesFeed', courses);
-    renderGrid('videosFeed', videos);
-    renderGrid('docsFeed', docs);
+    renderGrid('coursesFeed', courses); // Full Course Videos
+    renderGrid('videosFeed', videos); // Quick Videos
+    renderGrid('docsFeed', docs); // Notes & Documents
   });
 
   function renderGrid(id, items) {
@@ -467,11 +592,27 @@
 
     items.forEach(item => {
       const isJoined = currentUser && item.learners?.includes(currentUser.uid);
-      const lCount = item.learners ? item.learners.length : 0;
-      
+      const isLoved = currentUser && item.lovedBy?.includes(currentUser.uid);
+      const loves = loveCounts[item.id] || 0;
+      const reviews = reviewCounts[item.id] || 0;
+
       const posterImg = item.instructorPhoto 
-        ? `<img src="${item.instructorPhoto}">` 
+        ? `<img src="${item.instructorPhoto}" style="width:100%;height:100%;object-fit:cover;">` 
         : `<div style="width:100%;height:100%;background:#0080FF;color:white;display:flex;align-items:center;justify-content:center;">${item.instructorName?.[0]||'U'}</div>`;
+
+      let actionButton;
+      let hasCertificate = item.hasCert && item.type !== 'document'; // Certificate logic (Req 5.3)
+
+      if (item.type === 'long-video') {
+          // Full Course: Join Class button
+          actionButton = `<button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
+              ${isJoined ? 'Enrolled' : 'Join Class'}
+            </button>`;
+      } else {
+          // Quick Video / Document: Details button (Req 5.3)
+          actionButton = `<button class="btn-detail" onclick="viewDetails('${item.id}')">Details</button>`;
+          hasCertificate = item.hasCert && item.type === 'quick-video'; // Quick video can have cert, Document cannot
+      }
 
       const div = document.createElement('div');
       div.className = 'course-card';
@@ -481,18 +622,21 @@
             <div class="poster-badge">${posterImg}</div>
         </div>
         <div class="course-body">
-          ${item.hasCert ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
+          ${hasCertificate ? '<div class="c-cert"><i class="fas fa-certificate"></i> Certificate</div>' : ''}
           <div class="c-cat">${item.category}</div>
           <div class="c-title">${item.title}</div>
-          <div class="c-meta">
+          
+          <div class="c-stats">
+            <i class="fas fa-clock"></i>${item.duration}
+            <i class="fas fa-star"></i>${reviews} Reviews
             <span>${item.instructorName}</span>
-            <span>${lCount} Learners</span>
           </div>
+
           <div class="c-footer">
-             <button class="btn-join ${isJoined ? 'joined' : ''}" onclick="joinCourse('${item.id}')">
-              ${isJoined ? 'Joined' : 'Join'}
+             <button class="btn-love ${isLoved ? 'loved' : ''}" onclick="toggleLove('${item.id}')">
+                <i class="fas fa-heart"></i> <span class="love-count" data-id="${item.id}">${loves}</span>
             </button>
-             <button style="background:none; border:1px solid #ddd; padding:6px; border-radius:6px; cursor:pointer;" onclick="viewDetails('${item.id}')">Details</button>
+             ${actionButton}
           </div>
         </div>
       `;
@@ -500,22 +644,171 @@
     });
   }
 
-  // --- CREATION FORM LOGIC ---
-  window.openCreateModal = () => {
-      if(!currentUser) { alert("Login required"); return; }
-      document.getElementById('createModal').style.display = 'flex';
-      setType(currentType, document.querySelector(`.type-tab[onclick*="${currentType}"]`));
-  };
-  window.closeCreateModal = () => {
-      document.getElementById('createModal').style.display = 'none';
-      document.getElementById('createForm').reset();
-      thumbBase64 = null;
-      document.getElementById('thumbPreview').style.display = 'none';
-      document.getElementById('mediaProgress').style.display = 'none';
-      setType('long-video', document.querySelector(`.type-tab[onclick*="long-video"]`));
+  // --- LOVE TOGGLE LOGIC (Req 2.2) ---
+  window.toggleLove = async (courseId) => {
+    if (!currentUser) { alert("Login required to show love."); return; }
+    const courseRef = doc(db, "meetversity_courses", courseId);
+
+    // Client-side prediction of current love state
+    const courseCard = document.querySelector(`.course-card .btn-love[onclick*="${courseId}"]`);
+    const isLoved = courseCard?.classList.contains('loved');
+
+    try {
+        if (isLoved) {
+            await updateDoc(courseRef, { lovedBy: arrayRemove(currentUser.uid) });
+            courseCard?.classList.remove('loved');
+        } else {
+            await updateDoc(courseRef, { lovedBy: arrayUnion(currentUser.uid) });
+            courseCard?.classList.add('loved');
+        }
+        // The main onSnapshot listener handles real-time count update (Req 3)
+    } catch (e) {
+        console.error("Love toggle failed:", e);
+        alert("Failed to update love status. Please try again.");
+    }
   };
 
-  // Set file input based on content type
+
+  // --- DETAILS MODAL LOGIC (Req 5) ---
+  window.viewDetails = async (courseId) => {
+    if (!currentUser) { alert("Login required to view content details."); return; }
+    
+    const courseRef = doc(db, "meetversity_courses", courseId);
+    const courseDoc = await getDoc(courseRef);
+    if (!courseDoc.exists()) { alert("Content not found."); return; }
+    const data = courseDoc.data();
+
+    document.getElementById('courseDetailTitle').innerText = data.title;
+    document.getElementById('courseDetailCreator').innerText = data.instructorName;
+    document.getElementById('courseDetailCategory').innerText = data.category;
+    document.getElementById('courseDetailDuration').innerText = data.duration;
+    document.getElementById('courseDetailDescription').innerText = data.description;
+    document.getElementById('courseDetailBio').innerText = data.instructorBio || "The creator has not provided a bio.";
+
+    const creatorBadge = document.getElementById('detailCreatorBadge');
+    if(data.instructorPhoto) {
+        creatorBadge.innerHTML = `<img src="${data.instructorPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+        creatorBadge.innerHTML = data.instructorName?.[0]||'U';
+        creatorBadge.style.backgroundColor = '#0080FF';
+    }
+
+    const outlineUl = document.getElementById('courseDetailOutline');
+    const outlineSection = document.getElementById('detailOutlineSection');
+    const certInfo = document.getElementById('detailCertificateInfo');
+    const joinBtn = document.getElementById('detailJoinBtn');
+    
+    outlineUl.innerHTML = '';
+    certInfo.innerHTML = '';
+    
+    if (data.outcomes && data.outcomes.length > 0) {
+        data.outcomes.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+            outlineUl.appendChild(li);
+        });
+        outlineSection.style.display = 'block';
+    } else {
+        outlineSection.style.display = 'none';
+    }
+
+    if(data.type === 'long-video' && data.hasCert) {
+        certInfo.innerHTML = '<i class="fas fa-certificate"></i> This course offers a MEET Certificate upon completion.';
+        joinBtn.style.display = 'block';
+        joinBtn.dataset.courseId = courseId;
+        joinBtn.dataset.courseTitle = data.title;
+        joinBtn.innerText = data.learners?.includes(currentUser.uid) ? 'Enrolled' : 'Join Class';
+        joinBtn.disabled = data.learners?.includes(currentUser.uid);
+    } else if (data.type === 'quick-video') {
+         // Quick video has details but no join class (Req 5.3)
+         joinBtn.style.display = 'none';
+         if(data.hasCert) {
+             certInfo.innerHTML = '<i class="fas fa-certificate"></i> This quick video offers a MEET Certificate.';
+         }
+    } else {
+        joinBtn.style.display = 'none';
+    }
+
+    const mediaEmbed = document.getElementById('detailMediaEmbed');
+    mediaEmbed.innerHTML = `<a href="${data.mediaUrl}" target="_blank" style="color:var(--primary); font-size:14px;"><i class="fas fa-external-link-alt"></i> View Content File</a>`;
+
+    document.getElementById('detailModal').style.display = 'flex';
+  };
+  window.closeDetailModal = () => {
+    document.getElementById('detailModal').style.display = 'none';
+  };
+
+
+  // --- APPLICATION FORM MODAL LOGIC (Req 5.2) ---
+
+  window.openApplicationModal = (courseId, title) => {
+    if (!currentUser) { alert("Login required to apply for a course."); return; }
+    document.getElementById('applyCourseId').value = courseId;
+    document.getElementById('applyCourseTitle').innerText = title;
+    
+    // Pre-fill user data if available
+    document.getElementById('applicantName').value = currentUser.displayName || '';
+    document.getElementById('applicantEmail').value = currentUser.email || '';
+
+    document.getElementById('applicationModal').style.display = 'flex';
+    document.getElementById('detailModal').style.display = 'none'; // Close details if open
+  };
+
+  window.closeApplicationModal = () => {
+    document.getElementById('applicationModal').style.display = 'none';
+    document.getElementById('applicationForm').reset();
+    // Redirect back to the Meetversity page is handled by the modal closing itself
+  };
+
+  window.submitApplication = async () => {
+    const courseId = document.getElementById('applyCourseId').value;
+    const name = document.getElementById('applicantName').value;
+    const email = document.getElementById('applicantEmail').value;
+    const aspirations = document.getElementById('applicantAspirations').value;
+    const role = document.getElementById('applicantRole').value;
+
+    if (!name || !email || aspirations.length < 20) {
+        alert("Please fill in your name, email, and provide at least 20 characters for your aspirations.");
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitApplicationBtn');
+    submitBtn.innerText = "Submitting...";
+    submitBtn.disabled = true;
+
+    try {
+        // 1. Save Application to new 'course_applications' collection
+        await addDoc(collection(db, "course_applications"), {
+            courseId: courseId,
+            applicantId: currentUser.uid,
+            name: name,
+            email: email,
+            aspirations: aspirations,
+            role: role || 'N/A',
+            appliedAt: serverTimestamp()
+        });
+
+        // 2. Mark user as 'learner' in the course document
+        await updateDoc(doc(db, "meetversity_courses", courseId), {
+            learners: arrayUnion(currentUser.uid)
+        });
+
+        alert("Form submitted, You are successfully enrolled!");
+        closeApplicationModal();
+        // The main feed listener will handle the UI update (Join Class -> Enrolled)
+
+    } catch (e) {
+        console.error("Application submission failed:", e);
+        alert(`Submission failed: ${e.message || "Please try again."}`);
+    } finally {
+        submitBtn.innerText = "Submit Application";
+        submitBtn.disabled = false;
+    }
+  };
+
+  // --- CREATION FORM LOGIC (Updated fields) ---
+
+  // Set file input based on content type (already present, ensured updates are correct)
   window.setType = (type, btn) => {
       currentType = type;
       document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -524,21 +817,27 @@
       const mediaInput = document.getElementById('cMediaFile');
       const label = document.getElementById('mediaLabel');
       const learnSection = document.getElementById('learnSection');
-      
+      const certCheckboxGroup = document.getElementById('certCheckboxGroup');
+
+      // Update certificate logic (Req 5.3: Quick video can have cert)
       if(type === 'document') {
-          // Document: accepts PDF, common document formats, and image files (for notes/diagrams)
           label.innerText = "Upload Document (PDF, Image, or DOC)";
           mediaInput.accept = "image/*, application/pdf, .doc, .docx";
           document.getElementById('cDuration').placeholder = 'e.g. 1 PDF or 3 Images';
           learnSection.style.display = 'none'; 
-          document.getElementById('cCert').parentElement.style.display = 'none';
-      } else {
-          // Video types: accepts video files
-          label.innerText = "Upload Video File";
+          certCheckboxGroup.style.display = 'none';
+      } else if (type === 'quick-video') {
+          label.innerText = "Upload Quick Video File";
+          mediaInput.accept = "video/*";
+          document.getElementById('cDuration').placeholder = 'e.g. 5m 30s';
+          learnSection.style.display = 'none'; // Quick video typically doesn't need an extensive outline
+          certCheckboxGroup.style.display = 'flex';
+      } else { // long-video
+          label.innerText = "Upload Full Course Video File";
           mediaInput.accept = "video/*";
           document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
           learnSection.style.display = 'block'; 
-          document.getElementById('cCert').parentElement.style.display = 'flex';
+          certCheckboxGroup.style.display = 'flex';
       }
       mediaInput.value = ''; 
   };
@@ -560,26 +859,29 @@
       }
   };
 
-  // Main Submit Logic
+  // Main Submit Logic (Updated fields and Post Content -> Public Course)
   window.submitCourse = async () => {
       const btn = document.getElementById('submitBtn');
       const progress = document.getElementById('mediaProgress');
       const fill = document.getElementById('mediaProgressFill');
       
-      // Get all new fields
+      // Get all fields
       const title = document.getElementById('cTitle').value;
       const description = document.getElementById('cDescription').value;
       const category = document.getElementById('cCategory').value;
-      const duration = document.getElementById('cDuration').value;
-      const price = parseFloat(document.getElementById('cPrice').value);
-      const currency = document.getElementById('cCurrency').value;
+      const duration = document.getElementById('cDuration').value; // Duration added
       const instructorBio = document.getElementById('cInstructorBio').value;
+      const hasCert = document.getElementById('cCert').checked;
       
       const mediaFile = document.getElementById('cMediaFile').files[0];
       
+      // Price/Currency are now hidden inputs with default values (Req 2)
+      const price = 0; 
+      const currency = 'USD';
+
       // Validation checks
-      if(!title || !mediaFile || !description || isNaN(price) || price < 0) {
-        alert("Please fill in all required fields (Title, Description, Price, Media File).");
+      if(!title || !mediaFile || !description || !duration) {
+        alert("Please fill in all required fields.");
         return;
       }
       if(description.length < 10) {
@@ -589,9 +891,9 @@
 
       const learnInputs = document.querySelectorAll('.learn-input');
       const outcomes = [];
-      if(currentType !== 'document') {
+      if(currentType === 'long-video') {
           learnInputs.forEach(i => { if(i.value.trim()) outcomes.push(i.value.trim()); });
-          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for video content."); return; }
+          if(outcomes.length === 0) { alert("Please provide at least one lesson/outcome for Full Course content."); return; }
       }
 
       if(!thumbBase64) { alert("Please upload a thumbnail"); return; }
@@ -610,24 +912,26 @@
           const mediaUrl = await uploadToCloudinary(mediaFile); 
           fill.style.width = '80%';
 
-          // 3. Save to Firestore
+          // 3. Save to Firestore (Updated fields)
           await addDoc(collection(db, "meetversity_courses"), {
               title, 
-              description, // New field
+              description, 
               category, 
-              duration, 
-              price, // New field
-              currency, // New field
-              instructorBio: instructorBio || null, // New field
+              duration, // Added
+              price, // Hidden
+              currency, // Hidden
+              instructorBio: instructorBio || null,
               type: currentType,
               thumbnail: thumbUrl,
               mediaUrl: mediaUrl,
               outcomes: outcomes,
-              hasCert: currentType !== 'document' ? document.getElementById('cCert').checked : false,
+              hasCert: hasCert,
               instructorId: currentUser.uid,
               instructorName: currentUser.displayName || 'Instructor',
               instructorPhoto: currentUser.photoURL || null,
               learners: [],
+              lovedBy: [], // Added for real-time count
+              reviewCount: 0, // Added for real-time count
               createdAt: serverTimestamp()
           });
 
@@ -639,21 +943,10 @@
           console.error("Final Submission Error:", e);
           alert(`Upload failed: ${e.message || "An unknown error occurred."}`);
       } finally {
-          btn.innerText = "Post Content";
+          btn.innerText = "Public Course";
           btn.disabled = false;
           progress.style.display = 'none';
       }
-  };
-
-  window.joinCourse = async (id) => {
-      if(!currentUser) { alert("Login required"); return; }
-      await updateDoc(doc(db, "meetversity_courses", id), {
-          learners: arrayUnion(currentUser.uid)
-      });
-  };
-
-  window.viewDetails = (id) => {
-      alert("Feature: Opens content detail view (Video Player / Document Viewer) for course ID: " + id);
   };
 
   // Dark mode toggle
