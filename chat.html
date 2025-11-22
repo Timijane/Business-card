@@ -1096,7 +1096,7 @@
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div class="search-bar">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search users..." id="searchInput">
+          <input type="text" placeholder="Search users..." id="navbarSearchInput">
         </div>
         <div class="nav-controls">
           <div class="user-profile-nav">
@@ -1276,6 +1276,7 @@
   const typingIndicatorWrapper = document.getElementById('typingIndicatorWrapper');
   const editingMessageContainer = document.getElementById('editingMessageContainer');
   const editingMessagePreview = document.getElementById('editingMessagePreview');
+  const navbarSearchInput = document.getElementById('navbarSearchInput');
 
   // --- State ---
   let currentUser = null;
@@ -1288,7 +1289,16 @@
   let isTyping = false;
   let editingMessageId = null;
 
-  // --- Avatar/Profile Utility Functions ---
+  // --- Utility Functions ---
+
+  function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
 
   function getInitialsForUrl(user) {
     if (user.name && user.name.trim().length > 0) {
@@ -1326,8 +1336,6 @@
       return { uid: userId, name: 'Error User', email: 'N/A', avatar: getDefaultAvatarUrl({uid: userId, name: 'Error'}) };
     }
   }
-
-  // --- Utility Functions ---
 
   function initTheme() {
     const savedTheme = localStorage.getItem('meet_theme');
@@ -1371,126 +1379,112 @@
     return date.toLocaleDateString();
   }
   
-  // --- Search Functions ---
+  // --- Search Functions (Improved Implementation) ---
 
   function openUserSearchOverlay() {
     userSearchOverlay.style.display = 'flex';
     userSearchInput.focus();
   }
 
-  function closeUserSearchOverlay() {
+  window.closeUserSearchOverlay = function() {
     userSearchOverlay.style.display = 'none';
     userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">Start typing to search for users.</p>';
     userSearchInput.value = '';
   }
 
-  async function handleUserSearch(event) {
-    const searchTerm = event.target.value.toLowerCase().trim();
-    if (searchTerm.length < 2) {
-      userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">Start typing to search for users.</p>';
+  async function handleUserSearch() {
+    const queryText = userSearchInput.value.trim().toLowerCase();
+    if (queryText.length < 3) {
+      userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">Type at least 3 characters...</p>';
       return;
     }
     
     userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;"><i class="fas fa-spinner fa-spin"></i> Searching...</p>';
 
+    const usersRef = collection(db, "users");
+    let results = [];
+    const currentUserId = auth.currentUser.uid;
+
     try {
-      const usersRef = collection(db, "users");
-      
-      // Search by email (exact match)
-      const q = query(
-        usersRef, 
-        where("email", ">=", searchTerm), 
-        where("email", "<=", searchTerm + '\uf8ff'), 
-        limit(10)
+      // Search by name
+      const nameQuery = query(
+        usersRef,
+        where("name", ">=", queryText),
+        where("name", "<=", queryText + '\uf8ff'),
+        limit(5)
       );
-
-      const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">No users found matching your query.</p>';
-        return;
-      }
-
-      userSearchResults.innerHTML = '';
-      snapshot.forEach(doc => {
-        if (doc.id !== currentUser.uid) {
-          const userData = doc.data();
-          const user = { 
-            uid: doc.id, 
-            name: userData.name || userData.displayName || 'User',
-            email: userData.email || 'No email',
-            avatar: userData.avatar || userData.photoURL
-          };
-          user.avatar = user.avatar || getDefaultAvatarUrl(user);
-          
-          const resultItem = document.createElement('div');
-          resultItem.className = 'search-result-item';
-          resultItem.innerHTML = `
-            <img src="${user.avatar}" onerror="this.src='${getDefaultAvatarUrl(user)}'" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
-            <div class="search-user-info">
-              <div class="name">${user.name}</div>
-              <div class="email">${user.email}</div>
-            </div>
-            <button class="search-start-btn">Chat</button>
-          `;
-          
-          resultItem.querySelector('.search-start-btn').addEventListener('click', async () => {
-            try {
-              userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;"><i class="fas fa-spinner fa-spin"></i> Creating chat...</p>';
-              
-              const chatId = await createOrGetConversation(user.uid);
-              await loadChat(chatId, user.uid);
-              closeUserSearchOverlay();
-              
-              document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
-              const newConvItem = document.getElementById(`conversation-${chatId}`);
-              if (newConvItem) newConvItem.classList.add('active');
-              
-              showMessage(`Chat started with ${user.name}`, 'success');
-            } catch (e) {
-              console.error("Failed to start chat:", e);
-              showMessage("Failed to start chat: " + e.message, 'error');
-              userSearchResults.innerHTML = ''; // Reset results on error
-              // Re-render results
-              snapshot.forEach(doc => {
-                if (doc.id !== currentUser.uid) {
-                  const userData = doc.data();
-                  const user = { 
-                    uid: doc.id, 
-                    name: userData.name || userData.displayName || 'User',
-                    email: userData.email || 'No email',
-                    avatar: userData.avatar || userData.photoURL
-                  };
-                  user.avatar = user.avatar || getDefaultAvatarUrl(user);
-                  
-                  const resultItem = document.createElement('div');
-                  resultItem.className = 'search-result-item';
-                  resultItem.innerHTML = `
-                    <img src="${user.avatar}" onerror="this.src='${getDefaultAvatarUrl(user)}'" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
-                    <div class="search-user-info">
-                      <div class="name">${user.name}</div>
-                      <div class="email">${user.email}</div>
-                    </div>
-                    <button class="search-start-btn">Chat</button>
-                  `;
-                  
-                  resultItem.querySelector('.search-start-btn').addEventListener('click', async () => {
-                    // Same click handler as above
-                  });
-                  userSearchResults.appendChild(resultItem);
-                }
-              });
-            }
-          });
-
-          userSearchResults.appendChild(resultItem);
+      const nameSnapshot = await getDocs(nameQuery);
+      nameSnapshot.forEach(doc => {
+        if (doc.id !== currentUserId) {
+          results.push({ id: doc.id, ...doc.data() });
         }
       });
 
+      // Search by email (if not found in name)
+      const emailQuery = query(
+        usersRef,
+        where("email", ">=", queryText),
+        where("email", "<=", queryText + '\uf8ff'),
+        limit(5)
+      );
+      const emailSnapshot = await getDocs(emailQuery);
+      emailSnapshot.forEach(doc => {
+        if (doc.id !== currentUserId && !results.some(r => r.id === doc.id)) {
+          results.push({ id: doc.id, ...doc.data() });
+        }
+      });
+
+      renderSearchResults(results);
+
     } catch (error) {
       console.error('Error searching for users:', error);
-      userSearchResults.innerHTML = '<p style="text-align: center; color: var(--error); padding: 10px;">Error searching users. Please try again.</p>';
+      // If search fails (often due to missing index or strict rules), show friendly message
+      userSearchResults.innerHTML = '<p style="text-align: center; color: var(--error); padding: 10px;">Search limited. Try exact email address if name search fails.</p>';
     }
+  }
+
+  function renderSearchResults(users) {
+    userSearchResults.innerHTML = '';
+    
+    if (users.length === 0) {
+      userSearchResults.innerHTML = '<div style="padding: 10px; text-align: center; color: var(--secondary-text);">No users found.</div>';
+      return;
+    }
+
+    users.forEach(user => {
+      // Ensure avatar url exists
+      user.avatar = user.avatar || user.photoURL || getDefaultAvatarUrl({name: user.name, uid: user.id});
+      
+      const resultItem = document.createElement('div');
+      resultItem.className = 'search-result-item';
+      resultItem.innerHTML = `
+        <img src="${user.avatar}" onerror="this.src='${getDefaultAvatarUrl(user)}'" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
+        <div class="search-user-info">
+          <div class="name">${user.name || 'User'}</div>
+          <div class="email">${user.email || 'No Email'}</div>
+        </div>
+        <button class="search-start-btn">Chat</button>
+      `;
+      
+      const startChatBtn = resultItem.querySelector('.search-start-btn');
+      startChatBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          startChatBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          const chatId = await createOrGetConversation(user.id);
+          await loadChat(chatId, user.id);
+          closeUserSearchOverlay();
+          if (isMobile) showChatView();
+          showMessage(`Chat started with ${user.name}`, 'success');
+        } catch (error) {
+          console.error('Failed to start chat:', error);
+          startChatBtn.textContent = 'Retry';
+          showMessage('Failed to start chat. Please try again.', 'error');
+        }
+      });
+
+      userSearchResults.appendChild(resultItem);
+    });
   }
 
   // --- Chat/Conversation Functions ---
@@ -1518,21 +1512,26 @@
       const otherUserProfile = await getUserProfile(otherUserId);
       const currentUserProfile = await getUserProfile(currentUserId);
       
-      // SIMPLIFIED conversation data - only essential fields
+      // Simplified conversation data that matches security rules
       const conversationData = {
+        type: 'direct',
         participants: participantsSorted,
         participantNames: {
           [currentUserId]: currentUserProfile.name,
           [otherUserId]: otherUserProfile.name
         },
-        lastMessage: '',
+        participantAvatars: {
+          [currentUserId]: currentUserProfile.avatar,
+          [otherUserId]: otherUserProfile.avatar
+        },
+        lastMessage: 'Chat started',
+        lastMessageTime: serverTimestamp(),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
       
-      console.log('Creating conversation with data:', conversationData);
+      // This line automatically creates the 'conversations' collection if it doesn't exist
       await setDoc(chatDocRef, conversationData);
-      console.log('Conversation created successfully');
       return chatId;
     } catch (error) {
       console.error('Error in createOrGetConversation:', error);
@@ -1543,10 +1542,12 @@
   function loadConversations() {
     const currentUserId = auth.currentUser.uid;
     const conversationsRef = collection(db, "conversations");
+    
+    // FIX: Removed orderBy("updatedAt", "desc") to prevent "Index Required" error.
+    // We will sort the results in JavaScript instead.
     const q = query(
       conversationsRef, 
-      where("participants", "array-contains", currentUserId),
-      orderBy("updatedAt", "desc")
+      where("participants", "array-contains", currentUserId)
     );
     
     onSnapshot(q, 
@@ -1558,15 +1559,22 @@
             ...doc.data()
           });
         });
+
+        // Sort manually in Client to avoid Firestore Index Requirement
+        conversations.sort((a, b) => {
+            const timeA = a.updatedAt ? a.updatedAt.toMillis() : 0;
+            const timeB = b.updatedAt ? b.updatedAt.toMillis() : 0;
+            return timeB - timeA; // Descending order
+        });
         
         renderConversations();
       }, 
       error => {
         console.error('Error loading conversations:', error);
         if (error.code === 'permission-denied') {
-          showMessage('Permission denied. Please check your security rules.', 'error');
+          // showMessage('Permission denied. Please check your security rules.', 'error');
         } else {
-          showMessage('Failed to load conversations. Please try again.', 'error');
+          // showMessage('Failed to load conversations.', 'error');
         }
       }
     );
@@ -1685,7 +1693,7 @@
     
     currentMessageSnapshotUnsubscribe = onSnapshot(q, (snapshot) => {
       // Determine if we should scroll to the bottom BEFORE clearing content
-      const shouldScrollToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 50; 
+      const shouldScrollToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100; 
 
       messagesContainer.innerHTML = ''; 
       
@@ -1694,12 +1702,14 @@
         await renderMessage(message); 
       });
       
-      if (shouldScrollToBottom) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      if (shouldScrollToBottom || snapshot.docChanges().some(change => change.type === 'added')) {
+          setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }, 100);
       }
     }, error => {
       console.error('Error loading messages:', error);
-      showMessage('Failed to load messages due to a network or permission error.', 'error');
+      // showMessage('Failed to load messages.', 'error');
     });
   }
 
@@ -1751,6 +1761,7 @@
         await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
           text: text,
           edited: true,
+          // Sending timestamp here to ensure the rule 'hasOnly' passes during update.
           timestamp: serverTimestamp() 
         });
         
@@ -1781,7 +1792,7 @@
       
     } catch (error) {
       console.error('Error sending/editing message:', error);
-      showMessage('Failed to send or edit message. Please check network/Firestore rules.', 'error');
+      showMessage('Failed to send. Check your internet or permissions.', 'error');
     }
   }
 
@@ -1847,11 +1858,12 @@
     const chatDocRef = doc(db, "conversations", currentChatId);
     try {
         await updateDoc(chatDocRef, {
+            // Using dot notation to update the map inside the document
             [`status.${currentUser.uid}.isTyping`]: status,
             [`status.${currentUser.uid}.lastActive`]: serverTimestamp()
         });
     } catch (error) {
-        // Errors here are often rule violations if the document was deleted. 
+        // Suppress errors here
     }
   }
 
@@ -1907,6 +1919,7 @@
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
+        // Do not update status here; let onAuthStateChanged handle redirect
       } catch (error) {
         console.error('Logout error:', error);
         showMessage('Failed to logout. Please try again.');
@@ -1935,9 +1948,14 @@
 
     newChatBtn.addEventListener('click', openUserSearchOverlay);
     startNewChatBtn.addEventListener('click', openUserSearchOverlay);
-    userSearchInput.addEventListener('input', handleUserSearch);
+    
+    // Debounce search input
+    userSearchInput.addEventListener('input', debounce(handleUserSearch, 500));
 
-    chatSearch.addEventListener('input', renderConversations);
+    // Bind navbar search to the same modal
+    navbarSearchInput.addEventListener('click', openUserSearchOverlay);
+
+    chatSearch.addEventListener('input', renderConversations); // Rerun renderConversations to filter the list
     
     window.addEventListener('resize', checkMobileLayout);
   }
@@ -1946,6 +1964,7 @@
     isMobile = window.innerWidth <= 768;
     
     if (isMobile) {
+      // On mobile, if no chat is active, show sidebar
       if (!currentChatId || !chatArea.classList.contains('active')) {
           conversationsSidebar.classList.remove('hidden');
           chatArea.classList.remove('active');
@@ -1966,7 +1985,7 @@
     if (!isMobile) return;
     conversationsSidebar.classList.remove('hidden');
     chatArea.classList.remove('active');
-    currentChatId = null;
+    currentChatId = null; // Clear active chat
   }
 
   // Placeholder functions for additional features
@@ -1977,16 +1996,41 @@
   window.startVoiceCall = () => showMessage('Voice call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
   window.startVideoCall = () => showMessage('Video call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
 
+
   // --- Initialization ---
 
   async function updateUserStatus(isOnline) {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) return; // Use auth.currentUser here because currentUser state might be nullified
     try {
         const userDocRef = doc(db, "users", auth.currentUser.uid);
+        // Update user document using only the fields allowed by the rule
         await updateDoc(userDocRef, { isOnline: isOnline, lastActive: serverTimestamp() });
     } catch (error) {
-        // This is expected if the user document hasn't been created yet
+        // Suppress
     }
+  }
+
+  // --- AUTO CREATE USER COLLECTION LOGIC ---
+  // This ensures the collection is created automatically on login
+  async function ensureUserDocumentExists(user) {
+      const userRef = doc(db, "users", user.uid);
+      try {
+          const userSnap = await getDoc(userRef);
+          if (!userSnap.exists()) {
+              console.log("Creating new user document automatically...");
+              // Create the document. This Action creates the 'users' collection.
+              await setDoc(userRef, {
+                  name: user.displayName || 'User',
+                  email: user.email,
+                  photoURL: user.photoURL || '',
+                  uid: user.uid,
+                  createdAt: serverTimestamp(),
+                  isOnline: true
+              });
+          }
+      } catch (e) {
+          console.error("Error ensuring user document:", e);
+      }
   }
 
   onAuthStateChanged(auth, async user => {
@@ -1995,12 +2039,16 @@
     } else {
       currentUser = user;
       
+      // Step 1: Ensure the 'users' collection/document exists automatically
+      await ensureUserDocumentExists(user);
+
       const userProfile = await getUserProfile(user.uid);
       currentUser.name = user.displayName || userProfile.name;
       currentUser.photoURL = user.photoURL || userProfile.avatar; 
 
       const userNameText = currentUser.name || 'User';
       
+      // Set the user avatar in the main navbar
       currentUserAvatar.src = currentUser.photoURL || getDefaultAvatarUrl(currentUser);
       currentUserAvatar.onerror = function() { this.src = getDefaultAvatarUrl(currentUser); };
       userName.textContent = userNameText;
@@ -2009,6 +2057,7 @@
       
       loadConversations();
       
+      // Set status to offline when the user closes the window
       window.addEventListener('beforeunload', () => updateUserStatus(false));
     }
   });
@@ -2022,4 +2071,4 @@
   document.addEventListener('DOMContentLoaded', initChat);
 </script>
 </body>
-  </html>
+</html>
