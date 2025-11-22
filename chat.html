@@ -61,7 +61,7 @@
     position: relative;
   }
 
-  /* Sidebar */
+  /* Sidebar (Kept CSS for brevity) */
   .sidebar {
     position: fixed;
     left: 0;
@@ -202,6 +202,7 @@
     min-width: 40px;
     font-size: 16px;
     border: 2px solid white;
+    object-fit: cover;
   }
 
   .user-avatar.small {
@@ -503,11 +504,18 @@
     gap: 15px;
   }
 
+  .message-group {
+      display: flex;
+      flex-direction: column;
+  }
+
   .message {
     display: flex;
     gap: 10px;
     max-width: 70%;
     animation: messageAppear 0.3s ease-out;
+    position: relative;
+    margin-bottom: 5px;
   }
 
   @keyframes messageAppear {
@@ -533,6 +541,7 @@
     object-fit: cover;
     align-self: flex-end;
     flex-shrink: 0;
+    cursor: pointer;
   }
 
   .message-bubble {
@@ -543,15 +552,22 @@
     max-width: 100%;
   }
 
+  .message-bubble:hover .message-actions {
+    opacity: 1;
+    pointer-events: all;
+  }
+
   .received .message-bubble {
     background: var(--card-bg);
     border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.05);
   }
 
   .sent .message-bubble {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
     color: white;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   }
 
   .message-text {
@@ -565,8 +581,52 @@
     opacity: 0.7;
     margin-top: 4px;
     text-align: right;
+    display: block;
   }
 
+  .message-actions {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 2px 5px;
+    box-shadow: var(--shadow);
+    z-index: 10;
+  }
+
+  .sent .message-actions {
+    left: 0;
+    right: auto;
+  }
+
+  .message-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+
+  .message-action-btn:hover {
+    background: var(--bg-color);
+  }
+
+  .edited-mark {
+    font-size: 10px;
+    opacity: 0.5;
+    margin-left: 5px;
+    font-style: italic;
+  }
+  
   .message-input-container {
     padding: 15px 20px;
     border-top: 1px solid var(--border-color);
@@ -582,7 +642,7 @@
   .message-input-actions {
     display: flex;
     gap: 8px;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
   }
 
   .input-action {
@@ -683,7 +743,7 @@
     margin: 0 auto 20px;
   }
 
-  /* Message Container */
+  /* Message Container (for toast notifications) */
   .message-container {
     position: fixed;
     top: 20px;
@@ -692,7 +752,7 @@
     max-width: 300px;
   }
 
-  .message {
+  .toast-message {
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 10px;
@@ -701,12 +761,12 @@
     animation: slideIn 0.3s ease;
   }
 
-  .message.success {
+  .toast-message.success {
     background: var(--success);
     color: white;
   }
 
-  .message.error {
+  .toast-message.error {
     background: var(--error);
     color: white;
   }
@@ -723,16 +783,21 @@
   }
 
   /* Typing Indicator */
+  .typing-indicator-wrapper {
+    padding: 0 20px;
+    margin-bottom: 10px;
+  }
+
   .typing-indicator {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 10px 15px;
     background: var(--card-bg);
     border-radius: 18px;
-    margin-bottom: 10px;
     align-self: flex-start;
-    max-width: 70px;
+    max-width: 150px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.05);
   }
 
   .typing-dot {
@@ -760,7 +825,102 @@
     }
   }
 
-  /* Responsive */
+  /* User Search Overlay/Modal */
+  .user-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .user-search-modal {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: var(--shadow);
+  }
+
+  .user-search-modal h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .user-search-modal input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .search-results {
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .search-result-item:hover {
+    background: rgba(0,128,255,0.05);
+    padding-left: 5px;
+  }
+
+  .search-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .search-user-info .name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .search-user-info .email {
+    font-size: 14px;
+    color: var(--secondary-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-start-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 80px;
+  }
+
+  /* Responsive (Kept CSS for brevity) */
   @media (max-width: 1200px) {
     .sidebar {
       width: 80px;
@@ -854,7 +1014,7 @@
       width: 100%;
       transform: translateX(100%);
       transition: transform 0.3s ease;
-      position: relative;
+      position: absolute;
       z-index: 20;
     }
     
@@ -868,6 +1028,10 @@
     
     .message {
       max-width: 85%;
+    }
+    
+    .user-search-modal {
+      width: 95%;
     }
   }
 
@@ -912,7 +1076,6 @@
 <body>
 
 <div class="app-container">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <h2 style="color: white;">MEET</h2>
@@ -928,9 +1091,7 @@
     </ul>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Navbar -->
     <div class="navbar">
       <h2 style="color: white;">MEET Chat</h2>
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -940,10 +1101,7 @@
         </div>
         <div class="nav-controls">
           <div class="user-profile-nav">
-            <div class="user-avatar small" id="currentUserAvatar">
-              U
-              <div class="status-indicator status-online"></div>
-            </div>
+            <img class="user-avatar small" id="currentUserAvatar" alt="U" src="">
             <span id="userName">User</span>
           </div>
           <button class="btn" id="nightToggleBtn">
@@ -956,12 +1114,9 @@
       </div>
     </div>
 
-    <!-- Message Container -->
     <div class="message-container" id="messageContainer"></div>
 
-    <!-- Chat Container -->
     <div class="chat-container">
-      <!-- Conversations Sidebar -->
       <div class="conversations-sidebar" id="conversationsSidebar">
         <div class="chat-header">
           <div class="chat-title">Messages</div>
@@ -975,11 +1130,9 @@
         </div>
         
         <div class="conversations-list" id="conversationsList">
-          <!-- Conversations will be populated by JavaScript -->
-        </div>
+          </div>
       </div>
 
-      <!-- Chat Area -->
       <div class="chat-area" id="chatArea">
         <div class="empty-chat" id="emptyChat">
           <div class="empty-chat-icon">💬</div>
@@ -998,7 +1151,6 @@
           <div class="current-chat-info">
             <div class="current-chat-name" id="currentChatName">
               <span id="chatUserName"></span>
-              <div class="status-indicator status-online" id="chatUserStatus" style="display: inline-block; margin-left: 8px;"></div>
             </div>
             <div class="current-chat-status" id="currentChatStatus">Online</div>
           </div>
@@ -1016,10 +1168,24 @@
         </div>
         
         <div class="messages-container" id="messagesContainer" style="display: none;">
-          <!-- Messages will be populated by JavaScript -->
+          </div>
+
+        <div class="typing-indicator-wrapper" id="typingIndicatorWrapper" style="display: none;">
+          <div class="typing-indicator">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
         </div>
         
         <div class="message-input-container" id="messageInputContainer" style="display: none;">
+          <div id="editingMessageContainer" style="display: none; margin-bottom: 10px; padding: 10px; background: var(--bg-color); border-radius: 8px; border-left: 3px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; font-size: 14px;">Editing Message</span>
+              <button onclick="cancelEdit()" style="background: none; border: none; color: var(--error); cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <p id="editingMessagePreview" style="font-size: 12px; color: var(--secondary-text); margin-top: 5px;"></p>
+          </div>
           <div class="message-input-wrapper">
             <div class="message-input-actions">
               <button class="input-action" onclick="attachFile()" title="Attach File">
@@ -1043,16 +1209,31 @@
   </div>
 </div>
 
+<div class="user-search-overlay" id="userSearchOverlay">
+  <div class="user-search-modal">
+    <h3>Start a New Chat</h3>
+    <input type="text" placeholder="Search by Name or Email..." id="userSearchInput">
+    <div class="search-results" id="userSearchResults">
+      <p style="text-align: center; color: var(--secondary-text); padding: 10px;">Start typing to search for users.</p>
+    </div>
+    <div style="text-align: right; margin-top: 20px;">
+      <button class="btn" onclick="closeUserSearchOverlay()" style="background: var(--error);">
+        <span>Cancel</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   // Firebase imports
   import { 
     getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, 
-    query, orderBy, where, setDoc, arrayUnion, arrayRemove
+    query, orderBy, where, setDoc, arrayUnion, arrayRemove, limit
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
-  // Firebase configuration
+  // --- Firebase Configuration ---
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -1064,12 +1245,11 @@
     measurementId: "G-9BFPPVMMRF"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // DOM Elements
+  // --- DOM Elements ---
   const conversationsList = document.getElementById('conversationsList');
   const emptyChat = document.getElementById('emptyChat');
   const chatHeader = document.getElementById('chatHeader');
@@ -1078,7 +1258,6 @@
   const currentChatAvatar = document.getElementById('currentChatAvatar');
   const chatUserName = document.getElementById('chatUserName');
   const currentChatStatus = document.getElementById('currentChatStatus');
-  const chatUserStatus = document.getElementById('chatUserStatus');
   const messageInput = document.getElementById('messageInput');
   const sendButton = document.getElementById('sendButton');
   const backButton = document.getElementById('backButton');
@@ -1087,24 +1266,39 @@
   const newChatBtn = document.getElementById('newChatBtn');
   const startNewChatBtn = document.getElementById('startNewChatBtn');
   const chatSearch = document.getElementById('chatSearch');
-  const searchInput = document.getElementById('searchInput');
+  const searchInput = document.getElementById('searchInput'); // Main navbar search
   const logoutBtn = document.getElementById('logoutBtn');
   const nightToggleBtn = document.getElementById('nightToggleBtn');
   const currentUserAvatar = document.getElementById('currentUserAvatar');
   const userName = document.getElementById('userName');
   const messageContainer = document.getElementById('messageContainer');
+  const userSearchOverlay = document.getElementById('userSearchOverlay');
+  const userSearchInput = document.getElementById('userSearchInput');
+  const userSearchResults = document.getElementById('userSearchResults');
+  const typingIndicatorWrapper = document.getElementById('typingIndicatorWrapper');
+  const editingMessageContainer = document.getElementById('editingMessageContainer');
+  const editingMessagePreview = document.getElementById('editingMessagePreview');
 
-  // State
+  // --- State ---
   let currentUser = null;
   let currentChatId = null;
-  let currentChatUser = null;
+  let currentChatUser = null; // Other participant's UID
   let conversations = [];
-  let users = [];
+  let currentMessageSnapshotUnsubscribe = null;
   let isMobile = window.innerWidth <= 768;
   let typingTimeout = null;
+  let isTyping = false;
+  let editingMessageId = null;
 
-  // Theme management
+  // Default Avatar function
+  const getDefaultAvatarUrl = (uid) => {
+    return `https://ui-avatars.com/api/?name=${uid.substring(0, 2)}&background=0080FF&color=fff&size=50`;
+  };
+
+  // --- Utility Functions ---
+
   function initTheme() {
+    // ... (Theme logic remains the same)
     const savedTheme = localStorage.getItem('meet_theme');
     if (savedTheme === 'dark') {
       document.body.classList.add('dark-mode');
@@ -1115,10 +1309,9 @@
     }
   }
 
-  // Message display
   function showMessage(message, type = 'error') {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}`;
+    messageDiv.className = `toast-message ${type}`;
     messageDiv.textContent = message;
     messageContainer.appendChild(messageDiv);
     
@@ -1129,111 +1322,208 @@
     }, 5000);
   }
 
-  // Get user profile data
+  function formatTime(date) {
+    if (!date) return '';
+    if (date.seconds) date = date.toDate();
+    
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (diffDays < 7) return date.toLocaleDateString([], { weekday: 'short' });
+    
+    return date.toLocaleDateString();
+  }
+  
+  // --- Profile/User Functions ---
+
   async function getUserProfile(userId) {
     try {
       const userDoc = await getDoc(doc(db, "users", userId));
       if (userDoc.exists()) {
-        return userDoc.data();
+        return { uid: userId, ...userDoc.data() };
       }
-      return null;
+      return { uid: userId, name: 'User', email: 'N/A', avatar: getDefaultAvatarUrl(userId) };
     } catch (error) {
       console.error('Error getting user profile:', error);
-      return null;
+      return { uid: userId, name: 'Error User', email: 'N/A', avatar: getDefaultAvatarUrl(userId) };
     }
   }
 
-  // Create or get conversation
+  // Get Avatar/Initial
+  function getAvatarElement(user) {
+    let avatarSrc = user.avatar || user.photoURL || getDefaultAvatarUrl(user.uid);
+    let initials = user.name ? user.name.charAt(0).toUpperCase() : user.uid.charAt(0).toUpperCase();
+
+    // Check if the source is likely a default UI-Avatars URL or if photoURL/avatar is null/undefined
+    if (!user.photoURL && !user.avatar || avatarSrc.includes('ui-avatars.com') || avatarSrc.includes('pravatar.cc')) {
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'user-avatar small';
+      avatarDiv.textContent = initials;
+      avatarDiv.style.minWidth = '40px';
+      avatarDiv.style.height = '40px';
+      avatarDiv.style.width = '40px';
+      avatarDiv.style.borderRadius = '50%';
+      return avatarDiv;
+    } else {
+      const avatarImg = document.createElement('img');
+      avatarImg.className = 'user-avatar small';
+      avatarImg.src = avatarSrc;
+      avatarImg.alt = initials;
+      avatarImg.style.minWidth = '40px';
+      avatarImg.style.height = '40px';
+      avatarImg.style.width = '40px';
+      avatarImg.style.borderRadius = '50%';
+      avatarImg.onerror = () => { avatarImg.style.display = 'none'; }; // Hide broken images
+      return avatarImg;
+    }
+  }
+
+  // --- Search Functions (Req. 1) ---
+
+  function openUserSearchOverlay() {
+    userSearchOverlay.style.display = 'flex';
+    userSearchInput.focus();
+  }
+
+  function closeUserSearchOverlay() {
+    userSearchOverlay.style.display = 'none';
+    userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">Start typing to search for users.</p>';
+    userSearchInput.value = '';
+  }
+
+  // Combined search function for navbar and chat overlay
+  async function handleUserSearch(event) {
+    const searchTerm = event.target.value.toLowerCase().trim();
+    if (searchTerm.length < 2) {
+      userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">Start typing to search for users.</p>';
+      return;
+    }
+    
+    userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;"><i class="fas fa-spinner fa-spin"></i> Searching...</p>';
+
+    try {
+        const usersRef = collection(db, "users");
+        
+        // Use a less restrictive query for demonstration since full-text search is complex in Firestore
+        // In a real app, you would use a dedicated search service (e.g., Algolia)
+        const q1 = query(usersRef, where("name", ">=", searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1)), where("name", "<=", searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '\uf8ff'), limit(5));
+        const q2 = query(usersRef, where("email", ">=", searchTerm), where("email", "<=", searchTerm + '\uf8ff'), limit(5));
+
+        const snapshot1 = await getDocs(q1);
+        const snapshot2 = await getDocs(q2);
+
+        const results = new Map();
+        snapshot1.forEach(doc => {
+            if (doc.id !== currentUser.uid) {
+                results.set(doc.id, { uid: doc.id, ...doc.data() });
+            }
+        });
+        snapshot2.forEach(doc => {
+            if (doc.id !== currentUser.uid) {
+                results.set(doc.id, { uid: doc.id, ...doc.data() });
+            }
+        });
+
+        if (results.size === 0) {
+            userSearchResults.innerHTML = '<p style="text-align: center; color: var(--secondary-text); padding: 10px;">No users found matching your query.</p>';
+            return;
+        }
+
+        userSearchResults.innerHTML = '';
+        results.forEach(user => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.innerHTML = `
+                <img src="${user.avatar || getDefaultAvatarUrl(user.uid)}" alt="${user.name}" class="conversation-avatar" style="width: 40px; height: 40px;">
+                <div class="search-user-info">
+                    <div class="name">${user.name || 'User'}</div>
+                    <div class="email">${user.email || 'No email'}</div>
+                </div>
+                <button class="search-start-btn">Chat</button>
+            `;
+            
+            resultItem.querySelector('.search-start-btn').addEventListener('click', async () => {
+                const chatId = await createOrGetConversation(user.uid);
+                loadChat(chatId, user.uid);
+                closeUserSearchOverlay();
+                // Ensure the new chat is selected in the sidebar
+                document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+                const newConvItem = document.getElementById(`conversation-${chatId}`);
+                if (newConvItem) newConvItem.classList.add('active');
+            });
+
+            userSearchResults.appendChild(resultItem);
+        });
+
+    } catch (error) {
+        console.error('Error searching for users:', error);
+        userSearchResults.innerHTML = '<p style="text-align: center; color: var(--error); padding: 10px;">Failed to search users. Check console.</p>';
+    }
+  }
+
+  // --- Chat/Conversation Functions ---
+
+  // Create or get conversation (Req. 2)
   async function createOrGetConversation(otherUserId) {
     const currentUserId = auth.currentUser.uid;
     
-    // Check if conversation already exists
-    const conversationsRef = collection(db, "conversations");
-    const q = query(
-      conversationsRef, 
-      where("participants", "array-contains", currentUserId)
-    );
+    // Create deterministic ID for direct chat
+    const participantsSorted = [currentUserId, otherUserId].sort();
+    const chatId = participantsSorted.join('_');
+    const chatDocRef = doc(db, "conversations", chatId);
     
-    const querySnapshot = await getDocs(q);
-    let existingConversation = null;
-    
-    querySnapshot.forEach((doc) => {
-      const conversation = doc.data();
-      if (conversation.participants.includes(otherUserId) && conversation.type === 'direct') {
-        existingConversation = { id: doc.id, ...conversation };
-      }
-    });
-    
-    if (existingConversation) {
-      return existingConversation.id;
+    const chatDoc = await getDoc(chatDocRef);
+
+    if (chatDoc.exists()) {
+      return chatId;
     }
     
-    // Create new conversation
+    // Get profiles for initial conversation data
     const otherUserProfile = await getUserProfile(otherUserId);
     const currentUserProfile = await getUserProfile(currentUserId);
     
     const conversationData = {
       type: 'direct',
-      participants: [currentUserId, otherUserId],
+      participants: participantsSorted,
       participantNames: {
-        [currentUserId]: currentUserProfile?.name || 'You',
-        [otherUserId]: otherUserProfile?.name || 'User'
+        [currentUserId]: currentUserProfile?.name || currentUser.displayName || 'You',
+        [otherUserId]: otherUserProfile?.name || otherUserProfile.uid.substring(0, 5)
       },
       participantAvatars: {
-        [currentUserId]: currentUserProfile?.avatar || `https://i.pravatar.cc/150?u=${currentUserId}`,
-        [otherUserId]: otherUserProfile?.avatar || `https://i.pravatar.cc/150?u=${otherUserId}`
+        [currentUserId]: currentUserProfile?.avatar || currentUser.photoURL || getDefaultAvatarUrl(currentUserId),
+        [otherUserId]: otherUserProfile?.avatar || getDefaultAvatarUrl(otherUserId)
       },
       lastMessage: '',
       lastMessageTime: serverTimestamp(),
       createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
+      // Add a status subcollection for online/typing status
+      status: {
+        [currentUserId]: { isOnline: true, isTyping: false },
+        [otherUserId]: { isOnline: true, isTyping: false }
+      }
     };
     
-    const docRef = await addDoc(collection(db, "conversations"), conversationData);
-    return docRef.id;
+    // Use setDoc with the deterministic ID (chatId)
+    await setDoc(chatDocRef, conversationData);
+    return chatId;
   }
 
-  // Send message
-  async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text || !currentChatId) return;
-    
-    try {
-      const messageData = {
-        senderId: auth.currentUser.uid,
-        text: text,
-        timestamp: serverTimestamp(),
-        type: 'text'
-      };
-      
-      // Add message to subcollection
-      await addDoc(collection(db, "conversations", currentChatId, "messages"), messageData);
-      
-      // Update conversation last message and time
-      await updateDoc(doc(db, "conversations", currentChatId), {
-        lastMessage: text,
-        lastMessageTime: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      
-      // Clear input
-      messageInput.value = '';
-      messageInput.style.height = 'auto';
-      
-    } catch (error) {
-      console.error('Error sending message:', error);
-      showMessage('Failed to send message. Please try again.');
-    }
-  }
-
-  // Load conversations
+  // Load conversations (Req. 3, 4, 8)
   function loadConversations() {
     const currentUserId = auth.currentUser.uid;
     const conversationsRef = collection(db, "conversations");
+    // Order by updated time for "last message" effect
     const q = query(
       conversationsRef, 
       where("participants", "array-contains", currentUserId),
-      orderBy("lastMessageTime", "desc")
+      orderBy("updatedAt", "desc")
     );
     
     onSnapshot(q, (snapshot) => {
@@ -1252,7 +1542,6 @@
     });
   }
 
-  // Render conversations
   function renderConversations() {
     conversationsList.innerHTML = '';
     
@@ -1270,198 +1559,316 @@
     conversations.forEach(conversation => {
       const otherParticipantId = conversation.participants.find(id => id !== auth.currentUser.uid);
       const otherUserName = conversation.participantNames?.[otherParticipantId] || 'User';
-      const otherUserAvatar = conversation.participantAvatars?.[otherParticipantId] || `https://i.pravatar.cc/150?u=${otherParticipantId}`;
+      const otherUserAvatar = conversation.participantAvatars?.[otherParticipantId] || getDefaultAvatarUrl(otherParticipantId);
+      const lastMessageText = conversation.lastMessage || 'Start a conversation';
+      const lastMessageTime = conversation.updatedAt?.toDate() ? formatTime(conversation.updatedAt.toDate()) : '';
       
       const conversationElement = document.createElement('div');
+      conversationElement.id = `conversation-${conversation.id}`; // Add ID for easy selection
       conversationElement.className = `conversation-item ${conversation.id === currentChatId ? 'active' : ''}`;
       conversationElement.innerHTML = `
         <div style="position:relative">
-          <img src="${otherUserAvatar}" alt="${otherUserName}" class="conversation-avatar">
-          <div class="online-indicator"></div>
+          <img src="${otherUserAvatar}" onerror="this.src='${getDefaultAvatarUrl(otherParticipantId)}'" alt="${otherUserName}" class="conversation-avatar">
+          <div class="online-indicator" id="online-indicator-${otherParticipantId}"></div>
         </div>
         <div class="conversation-info">
           <div class="conversation-name">
             ${otherUserName}
-            <div class="conversation-time">${formatTime(conversation.lastMessageTime?.toDate())}</div>
+            <div class="conversation-time">${lastMessageTime}</div>
           </div>
-          <div class="conversation-preview">${conversation.lastMessage || 'Start a conversation'}</div>
+          <div class="conversation-preview">${lastMessageText}</div>
         </div>
       `;
       
       conversationElement.addEventListener('click', () => {
         loadChat(conversation.id, otherParticipantId);
-        
         if (isMobile) {
           showChatView();
         }
-        
         document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
         conversationElement.classList.add('active');
       });
       
       conversationsList.appendChild(conversationElement);
     });
+    
+    // Re-select active chat if it exists
+    if (currentChatId) {
+      const activeConv = document.getElementById(`conversation-${currentChatId}`);
+      if (activeConv) activeConv.classList.add('active');
+    }
   }
 
-  // Load chat
+  // Load chat (Req. 2, 8)
   async function loadChat(conversationId, otherUserId) {
+    if (currentChatId === conversationId) return;
+
     currentChatId = conversationId;
     currentChatUser = otherUserId;
     
+    // Unsubscribe from previous chat's messages
+    if (currentMessageSnapshotUnsubscribe) {
+        currentMessageSnapshotUnsubscribe();
+    }
+
     // Show chat area and hide empty state
     emptyChat.style.display = 'none';
     chatHeader.style.display = 'flex';
     messagesContainer.style.display = 'flex';
     messageInputContainer.style.display = 'block';
+
+    // Clear messages for new chat
+    messagesContainer.innerHTML = '';
     
     // Load other user's profile
     const otherUserProfile = await getUserProfile(otherUserId);
     const otherUserName = otherUserProfile?.name || 'User';
-    const otherUserAvatar = otherUserProfile?.avatar || `https://i.pravatar.cc/150?u=${otherUserId}`;
+    const otherUserAvatar = otherUserProfile?.avatar || getDefaultAvatarUrl(otherUserId);
     
     // Update chat header
     currentChatAvatar.src = otherUserAvatar;
+    currentChatAvatar.onerror = () => { currentChatAvatar.src = getDefaultAvatarUrl(otherUserId); };
     chatUserName.textContent = otherUserName;
-    currentChatStatus.textContent = 'Online';
     
-    // Load messages
+    // Load messages and status
     loadMessages(conversationId);
+    watchChatStatus(conversationId, otherUserId);
+
+    // Scroll conversations list to show active chat
+    const activeConv = document.getElementById(`conversation-${conversationId}`);
+    if (activeConv) {
+        activeConv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
-  // Load messages
+  // Load messages (Req. 3)
   function loadMessages(conversationId) {
     const messagesRef = collection(db, "conversations", conversationId, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
     
-    onSnapshot(q, (snapshot) => {
-      messagesContainer.innerHTML = '';
+    currentMessageSnapshotUnsubscribe = onSnapshot(q, (snapshot) => {
+      // Clear messages only on the first load or if the chat ID changes
+      // Using a simpler approach: re-render all messages, but maintain scroll
+      const shouldScrollToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
+
+      messagesContainer.innerHTML = ''; // Clear and re-render all for simplicity and accuracy
       
       snapshot.forEach((doc) => {
-        const message = doc.data();
+        const message = { id: doc.id, ...doc.data() };
         renderMessage(message);
       });
       
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      // Scroll to bottom only if it was already at the bottom or if it's the initial load
+      if (shouldScrollToBottom || snapshot.docChanges().length > 0 && messagesContainer.scrollTop === 0) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
     }, error => {
       console.error('Error loading messages:', error);
     });
   }
 
-  // Render message
-  function renderMessage(message) {
+  // Render message (Req. 3, 7, 8)
+  async function renderMessage(message) {
     const messageElement = document.createElement('div');
     const isSent = message.senderId === auth.currentUser.uid;
+    const senderProfile = isSent ? currentUser : await getUserProfile(currentChatUser);
+    const messageContent = message.text || (message.imageUrl ? `<img src="${message.imageUrl}" style="max-width: 100%; border-radius: 8px;">` : 'File/Media');
     
     messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
     
+    // Message bubble content
+    let bubbleContent = `
+      <p class="message-text">${messageContent} ${message.edited ? '<span class="edited-mark">(edited)</span>' : ''}</p>
+      <div class="message-time">${formatTime(message.timestamp)}</div>
+    `;
+
+    // Add edit/delete actions for sent messages
     if (isSent) {
-      messageElement.innerHTML = `
-        <div class="message-bubble">
-          <p class="message-text">${message.text}</p>
-          <div class="message-time">${formatTime(message.timestamp?.toDate())}</div>
-        </div>
-        <img src="${currentUser.photoURL || `https://i.pravatar.cc/150?u=${auth.currentUser.uid}`}" class="message-avatar">
-      `;
-    } else {
-      messageElement.innerHTML = `
-        <img src="${currentChatUser ? `https://i.pravatar.cc/150?u=${currentChatUser}` : 'https://i.pravatar.cc/150'}" class="message-avatar">
-        <div class="message-bubble">
-          <p class="message-text">${message.text}</p>
-          <div class="message-time">${formatTime(message.timestamp?.toDate())}</div>
+      bubbleContent += `
+        <div class="message-actions">
+          <button class="message-action-btn" title="Edit" onclick="editMessage('${message.id}', '${message.text.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button>
+          <button class="message-action-btn" title="Delete" onclick="deleteMessage('${message.id}')"><i class="fas fa-trash-alt" style="color: var(--error);"></i></button>
         </div>
       `;
     }
+
+    // Full message HTML structure
+    messageElement.innerHTML = `
+      <img src="${senderProfile.avatar || senderProfile.photoURL || getDefaultAvatarUrl(senderProfile.uid)}" 
+           alt="${senderProfile.name || 'User'}" 
+           class="message-avatar"
+           onerror="this.src='${getDefaultAvatarUrl(senderProfile.uid)}'">
+      <div class="message-bubble">${bubbleContent}</div>
+    `;
     
     messagesContainer.appendChild(messageElement);
   }
 
-  // Format time
-  function formatTime(date) {
-    if (!date) return '';
-    
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    
-    return date.toLocaleDateString();
-  }
-
-  // Show chat view on mobile
-  function showChatView() {
-    if (!isMobile) return;
-    conversationsSidebar.classList.add('hidden');
-    chatArea.classList.add('active');
-  }
-
-  // Show conversations view on mobile
-  function showConversationsView() {
-    if (!isMobile) return;
-    conversationsSidebar.classList.remove('hidden');
-    chatArea.classList.remove('active');
-  }
-
-  // Start new chat
-  async function startNewChat() {
-    const searchTerm = searchInput.value.trim();
-    if (!searchTerm) {
-      showMessage('Please enter a name or email to search for users');
+  // Send message (Req. 3)
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text && !editingMessageId) return;
+    if (!currentChatId) {
+      showMessage('Please select a chat before sending a message.');
       return;
     }
-    
+
     try {
-      // In a real app, you would search users by name or email
-      // For now, we'll simulate finding a user
-      showMessage('Searching for users...', 'success');
+      if (editingMessageId) {
+        // Handle edit (Req. 6)
+        await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
+          text: text,
+          edited: true,
+          timestamp: serverTimestamp() // Update timestamp to re-sort if necessary, or use an editedTimestamp field
+        });
+        
+        cancelEdit(); // Reset editing state
+        showMessage('Message edited successfully.', 'success');
+      } else {
+        // Handle new message
+        const messageData = {
+          senderId: auth.currentUser.uid,
+          text: text,
+          timestamp: serverTimestamp(),
+          type: 'text',
+          edited: false
+        };
+        
+        // Add message to subcollection
+        await addDoc(collection(db, "conversations", currentChatId, "messages"), messageData);
+        
+        // Update conversation last message and time (Req. 4)
+        await updateDoc(doc(db, "conversations", currentChatId), {
+          lastMessage: text,
+          updatedAt: serverTimestamp() // Use updatedAt for sorting conversations
+        });
+      }
       
-      // Simulate user search - in production, you'd query Firestore
-      setTimeout(() => {
-        showMessage('User search would be implemented here. For demo, try chatting with existing users.');
-      }, 1000);
+      // Clear input
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      updateTypingStatus(false); // Stop typing after sending
       
     } catch (error) {
-      console.error('Error starting new chat:', error);
-      showMessage('Failed to start new chat. Please try again.');
+      console.error('Error sending/editing message:', error);
+      showMessage('Failed to send or edit message. Please try again.');
     }
   }
 
-  // Authentication state listener
-  onAuthStateChanged(auth, async user => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
-      currentUser = user;
-      
-      // Update user info in UI
-      const userProfile = await getUserProfile(user.uid);
-      const userNameText = user.displayName || userProfile?.name || 'User';
-      const userInitial = userNameText.charAt(0).toUpperCase();
-      
-      currentUserAvatar.textContent = userInitial;
-      userName.textContent = userNameText;
-      
-      // Load conversations
-      loadConversations();
-    }
-  });
+  // Edit message functionality (Req. 6)
+  window.editMessage = async (messageId, currentText) => {
+    editingMessageId = messageId;
+    messageInput.value = currentText;
+    messageInput.focus();
 
-  // Initialize
-  function initChat() {
-    setupEventListeners();
-    initTheme();
-    checkMobileLayout();
+    // Show editing UI
+    editingMessageContainer.style.display = 'block';
+    editingMessagePreview.textContent = currentText.substring(0, 50) + (currentText.length > 50 ? '...' : '');
+
+    // Adjust textarea height
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
+  };
+
+  window.cancelEdit = () => {
+    editingMessageId = null;
+    messageInput.value = '';
+    editingMessageContainer.style.display = 'none';
+    editingMessagePreview.textContent = '';
+    messageInput.style.height = 'auto';
+  };
+
+  // Delete message functionality (Req. 6)
+  window.deleteMessage = async (messageId) => {
+    if (!currentChatId || !messageId) return;
+    if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) return;
+
+    try {
+      await deleteDoc(doc(db, "conversations", currentChatId, "messages", messageId));
+      showMessage('Message deleted successfully.', 'success');
+
+      // Update conversation's last message if the deleted message was the last one
+      const messagesRef = collection(db, "conversations", currentChatId, "messages");
+      const q = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
+      const snapshot = await getDocs(q);
+      
+      let newLastMessage = '';
+      if (!snapshot.empty) {
+        newLastMessage = snapshot.docs[0].data().text;
+      }
+
+      await updateDoc(doc(db, "conversations", currentChatId), {
+        lastMessage: newLastMessage,
+        updatedAt: serverTimestamp()
+      });
+
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      showMessage('Failed to delete message. Please try again.');
+    }
+  };
+
+  // Typing status update (Req. 5)
+  async function updateTypingStatus(status) {
+    if (!currentUser || !currentChatId) return;
+    
+    if (isTyping === status) return; // Prevent unnecessary writes
+    isTyping = status;
+
+    const chatDocRef = doc(db, "conversations", currentChatId);
+    try {
+        await updateDoc(chatDocRef, {
+            [`status.${currentUser.uid}.isTyping`]: status,
+            [`status.${currentUser.uid}.lastActive`]: serverTimestamp() // Can be used for online status
+        });
+    } catch (error) {
+        console.error("Error updating typing status:", error);
+    }
   }
 
-  // Setup event listeners
+  // Watch chat status (Online/Typing) (Req. 5)
+  function watchChatStatus(conversationId, otherUserId) {
+    const chatDocRef = doc(db, "conversations", conversationId);
+    
+    // Watch for chat status updates
+    onSnapshot(chatDocRef, (docSnap) => {
+        if (!docSnap.exists()) return;
+        
+        const chatData = docSnap.data();
+        const otherUserStatus = chatData.status?.[otherUserId];
+        
+        if (otherUserStatus) {
+            // Typing Indicator
+            if (otherUserStatus.isTyping) {
+                typingIndicatorWrapper.style.display = 'block';
+                currentChatStatus.textContent = 'Typing...';
+            } else {
+                typingIndicatorWrapper.style.display = 'none';
+                currentChatStatus.textContent = 'Online'; // Fallback
+            }
+            
+            // Online Status (simple check, could use 'lastActive')
+            const lastActiveTime = otherUserStatus.lastActive?.toDate();
+            const isOnline = lastActiveTime && (new Date() - lastActiveTime) < 180000; // 3 minutes
+            
+            // Update online indicator in header
+            const statusIndicator = document.getElementById('chatUserStatus');
+            if (isOnline) {
+                currentChatStatus.textContent = otherUserStatus.isTyping ? 'Typing...' : 'Online';
+                // Note: The original CSS used a generic 'chatUserStatus' indicator which is now removed,
+                // rely on the currentChatStatus text for a cleaner look.
+            } else {
+                currentChatStatus.textContent = lastActiveTime ? `Last seen ${formatTime(lastActiveTime)}` : 'Offline';
+            }
+        }
+    });
+  }
+
+
+  // --- Event Handlers & Init ---
+
   function setupEventListeners() {
-    // Theme toggle
+    // ... (Theme toggle and Logout logic remains the same)
     nightToggleBtn.addEventListener('click', () => {
       if (document.body.classList.contains('dark-mode')) {
         document.body.classList.remove('dark-mode');
@@ -1474,7 +1881,6 @@
       }
     });
 
-    // Logout functionality
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
@@ -1485,11 +1891,19 @@
       }
     });
 
+
     // Send message
     sendButton.addEventListener('click', sendMessage);
     
-    // Send message on Enter key (but allow Shift+Enter for new line)
+    // Send message on Enter key and typing status update
     messageInput.addEventListener('keydown', (e) => {
+      // Typing status update (with debounce)
+      if (currentChatId) {
+        updateTypingStatus(true);
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => updateTypingStatus(false), 3000);
+      }
+
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
@@ -1503,33 +1917,20 @@
     // Back button for mobile
     backButton.addEventListener('click', showConversationsView);
 
-    // New chat buttons
-    newChatBtn.addEventListener('click', startNewChat);
-    startNewChatBtn.addEventListener('click', startNewChat);
+    // New chat buttons (Req. 1)
+    newChatBtn.addEventListener('click', openUserSearchOverlay);
+    startNewChatBtn.addEventListener('click', openUserSearchOverlay);
+    userSearchInput.addEventListener('input', handleUserSearch);
 
-    // Search
-    chatSearch.addEventListener('input', handleSearch);
-    searchInput.addEventListener('input', handleSearch);
-
+    // Search existing conversations
+    chatSearch.addEventListener('input', handleConversationSearch);
+    
     // Window resize handler
     window.addEventListener('resize', checkMobileLayout);
   }
-
-  // Check mobile layout
-  function checkMobileLayout() {
-    isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-      conversationsSidebar.classList.remove('hidden');
-      chatArea.classList.remove('active');
-    } else {
-      conversationsSidebar.classList.remove('hidden');
-      chatArea.classList.add('active');
-    }
-  }
-
-  // Handle search
-  function handleSearch() {
+  
+  // Handle existing conversation search
+  function handleConversationSearch() {
     const query = chatSearch.value.toLowerCase().trim();
     
     document.querySelectorAll('.conversation-item').forEach(item => {
@@ -1544,13 +1945,39 @@
     });
   }
 
+  function checkMobileLayout() {
+    isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      conversationsSidebar.classList.remove('hidden');
+      chatArea.classList.remove('active');
+    } else {
+      conversationsSidebar.classList.remove('hidden');
+      chatArea.classList.add('active');
+    }
+  }
+  
+  function showChatView() {
+    if (!isMobile) return;
+    conversationsSidebar.classList.add('hidden');
+    chatArea.classList.add('active');
+  }
+
+  function showConversationsView() {
+    if (!isMobile) return;
+    conversationsSidebar.classList.remove('hidden');
+    chatArea.classList.remove('active');
+  }
+
   // Placeholder functions for additional features
   function attachFile() {
-    showMessage('File attachment feature would open file picker', 'success');
+    showMessage('File attachment feature would open file picker (requires Firebase Storage)', 'success');
   }
 
   function sendImage() {
-    showMessage('Image sharing feature would open camera or gallery', 'success');
+    // This function will need a lot more logic to upload an image to Firebase Storage
+    // For now, it's a placeholder.
+    showMessage('Image sharing feature would open camera or gallery (requires Firebase Storage)', 'success');
   }
 
   function openEmojiPicker() {
@@ -1571,7 +1998,58 @@
     showMessage('Video call feature would start here', 'success');
   }
 
-  // Initialize chat when page loads
+  // --- Initialization ---
+
+  // Update user online status on authentication change and before unmounting
+  async function updateUserStatus(isOnline) {
+    if (!currentUser) return;
+    try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await setDoc(userDocRef, { isOnline: isOnline, lastActive: serverTimestamp() }, { merge: true });
+    } catch (error) {
+        console.error("Error updating user status:", error);
+    }
+  }
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      // Ensure status is set to offline before redirect
+      await updateUserStatus(false);
+      window.location.href = 'login.html';
+    } else {
+      currentUser = user;
+      
+      // Load and set user profile
+      const userProfile = await getUserProfile(user.uid);
+      currentUser.name = user.displayName || userProfile.name;
+      currentUser.photoURL = user.photoURL || userProfile.avatar;
+
+      // Update user info in UI
+      const userNameText = currentUser.name || 'User';
+      const userInitial = userNameText.charAt(0).toUpperCase();
+      
+      // Update main avatar (using IMG tag for better consistency)
+      currentUserAvatar.src = currentUser.photoURL || getDefaultAvatarUrl(currentUser.uid);
+      currentUserAvatar.alt = userInitial;
+      userName.textContent = userNameText;
+      
+      // Update user status to online
+      await updateUserStatus(true);
+      
+      // Load conversations
+      loadConversations();
+      
+      // Handle user leaving/closing the page
+      window.addEventListener('beforeunload', () => updateUserStatus(false));
+    }
+  });
+
+  function initChat() {
+    setupEventListeners();
+    initTheme();
+    checkMobileLayout();
+  }
+
   document.addEventListener('DOMContentLoaded', initChat);
 </script>
 </body>
