@@ -1,150 +1,691 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Platform Chat</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        #search-container { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
-        .result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; background-color: #f9f9f9; }
-        .result-item:hover { background-color: #e6e6e6; }
-        #status-message { margin-top: 15px; color: green; font-weight: bold; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script>
-        // Initialize Firebase (PLACEHOLDER CONFIG)
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            // ... other config
-        };
-        // firebase.initializeApp(firebaseConfig);
-        // const auth = firebase.auth();
-        // const firestore = firebase.firestore();
-        
-        // --- NOTE: In a real app, ensure the user is signed in before running this ---
-        // For demonstration, we use placeholder UIDs:
-        const MY_UID_PLACEHOLDER = "user_current_2025";
-        const TARGET_UID_EXAMPLE = "user_target_chat_101"; 
-        const TARGET_USERNAME_EXAMPLE = "JohnDoe_Chatter";
-    </script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEET | Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --primary:#0061FF;
+    --accent:#5AE4A8;
+    --bg:#f7f9fb;
+    --card:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --radius:12px;
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --my-msg-bg: linear-gradient(90deg, var(--primary), var(--accent));
+    --their-msg-bg: #fff;
+  }
+  body.dark {
+    --bg:#081226;
+    --card:#0b1726;
+    --text:#e6eef8;
+    --muted:#93a3bd;
+    --shadow: 0 6px 18px rgba(0,0,0,0.6);
+    --their-msg-bg: #1f2937;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:var(--bg); color:var(--text);
+    height:100vh; display:flex; flex-direction:column; transition:background .35s,color .35s; overflow: hidden;
+  }
+
+  /* Reused Components */
+  header{ display:flex; align-items:center; gap:16px; padding:12px 20px; background:var(--card); box-shadow:var(--shadow); position:sticky; top:0; z-index:50; }
+  .left { display:flex; align-items:center; gap:12px; }
+  .logo-icon{ width:44px;height:44px;border-radius:8px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex;align-items:center;justify-content:center; -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat; }
+  .brand { font-weight:700;font-size:18px;color:var(--primary); }
+  .search { flex:1;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.05);border-radius:10px;padding:8px 12px; max-width:600px; }
+  body.dark .search{background:rgba(255,255,255,0.1);}
+  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:10px}
+
+  /* Layout */
+  .layout{display:flex;flex:1;overflow:hidden}
+  aside{ width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.05); display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow); transition: width 0.3s ease; z-index: 20; }
+  aside button{ border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; width: 100%; font-family: inherit; font-size: inherit; }
+  aside button:hover { background: rgba(0,0,0,0.05); }
+  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
+  main{flex:1;padding:0;overflow:hidden;display:flex;}
+
+  /* Chat Specifics */
+  .chat-container { display: flex; width: 100%; height: 100%; }
+  .conversations-sidebar { width: 320px; background: var(--card); border-right: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 100%; }
+  body.dark .conversations-sidebar { border-right: 1px solid rgba(255,255,255,0.05); }
+
+  .chat-header { padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+  .chat-title { font-size: 18px; font-weight: 700; }
+  .new-chat-btn { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.2s; }
+  .new-chat-btn:hover { transform: scale(1.1); }
+
+  .conversations-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.03); transition: background 0.2s; }
+  .conversation-item:hover, .conversation-item.active { background: rgba(0,97,255,0.05); }
+  .conversation-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid var(--muted); }
+  .conversation-info { flex: 1; min-width: 0; }
+  .conversation-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .conversation-preview { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conversation-time { font-size: 11px; color: var(--muted); }
+
+  /* Chat Area */
+  .chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; background: var(--bg); position: relative; }
+  
+  /* Empty State */
+  .empty-chat { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 30px; color: var(--muted); }
+  .empty-chat i { font-size: 40px; margin-bottom: 15px; opacity: 0.5; }
+
+  .chat-area-header { padding: 10px 15px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px; background: var(--card); z-index: 10; }
+  .current-chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; }
+  .current-chat-info { flex: 1; cursor: pointer; }
+  .current-chat-name { font-weight: 700; font-size: 15px; }
+  .current-chat-status { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  
+  .chat-actions { display: flex; gap: 5px; }
+  .chat-action-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 16px; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+  .chat-action-btn:hover { background: rgba(0,97,255,0.1); color: var(--primary); }
+
+  .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  
+  .message { display: flex; gap: 10px; max-width: 75%; position: relative; }
+  .message.sent { align-self: flex-end; flex-direction: row-reverse; }
+  .message.received { align-self: flex-start; }
+  
+  .message-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; align-self: flex-end; margin-bottom: 5px; }
+  
+  .message-bubble { padding: 10px 14px; border-radius: 18px; position: relative; word-wrap: break-word; font-size: 14px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .received .message-bubble { background: var(--their-msg-bg); border-bottom-left-radius: 4px; }
+  .sent .message-bubble { background: var(--my-msg-bg); color: white; border-bottom-right-radius: 4px; }
+  
+  .message-image { max-width: 200px; border-radius: 10px; margin-bottom: 5px; cursor: pointer; }
+  .message-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; }
+  .reaction-badge { position: absolute; bottom: -8px; right: 0; background: var(--card); border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 2px 6px; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 2; }
+
+  /* Input Area */
+  .message-input-container { padding: 15px; background: var(--card); border-top: 1px solid rgba(0,0,0,0.05); }
+  .ai-mode-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; width: fit-content; }
+  .ai-toggle-switch { width: 30px; height: 16px; background: #ccc; border-radius: 10px; position: relative; transition: 0.3s; }
+  .ai-toggle-switch.active { background: var(--primary); }
+  .ai-toggle-knob { width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+  .ai-toggle-switch.active .ai-toggle-knob { transform: translateX(14px); }
+  
+  .message-input-wrapper { display: flex; align-items: flex-end; gap: 10px; background: var(--bg); padding: 8px 12px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1); }
+  .message-input { flex: 1; background: transparent; border: none; resize: none; max-height: 120px; outline: none; padding: 8px; font-family: inherit; font-size: 15px; color: var(--text); }
+  .input-actions { display: flex; gap: 5px; }
+  .input-action-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
+  .input-action-btn:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+  .send-button { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.2s; margin-left: 5px; }
+  .send-button:hover { transform: scale(1.05); }
+
+  /* Modals */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal-content { background: var(--card); width: 100%; max-width: 400px; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; max-height: 80vh; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+  .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  
+  .user-search-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+  .user-search-item:hover { background: rgba(0,97,255,0.05); }
+
+  /* Context Menu for Edit/Delete */
+  .context-menu { display: none; position: absolute; background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-radius: 8px; z-index: 100; overflow: hidden; min-width: 120px; }
+  .context-menu-item { padding: 10px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .context-menu-item:hover { background: rgba(0,0,0,0.05); }
+  .context-menu-item.delete { color: #ef4444; }
+
+  /* Mobile Responsive */
+  @media (max-width: 900px) {
+    aside { width: 70px; }
+    aside button span { display: none; }
+    aside button { justify-content: center; }
+    .conversations-sidebar { width: 100%; position: absolute; z-index: 20; transition: transform 0.3s; }
+    .conversations-sidebar.hidden { transform: translateX(-100%); }
+    .chat-area { width: 100%; position: absolute; z-index: 10; }
+    .brand, .search { display: none; }
+  }
+</style>
 </head>
 <body>
 
-    <h1>Platform Messaging</h1>
-    
-    <div id="search-container">
-        <h2>Find a User to Chat</h2>
-        <input type="text" id="user-search-input" placeholder="Enter username, email, or phone...">
-        <button onclick="simulateUserSearch()">Search (Simulated)</button>
+<svg style="position:absolute;width:0;height:0" aria-hidden>
+  <defs><mask id="m-mask" viewBox="0 0 100 100"><path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/></mask></defs>
+</svg>
+
+<header>
+  <div class="left">
+    <div class="logo-icon" title="MEET"></div>
+    <div class="brand">MEET</div>
+  </div>
+  <div class="search">
+    <span>🔍</span>
+    <input id="globalSearch" placeholder="Search..." />
+  </div>
+  <div class="header-right">
+    <button id="darkToggle" style="background:transparent;border:none;font-size:20px;cursor:pointer">🌙</button>
+    <img id="currentUserPic" src="" style="width:38px;height:38px;border-radius:50%;border:2px solid #fff;object-fit:cover; cursor:pointer;" onclick="window.location.href='profile.html'">
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <button onclick="window.location.href='feed.html'">🏠 <span class="menu-text">Feed</span></button>
+    <button class="active" onclick="window.location.href='chat.html'">💬 <span class="menu-text">Chat</span></button>
+    <button onclick="window.location.href='conference.html'">🎥 <span class="menu-text">Conference</span></button>
+    <button onclick="window.location.href='marketplace.html'">🛒 <span class="menu-text">Marketplace</span></button>
+    <button onclick="window.location.href='profile.html'">👤 <span class="menu-text">Profile</span></button>
+    <button onclick="window.location.href='meetversity.html'">🎓 <span class="menu-text">Meetversity</span></button>
+    <button onclick="window.location.href='organization.html'">🏢 <span class="menu-text">Organization</span></button>
+  </aside>
+
+  <main>
+    <div class="chat-container">
+      <div class="conversations-sidebar" id="conversationsSidebar">
+        <div class="chat-header">
+          <div class="chat-title">Discussions</div>
+          <button class="new-chat-btn" onclick="openSearchModal()">+</button>
+        </div>
+        <div class="conversations-list" id="conversationsList">
+          <div style="text-align:center; padding:20px; color:var(--muted);">Loading chats...</div>
+        </div>
+      </div>
+
+      <div class="chat-area" id="chatArea">
+        <div class="empty-chat" id="emptyChat">
+          <i class="fas fa-comments"></i>
+          <h3>Select a conversation</h3>
+          <p>Click + to start a new chat with anyone.</p>
+        </div>
         
-        <div id="search-results">
-            <div class="result-item" onclick="startChat(TARGET_UID_EXAMPLE, TARGET_USERNAME_EXAMPLE)">
-                **Click to Chat with:** <span id="target-user-name">JohnDoe_Chatter</span>
+        <div class="chat-area-header" id="chatHeader" style="display: none;">
+          <button class="chat-action-btn" onclick="showSidebar()" style="margin-right:10px; display:none;" id="backBtn">←</button>
+          <img src="" id="chatAvatar" class="current-chat-avatar" onclick="visitProfile()">
+          <div class="current-chat-info" onclick="visitProfile()">
+            <div class="current-chat-name" id="chatName">Name</div>
+            <div class="current-chat-status" id="chatSkill">Skill • Online</div>
+          </div>
+          <div class="chat-actions">
+            <button class="chat-action-btn" onclick="comingSoon('Voice Call')"><i class="fas fa-phone"></i></button>
+            <button class="chat-action-btn" onclick="comingSoon('Video Call')"><i class="fas fa-video"></i></button>
+            <button class="chat-action-btn" onclick="visitProfile()"><i class="fas fa-info-circle"></i></button>
+          </div>
+        </div>
+        
+        <div class="messages-container" id="messagesContainer" style="display: none;"></div>
+        
+        <div class="message-input-container" id="inputContainer" style="display: none;">
+          <div class="ai-mode-toggle" onclick="toggleAI()">
+            <div class="ai-toggle-switch" id="aiSwitch"><div class="ai-toggle-knob"></div></div>
+            <span style="font-size:12px; font-weight:600; color:var(--primary);">AI Auto-Reply</span>
+          </div>
+          <div class="message-input-wrapper">
+            <div class="input-actions">
+              <input type="file" id="imageInput" accept="image/*" style="display:none">
+              <button class="input-action-btn" onclick="document.getElementById('imageInput').click()"><i class="fas fa-image"></i></button>
+              <button class="input-action-btn" onclick="comingSoon('Voice Note')"><i class="fas fa-microphone"></i></button>
             </div>
+            <textarea class="message-input" id="msgInput" placeholder="Type a message..." rows="1"></textarea>
+            <button class="send-button" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+          </div>
         </div>
-        <p id="status-message"></p>
+      </div>
     </div>
+  </main>
+</div>
 
-    <div id="chat-area" style="display: none;">
-        <h2>Chatting with <span id="current-chat-target"></span></h2>
-        <p>Chat ID: <span id="current-chat-id"></span></p>
-        </div>
+<div class="modal" id="searchModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>New Chat</h3>
+      <button class="close-modal" onclick="closeSearchModal()">×</button>
+    </div>
+    <div style="background:var(--bg); padding:8px; border-radius:8px; margin-bottom:10px; display:flex; gap:10px;">
+      <i class="fas fa-search" style="color:var(--muted); padding-top:4px;"></i>
+      <input type="text" id="userSearchInput" placeholder="Search by name or email..." style="background:transparent; border:none; width:100%; outline:none; color:var(--text);">
+    </div>
+    <div id="searchResults" style="overflow-y:auto; flex:1;"></div>
+  </div>
+</div>
 
-    <script>
-        // --- Placeholder Functions (Replace with actual Firebase calls) ---
+<div class="context-menu" id="contextMenu">
+  <div class="context-menu-item" onclick="reactToMessage()">❤️ React</div>
+  <div class="context-menu-item" onclick="editMessageAction()">✏️ Edit</div>
+  <div class="context-menu-item delete" onclick="deleteMessageAction()">🗑️ Delete</div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, getDoc, getDocs, onSnapshot, query, orderBy, where, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video'; 
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.firebasestorage.app",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  let currentChatId = null;
+  let currentChatUser = null;
+  let contextMsgId = null;
+  let aiEnabled = false;
+
+  // --- Utility Functions (Defined globally for onClick handlers) ---
+
+  window.openSearchModal = () => {
+      document.getElementById('searchModal').style.display = 'flex';
+      document.getElementById('userSearchInput').value = ''; // Clear input on open
+      document.getElementById('searchResults').innerHTML = ''; // Clear results
+      document.getElementById('userSearchInput').focus();
+  };
+  window.closeSearchModal = () => document.getElementById('searchModal').style.display = 'none';
+
+  window.showSidebar = () => {
+      document.getElementById('conversationsSidebar').classList.remove('hidden');
+  };
+  
+  window.visitProfile = () => {
+      if(currentChatUser) window.location.href = `profile.html?uid=${currentChatUser.uid}`;
+  };
+  
+  window.comingSoon = (feature) => alert(`${feature} is coming soon!`);
+  
+  window.toggleAI = async () => {
+      aiEnabled = !aiEnabled;
+      updateAIToggleUI();
+      // Ensure currentUser is available before writing to DB
+      if (currentUser) {
+          await updateDoc(doc(db, "users", currentUser.uid), { aiMode: aiEnabled }).catch(console.error);
+      }
+  };
+
+  window.reactToMessage = async () => {
+      if(contextMsgId && currentChatId) await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { reaction: '❤️' }).catch(console.error);
+  };
+  
+  window.quickReact = async (id) => {
+      if(currentChatId) await updateDoc(doc(db, `chats/${currentChatId}/messages`, id), { reaction: '❤️' }).catch(console.error);
+  };
+
+  window.deleteMessageAction = async () => {
+      if(confirm("Delete this message?") && currentChatId) {
+          await deleteDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId)).catch(console.error);
+      }
+  };
+
+  window.editMessageAction = async () => {
+      const newText = prompt("Edit message:");
+      if(newText && currentChatId) {
+          await updateDoc(doc(db, `chats/${currentChatId}/messages`, contextMsgId), { 
+              text: newText,
+              edited: true
+          }).catch(console.error);
+      }
+  };
+
+
+  // --- Core Functions ---
+
+  function updateAIToggleUI() {
+      const btn = document.getElementById('aiSwitch');
+      if(aiEnabled) btn.classList.add('active');
+      else btn.classList.remove('active');
+  }
+
+  // Auth Check
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return window.location.href = 'login.html';
+    currentUser = user;
+    
+    // Load basic user info
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if(userDoc.exists()) {
+            const d = userDoc.data();
+            document.getElementById('currentUserPic').src = d.photoURL || user.photoURL || 'https://via.placeholder.com/100';
+            aiEnabled = d.aiMode || false;
+            updateAIToggleUI();
+        }
+    } catch (e) { console.error("Error loading current user data:", e); }
+    
+    loadConversations();
+  });
+
+  // --- Conversations List ---
+  function loadConversations() {
+    const list = document.getElementById('conversationsList');
+    // Display loading state while setting up snapshot
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">Loading chats...</div>';
+
+    if (!currentUser) {
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Authentication error. Please log in.</div>';
+        return;
+    }
+
+    const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid), orderBy("lastUpdated", "desc"));
+    
+    onSnapshot(q, async (snapshot) => {
+      list.innerHTML = ''; // Clear list once data starts loading
+      
+      if (snapshot.empty) {
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">No conversations yet. Start one!</div>';
+        return;
+      }
+
+      for (const d of snapshot.docs) {
+        const chat = d.data();
+        const otherId = chat.users.find(u => u !== currentUser.uid);
         
-        // Simulates the process of finding a user after a successful search query
-        function simulateUserSearch() {
-            const input = document.getElementById('user-search-input').value;
-            if (input) {
-                 document.getElementById('target-user-name').textContent = input;
-                 document.querySelector('.result-item').style.display = 'block';
-                 document.getElementById('status-message').textContent = `User found: ${input}`;
-            } else {
-                 document.getElementById('status-message').textContent = `Please enter a search term.`;
-            }
+        // Fetch other user's data
+        let otherUser = { displayName: 'User', photoURL: 'https://via.placeholder.com/45' };
+        if (otherId) {
+            const uData = await getDoc(doc(db, "users", otherId));
+            otherUser = uData.exists() ? uData.data() : otherUser;
         }
 
-        // Simulates the navigation to the chat screen
-        function navigateToChatScreen(chatId, targetUid) {
-            document.getElementById('search-container').style.display = 'none';
-            document.getElementById('chat-area').style.display = 'block';
-            document.getElementById('current-chat-id').textContent = chatId;
-            // In a real app, you would fetch the target user's name from your local store
-            document.getElementById('current-chat-target').textContent = 'Loading...'; 
-
-            console.log(`[SUCCESS] Navigated to Chat: ${chatId}`);
-            // Here is where you would start your Firestore listener for messages
-        }
-
-        // --- Core Chat Initiation Function ---
+        const div = document.createElement('div');
+        // Ensure active class is correctly applied
+        div.className = `conversation-item ${currentChatId === d.id ? 'active' : ''}`;
         
-        async function startChat(targetUid, targetUsername) {
-            console.log(`Attempting to chat with: ${targetUsername} (${targetUid})`);
+        // IMPORTANT: bind click to openChat
+        div.onclick = () => {
+            // Remove active class from all, then add to this one
+            document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+            div.classList.add('active');
+            openChat(d.id, otherUser, otherId);
+        };
 
-            // --- IMPORTANT: Replace with actual logged-in user logic ---
-            // const myUid = auth.currentUser.uid;
-            // const firestoreInstance = firestore;
-            const myUid = MY_UID_PLACEHOLDER;
-            const firestoreInstance = {
-                collection: () => ({ doc: (id) => ({ 
-                    get: async () => ({ exists: false }), // Mock: always return not exists
-                    set: async (data) => { console.log("MOCK: Chat created/updated", data); }
-                })}),
-                FieldValue: { serverTimestamp: () => new Date().toISOString() } // Mock
-            };
-            // -----------------------------------------------------------
+        div.innerHTML = `
+          <img src="${otherUser.photoURL || 'https://via.placeholder.com/45'}" class="conversation-avatar">
+          <div class="conversation-info">
+            <div class="conversation-name">${otherUser.displayName}</div>
+            <div class="conversation-preview">${chat.lastMessage || 'Start chatting'}</div>
+          </div>
+          <div class="conversation-time">${chat.lastUpdated ? new Date(chat.lastUpdated.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</div>
+        `;
+        list.appendChild(div);
+      }
+    }, (error) => {
+        // This is the error handler that sets the 'Failed to load chats' message.
+        console.error("Error fetching conversations: ", error);
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Failed to load chats. Check Firebase Security Rules or Index.</div>';
+    });
+  }
 
-            if (!myUid || !targetUid) {
-                document.getElementById('status-message').textContent = "Error: User data missing.";
-                return;
-            }
+  // --- Chat Functionality (Fixed) ---
+  window.openChat = (chatId, userObj, userId) => {
+    currentChatId = chatId;
+    currentChatUser = { ...userObj, uid: userId };
+    
+    // UI Updates - Crucial steps to make the chat area visible
+    document.getElementById('emptyChat').style.display = 'none';
+    document.getElementById('chatHeader').style.display = 'flex';
+    document.getElementById('messagesContainer').style.display = 'flex';
+    document.getElementById('inputContainer').style.display = 'block';
+    
+    // Header Info
+    document.getElementById('chatAvatar').src = userObj.photoURL || 'https://via.placeholder.com/40';
+    document.getElementById('chatName').textContent = userObj.displayName;
+    document.getElementById('chatSkill').textContent = (userObj.jobTitle || 'Member') + (userObj.online ? ' • Online' : '');
+    
+    // Mobile logic
+    if(window.innerWidth <= 900) {
+        document.getElementById('conversationsSidebar').classList.add('hidden');
+        document.getElementById('backBtn').style.display = 'block';
+    }
 
-            // --- 1. Determine the Deterministic Chat ID ---
-            const uids = [myUid, targetUid];
-            uids.sort(); 
-            const chatId = uids.join('_'); 
+    // Set scroll to top when opening a new chat for immediate visual feedback
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
 
-            const chatRef = firestoreInstance.collection('chats').doc(chatId);
+    loadMessages(chatId);
+  };
+
+  function loadMessages(chatId) {
+    const q = query(collection(db, `chats/${chatId}/messages`), orderBy("createdAt", "asc"));
+    const container = document.getElementById('messagesContainer');
+    
+    onSnapshot(q, (snap) => {
+        container.innerHTML = '';
+        snap.forEach(d => {
+            const msg = d.data();
+            const isMe = msg.senderId === currentUser.uid;
+            const div = document.createElement('div');
+            div.className = `message ${isMe ? 'sent' : 'received'}`;
+            // Context menu logic
+            div.oncontextmenu = (e) => showContextMenu(e, d.id, isMe);
             
-            // --- 2. Check and Create Chat Document ---
-            try {
-                // In a real app, this will be an await chatRef.get() call
-                const chatDoc = await chatRef.get(); 
-                
-                if (!chatDoc.exists) {
-                    console.log(`[Flow] Chat not found. Creating new document.`);
-                    
-                    // The .set() operation will be checked against your Firebase security rules.
-                    await chatRef.set({
-                        users: uids, 
-                        userNames: {
-                            [myUid]: "Me",
-                            [targetUid]: targetUsername 
-                        },
-                        lastMessage: "Chat started.",
-                        lastMessageTimestamp: firestoreInstance.FieldValue.serverTimestamp(),
-                        createdAt: firestoreInstance.FieldValue.serverTimestamp(),
-                    });
-                    
-                    document.getElementById('status-message').textContent = `Chat started with ${targetUsername}!`;
-                } else {
-                    document.getElementById('status-message').textContent = `Chat already exists with ${targetUsername}. Opening...`;
-                }
+            // Determine avatar source
+            const avatarSrc = isMe 
+                ? (document.getElementById('currentUserPic').src) 
+                : (currentChatUser?.photoURL || 'https://via.placeholder.com/28'); // Use optional chaining for safety
 
-                // --- 3. Navigate to Chat Screen ---
-                navigateToChatScreen(chatId, targetUid);
+            // Content logic
+            let content = '';
+            if(msg.image) content += `<img src="${msg.image}" class="message-image" onclick="window.open('${msg.image}')">`;
+            if(msg.text) content += `<div style="white-space: pre-wrap;">${msg.text}</div>`; // Use pre-wrap for multiline text
+            
+            div.innerHTML = `
+                <img src="${avatarSrc}" class="message-avatar">
+                <div class="message-bubble" ondblclick="quickReact('${d.id}')">
+                    ${content}
+                    <div class="message-time">
+                        ${msg.edited ? '(edited) ' : ''}
+                        ${msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}
+                    </div>
+                    ${msg.reaction ? `<div class="reaction-badge">${msg.reaction}</div>` : ''}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+    });
+  }
 
-            } catch (error) {
-                console.error("Firebase Chat Error:", error);
-                document.getElementById('status-message').textContent = `Error: Could not start chat. Check console.`;
-            }
-        }
-    </script>
+  // --- Sending Messages & Image Upload ---
+  window.sendMessage = async () => {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if(!text || !currentChatId || !currentUser) return;
+    
+    const messageData = {
+        text: text,
+        senderId: currentUser.uid,
+        createdAt: serverTimestamp()
+    };
+    
+    try {
+        await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
+        
+        // Update Chat Meta
+        await updateDoc(doc(db, "chats", currentChatId), {
+            lastMessage: text,
+            lastUpdated: serverTimestamp(),
+        });
+        
+        input.value = '';
+        
+        // AI Logic check
+        checkAIResponse(currentChatUser.uid, text);
+
+    } catch(e) { console.error("Error sending message:", e); }
+  };
+
+  // --- Image Upload ---
+  document.getElementById('imageInput').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file || !currentChatId || !currentUser) return;
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_PRESET);
+      
+      try {
+          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+          const data = await res.json();
+          
+          await addDoc(collection(db, `chats/${currentChatId}/messages`), {
+              image: data.secure_url,
+              senderId: currentUser.uid,
+              createdAt: serverTimestamp()
+          });
+          
+          await updateDoc(doc(db, "chats", currentChatId), {
+            lastMessage: "Sent a photo",
+            lastUpdated: serverTimestamp()
+          });
+      } catch(e) { alert("Upload failed"); }
+  };
+
+
+  // --- Search & New Chat ---
+  
+  document.getElementById('userSearchInput').oninput = async (e) => {
+      const val = e.target.value.toLowerCase();
+      const results = document.getElementById('searchResults');
+      results.innerHTML = ''; // Clear previous results
+      
+      if(val.length < 3) return;
+      
+      try {
+          const q = query(collection(db, "users")); 
+          const snap = await getDocs(q);
+          
+          snap.forEach(d => {
+              const u = d.data();
+              if(d.id !== currentUser.uid && (u.displayName?.toLowerCase().includes(val) || u.email?.toLowerCase().includes(val))) {
+                  const div = document.createElement('div');
+                  div.className = 'user-search-item';
+                  div.innerHTML = `
+                      <img src="${u.photoURL || 'https://via.placeholder.com/30'}" style="width:30px;height:30px;border-radius:50%">
+                      <div>
+                          <div style="font-weight:600;font-size:14px">${u.displayName || u.email}</div>
+                          <div style="font-size:12px;color:var(--muted)">${u.email}</div>
+                      </div>
+                  `;
+                  div.onclick = () => startNewChat(d.id, u);
+                  results.appendChild(div);
+              }
+          });
+
+          if(results.children.length === 0) {
+             results.innerHTML = '<div style="padding: 10px; color: var(--muted);">No users found.</div>';
+          }
+
+      } catch (e) {
+          console.error("Error during user search:", e);
+          results.innerHTML = '<div style="padding: 10px; color: red;">Error searching users.</div>';
+      }
+  };
+
+  async function startNewChat(targetUid, targetUser) {
+      if (!currentUser) return console.error("Current user not authenticated.");
+
+      // Create a deterministic chat ID
+      const chatId = [currentUser.uid, targetUid].sort().join('_');
+      
+      try {
+          const chatDocRef = doc(db, "chats", chatId);
+          const chatDoc = await getDoc(chatDocRef);
+          
+          if(!chatDoc.exists()) {
+              // Create the new chat document
+              await setDoc(chatDocRef, {
+                  users: [currentUser.uid, targetUid],
+                  lastUpdated: serverTimestamp(),
+                  lastMessage: 'Chat started'
+              });
+              
+              // Also add a system message for initial conversation history
+              await addDoc(collection(db, `chats/${chatId}/messages`), {
+                  text: 'Conversation started.',
+                  senderId: 'system', // Use a unique ID for system messages
+                  createdAt: serverTimestamp()
+              });
+          }
+          
+          closeSearchModal();
+          // Open the chat interface
+          openChat(chatId, targetUser, targetUid);
+          
+      } catch (e) {
+          console.error("Failed to start new chat:", e);
+          alert("Could not start chat. See console for details.");
+      }
+  }
+
+  // Context Menu Logic
+  function showContextMenu(e, msgId, isMe) {
+      e.preventDefault();
+      contextMsgId = msgId;
+      const menu = document.getElementById('contextMenu');
+      
+      // Position the menu
+      menu.style.display = 'block';
+      // Adjust position to stay within viewport
+      const menuWidth = 120; // Estimated min-width
+      const menuHeight = 130; // Estimated height
+      menu.style.left = (e.pageX + menuWidth > window.innerWidth) ? (e.pageX - menuWidth) + 'px' : e.pageX + 'px';
+      menu.style.top = (e.pageY + menuHeight > window.innerHeight) ? (e.pageY - menuHeight) + 'px' : e.pageY + 'px';
+      
+      // Hide Edit/Delete if not my message
+      const items = menu.querySelectorAll('.context-menu-item');
+      items[1].style.display = isMe ? 'flex' : 'none'; // Edit
+      items[2].style.display = isMe ? 'flex' : 'none'; // Delete
+  }
+
+  window.onclick = () => document.getElementById('contextMenu').style.display = 'none';
+  
+  // --- AI Logic ---
+  function generateSmartResponse(text, name) {
+      text = text.toLowerCase();
+      if(text.includes('hello') || text.includes('hi')) return `Hello! ${name} is currently away, but I'm handling messages. How can I help?`;
+      if(text.includes('price') || text.includes('cost')) return "I can't give exact quotes right now, but I'll have the human get back to you ASAP!";
+      if(text.includes('when')) return "I'll check my calendar and get back to you.";
+      return "Thanks for the message. I've noted it down and will respond personally soon.";
+  }
+
+  async function checkAIResponse(targetId, incomeText) {
+      const targetDoc = await getDoc(doc(db, "users", targetId));
+      if(targetDoc.exists() && targetDoc.data().aiMode) {
+          setTimeout(async () => {
+              const targetDisplayName = targetDoc.data().displayName || 'User';
+              const reply = generateSmartResponse(incomeText, targetDisplayName);
+              await addDoc(collection(db, `chats/${currentChatId}/messages`), {
+                  text: reply + "\n\n✨ [AI Auto-Reply]",
+                  senderId: targetId,
+                  createdAt: serverTimestamp()
+              }).catch(console.error);
+              
+              // Update conversation list with AI reply
+              await updateDoc(doc(db, "chats", currentChatId), {
+                lastMessage: reply.split('\n')[0],
+                lastUpdated: serverTimestamp(),
+              });
+          }, 3000); // 3 second simulated delay
+      }
+  }
+
+  // Dark Mode (Local Persistence)
+  const darkToggle = document.getElementById('darkToggle');
+  if(localStorage.getItem('meet_theme') === 'dark') document.body.classList.add('dark');
+  
+  darkToggle.onclick = () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('meet_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  };
+
+</script>
 </body>
 </html>
