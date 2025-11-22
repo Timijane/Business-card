@@ -1518,25 +1518,21 @@
       const otherUserProfile = await getUserProfile(otherUserId);
       const currentUserProfile = await getUserProfile(currentUserId);
       
-      // Simplified conversation data that matches security rules
+      // SIMPLIFIED conversation data - only essential fields
       const conversationData = {
-        type: 'direct',
         participants: participantsSorted,
         participantNames: {
           [currentUserId]: currentUserProfile.name,
           [otherUserId]: otherUserProfile.name
         },
-        participantAvatars: {
-          [currentUserId]: currentUserProfile.avatar,
-          [otherUserId]: otherUserProfile.avatar
-        },
         lastMessage: '',
-        lastMessageTime: serverTimestamp(),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
       
+      console.log('Creating conversation with data:', conversationData);
       await setDoc(chatDocRef, conversationData);
+      console.log('Conversation created successfully');
       return chatId;
     } catch (error) {
       console.error('Error in createOrGetConversation:', error);
@@ -1755,7 +1751,6 @@
         await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
           text: text,
           edited: true,
-          // Sending timestamp here to ensure the rule 'hasOnly' passes during update.
           timestamp: serverTimestamp() 
         });
         
@@ -1852,13 +1847,11 @@
     const chatDocRef = doc(db, "conversations", currentChatId);
     try {
         await updateDoc(chatDocRef, {
-            // Using dot notation to update the map inside the document, which the rule allows
             [`status.${currentUser.uid}.isTyping`]: status,
             [`status.${currentUser.uid}.lastActive`]: serverTimestamp()
         });
     } catch (error) {
         // Errors here are often rule violations if the document was deleted. 
-        // We suppress console error to avoid noise unless it's critical.
     }
   }
 
@@ -1914,7 +1907,6 @@
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
-        // Do not update status here; let onAuthStateChanged handle redirect
       } catch (error) {
         console.error('Logout error:', error);
         showMessage('Failed to logout. Please try again.');
@@ -1945,7 +1937,7 @@
     startNewChatBtn.addEventListener('click', openUserSearchOverlay);
     userSearchInput.addEventListener('input', handleUserSearch);
 
-    chatSearch.addEventListener('input', renderConversations); // Rerun renderConversations to filter the list
+    chatSearch.addEventListener('input', renderConversations);
     
     window.addEventListener('resize', checkMobileLayout);
   }
@@ -1954,7 +1946,6 @@
     isMobile = window.innerWidth <= 768;
     
     if (isMobile) {
-      // On mobile, if no chat is active, show sidebar
       if (!currentChatId || !chatArea.classList.contains('active')) {
           conversationsSidebar.classList.remove('hidden');
           chatArea.classList.remove('active');
@@ -1975,7 +1966,7 @@
     if (!isMobile) return;
     conversationsSidebar.classList.remove('hidden');
     chatArea.classList.remove('active');
-    currentChatId = null; // Clear active chat
+    currentChatId = null;
   }
 
   // Placeholder functions for additional features
@@ -1986,25 +1977,20 @@
   window.startVoiceCall = () => showMessage('Voice call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
   window.startVideoCall = () => showMessage('Video call feature requires a real-time communication service (e.g., WebRTC/Twilio).', 'success');
 
-
   // --- Initialization ---
 
   async function updateUserStatus(isOnline) {
-    if (!auth.currentUser) return; // Use auth.currentUser here because currentUser state might be nullified
+    if (!auth.currentUser) return;
     try {
         const userDocRef = doc(db, "users", auth.currentUser.uid);
-        // Update user document using only the fields allowed by the rule
         await updateDoc(userDocRef, { isOnline: isOnline, lastActive: serverTimestamp() });
     } catch (error) {
-        // This is expected if the user document hasn't been created yet, or if rules fail.
-        // console.error("Error updating user status:", error);
+        // This is expected if the user document hasn't been created yet
     }
   }
 
   onAuthStateChanged(auth, async user => {
     if (!user) {
-      // Must be called with a user object, which is why we call it inside the else block too.
-      // But for beforeunload, we let the hook handle it. For logout, auth clears the user.
       window.location.href = 'login.html';
     } else {
       currentUser = user;
@@ -2015,7 +2001,6 @@
 
       const userNameText = currentUser.name || 'User';
       
-      // Set the user avatar in the main navbar
       currentUserAvatar.src = currentUser.photoURL || getDefaultAvatarUrl(currentUser);
       currentUserAvatar.onerror = function() { this.src = getDefaultAvatarUrl(currentUser); };
       userName.textContent = userNameText;
@@ -2024,7 +2009,6 @@
       
       loadConversations();
       
-      // Set status to offline when the user closes the window
       window.addEventListener('beforeunload', () => updateUserStatus(false));
     }
   });
@@ -2038,4 +2022,4 @@
   document.addEventListener('DOMContentLoaded', initChat);
 </script>
 </body>
-</html>
+  </html>
