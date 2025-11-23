@@ -132,7 +132,7 @@ body {
   border-color: var(--error);
 }
 
-/* === PASSWORD TOGGLE CHANGES START === */
+/* === PASSWORD TOGGLE (FIXED) === */
 .password-toggle {
   position: absolute;
   right: 10px;
@@ -141,19 +141,24 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.1rem; /* Slightly larger for better tap target */
+  font-size: 1.2rem;
   color: var(--text-light);
   z-index: 2;
-  padding: 0; /* Remove default padding */
-  transition: color 0.2s;
-  /* Key change: Ensure the button doesn't take the focus, preventing the "blue" outline/overlay on click */
-  outline: none; 
+  padding: 5px;
+  
+  /* REMOVES BLUE BLOCKING ON MOBILE */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  user-select: none;
+}
+
+.password-toggle:focus {
+  outline: none;
 }
 
 .password-toggle:hover {
-  color: var(--primary); /* Visual feedback on hover */
+  color: var(--primary);
 }
-/* === PASSWORD TOGGLE CHANGES END === */
 
 select.form-input {
   appearance: none;
@@ -317,7 +322,7 @@ button:disabled {
       <label class="form-label" for="loginPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
-        <button type="button" class="password-toggle" id="loginPasswordToggle">👁️</button>
+        <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Toggle password visibility">👁️</button>
       </div>
       <div class="forgot-password">
         <a id="forgotPasswordLink">Forgot Password?</a>
@@ -357,7 +362,7 @@ button:disabled {
       <label class="form-label" for="signupPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 8 characters)" required>
-        <button type="button" class="password-toggle" id="signupPasswordToggle">👁️</button>
+        <button type="button" class="password-toggle" id="signupPasswordToggle" aria-label="Toggle password visibility">👁️</button>
       </div>
       <div id="passwordHint" class="validation-hint">Must be at least 8 characters with uppercase, lowercase, and number</div>
     </div>
@@ -365,7 +370,7 @@ button:disabled {
       <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm your password" required>
-        <button type="button" class="password-toggle" id="signupConfirmPasswordToggle">👁️</button>
+        <button type="button" class="password-toggle" id="signupConfirmPasswordToggle" aria-label="Toggle password visibility">👁️</button>
       </div>
       <div id="confirmPasswordHint" class="validation-hint"></div>
     </div>
@@ -502,30 +507,30 @@ function sanitizeFormInputs() {
   });
 }
 
-// Password toggle
-function setupPasswordToggle(passwordInputId, toggleButtonId) {
-  const passwordInput = document.getElementById(passwordInputId);
-  const toggleButton = document.getElementById(toggleButtonId);
-  
-  // *** KEY CHANGE FOR SMOOTHER TOGGLE ***
-  // Prevent the button from taking focus on click (which can cause the visual "blue" flash/cover).
-  // The mousedown event fires before the click event and before the input loses focus.
-  toggleButton.addEventListener('mousedown', (e) => {
-    e.preventDefault(); 
+// === NEW PASSWORD TOGGLE LOGIC ===
+function setupPasswordToggle(inputId, toggleId) {
+  const input = document.getElementById(inputId);
+  const toggle = document.getElementById(toggleId);
+
+  if (!input || !toggle) return;
+
+  // Prevent blue focus highlight on click for mobile
+  toggle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
   });
 
-  toggleButton.addEventListener('click', () => {
-    const type = passwordInput.type === 'password' ? 'text' : 'password';
-    passwordInput.type = type;
-    
-    // Change icon to reflect current state
-    toggleButton.textContent = type === 'password' ? '👁️' : '🔒';
-    
-    // Keep focus on the password input for better UX (optional but recommended)
-    passwordInput.focus();
+  toggle.addEventListener('click', () => {
+    if (input.type === 'password') {
+      input.type = 'text';
+      toggle.textContent = '🔒'; // Icon when showing text
+    } else {
+      input.type = 'password';
+      toggle.textContent = '👁️'; // Icon when showing dots (******)
+    }
   });
 }
-// Setup all password toggles
+
+// Setup toggles
 setupPasswordToggle('loginPassword', 'loginPasswordToggle');
 setupPasswordToggle('signupPassword', 'signupPasswordToggle');
 setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
@@ -756,6 +761,11 @@ signupForm.addEventListener('submit', async e => {
     
     await updateProfile(user, { displayName: fullName });
     
+    // === VITAL FIX FOR IPHONE/IOS ===
+    // Force a reload of the user object to ensure the new displayName 
+    // is synchronized to the local device storage before redirecting.
+    await user.reload(); 
+    
     await setDoc(doc(db, "users", user.uid), {
       fullName,
       username,
@@ -918,11 +928,6 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = 'feed.html';
   }
 });
-
-// Initialize real-time validation
-// Note: This is now called within showSignup to ensure it runs only when the form is visible/relevant
-// but for initial load of the script, it's safer to keep it here if Signup is the default view. 
-// Since Login is the default view, validation will be set up when the Signup form is requested.
 </script>
 </body>
 </html>
