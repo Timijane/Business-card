@@ -114,7 +114,6 @@ body {
 .form-input {
   width: 100%;
   padding: 0.8rem;
-  /* Removed padding-right used for toggle */
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
@@ -294,7 +293,7 @@ button:disabled {
       <label class="form-label" for="loginPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
-        </div>
+      </div>
       <div class="forgot-password">
         <a id="forgotPasswordLink">Forgot Password?</a>
       </div>
@@ -333,14 +332,14 @@ button:disabled {
       <label class="form-label" for="signupPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 8 characters)" required>
-        </div>
+      </div>
       <div id="passwordHint" class="validation-hint">Must be at least 8 characters with uppercase, lowercase, and number</div>
     </div>
     <div class="form-group">
       <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm your password" required>
-        </div>
+      </div>
       <div id="confirmPasswordHint" class="validation-hint"></div>
     </div>
     <div class="form-group">
@@ -398,6 +397,7 @@ import {
   getFirestore, 
   doc, 
   setDoc, 
+  getDoc, 
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { 
@@ -702,9 +702,10 @@ signupForm.addEventListener('submit', async e => {
     
     await updateProfile(user, { displayName: fullName });
     
-    // === FIX FOR IPHONE USERNAME ISSUE ===
-    // Forces reload to ensure display name is synced
-    await user.reload(); 
+    // === VITAL FIX: FORCE RELOAD & TOKEN REFRESH ===
+    // This ensures the new displayName is actually available on the next page
+    await user.reload();
+    await user.getIdToken(true); 
     
     await setDoc(doc(db, "users", user.uid), {
       fullName,
@@ -856,13 +857,38 @@ forgotPasswordForm.addEventListener('submit', async e => {
   }
 });
 
-// Check if user is already logged in
-onAuthStateChanged(auth, (user) => {
+// === SELF-HEALING AUTH STATE LISTENER ===
+// This checks if a user is logged in BUT has a missing name (the bug).
+// If so, it fetches the name from the database and updates the Auth profile automatically.
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     // Set online status in Realtime Database
     const statusRef = ref(rtdb, 'status/' + user.uid);
     set(statusRef, 'online');
     onDisconnect(statusRef).set('offline');
+
+    // CHECK: Does the auth profile lack a Display Name?
+    if (!user.displayName) {
+      console.log("User missing Auth DisplayName. Attempting repair...");
+      try {
+        // Fetch user data from Firestore to heal the Auth profile
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          if (userData.fullName) {
+            // Update Auth Profile
+            await updateProfile(user, { displayName: userData.fullName });
+            // Force refresh
+            await user.reload();
+            await user.getIdToken(true);
+            console.log("Account repaired successfully.");
+          }
+        }
+      } catch (err) {
+        console.error("Auto-repair failed:", err);
+      }
+    }
 
     // Redirect to feed
     window.location.href = 'feed.html';
