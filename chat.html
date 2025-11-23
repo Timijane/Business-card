@@ -11,9 +11,6 @@
   :root {
     --primary: #0080FF;
     --primary-dark: #0066CC;
-    --accent: #00C6FF;
-    --success: #10B981;
-    --error: #EF4444;
     --bg-color: #f0f2f5;
     --card-bg: #fff;
     --text-color: #111;
@@ -21,8 +18,6 @@
     --border-color: #dddfe2;
     --online: #10B981;
     --offline: #EF4444;
-    --radius: 12px;
-    --shadow: 0 2px 8px rgba(0,0,0,0.1);
     --ai-color: #8A2BE2;
   }
 
@@ -32,387 +27,266 @@
     --text-color: #e4e6eb;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
-    --shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); height: 100dvh; overflow: hidden; }
 
-  html, body {
-    height: 100%;
-    /* Prevent horizontal scroll on mobile */
-    overflow: hidden; 
-    font-size: 16px;
-  }
+  .app-container { display: flex; height: 100%; }
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-  }
-
-  .app-container {
-    display: flex;
-    height: 100dvh; /* Dynamic viewport height for mobile browsers */
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Sidebar */
+  /* 1. RESTORED SIDEBAR MENU */
   .sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    z-index: 100;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
+    width: 250px; background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
+    display: flex; flex-direction: column; padding: 20px; color: white; flex-shrink: 0;
   }
-
-  .sidebar-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px;}
-  .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 8px; }
-  .sidebar-menu a {
-    display: flex; align-items: center; padding: 12px;
-    text-decoration: none; color: white; border-radius: 8px;
-    transition: background 0.3s; font-size: 16px;
+  .sidebar h2 { margin-bottom: 30px; font-size: 24px; font-weight: 700; }
+  .sidebar ul { list-style: none; }
+  .sidebar li { margin-bottom: 10px; }
+  .sidebar a {
+    display: flex; align-items: center; color: white; text-decoration: none;
+    padding: 10px; border-radius: 8px; transition: background 0.2s; font-size: 16px;
   }
-  .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255, 255, 255, 0.2); }
-  .sidebar-menu i { margin-right: 12px; font-size: 18px; width: 20px; text-align: center;}
+  .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.2); }
+  .sidebar i { width: 25px; margin-right: 10px; text-align: center; }
 
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-color);
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-  }
+  /* MAIN CHAT LAYOUT */
+  .chat-interface { flex: 1; display: flex; overflow: hidden; background: var(--bg-color); }
 
-  /* Chat Container - The main wrapper for chat lists and messages */
-  .chat-interface {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: var(--card-bg);
-    overflow: hidden;
-  }
-
-  /* Conversations List Sidebar */
+  /* CONVERSATIONS LIST */
   .conversations-sidebar {
-    width: 350px;
-    background: var(--card-bg);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    flex-shrink: 0;
-    z-index: 50;
+    width: 320px; background: var(--card-bg); border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column; flex-shrink: 0;
   }
-
-  .chat-header-search {
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
+  .search-container { padding: 15px; border-bottom: 1px solid var(--border-color); }
+  .search-input {
+    width: 100%; padding: 10px; border-radius: 20px; border: 1px solid var(--border-color);
+    background: var(--bg-color); color: var(--text-color); outline: none;
   }
-  
-  .chat-header-top {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-  }
-  .chat-header-title { font-weight: 700; font-size: 20px; }
-
   .new-chat-btn {
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    color: white; border: none; width: 36px; height: 36px; border-radius: 50%;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    float: right; background: var(--primary); color: white; border: none;
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer; margin-bottom: 10px;
   }
-
-  .chat-search-input {
-    width: 100%; padding: 10px 15px; border-radius: 20px;
-    border: 1px solid var(--border-color); background: var(--bg-color); outline: none;
-    color: var(--text-color);
-  }
-
   .conversations-list { flex: 1; overflow-y: auto; }
-
+  
   .conversation-item {
-    display: flex; align-items: center; gap: 12px; padding: 15px;
-    cursor: pointer; border-bottom: 1px solid var(--border-color);
-    transition: background 0.2s;
+    display: flex; align-items: center; padding: 15px; cursor: pointer;
+    border-bottom: 1px solid var(--border-color); position: relative;
   }
   .conversation-item:hover, .conversation-item.active { background: rgba(0,128,255,0.05); }
-
-  .conversation-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; position: relative; }
-  .online-indicator {
+  
+  .avatar-container { position: relative; margin-right: 12px; }
+  .conv-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+  
+  /* 8. REAL TIME ONLINE/OFFLINE STATUS */
+  .status-dot {
     position: absolute; bottom: 0; right: 0; width: 12px; height: 12px;
-    border-radius: 50%; background: var(--online); border: 2px solid var(--card-bg);
+    border-radius: 50%; border: 2px solid var(--card-bg);
   }
+  .is-online { background-color: var(--online); }
+  .is-offline { background-color: var(--offline); }
 
-  .conversation-info { flex: 1; min-width: 0; }
-  .conversation-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .conversation-name { font-weight: 600; font-size: 16px; }
-  .conversation-time { font-size: 12px; color: var(--secondary-text); }
-  .conversation-preview { font-size: 14px; color: var(--secondary-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conv-info { flex: 1; min-width: 0; }
+  .conv-name { font-weight: 600; font-size: 15px; }
+  .conv-preview { font-size: 13px; color: var(--secondary-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Chat Area */
+  /* CHAT AREA */
   .chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: var(--bg-color);
-    position: relative;
-    min-width: 0; /* Important for flexbox text truncation */
+    flex: 1; display: flex; flex-direction: column; position: relative; background-size: cover; background-position: center;
+    background-color: var(--bg-color); /* Fallback */
   }
 
-  .chat-area-header {
-    padding: 10px 20px;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    display: flex; align-items: center; gap: 12px;
-    height: 65px;
+  /* 2. HEADER RESTORATION */
+  .chat-header {
+    height: 60px; background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
     flex-shrink: 0;
   }
-
-  .chat-user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-  .chat-user-info { flex: 1; }
-  .chat-user-name { font-weight: 600; font-size: 16px; }
-  .chat-user-status { font-size: 12px; color: var(--secondary-text); }
-
-  /* AI Toggle Switch */
-  .ai-toggle-wrapper {
-      display: flex; align-items: center; gap: 8px; margin-right: 10px;
-  }
-  .ai-toggle-btn {
-      background: transparent; border: 1px solid var(--secondary-text); color: var(--secondary-text);
-      padding: 5px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;
-      transition: all 0.3s;
-  }
-  .ai-toggle-btn.active {
-      background: var(--ai-color); border-color: var(--ai-color); color: white;
-      box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+  .chat-header-user { display: flex; align-items: center; gap: 10px; }
+  .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .header-actions button {
+    background: none; border: none; color: var(--primary); font-size: 18px;
+    margin-left: 15px; cursor: pointer; padding: 5px;
   }
 
-  .chat-actions button {
-    background: none; border: none; color: var(--secondary-text);
-    font-size: 18px; cursor: pointer; padding: 8px;
-  }
-
-  .messages-wrapper {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    /* Ensure content fits */
-    width: 100%;
-  }
-
-  .message {
-    display: flex; gap: 10px; max-width: 75%;
-    position: relative; margin-bottom: 5px;
-    /* Prevent messages from overflowing screen */
-    min-width: 0; 
-  }
+  /* MESSAGES */
+  .messages-wrapper { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
   
+  .message { display: flex; gap: 10px; max-width: 70%; position: relative; }
   .message.sent { align-self: flex-end; flex-direction: row-reverse; }
-
-  .message-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; align-self: flex-end; flex-shrink: 0; }
-
-  .message-bubble {
-    padding: 10px 14px; border-radius: 18px; position: relative;
-    word-wrap: break-word; overflow-wrap: break-word; /* Crucial for long text */
-    max-width: 100%;
-    font-size: 15px; line-height: 1.4;
-  }
-
-  .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .sent .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-  .message-time { font-size: 10px; margin-top: 4px; opacity: 0.7; text-align: right; }
-
-  /* Message Actions (Hover) */
-  .message:hover .msg-actions-menu { opacity: 1; pointer-events: auto; }
-  .msg-actions-menu {
-      position: absolute; top: -25px; right: 0;
-      background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      border-radius: 20px; padding: 2px 5px; display: flex; gap: 5px;
-      opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 10;
-  }
-  .sent .msg-actions-menu { left: 0; right: auto; }
-  .action-icon { font-size: 12px; padding: 5px; cursor: pointer; color: var(--secondary-text); border-radius: 50%; }
-  .action-icon:hover { background: var(--bg-color); color: var(--primary); }
-
-  /* Reply Context */
-  .reply-context {
-      font-size: 12px; background: rgba(0,0,0,0.05); padding: 5px 8px;
-      border-left: 3px solid var(--primary); border-radius: 4px; margin-bottom: 5px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      opacity: 0.8;
-  }
-  .sent .reply-context { background: rgba(255,255,255,0.2); border-left-color: white; }
-
-  /* Input Area */
-  .chat-input-area {
-    padding: 10px 15px;
-    background: var(--card-bg);
-    border-top: 1px solid var(--border-color);
-    flex-shrink: 0;
-  }
-
-  /* Reply Preview Bar */
-  .input-context-bar {
-      background: var(--bg-color); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px;
-      display: none; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary);
-  }
-  .input-context-text { font-size: 13px; color: var(--secondary-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
-
-  .input-wrapper { display: flex; align-items: flex-end; gap: 10px; }
   
-  .input-actions { display: flex; gap: 5px; }
-  .input-btn {
-    background: none; border: none; color: var(--secondary-text);
-    font-size: 20px; cursor: pointer; padding: 8px; border-radius: 50%;
+  /* 6. SENDER/RECEIVER PICTURES */
+  .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; align-self: flex-end; }
+  
+  .message-bubble {
+    padding: 10px 14px; border-radius: 18px; font-size: 14px; position: relative;
+    word-wrap: break-word; line-height: 1.4;
   }
-  .input-btn:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+  .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .sent .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+  
+  .msg-image { max-width: 100%; border-radius: 10px; margin-top: 5px; cursor: pointer; }
+
+  /* 3. EDIT MESSAGE ACTIONS */
+  .message:hover .msg-actions { opacity: 1; }
+  .msg-actions {
+    position: absolute; top: -20px; right: 0; opacity: 0; transition: opacity 0.2s;
+    background: var(--card-bg); padding: 2px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .sent .msg-actions { left: 0; right: auto; }
+  .msg-actions i { font-size: 12px; margin: 0 5px; cursor: pointer; color: var(--secondary-text); }
+  .msg-actions i:hover { color: var(--primary); }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 10px 15px; background: var(--card-bg); border-top: 1px solid var(--border-color);
+  }
+  
+  /* 2. AI SWITCH & 4. ICONS */
+  .input-controls { display: flex; align-items: center; gap: 10px; }
+  
+  /* Toggle Switch Style */
+  .ai-switch-container { display: flex; align-items: center; gap: 5px; margin-right: 5px; }
+  .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s; border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background-color: white; transition: .4s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--ai-color); }
+  input:checked + .slider:before { transform: translateX(14px); }
+  
+  .input-icon-btn { background: none; border: none; font-size: 20px; color: var(--secondary-text); cursor: pointer; padding: 5px; }
+  .input-icon-btn:hover { color: var(--primary); }
 
   .message-input {
-    flex: 1; padding: 10px 15px; border-radius: 20px;
-    border: 1px solid var(--border-color); background: var(--bg-color);
-    resize: none; font-family: inherit; font-size: 15px; max-height: 100px; outline: none;
-    color: var(--text-color);
+    flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color);
+    background: var(--bg-color); outline: none; margin: 0 10px; resize: none; height: 44px; color: var(--text-color);
   }
-  .send-btn {
-    background: var(--primary); color: white; border: none;
-    width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 18px;
-    flex-shrink: 0;
+  
+  .send-btn { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+  /* 7. WALLPAPER SETTINGS MODAL */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+  .modal-content { background: var(--card-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; }
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+  .wallpaper-option {
+    height: 80px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; color: rgba(255,255,255,0.8); text-shadow: 1px 1px 2px black;
   }
+  .wallpaper-option:hover { border-color: var(--primary); }
 
-  /* Emoji Picker Container */
-  #emojiPickerContainer {
-      position: absolute; bottom: 80px; left: 20px; z-index: 1000; display: none;
-  }
+  #emojiContainer { position: absolute; bottom: 70px; left: 20px; z-index: 100; display: none; }
+  
+  .edit-indicator { font-size: 10px; font-style: italic; opacity: 0.7; display: block; text-align: right; }
 
-  /* Back Button (Mobile) */
-  .back-btn { display: none; background: none; border: none; font-size: 20px; margin-right: 10px; cursor: pointer; color: var(--text-color); }
-
-  /* Empty State */
-  .empty-state {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; color: var(--secondary-text); padding: 20px;
-  }
-
-  /* Toast */
-  .toast {
-      position: fixed; top: 20px; right: 20px; background: var(--success); color: white;
-      padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 9999; animation: slideIn 0.3s ease;
-  }
-  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-  /* Mobile Responsive */
   @media (max-width: 768px) {
-    .sidebar { display: none; } /* Hide main nav sidebar on mobile */
-    .conversations-sidebar { width: 100%; border-right: none; }
-    .chat-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: translateX(100%); transition: transform 0.3s ease; z-index: 100; }
-    .chat-area.active { transform: translateX(0); }
-    .back-btn { display: block; }
-    .message { max-width: 85%; }
-    .chat-header-search { padding: 10px; }
-    .ai-toggle-btn span { display: none; } /* Hide text on small screens */
+    .sidebar { display: none; }
+    .conversations-sidebar { width: 100%; }
+    .chat-area { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+    .chat-area.active { display: flex; }
+    .back-btn { display: inline-block !important; margin-right: 10px; }
   }
+  .back-btn { display: none; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color); }
 </style>
 </head>
 <body>
 
 <div class="app-container">
   <div class="sidebar">
-    <div class="sidebar-header"><h2>MEET</h2></div>
-    <ul class="sidebar-menu">
-      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
-      <li><a href="chat.html" class="active"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
-      <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
-      <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+    <h2>MEET</h2>
+    <ul>
+      <li><a href="feed.html"><i class="fas fa-home"></i> Feed</a></li>
+      <li><a href="chat.html" class="active"><i class="fas fa-comment"></i> Chat</a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
   </div>
 
-  <div class="main-content">
-    <div class="chat-interface">
-      <div class="conversations-sidebar" id="conversationsSidebar">
-        <div class="chat-header-search">
-           <div class="chat-header-top">
-               <div class="chat-header-title">Messages</div>
-               <button class="new-chat-btn" onclick="openUserSearch()"><i class="fas fa-plus"></i></button>
-           </div>
-           <input type="text" class="chat-search-input" id="conversationSearch" placeholder="Search conversations...">
+  <div class="chat-interface">
+    <div class="conversations-sidebar" id="convSidebar">
+      <div class="search-container">
+        <button class="new-chat-btn" onclick="openUserSearch()"><i class="fas fa-plus"></i></button>
+        <h3 style="margin-bottom:10px">Messages</h3>
+        <input type="text" class="search-input" id="chatSearch" placeholder="Search chats...">
+      </div>
+      <div class="conversations-list" id="conversationsList">
         </div>
-        <div class="conversations-list" id="conversationsList">
-            </div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div id="emptyState" style="flex:1; display:flex; align-items:center; justify-content:center; color:#888;">
+        <div>
+          <i class="fas fa-comments" style="font-size:50px; display:block; text-align:center; margin-bottom:10px;"></i>
+          <p>Select a chat to start messaging</p>
+        </div>
       </div>
 
-      <div class="chat-area" id="chatArea">
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-comments" style="font-size: 60px; margin-bottom: 20px; opacity: 0.3;"></i>
-            <h3>Select a Conversation</h3>
-            <p>Choose a chat from the left or start a new one.</p>
+      <div class="chat-header" id="chatHeader" style="display:none;">
+        <div class="chat-header-user">
+          <button class="back-btn" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
+          <img src="" class="header-avatar" id="headerAvatar">
+          <span style="font-weight:600;" id="headerName">User</span>
+        </div>
+        <div class="header-actions">
+          <button title="Voice Call"><i class="fas fa-phone"></i></button>
+          <button title="Video Call"><i class="fas fa-video"></i></button>
+          <button title="Wallpaper Settings" onclick="openWallpaperModal()"><i class="fas fa-cog"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-wrapper" id="messagesWrapper" style="display:none;"></div>
+
+      <div id="emojiContainer"></div>
+
+      <div class="input-area" id="inputArea" style="display:none;">
+        <div id="editPreview" style="display:none; background:#eee; padding:5px 10px; margin-bottom:5px; border-radius:5px; font-size:12px; justify-content:space-between;">
+           <span>Editing message...</span> <i class="fas fa-times" style="cursor:pointer;" onclick="cancelEdit()"></i>
         </div>
 
-        <div class="chat-area-header" id="chatAreaHeader" style="display:none;">
-            <button class="back-btn" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
-            <img src="" class="chat-user-avatar" id="currentChatAvatar">
-            <div class="chat-user-info">
-                <div class="chat-user-name" id="currentChatName">User</div>
-                <div class="chat-user-status" id="currentChatStatus">Offline</div>
-            </div>
-            
-            <div class="ai-toggle-wrapper">
-                <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAI()">
-                    <i class="fas fa-robot"></i> <span>AI Reply</span>
-                </button>
-            </div>
-        </div>
+        <div class="input-controls">
+          <div class="ai-switch-container" title="AI Auto-Reply">
+             <label class="switch">
+               <input type="checkbox" id="aiToggle">
+               <span class="slider"></span>
+             </label>
+             <i class="fas fa-robot" style="font-size:14px; color:var(--ai-color);"></i>
+          </div>
 
-        <div class="messages-wrapper" id="messagesWrapper" style="display:none;">
-            </div>
+          <button class="input-icon-btn" onclick="toggleEmoji()"><i class="far fa-smile"></i></button>
+          
+          <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+          <button class="input-icon-btn" onclick="document.getElementById('imageInput').click()"><i class="far fa-image"></i></button>
+          
+          <button class="input-icon-btn" title="Voice Note"><i class="fas fa-microphone"></i></button>
 
-        <div id="emojiPickerContainer"></div>
-
-        <div class="chat-input-area" id="chatInputArea" style="display:none;">
-            <div class="input-context-bar" id="inputContextBar">
-                <div class="input-context-text" id="contextText">Replying to...</div>
-                <button onclick="cancelContext()" style="background:none; border:none; color:var(--error); cursor:pointer;"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div class="input-wrapper">
-                <div class="input-actions">
-                    <button class="input-btn" onclick="toggleEmojiPicker()"><i class="far fa-smile"></i></button>
-                    <button class="input-btn" title="Send Image (Demo)"><i class="far fa-image"></i></button>
-                </div>
-                <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
-                <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
-            </div>
+          <textarea class="message-input" id="messageInput" placeholder="Type a message..."></textarea>
+          <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="toastContainer"></div>
+<div class="modal" id="wallpaperModal">
+  <div class="modal-content">
+    <h3>Chat Wallpaper</h3>
+    <div class="wallpaper-grid">
+       <div class="wallpaper-option" style="background: linear-gradient(135deg, #0080FF, #00C6FF);" onclick="setWallpaper('linear-gradient(135deg, #0080FF, #00C6FF)')">MEET Blue</div>
+       <div class="wallpaper-option" style="background: #242526;" onclick="setWallpaper('#242526')">Dark</div>
+       <div class="wallpaper-option" style="background: #f0f2f5;" onclick="setWallpaper('#f0f2f5')">Light</div>
+       <div class="wallpaper-option" style="background: radial-gradient(circle, #8A2BE2, #4B0082);" onclick="setWallpaper('radial-gradient(circle, #8A2BE2, #4B0082)')">MEET AI</div>
+    </div>
+    <button onclick="document.getElementById('wallpaperModal').style.display='none'" style="margin-top:15px; width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:6px;">Close</button>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -428,358 +302,248 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  
+  // Cloudinary Config
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video';
 
-  // --- STATE ---
   let currentUser = null;
   let currentChatId = null;
-  let currentChatUser = null; 
-  let isAIEnabled = false;
-  let contextMode = null; // 'reply' or 'edit'
-  let contextMessageId = null; // ID of message being replied to or edited
-  let picker = null; // Emoji picker instance
+  let editingMessageId = null;
+  let picker = null;
 
-  // --- DOM ELEMENTS ---
-  const conversationsList = document.getElementById('conversationsList');
-  const chatArea = document.getElementById('chatArea');
-  const messagesWrapper = document.getElementById('messagesWrapper');
-  const messageInput = document.getElementById('messageInput');
-  const chatHeader = document.getElementById('chatAreaHeader');
-  const chatInputArea = document.getElementById('chatInputArea');
-  const emptyState = document.getElementById('emptyState');
-  const inputContextBar = document.getElementById('inputContextBar');
-  const contextText = document.getElementById('contextText');
-  const aiToggleBtn = document.getElementById('aiToggleBtn');
-  
-  // --- INITIALIZATION ---
-  onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-          window.location.href = 'login.html';
-      } else {
-          currentUser = user;
-          loadConversations();
-          initEmojiPicker();
-          updateUserStatus(true);
-      }
+  // Init Emoji
+  const emojiContainer = document.getElementById('emojiContainer');
+  picker = picmo.createPicker({ rootElement: emojiContainer });
+  picker.addEventListener('emoji:select', selection => {
+    document.getElementById('messageInput').value += selection.emoji;
+    emojiContainer.style.display = 'none';
+  });
+  window.toggleEmoji = () => {
+      emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
+  }
+
+  // Auth & Load
+  onAuthStateChanged(auth, user => {
+    if(!user) window.location.href = 'login.html';
+    else {
+        currentUser = user;
+        loadConversations();
+        updateUserStatus(true);
+        // Load saved wallpaper
+        const savedWP = localStorage.getItem('meet_wallpaper');
+        if(savedWP) document.getElementById('chatArea').style.background = savedWP;
+    }
   });
 
-  // --- EMOJI PICKER ---
-  function initEmojiPicker() {
-      const container = document.getElementById('emojiPickerContainer');
-      picker = picmo.createPicker({ rootElement: container });
-      picker.addEventListener('emoji:select', selection => {
-          messageInput.value += selection.emoji;
-          messageInput.focus();
-          container.style.display = 'none';
-      });
-  }
-
-  window.toggleEmojiPicker = () => {
-      const container = document.getElementById('emojiPickerContainer');
-      container.style.display = container.style.display === 'block' ? 'none' : 'block';
-  }
-
-  // --- CONVERSATIONS ---
+  // Load Conversations
   function loadConversations() {
-      const q = query(collection(db, "conversations"), where("participants", "array-contains", currentUser.uid));
-      
-      onSnapshot(q, (snapshot) => {
-          let chats = [];
-          snapshot.forEach(doc => {
-              chats.push({ id: doc.id, ...doc.data() });
-          });
+    const q = query(collection(db, "conversations"), where("participants", "array-contains", currentUser.uid));
+    onSnapshot(q, snap => {
+        const list = document.getElementById('conversationsList');
+        list.innerHTML = '';
+        snap.forEach(d => {
+            const chat = { id: d.id, ...d.data() };
+            const otherId = chat.participants.find(id => id !== currentUser.uid);
+            const name = chat.participantNames?.[otherId] || 'User';
+            const avatar = chat.participantAvatars?.[otherId] || 'https://via.placeholder.com/50';
+            
+            // 8. ONLINE STATUS CHECK (Logic: < 2 mins inactive = online)
+            const status = chat.status?.[otherId];
+            let isOnline = false;
+            if(status && status.lastActive) {
+                const diff = (new Date() - status.lastActive.toDate()) / 1000;
+                isOnline = diff < 120; // 2 mins
+            }
+            if(status?.isOnline) isOnline = true; // Realtime override
 
-          // Sort by updatedAt DESC (Newest first)
-          chats.sort((a, b) => {
-             const tA = a.updatedAt?.toMillis() || 0;
-             const tB = b.updatedAt?.toMillis() || 0;
-             return tB - tA;
-          });
-
-          renderConversations(chats);
-      });
+            const item = document.createElement('div');
+            item.className = `conversation-item ${currentChatId === chat.id ? 'active' : ''}`;
+            item.onclick = () => loadChat(chat.id, otherId, name, avatar);
+            item.innerHTML = `
+                <div class="avatar-container">
+                    <img src="${avatar}" class="conv-avatar">
+                    <div class="status-dot ${isOnline ? 'is-online' : 'is-offline'}"></div>
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name">${name}</div>
+                    <div class="conv-preview">${chat.lastMessage || ''}</div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    });
   }
 
-  function renderConversations(chats) {
-      conversationsList.innerHTML = '';
-      if(chats.length === 0) {
-          conversationsList.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No conversations yet.</div>';
-          return;
-      }
-
-      chats.forEach(chat => {
-          const otherId = chat.participants.find(id => id !== currentUser.uid);
-          const name = chat.participantNames?.[otherId] || 'User';
-          const avatar = chat.participantAvatars?.[otherId] || `https://ui-avatars.com/api/?name=${name}&background=0080FF&color=fff`;
-          const lastMsg = chat.lastMessage || 'New Conversation';
-          
-          // Check for unread notification logic (Global Alert)
-          // If message is new and not in current chat, show toast
-          if (chat.updatedAt && Date.now() - chat.updatedAt.toMillis() < 5000 && chat.id !== currentChatId) {
-             // Only notify if last message wasn't from me
-             // (Simplification: Real logic would check unread array)
-             showToast(`New message from ${name}`);
-          }
-
-          const div = document.createElement('div');
-          div.className = `conversation-item ${currentChatId === chat.id ? 'active' : ''}`;
-          div.innerHTML = `
-              <div style="position:relative;">
-                  <img src="${avatar}" class="conversation-avatar">
-                  <div class="online-indicator" style="background: ${chat.status?.[otherId]?.isOnline ? 'var(--online)' : 'var(--offline)'}"></div>
-              </div>
-              <div class="conversation-info">
-                  <div class="conversation-top">
-                      <span class="conversation-name">${name}</span>
-                      <span class="conversation-time">${formatTime(chat.updatedAt)}</span>
-                  </div>
-                  <div class="conversation-preview">${lastMsg}</div>
-              </div>
-          `;
-          div.onclick = () => openChat(chat.id, otherId, name, avatar);
-          conversationsList.appendChild(div);
-      });
-  }
-
-  // --- CHAT LOGIC ---
-  window.openChat = async (chatId, userId, name, avatar) => {
+  // Load Chat
+  window.loadChat = (chatId, userId, name, avatar) => {
       currentChatId = chatId;
-      currentChatUser = userId;
-      
-      // Update UI
-      chatArea.classList.add('active'); // Mobile slide-in
-      emptyState.style.display = 'none';
-      chatHeader.style.display = 'flex';
-      messagesWrapper.style.display = 'flex';
-      chatInputArea.style.display = 'block';
-      
-      // Update Header
-      document.getElementById('currentChatName').innerText = name;
-      document.getElementById('currentChatAvatar').src = avatar;
-      
-      loadMessages(chatId);
-      watchStatus(userId);
-      
-      // Clear AI toggle state for new chat
-      isAIEnabled = false; 
-      updateAIToggleUI();
-  };
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('chatHeader').style.display = 'flex';
+      document.getElementById('messagesWrapper').style.display = 'flex';
+      document.getElementById('inputArea').style.display = 'block';
+      document.getElementById('chatArea').classList.add('active'); // Mobile
 
-  window.closeChat = () => {
-      chatArea.classList.remove('active'); // Mobile slide-out
-      currentChatId = null;
-  };
+      document.getElementById('headerAvatar').src = avatar;
+      document.getElementById('headerName').innerText = name;
+
+      loadMessages(chatId);
+  }
 
   function loadMessages(chatId) {
       const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
-      
-      onSnapshot(q, (snapshot) => {
-          messagesWrapper.innerHTML = '';
-          const messages = [];
-          snapshot.forEach(doc => messages.push({id: doc.id, ...doc.data()}));
-          
-          let lastSender = null;
+      onSnapshot(q, snap => {
+          const wrapper = document.getElementById('messagesWrapper');
+          wrapper.innerHTML = '';
+          snap.forEach(d => {
+              const msg = { id: d.id, ...d.data() };
+              const isMe = msg.senderId === currentUser.uid;
+              
+              // 6. AVATARS FOR BOTH SENDER & RECEIVER
+              // Logic: If Me, use my auth photo. If them, use header photo.
+              const avatarSrc = isMe ? (currentUser.photoURL || 'https://via.placeholder.com/50') : document.getElementById('headerAvatar').src;
 
-          messages.forEach(msg => {
-              const isSent = msg.senderId === currentUser.uid;
               const div = document.createElement('div');
-              div.className = `message ${isSent ? 'sent' : 'received'}`;
+              div.className = `message ${isMe ? 'sent' : 'received'}`;
               
-              // Avatar
-              const avatarUrl = isSent ? 
-                  (currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`) : 
-                  document.getElementById('currentChatAvatar').src;
-              
-              // Reply Context Visual
-              let replyHtml = '';
-              if(msg.replyTo) {
-                  replyHtml = `<div class="reply-context">${msg.replyTo.text}</div>`;
+              // 3. EDIT ACTIONS
+              let actions = '';
+              if(isMe && msg.type === 'text') {
+                  actions = `<div class="msg-actions">
+                                <i class="fas fa-edit" onclick="startEdit('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')"></i>
+                                <i class="fas fa-trash" onclick="deleteMsg('${msg.id}')"></i>
+                             </div>`;
               }
 
-              // Text + AI Tag
-              let textContent = msg.text;
-              if (msg.isAI) {
-                  textContent += `<br><br><em style="font-size:11px; opacity:0.7;">......this message is written by ai</em>`;
-              }
+              let content = msg.text || '';
+              if(msg.imageUrl) content = `<img src="${msg.imageUrl}" class="msg-image" onclick="window.open(this.src)">`;
+              if(msg.isAI) content += `<br><small style="opacity:0.6; font-size:10px;">...written by AI</small>`;
+              if(msg.edited) content += `<span class="edit-indicator">(edited)</span>`;
 
               div.innerHTML = `
-                  <img src="${avatarUrl}" class="message-avatar">
+                  <img src="${avatarSrc}" class="msg-avatar">
                   <div class="message-bubble">
-                      ${replyHtml}
-                      ${textContent}
-                      <div class="message-time">${formatTime(msg.timestamp)}</div>
-                  </div>
-                  <div class="msg-actions-menu">
-                      <i class="fas fa-reply action-icon" onclick="initReply('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')" title="Reply"></i>
-                      ${isSent ? `<i class="fas fa-trash action-icon" onclick="deleteMessage('${msg.id}')" title="Delete"></i>` : ''}
+                      ${content}
+                      ${actions}
                   </div>
               `;
-              messagesWrapper.appendChild(div);
+              wrapper.appendChild(div);
           });
-          
-          scrollToBottom();
-
-          // Check for AI Auto Reply Trigger
-          const lastMsg = messages[messages.length - 1];
-          if(isAIEnabled && lastMsg && lastMsg.senderId !== currentUser.uid && (Date.now() - lastMsg.timestamp?.toMillis()) < 2000) {
-              triggerAIReply();
-          }
+          wrapper.scrollTop = wrapper.scrollHeight;
       });
   }
 
-  // --- ACTIONS: SEND, REPLY, AI ---
-
+  // Send Message
   document.getElementById('sendBtn').onclick = sendMessage;
-  messageInput.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-
   async function sendMessage() {
-      const text = messageInput.value.trim();
-      if(!text) return;
-      
-      const payload = {
-          text: text,
-          senderId: currentUser.uid,
-          timestamp: serverTimestamp(),
-          isAI: false
-      };
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      const isAI = document.getElementById('aiToggle').checked;
 
-      if(contextMode === 'reply') {
-          payload.replyTo = { id: contextMessageId, text: document.getElementById('contextText').innerText.replace('Replying to: ', '') };
-      }
+      if(!text && !editingMessageId) return;
 
-      messageInput.value = '';
-      cancelContext();
-      
-      await addDoc(collection(db, "conversations", currentChatId, "messages"), payload);
-      await updateDoc(doc(db, "conversations", currentChatId), {
-          lastMessage: text,
-          updatedAt: serverTimestamp()
-      });
-  }
-
-  // Reply functionality
-  window.initReply = (msgId, text) => {
-      contextMode = 'reply';
-      contextMessageId = msgId;
-      inputContextBar.style.display = 'flex';
-      contextText.innerText = `Replying to: ${text}`;
-      messageInput.focus();
-  };
-
-  window.cancelContext = () => {
-      contextMode = null;
-      contextMessageId = null;
-      inputContextBar.style.display = 'none';
-  };
-
-  window.deleteMessage = async (msgId) => {
-      if(confirm('Delete message?')) {
-          await deleteDoc(doc(db, "conversations", currentChatId, "messages", msgId));
-      }
-  };
-
-  // AI Logic
-  window.toggleAI = () => {
-      isAIEnabled = !isAIEnabled;
-      updateAIToggleUI();
-      if(isAIEnabled) showToast("AI Auto-reply Enabled");
-  };
-
-  function updateAIToggleUI() {
-      if(isAIEnabled) aiToggleBtn.classList.add('active');
-      else aiToggleBtn.classList.remove('active');
-  }
-
-  function triggerAIReply() {
-      // Simulate thinking time
-      setTimeout(async () => {
-          const aiResponses = ["That sounds interesting!", "Could you tell me more?", "I see.", "Okay, got it."];
-          const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-          
+      if(editingMessageId) {
+          // Update
+          await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
+              text: text, edited: true
+          });
+          cancelEdit();
+      } else {
+          // New Message
           await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-              text: randomResponse,
-              senderId: currentUser.uid, // Sent on behalf of user
+              text: text,
+              senderId: currentUser.uid,
               timestamp: serverTimestamp(),
-              isAI: true
+              type: 'text'
           });
           
           await updateDoc(doc(db, "conversations", currentChatId), {
-              lastMessage: randomResponse,
+              lastMessage: text,
               updatedAt: serverTimestamp()
           });
-      }, 3000);
+
+          // AI Logic
+          if(isAI) {
+              setTimeout(async () => {
+                 await addDoc(collection(db, "conversations", currentChatId, "messages"), {
+                      text: "I am currently away, but I will get back to you soon!",
+                      senderId: currentUser.uid,
+                      timestamp: serverTimestamp(),
+                      isAI: true,
+                      type: 'text'
+                  });
+              }, 2000);
+          }
+      }
+      input.value = '';
   }
 
-  // --- UTILS ---
-  function scrollToBottom() {
-      messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+  // 5. IMAGE UPLOAD
+  window.handleImageUpload = async (input) => {
+      const file = input.files[0];
+      if(!file) return;
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_PRESET);
+      
+      try {
+          // Placeholder
+          document.getElementById('messageInput').value = "Uploading image...";
+          
+          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+          const data = await res.json();
+          
+          await addDoc(collection(db, "conversations", currentChatId, "messages"), {
+              imageUrl: data.secure_url,
+              senderId: currentUser.uid,
+              timestamp: serverTimestamp(),
+              type: 'image'
+          });
+          
+          await updateDoc(doc(db, "conversations", currentChatId), {
+              lastMessage: 'Sent an image',
+              updatedAt: serverTimestamp()
+          });
+          
+          document.getElementById('messageInput').value = "";
+      } catch(e) { console.error(e); alert("Upload failed"); }
   }
 
-  function formatTime(timestamp) {
-      if(!timestamp) return '';
-      const date = timestamp.toDate ? timestamp.toDate() : new Date();
-      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  // 3. EDIT LOGIC
+  window.startEdit = (id, text) => {
+      editingMessageId = id;
+      document.getElementById('messageInput').value = text;
+      document.getElementById('editPreview').style.display = 'flex';
+      document.getElementById('messageInput').focus();
+  }
+  window.cancelEdit = () => {
+      editingMessageId = null;
+      document.getElementById('messageInput').value = '';
+      document.getElementById('editPreview').style.display = 'none';
+  }
+  window.deleteMsg = async (id) => {
+      if(confirm('Delete message?')) await deleteDoc(doc(db, "conversations", currentChatId, "messages", id));
   }
 
-  function showToast(msg) {
-      const t = document.createElement('div');
-      t.className = 'toast';
-      t.innerText = msg;
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
+  // 7. WALLPAPER SETTINGS
+  window.openWallpaperModal = () => document.getElementById('wallpaperModal').style.display = 'flex';
+  window.setWallpaper = (val) => {
+      document.getElementById('chatArea').style.background = val;
+      localStorage.setItem('meet_wallpaper', val);
+      document.getElementById('wallpaperModal').style.display = 'none';
   }
 
+  // Utils
+  window.closeChat = () => document.getElementById('chatArea').classList.remove('active');
+  document.getElementById('logoutBtn').onclick = () => signOut(auth);
+  
   async function updateUserStatus(isOnline) {
     if (!auth.currentUser) return;
     try {
         await updateDoc(doc(db, "users", auth.currentUser.uid), { isOnline: isOnline, lastActive: serverTimestamp() });
-        // Also update conversation status if supported
     } catch (e) {}
   }
-  
-  function watchStatus(userId) {
-      // Simplified status watcher
-      onSnapshot(doc(db, "users", userId), (doc) => {
-          if(doc.exists()) {
-             const data = doc.data();
-             const statusEl = document.getElementById('currentChatStatus');
-             if(data.isOnline) statusEl.innerText = "Online";
-             else statusEl.innerText = "Offline";
-          }
-      });
-  }
-
-  // New Chat Search
-  window.openUserSearch = async () => {
-      const email = prompt("Enter email of user to chat with:");
-      if(!email) return;
-      
-      const q = query(collection(db, "users"), where("email", "==", email));
-      const snap = await getDocs(q);
-      
-      if(!snap.empty) {
-          const user = snap.docs[0].data();
-          const userId = snap.docs[0].id;
-          // Create chat ID based on sorted UIDs
-          const participants = [currentUser.uid, userId].sort();
-          const chatId = participants.join('_');
-          
-          await setDoc(doc(db, "conversations", chatId), {
-              participants: participants,
-              participantNames: { [currentUser.uid]: currentUser.displayName, [userId]: user.name || user.displayName },
-              updatedAt: serverTimestamp()
-          }, { merge: true }); // Merge to avoid overwriting existing chat
-          
-          // Open the chat
-          openChat(chatId, userId, user.name || user.displayName, user.photoURL);
-      } else {
-          showToast("User not found");
-      }
-  };
-
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
 </script>
 </body>
 </html>
