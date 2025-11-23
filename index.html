@@ -114,7 +114,7 @@ body {
 .form-input {
   width: 100%;
   padding: 0.8rem;
-  padding-right: 40px; /* Space for toggle button */
+  /* Removed padding-right used for toggle */
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
@@ -130,34 +130,6 @@ body {
 
 .form-input.error {
   border-color: var(--error);
-}
-
-/* === PASSWORD TOGGLE (FIXED) === */
-.password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: var(--text-light);
-  z-index: 2;
-  padding: 5px;
-  
-  /* REMOVES BLUE BLOCKING ON MOBILE */
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-  user-select: none;
-}
-
-.password-toggle:focus {
-  outline: none;
-}
-
-.password-toggle:hover {
-  color: var(--primary);
 }
 
 select.form-input {
@@ -322,8 +294,7 @@ button:disabled {
       <label class="form-label" for="loginPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
-        <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Toggle password visibility">👁️</button>
-      </div>
+        </div>
       <div class="forgot-password">
         <a id="forgotPasswordLink">Forgot Password?</a>
       </div>
@@ -362,16 +333,14 @@ button:disabled {
       <label class="form-label" for="signupPassword">Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 8 characters)" required>
-        <button type="button" class="password-toggle" id="signupPasswordToggle" aria-label="Toggle password visibility">👁️</button>
-      </div>
+        </div>
       <div id="passwordHint" class="validation-hint">Must be at least 8 characters with uppercase, lowercase, and number</div>
     </div>
     <div class="form-group">
       <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
       <div class="input-wrapper">
         <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm your password" required>
-        <button type="button" class="password-toggle" id="signupConfirmPasswordToggle" aria-label="Toggle password visibility">👁️</button>
-      </div>
+        </div>
       <div id="confirmPasswordHint" class="validation-hint"></div>
     </div>
     <div class="form-group">
@@ -506,34 +475,6 @@ function sanitizeFormInputs() {
     input.value = sanitizeInput(input.value);
   });
 }
-
-// === NEW PASSWORD TOGGLE LOGIC ===
-function setupPasswordToggle(inputId, toggleId) {
-  const input = document.getElementById(inputId);
-  const toggle = document.getElementById(toggleId);
-
-  if (!input || !toggle) return;
-
-  // Prevent blue focus highlight on click for mobile
-  toggle.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-  });
-
-  toggle.addEventListener('click', () => {
-    if (input.type === 'password') {
-      input.type = 'text';
-      toggle.textContent = '🔒'; // Icon when showing text
-    } else {
-      input.type = 'password';
-      toggle.textContent = '👁️'; // Icon when showing dots (******)
-    }
-  });
-}
-
-// Setup toggles
-setupPasswordToggle('loginPassword', 'loginPasswordToggle');
-setupPasswordToggle('signupPassword', 'signupPasswordToggle');
-setupPasswordToggle('signupConfirmPassword', 'signupConfirmPasswordToggle');
 
 // Show messages
 function showMessage(message, type = 'error') {
@@ -761,9 +702,8 @@ signupForm.addEventListener('submit', async e => {
     
     await updateProfile(user, { displayName: fullName });
     
-    // === VITAL FIX FOR IPHONE/IOS ===
-    // Force a reload of the user object to ensure the new displayName 
-    // is synchronized to the local device storage before redirecting.
+    // === FIX FOR IPHONE USERNAME ISSUE ===
+    // Forces reload to ensure display name is synced
     await user.reload(); 
     
     await setDoc(doc(db, "users", user.uid), {
