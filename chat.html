@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500&family=Open+Sans:wght@400;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Cinzel&family=Dancing+Script&family=Exo+2&family=Fjalla+One&family=Gloria+Hallelujah&family=Great+Vibes&family=Indie+Flower&family=Josefin+Sans&family=Kanit&family=Lato:wght@400;700&family=Lobster&family=Lora&family=Merriweather&family=Montserrat&family=Mukta&family=Nunito&family=Open+Sans&family=Oswald&family=Pacifico&family=Playfair+Display&family=Poppins:wght@400;500;600;700&family=Prompt&family=Quicksand&family=Raleway&family=Righteous&family=Roboto&family=Roboto+Slab&family=Rubik&family=Shadows+Into+Light&family=Source+Sans+Pro&family=Space+Mono&family=Ubuntu&family=Varela+Round&family=Work+Sans&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
@@ -140,6 +140,8 @@
   .message-input-actions { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
   .input-action { background: transparent; border: none; color: var(--secondary-text); cursor: pointer; font-size: 20px; padding: 8px; border-radius: 50%; transition: 0.2s; }
   .input-action:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+  .input-action.magic-btn { color: #8e2de2; background: linear-gradient(135deg, rgba(142,45,226,0.1), rgba(74,0,224,0.1)); }
+  .input-action.magic-btn:hover { background: linear-gradient(135deg, rgba(142,45,226,0.2), rgba(74,0,224,0.2)); transform: scale(1.1); }
   
   .message-input { flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); resize: none; font-family: inherit; font-size: 15px; max-height: 120px; min-height: 45px; outline: none; overflow-y: auto; line-height: 1.4; }
   .message-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,128,255,0.1); }
@@ -162,15 +164,31 @@
   .emoji-item { font-size: 24px; cursor: pointer; text-align: center; border-radius:4px; transition:0.2s; }
   .emoji-item:hover { background: var(--bg-color); transform: scale(1.2); }
 
-  /* Settings Modal */
-  .settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2100; align-items: center; justify-content: center; }
-  .settings-content { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-  .settings-section { margin-bottom: 20px; }
-  .settings-section h4 { margin-bottom: 10px; color: var(--text-color); }
-  .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .color-option { width: 100%; height: 40px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
-  .color-option.selected { border-color: var(--text-color); transform: scale(1.05); }
-  .font-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
+  /* Writing Assistant Menu */
+  .writing-tools-popup { display: none; position: absolute; bottom: 75px; left: 60px; width: 200px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 100; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); }
+  .writing-tool-item { padding: 12px 15px; cursor: pointer; font-size: 14px; color: var(--text-color); display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+  .writing-tool-item:hover { background: rgba(0,128,255,0.05); color: var(--primary); }
+  .writing-tool-item i { width: 20px; }
+
+  /* New Professional Settings Modal */
+  .settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2100; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+  .settings-content { background: var(--card-bg); width: 95%; max-width: 800px; height: 80vh; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; overflow: hidden; border: 1px solid var(--border-color); }
+  .settings-sidebar { width: 250px; background: var(--bg-color); padding: 30px 20px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+  .settings-sidebar h3 { margin-bottom: 30px; font-weight: 700; font-size: 24px; letter-spacing: -0.5px; }
+  .settings-nav-item { padding: 15px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 10px; color: var(--secondary-text); }
+  .settings-nav-item.active, .settings-nav-item:hover { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .settings-body { flex: 1; padding: 40px; overflow-y: auto; }
+  .settings-group { margin-bottom: 40px; }
+  .settings-group h4 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+  
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 12px; }
+  .color-option { height: 40px; border-radius: 10px; cursor: pointer; transition: transform 0.2s; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .color-option:hover { transform: scale(1.1); }
+  .color-option.selected { border-color: var(--text-color); transform: scale(0.95); }
+  
+  .font-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .font-option { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 16px; }
+  .font-option:hover, .font-option.selected { border-color: var(--primary); background: rgba(0,128,255,0.05); color: var(--primary); }
 
   /* Wallpaper Grid Fixed */
   .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; }
@@ -179,6 +197,16 @@
   .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; position: relative; }
   .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
   .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; display:block; }
+
+  /* Wallpaper Preview Pop-out */
+  .wallpaper-preview-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2200; align-items: center; justify-content: center; flex-direction: column; }
+  .wallpaper-preview-container { width: 300px; height: 533px; border-radius: 20px; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5); margin-bottom: 20px; background: #000; position: relative; }
+  .wallpaper-preview-media { width: 100%; height: 100%; object-fit: cover; }
+  .preview-actions { display: flex; gap: 20px; }
+  .preview-btn { padding: 10px 30px; border-radius: 30px; border: none; font-weight: 600; cursor: pointer; font-size: 16px; transition: 0.2s; }
+  .preview-btn.apply { background: #0080FF; color: white; }
+  .preview-btn.cancel { background: rgba(255,255,255,0.2); color: white; }
+  .preview-btn:hover { transform: scale(1.05); }
 
   /* Search Overlay */
   .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-start; padding-top: 80px; }
@@ -199,6 +227,9 @@
     .chat-area { width: 100%; position: absolute; z-index: 60; transform: translateX(100%); transition: transform 0.3s ease; }
     .chat-area.active { transform: translateX(0); }
     .emoji-picker { width: 95%; left: 2.5%; bottom: 70px; }
+    .settings-content { flex-direction: column; width: 100%; height: 100%; border-radius: 0; }
+    .settings-sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; height: auto; }
+    .settings-nav-item { margin: 0 5px; white-space: nowrap; }
   }
 </style>
 </head>
@@ -289,6 +320,9 @@
                   <span class="ai-slider"></span>
                 </label>
               </div>
+              
+              <button class="input-action magic-btn" onclick="toggleWritingTools()" title="Writing Assistant"><i class="fas fa-magic"></i></button>
+              
               <button class="input-action" onclick="toggleEmojiPicker()"><i class="far fa-smile"></i></button>
               <input type="file" id="imageInputHidden" accept="image/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'image')">
               <input type="file" id="videoInputHidden" accept="video/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'video')">
@@ -298,9 +332,17 @@
             <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1" spellcheck="true"></textarea>
             <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
           </div>
+          
           <div class="emoji-picker" id="emojiPicker">
              <div class="emoji-header" id="emojiNav"></div>
              <div class="emoji-content" id="emojiContent"></div>
+          </div>
+          
+          <div class="writing-tools-popup" id="writingTools">
+              <div class="writing-tool-item" onclick="applyWritingTool('fix')"><i class="fas fa-check-double"></i> Fix Grammar</div>
+              <div class="writing-tool-item" onclick="applyWritingTool('formal')"><i class="fas fa-user-tie"></i> Make Formal</div>
+              <div class="writing-tool-item" onclick="applyWritingTool('expand')"><i class="fas fa-expand-alt"></i> Expand</div>
+              <div class="writing-tool-item" onclick="applyWritingTool('shorten')"><i class="fas fa-compress-alt"></i> Shorten</div>
           </div>
         </div>
       </div>
@@ -310,34 +352,35 @@
 
 <div class="settings-modal" id="settingsModal">
     <div class="settings-content">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <h3>Chat Options</h3>
-            <button onclick="closeSettingsModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+        <div class="settings-sidebar">
+            <h3>Settings</h3>
+            <div class="settings-nav-item active"><i class="fas fa-paint-brush"></i> Appearance</div>
+            <div class="settings-nav-item"><i class="fas fa-bell"></i> Notifications</div>
+            <div class="settings-nav-item"><i class="fas fa-lock"></i> Privacy</div>
+            <div class="settings-nav-item"><i class="fas fa-question-circle"></i> Help</div>
+            <div style="flex:1"></div>
+            <div class="settings-nav-item" onclick="closeSettingsModal()" style="color:var(--error)"><i class="fas fa-times"></i> Close</div>
         </div>
-        <div class="settings-section">
-            <h4>Font Style</h4>
-            <select id="fontSelect" class="font-select" onchange="changeFont()">
-                <option value="'Poppins', sans-serif">Poppins (Default)</option>
-                <option value="'Roboto', sans-serif">Roboto</option>
-                <option value="'Open Sans', sans-serif">Open Sans</option>
-                <option value="'Lato', sans-serif">Lato</option>
-                <option value="serif">Serif</option>
-                <option value="monospace">Monospace</option>
-            </select>
-        </div>
-        <div class="settings-section">
-            <h4>Bubble Colors</h4>
-            <div class="color-grid">
-                <div class="color-option" style="background:#0080FF" onclick="setChatColor('#0080FF', '#fff')"></div>
-                <div class="color-option" style="background:#00C6FF" onclick="setChatColor('#00C6FF', '#fff')"></div>
-                <div class="color-option" style="background:#FF0055" onclick="setChatColor('#FF0055', '#fff')"></div>
-                <div class="color-option" style="background:#8000FF" onclick="setChatColor('#8000FF', '#fff')"></div>
-                <div class="color-option" style="background:#00BFA5" onclick="setChatColor('#00BFA5', '#fff')"></div>
-                <div class="color-option" style="background:#FF9900" onclick="setChatColor('#FF9900', '#fff')"></div>
-                <div class="color-option" style="background:#333333" onclick="setChatColor('#333333', '#fff')"></div>
-                <div class="color-option" style="background:#4CAF50" onclick="setChatColor('#4CAF50', '#fff')"></div>
+        <div class="settings-body">
+            <div class="settings-group">
+                <h4>Message Color</h4>
+                <div class="color-grid" id="colorGrid"></div>
+            </div>
+            <div class="settings-group">
+                <h4>Font Style</h4>
+                <div class="font-grid" id="fontGrid"></div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="wallpaper-preview-modal" id="wallpaperPreviewModal">
+    <div class="wallpaper-preview-container">
+        <div id="previewMediaContainer" style="width:100%; height:100%;"></div>
+    </div>
+    <div class="preview-actions">
+        <button class="preview-btn cancel" onclick="closePreview()">Cancel</button>
+        <button class="preview-btn apply" onclick="confirmWallpaper()">Apply Wallpaper</button>
     </div>
 </div>
 
@@ -387,7 +430,7 @@
   let currentChatId = null;
   let currentChatUser = null;
   let currentChatUserAvatar = '';
-  let typingTimeout = null;
+  let pendingWallpaper = null; // For preview state
   
   // State for Edit/Reply
   let replyToMsg = null;
@@ -413,7 +456,7 @@
       return date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
 
-  // --- Render Message ---
+  // --- Render Message (FIXED PERSISTENCE) ---
   function renderMessageHTML(msg, isMe, id) {
      const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
      let content = "";
@@ -425,11 +468,13 @@
          </div>`;
      }
 
-     if(msg.mediaType === 'image') {
+     // Ensure media renders even if loaded from DB (no isUploading flag)
+     if(msg.mediaType === 'image' && msg.mediaUrl) {
        content += `<div style="position:relative"><img src="${msg.mediaUrl}" class="message-img">${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
-     } else if(msg.mediaType === 'video') {
+     } else if(msg.mediaType === 'video' && msg.mediaUrl) {
        content += `<div style="position:relative"><video src="${msg.mediaUrl}" controls class="message-video"></video>${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
      }
+     
      if(msg.text) content += `<div>${msg.text}</div>`;
 
      const div = document.createElement('div');
@@ -507,14 +552,85 @@
       messageInput.value = '';
   }
 
-  // --- Settings Logic ---
-  window.openSettingsModal = () => document.getElementById('settingsModal').style.display = 'flex';
+  // --- Writing Assistant Logic (Simulated) ---
+  window.toggleWritingTools = () => {
+      const el = document.getElementById('writingTools');
+      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  window.applyWritingTool = (type) => {
+      let text = messageInput.value;
+      if(!text) return;
+      
+      // Simulate Processing
+      messageInput.value = "Processing...";
+      document.getElementById('writingTools').style.display = 'none';
+      
+      setTimeout(() => {
+          if(type === 'fix') {
+              // Basic Grammar simulation: Capitalize first letter, add period
+              text = text.trim();
+              text = text.charAt(0).toUpperCase() + text.slice(1);
+              if(!text.endsWith('.')) text += '.';
+          } else if (type === 'formal') {
+              text = "I would like to inform you that " + text;
+          } else if (type === 'expand') {
+              text = text + " Furthermore, I believe this allows for greater flexibility moving forward.";
+          } else if (type === 'shorten') {
+              text = text.split(" ").slice(0, Math.max(1, Math.floor(text.split(" ").length * 0.7))).join(" ") + "...";
+          }
+          messageInput.value = text;
+      }, 800);
+  }
+
+  // --- Settings Logic (Colors & Fonts) ---
+  const colors = [
+    "#0080FF", "#00C6FF", "#FF0055", "#8000FF", "#00BFA5", "#FF9900", "#333333", "#4CAF50",
+    "#FF5722", "#795548", "#607D8B", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3",
+    "#03A9F4", "#00BCD4", "#009688", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800",
+    "#FF5722", "#795548", "#9E9E9E", "#607D8B", "#000000", "#1A237E"
+  ];
+  
+  const fonts = [
+    "Poppins", "Roboto", "Open Sans", "Lato", "Montserrat", "Oswald", "Source Sans Pro", "Slabo 27px",
+    "Raleway", "PT Sans", "Merriweather", "Nunito", "Playfair Display", "Prompt", "Work Sans", "Rubik",
+    "Space Mono", "Ubuntu", "Kanit", "Cinzel", "Great Vibes", "Dancing Script", "Pacifico", "Lobster",
+    "Indie Flower", "Shadows Into Light", "Abril Fatface", "Bebas Neue", "Anton", "Gloria Hallelujah"
+  ];
+
+  window.openSettingsModal = () => {
+      document.getElementById('settingsModal').style.display = 'flex';
+      // Populate Colors
+      const colorGrid = document.getElementById('colorGrid');
+      colorGrid.innerHTML = '';
+      colors.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'color-option';
+          div.style.background = c;
+          div.onclick = () => setChatColor(c, '#fff');
+          colorGrid.appendChild(div);
+      });
+      
+      // Populate Fonts
+      const fontGrid = document.getElementById('fontGrid');
+      fontGrid.innerHTML = '';
+      fonts.forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'font-option';
+          div.style.fontFamily = f;
+          div.innerText = f;
+          div.onclick = () => changeFont(f);
+          fontGrid.appendChild(div);
+      });
+  };
   window.closeSettingsModal = () => document.getElementById('settingsModal').style.display = 'none';
 
-  window.changeFont = () => {
-      const font = document.getElementById('fontSelect').value;
-      document.documentElement.style.setProperty('--chat-font', font);
-      localStorage.setItem('meet_font', font);
+  window.changeFont = (fontName) => {
+      const fullFont = `'${fontName}', sans-serif`;
+      document.documentElement.style.setProperty('--chat-font', fullFont);
+      localStorage.setItem('meet_font', fullFont);
+      document.querySelectorAll('.font-option').forEach(el => el.classList.remove('selected'));
+      event.target.classList.add('selected');
   }
 
   window.setChatColor = (bg, text) => {
@@ -522,14 +638,13 @@
       document.documentElement.style.setProperty('--sent-text-color', text);
       localStorage.setItem('meet_color_bg', bg);
       localStorage.setItem('meet_color_text', text);
+      document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+      event.target.classList.add('selected');
   }
 
   function loadSettings() {
       const font = localStorage.getItem('meet_font');
-      if(font) {
-          document.documentElement.style.setProperty('--chat-font', font);
-          document.getElementById('fontSelect').value = font;
-      }
+      if(font) document.documentElement.style.setProperty('--chat-font', font);
       const bg = localStorage.getItem('meet_color_bg');
       const text = localStorage.getItem('meet_color_text');
       if(bg && text) {
@@ -538,9 +653,9 @@
       }
   }
 
-  // --- Wallpapers ---
+  // --- Wallpapers with Preview ---
   const wallpapers = [];
-  for(let i=10; i<=30; i++) wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
+  for(let i=10; i<=40; i++) wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
   const videoSamples = ["https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4","https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4"];
   videoSamples.forEach(v => wallpapers.push({ type: 'video', src: v }));
 
@@ -553,16 +668,45 @@
       div.className = 'wallpaper-thumb';
       if(wp.type === 'image') div.innerHTML = `<img src="${wp.thumb || wp.src}" loading="lazy">`;
       else div.innerHTML = `<video src="${wp.src}" muted></video>`;
-      div.onclick = () => setWallpaper(wp); // Preview/Set immediately
+      div.onclick = () => previewWallpaper(wp); // Open Preview
       grid.appendChild(div);
     });
   };
   window.closeWallpaperModal = () => document.getElementById('wallpaperModal').style.display = 'none';
+
+  // Preview Logic
+  window.previewWallpaper = (wp) => {
+      pendingWallpaper = wp;
+      const modal = document.getElementById('wallpaperPreviewModal');
+      const container = document.getElementById('previewMediaContainer');
+      container.innerHTML = '';
+      
+      if(wp.type === 'image') {
+          container.innerHTML = `<img src="${wp.src}" class="wallpaper-preview-media">`;
+      } else {
+          container.innerHTML = `<video src="${wp.src}" class="wallpaper-preview-media" autoplay loop muted></video>`;
+      }
+      modal.style.display = 'flex';
+  }
+  
+  window.closePreview = () => {
+      document.getElementById('wallpaperPreviewModal').style.display = 'none';
+      pendingWallpaper = null;
+  }
+  
+  window.confirmWallpaper = () => {
+      if(pendingWallpaper) {
+          setWallpaper(pendingWallpaper);
+          closePreview();
+          closeWallpaperModal();
+      }
+  }
+
   function setWallpaper(wp) {
     localStorage.setItem('meet_wallpaper_' + currentChatId, JSON.stringify(wp));
     applyWallpaper(wp);
-    // Don't close immediately so they can "preview", or close if preferred. Keeping open for preview.
   }
+  
   function applyWallpaper(wp) {
     messagesContainer.style.backgroundImage = 'none';
     const existingVid = messagesContainer.querySelector('.bg-video-layer');
@@ -595,10 +739,11 @@
       const res = await fetch(`https://api.cloudinary.com/v1_1/dcwof2ngn/upload`, { method: 'POST', body: formData });
       const data = await res.json();
       if(data.secure_url) {
+        // Save to DB (Persistence)
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url, mediaType: type, text: "", senderId: currentUser.uid, timestamp: serverTimestamp()
         });
-        document.getElementById(tempId).remove();
+        // Optimistic msg removed by snapshot listener
       }
     } catch (e) { document.getElementById(tempId).remove(); alert("Upload failed"); }
   };
@@ -656,13 +801,12 @@
     if(window.innerWidth <= 768) { conversationsSidebar.style.zIndex = '10'; chatArea.classList.add('active'); }
     
     loadMessages(chatId);
-    // Typing listener omitted for brevity but should be here
   }
 
   let unsubscribeMessages;
   function loadMessages(chatId) {
     if(unsubscribeMessages) unsubscribeMessages();
-    messagesContainer.innerHTML = ''; // Full clear to handle date dividers correctly on load
+    messagesContainer.innerHTML = ''; 
     
     const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
     
@@ -673,14 +817,13 @@
         const msg = change.doc.data();
         const isMe = msg.senderId === currentUser.uid;
 
-        // 1. DUPLICATE FIX: If a real message arrives, remove its optimistic counterpart
+        // DUPLICATE FIX
         if(change.type === "added" && isMe) {
              const optimistics = document.querySelectorAll('.optimistic-msg');
              optimistics.forEach(el => el.remove());
         }
 
         if(change.type === "added") {
-            // Date Divider Logic
             const lastMsg = messagesContainer.lastElementChild;
             const lastTimestamp = lastMsg ? lastMsg.getAttribute('data-timestamp') : null;
             const currentHeader = formatDateHeader(msg.timestamp);
@@ -723,7 +866,6 @@
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
     
-    // EDIT MODE
     if(editingMsgId) {
         await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMsgId), { text: text, isEdited: true });
         cancelReply();
@@ -733,7 +875,6 @@
     messageInput.value = '';
     messageInput.style.height = '45px';
     
-    // OPTIMISTIC UI (Instant)
     const tempId = 'temp-' + Date.now();
     const optimisticMsg = { text: text, senderId: currentUser.uid, timestamp: null, isOptimistic: true, replyTo: replyToMsg };
     const div = renderMessageHTML(optimisticMsg, true, tempId);
@@ -746,13 +887,12 @@
           replyTo: replyToMsg ? { id: replyToMsg.id, user: replyToMsg.user, text: replyToMsg.text } : null
         });
         await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
-        // Clean up handled by Snapshot listener removing .optimistic-msg
     } catch(e) { div.style.opacity = 0.5; alert("Failed to send"); }
     
     cancelReply();
   });
 
-  // Search & Emoji Init (Simplified from previous)
+  // Search & Emoji Init
   window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
@@ -782,7 +922,7 @@
     closeUserSearchOverlay(); openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
 
- // --- EXPANDED EMOJIS (WhatsApp Style) ---
+   // --- EXPANDED EMOJIS (WhatsApp Style) ---
   const emojis = {
     "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😶‍🌫️","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","😵‍💫","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾"],
     "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸"],
@@ -791,13 +931,10 @@
     "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
     "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
     "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
-  };
-
   
   function initEmojiPicker() {
       const nav = document.getElementById('emojiNav'); const content = document.getElementById('emojiContent');
       // ... (Use same loop as before to populate emojis)
-      // Since specific content wasn't asked to change, I'll keep the structure ready
       Object.keys(emojis).forEach((k, i) => {
           const btn = document.createElement('button'); btn.innerText = k[0]; btn.onclick = () => { content.innerHTML = ''; emojis[k].forEach(e=>{ let d=document.createElement('div');d.className='emoji-item';d.innerText=e;d.onclick=()=>messageInput.value+=e;content.appendChild(d);})};
           nav.appendChild(btn); if(i===0) btn.click();
