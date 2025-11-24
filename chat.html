@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
@@ -29,36 +29,25 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
-  html, body { height: 100%; overflow: hidden; font-size: 16px; font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); }
+  html, body { height: 100%; overflow: hidden; font-size: 14px; font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); }
 
   .app-container { display: flex; height: var(--app-height); position: relative; overflow: hidden; }
 
-  /* --- Sidebar / Hamburger Logic --- */
+  /* Sidebar & Hamburger */
   .sidebar {
-    position: fixed;
-    top: 0; left: 0; height: 100%; width: 260px;
+    position: fixed; top: 0; left: 0; height: 100%; width: 260px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    z-index: 200;
-    padding: 20px;
-    color: white;
-    transform: translateX(-100%); /* Hidden by default */
-    transition: transform 0.3s ease;
+    z-index: 200; padding: 20px; color: white;
+    transform: translateX(-100%); transition: transform 0.3s ease;
   }
-
   .sidebar.open { transform: translateX(0); }
-
   .sidebar-header { padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;}
   .sidebar-menu { list-style: none; }
   .sidebar-menu li { margin-bottom: 8px; }
   .sidebar-menu a { display: flex; align-items: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; font-size: 16px; }
   .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
   .sidebar-menu i { margin-right: 12px; font-size: 18px; }
-
-  /* Overlay for sidebar */
-  .sidebar-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); z-index: 190;
-  }
+  .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 190; }
   .sidebar-overlay.active { display: block; }
 
   /* Main Content */
@@ -71,25 +60,25 @@
     display: flex; justify-content: space-between; align-items: center;
     color: white; flex-shrink: 0;
   }
-
   .navbar-left { display: flex; align-items: center; gap: 15px; }
+  .navbar-right { display: flex; align-items: center; gap: 10px; }
   .hamburger-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+  .nav-user-img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
 
   .btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
 
   /* Chat Container */
   .chat-container { flex: 1; background: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; min-height: 0; position: relative; }
 
-  /* Conversations List */
+  /* Conversations Sidebar */
   .conversations-sidebar { width: 320px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; background: var(--card-bg); }
   .chat-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-  .new-chat-btn { background: #0080FF; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .new-chat-btn { background: #0080FF; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
   .chat-search { padding: 10px; border-bottom: 1px solid var(--border-color); }
-  .chat-search input { width: 100%; padding: 8px 15px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); outline: none; }
+  .chat-search input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); outline: none; }
   .conversations-list { flex: 1; overflow-y: auto; }
-  
   .conversation-item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
-  .conversation-item:hover { background: rgba(0,128,255,0.05); }
+  .conversation-item:hover, .conversation-item.active { background: rgba(0,128,255,0.05); }
   .conversation-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
   .conversation-info { flex: 1; min-width: 0; }
   .conversation-name { font-weight: 600; font-size: 15px; }
@@ -97,30 +86,45 @@
 
   /* Chat Area */
   .chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; background: var(--bg-color); position: relative; }
-  
   .chat-area-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; background: var(--card-bg); z-index: 10; }
   .chat-actions { display: flex; gap: 15px; margin-left: auto; }
   .chat-action-btn { background: none; border: none; color: #0080FF; font-size: 18px; cursor: pointer; }
 
-  .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-size: cover; background-position: center; }
+  .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-size: cover; background-position: center; }
 
-  .message { display: flex; gap: 8px; max-width: 75%; margin-bottom: 5px; }
-  .message.sent { align-self: flex-end; flex-direction: row-reverse; }
+  /* Message & Avatar Styling */
+  .message-wrapper { display: flex; gap: 8px; max-width: 75%; align-items: flex-end; }
+  .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
+  .message-avatar-small { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-bottom: 5px; }
   
-  .message-bubble { padding: 10px 14px; border-radius: 16px; position: relative; word-wrap: break-word; font-size: 14px; line-height: 1.4; max-width: 100%; }
-  .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .sent .message-bubble { background: #0080FF; color: white; border-bottom-right-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  
-  .message-img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
-  .message-video { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
+  .message-bubble { padding: 10px 14px; border-radius: 18px; position: relative; word-wrap: break-word; font-size: 14px; line-height: 1.5; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; color: var(--text-color); }
+  .sent .message-bubble { background: #0080FF; color: white; border-bottom-right-radius: 4px; }
+  .message-img, .message-video { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
+  .message-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+
+  /* Typing Indicator */
+  .typing-indicator { display: none; padding: 10px 15px; background: rgba(255,255,255,0.8); border-radius: 15px; margin: 10px; width: fit-content; align-self: flex-start; font-size: 12px; color: var(--secondary-text); font-style: italic; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  .typing-indicator span { animation: blink 1.4s infinite both; }
+  .typing-indicator span:nth-child(2) { animation-delay: .2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
 
   /* Input Area */
   .message-input-container { padding: 10px; border-top: 1px solid var(--border-color); background: var(--card-bg); }
   .message-input-wrapper { display: flex; align-items: flex-end; gap: 8px; }
-  .message-input-actions { display: flex; align-items: center; gap: 5px; }
-  .input-action { background: transparent; border: none; color: var(--secondary-text); cursor: pointer; font-size: 20px; padding: 8px; border-radius: 50%; }
-  .message-input { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); resize: none; font-family: inherit; font-size: 15px; max-height: 100px; outline: none; }
-  .send-button { background: #0080FF; color: white; border: 0; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .message-input-actions { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+  .input-action { background: transparent; border: none; color: var(--secondary-text); cursor: pointer; font-size: 20px; padding: 8px; border-radius: 50%; transition: 0.2s; }
+  .input-action:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+  
+  .message-input { 
+    flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid var(--border-color); 
+    background: var(--bg-color); resize: none; font-family: inherit; font-size: 15px; 
+    max-height: 120px; min-height: 45px; outline: none; overflow-y: auto; line-height: 1.4;
+  }
+  .message-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,128,255,0.1); }
+  
+  .send-button { background: #0080FF; color: white; border: 0; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-bottom: 2px;}
 
   /* AI Switch */
   .ai-control { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-right: 5px; }
@@ -132,28 +136,40 @@
   input:checked + .ai-slider { background-color: #0080FF; }
   input:checked + .ai-slider:before { transform: translateX(16px); }
 
-  /* Emoji Picker */
-  .emoji-picker { display: none; position: absolute; bottom: 70px; left: 10px; width: 300px; height: 250px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; overflow: hidden; flex-direction: column; }
-  .emoji-nav { display: flex; background: var(--bg-color); overflow-x: auto; padding: 5px; }
-  .emoji-nav button { border: none; background: none; padding: 5px 10px; font-size: 18px; cursor: pointer; opacity: 0.6; }
-  .emoji-nav button.active { opacity: 1; border-bottom: 2px solid #0080FF; }
-  .emoji-content { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
-  .emoji-item { font-size: 24px; cursor: pointer; text-align: center; }
+  /* Emoji Picker (WhatsApp Style) */
+  .emoji-picker { display: none; position: absolute; bottom: 75px; left: 10px; width: 320px; height: 300px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 100; overflow: hidden; flex-direction: column; border: 1px solid var(--border-color); }
+  .emoji-header { padding: 10px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); display:flex; gap:10px; overflow-x:auto;}
+  .emoji-header button { background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; }
+  .emoji-header button.active { opacity:1; border-bottom: 2px solid var(--primary); }
+  .emoji-content { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .emoji-item { font-size: 24px; cursor: pointer; text-align: center; border-radius:4px; transition:0.2s; }
+  .emoji-item:hover { background: var(--bg-color); transform: scale(1.2); }
 
   /* Wallpapers Modal */
   .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; }
   .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; height: 90vh; margin: 0 auto; display: flex; flex-direction: column; }
-  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; overflow-y: auto; padding-top: 15px; }
-  .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; }
-  .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; overflow-y: auto; padding-top: 15px; }
+  .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; }
+  .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.05); }
   .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; }
 
-  /* User Search Overlay */
-  .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
-  .user-search-modal { background: var(--card-bg); border-radius: 12px; padding: 25px; width: 100%; max-width: 450px; }
-  .search-results { max-height: 250px; overflow-y: auto; margin-top: 10px; }
-  .search-result-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
-  .search-result-item:hover { background: rgba(0,0,0,0.05); }
+  /* Professional User Search Overlay */
+  .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-start; padding-top: 80px; }
+  .user-search-modal { background: var(--card-bg); border-radius: 16px; padding: 0; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; animation: slideDown 0.3s ease; }
+  @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  
+  .search-modal-header { padding: 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); }
+  .search-modal-header h3 { margin-bottom: 10px; font-size: 18px; }
+  .search-input-group { position: relative; }
+  .search-input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--secondary-text); }
+  .search-input-group input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 16px; outline: none; }
+  
+  .search-results { max-height: 300px; overflow-y: auto; }
+  .search-result-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+  .search-result-item:hover { background: rgba(0,128,255,0.05); }
+  .search-result-info div:first-child { font-weight: 600; color: var(--text-color); }
+  .search-result-info div:last-child { font-size: 13px; color: var(--secondary-text); }
+  .search-close-btn { width: 100%; padding: 15px; background: white; border: none; border-top: 1px solid var(--border-color); color: var(--error); font-weight: 600; cursor: pointer; }
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
@@ -162,6 +178,7 @@
     .chat-area { width: 100%; position: absolute; z-index: 60; transform: translateX(100%); transition: transform 0.3s ease; }
     .chat-area.active { transform: translateX(0); }
     .navbar h2 { font-size: 16px; }
+    .emoji-picker { width: 95%; left: 2.5%; bottom: 70px; }
   }
 </style>
 </head>
@@ -192,7 +209,8 @@
         <button class="hamburger-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         <h2>Chat</h2>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div class="navbar-right">
+        <img src="https://via.placeholder.com/35" id="navUserImg" class="nav-user-img" alt="Me">
         <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
         <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
       </div>
@@ -232,6 +250,10 @@
 
         <div class="messages-container" id="messagesContainer" style="display: none;"></div>
 
+        <div class="typing-indicator" id="typingIndicator">
+          User is typing <span>.</span><span>.</span><span>.</span>
+        </div>
+
         <div class="message-input-container" id="messageInputContainer" style="display: none;">
           <div class="message-input-wrapper">
             
@@ -251,16 +273,15 @@
               
               <button class="input-action" onclick="document.getElementById('imageInputHidden').click()"><i class="fas fa-image"></i></button>
               <button class="input-action" onclick="document.getElementById('videoInputHidden').click()"><i class="fas fa-video"></i></button>
-              <button class="input-action" onclick="alert('Recording...')"><i class="fas fa-microphone"></i></button>
             </div>
 
-            <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+            <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1" spellcheck="true"></textarea>
             
             <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
           </div>
           
           <div class="emoji-picker" id="emojiPicker">
-             <div class="emoji-nav" id="emojiNav"></div>
+             <div class="emoji-header" id="emojiNav"></div>
              <div class="emoji-content" id="emojiContent"></div>
           </div>
         </div>
@@ -272,10 +293,15 @@
 
 <div class="user-search-overlay" id="userSearchOverlay">
   <div class="user-search-modal">
-    <h3>Start Chat</h3>
-    <input type="text" id="userSearchInput" placeholder="Search users by name/email..." style="width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">
+    <div class="search-modal-header">
+      <h3>Start a Conversation</h3>
+      <div class="search-input-group">
+        <i class="fas fa-search"></i>
+        <input type="text" id="userSearchInput" placeholder="Search by name or email...">
+      </div>
+    </div>
     <div class="search-results" id="userSearchResults"></div>
-    <button onclick="closeUserSearchOverlay()" class="btn" style="background:var(--error); margin-top:10px; width:100%; justify-content:center;">Cancel</button>
+    <button onclick="closeUserSearchOverlay()" class="search-close-btn">Close</button>
   </div>
 </div>
 
@@ -310,6 +336,8 @@
   let currentUser = null;
   let currentChatId = null;
   let currentChatUser = null;
+  let currentChatUserAvatar = '';
+  let typingTimeout = null;
 
   // DOM Elements
   const chatArea = document.getElementById('chatArea');
@@ -319,42 +347,50 @@
   const emojiPicker = document.getElementById('emojiPicker');
   const sidebar = document.getElementById('mainSidebar');
   const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const navUserImg = document.getElementById('navUserImg');
 
   window.toggleSidebar = () => {
     sidebar.classList.toggle('open');
     sidebarOverlay.classList.toggle('active');
   };
 
-  // --- WALLPAPERS (Reliable Source) ---
-  const wallpapers = [
-    // 30 Images (Using Picsum)
-    { type: 'image', src: 'https://picsum.photos/id/10/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/11/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/12/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/13/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/14/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/15/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/16/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/17/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/18/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/19/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/20/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/21/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/22/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/23/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/24/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/25/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/26/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/27/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/28/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/29/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/30/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/31/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/32/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/33/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/34/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/35/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/36/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/37/800/1200' },
-    { type: 'image', src: 'https://picsum.photos/id/38/800/1200' }, { type: 'image', src: 'https://picsum.photos/id/39/800/1200' },
-    // 10 Videos
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-ink-swirling-in-water-189-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-red-lights-in-darkness-1383-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-view-of-the-sun-from-space-1608-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-texture-of-a-rock-surface-1054-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-video-of-a-man-with-heads-like-a-fan-32630-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-bubbles-of-water-rising-to-the-surface-186-large.mp4' },
-    { type: 'video', src: 'https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-blue-and-pink-squares-956-large.mp4' }
+  // --- 8. Auto Expand Input Logic ---
+  messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+    if(this.value === '') this.style.height = '45px';
+    
+    // Trigger Typing
+    updateTypingStatus(true);
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => updateTypingStatus(false), 2000);
+  });
+
+  async function updateTypingStatus(isTyping) {
+    if(!currentChatId || !currentUser) return;
+    try {
+        await updateDoc(doc(db, "conversations", currentChatId), {
+            [`typing.${currentUser.uid}`]: isTyping
+        });
+    } catch(e) {}
+  }
+
+  // --- 3. WALLPAPERS (Persist + Load Fast) ---
+  // Using picsum id for consistency and caching
+  const wallpapers = [];
+  for(let i=10; i<=40; i++) {
+      wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
+  }
+  // Videos
+  const videoSamples = [
+    "https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4",
+    "https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4",
+    "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+    "https://assets.mixkit.co/videos/preview/mixkit-ink-swirling-in-water-189-large.mp4",
+    "https://assets.mixkit.co/videos/preview/mixkit-red-lights-in-darkness-1383-large.mp4"
   ];
+  videoSamples.forEach(v => wallpapers.push({ type: 'video', src: v }));
 
   window.openWallpaperModal = () => {
     document.getElementById('wallpaperModal').style.display = 'block';
@@ -364,7 +400,7 @@
       const div = document.createElement('div');
       div.className = 'wallpaper-thumb';
       if(wp.type === 'image') {
-        div.innerHTML = `<img src="${wp.src}" loading="lazy">`;
+        div.innerHTML = `<img src="${wp.thumb || wp.src}" loading="lazy">`;
       } else {
         div.innerHTML = `<video src="${wp.src}" muted></video>`;
       }
@@ -376,15 +412,21 @@
   window.closeWallpaperModal = () => document.getElementById('wallpaperModal').style.display = 'none';
 
   function setWallpaper(wp) {
+    // 3. Persist Wallpaper
+    localStorage.setItem('meet_wallpaper_' + currentChatId, JSON.stringify(wp));
+    applyWallpaper(wp);
+    closeWallpaperModal();
+  }
+
+  function applyWallpaper(wp) {
+    // Clear existing
+    messagesContainer.style.backgroundImage = 'none';
+    const existingVid = messagesContainer.querySelector('.bg-video-layer');
+    if(existingVid) existingVid.remove();
+
     if(wp.type === 'image') {
        messagesContainer.style.backgroundImage = `url(${wp.src})`;
-       const existingVid = messagesContainer.querySelector('.bg-video-layer');
-       if(existingVid) existingVid.remove();
     } else {
-       messagesContainer.style.backgroundImage = 'none';
-       const existingVid = messagesContainer.querySelector('.bg-video-layer');
-       if(existingVid) existingVid.remove();
-
        const vid = document.createElement('video');
        vid.className = 'bg-video-layer';
        vid.src = wp.src;
@@ -392,72 +434,71 @@
        vid.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;";
        messagesContainer.prepend(vid);
     }
-    closeWallpaperModal();
   }
 
-  // --- YOUR CLOUDINARY UPLOAD LOGIC ---
+  // --- 2. CLOUDINARY UPLOAD ---
   window.uploadToCloudinary = async (file, type) => {
     if(!file || !currentChatId) return;
+    const cloudName = "demo"; // REPLACE WITH YOUR REAL CLOUD NAME
+    const uploadPreset = "meet_app"; // REPLACE WITH YOUR PRESET
     
-    // HARDCODED CREDENTIALS AS REQUESTED
-    const cloudName = "dcwof2ngn"; 
-    const uploadPreset = "Meet_video"; 
+    // Simulate loading
+    const buttonIcon = type === 'image' ? 'fa-image' : 'fa-video';
+    const btn = document.querySelector(`.input-action .${buttonIcon}`).parentElement;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
     formData.append('resource_type', type === 'video' ? 'video' : 'image');
 
-    const buttonIcon = type === 'image' ? 'fa-image' : 'fa-video';
-    const btn = document.querySelector(`.input-action .${buttonIcon}`).parentElement;
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
-
     try {
       const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${type === 'video' ? 'video' : 'image'}/upload`, {
-        method: 'POST',
-        body: formData
+        method: 'POST', body: formData
       });
       const data = await response.json();
-      
       if(data.secure_url) {
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-          mediaUrl: data.secure_url,
-          mediaType: type,
-          text: "",
-          senderId: currentUser.uid,
-          timestamp: serverTimestamp()
+          mediaUrl: data.secure_url, mediaType: type, text: "",
+          senderId: currentUser.uid, timestamp: serverTimestamp()
         });
         await updateDoc(doc(db, "conversations", currentChatId), {
-          lastMessage: type === 'video' ? 'Sent a video' : 'Sent a photo',
-          updatedAt: serverTimestamp()
+          lastMessage: type === 'video' ? 'Sent a video' : 'Sent a photo', updatedAt: serverTimestamp()
         });
       } else {
-        alert("Upload failed. Please check your internet connection.");
-        console.error(data);
+        alert("Upload failed. Configure Cloudinary correctly.");
       }
-    } catch (err) {
-      console.error("Cloudinary Error:", err);
-      alert("Error uploading file.");
-    } finally {
-      btn.innerHTML = originalContent;
-    }
+    } catch (err) { console.error(err); } 
+    finally { btn.innerHTML = originalContent; }
   };
 
 
-  // --- EMOJI PICKER ---
-  const emojis = { "😀": ["😀","😃","😄","😁","😆"], "❤️": ["❤️","💔","💕","💖"], "🐶": ["🐶","🐱","🐭"] };
+  // --- 6. FULL EMOJI PICKER ---
+  const emojis = {
+    "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚"],
+    "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊"],
+    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳"],
+    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊"],
+    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑"],
+    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅"],
+    "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽"]
+  };
+
   function initEmojiPicker() {
     const nav = document.getElementById('emojiNav');
     const content = document.getElementById('emojiContent');
     let first = true;
     for (const [key, list] of Object.entries(emojis)) {
       const btn = document.createElement('button');
-      btn.innerText = key;
+      btn.innerText = key === "Smileys" ? "😀" : key === "Gestures" ? "👋" : key.charAt(0);
+      btn.title = key;
       btn.onclick = () => {
+         document.querySelectorAll('.emoji-header button').forEach(b => b.classList.remove('active'));
+         btn.classList.add('active');
          content.innerHTML = '';
          list.forEach(e => {
-            const s = document.createElement('span'); s.className = 'emoji-item'; s.innerText = e;
+            const s = document.createElement('div'); s.className = 'emoji-item'; s.innerText = e;
             s.onclick = () => { messageInput.value += e; };
             content.appendChild(s);
          });
@@ -469,11 +510,18 @@
   window.toggleEmojiPicker = () => { emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex'; };
 
   // --- CORE LOGIC ---
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     if (!user) { window.location.href = 'login.html'; } 
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+      
+      // 5. Load User Profile Pic for Navbar
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      let photoURL = user.photoURL;
+      if(userDoc.exists() && userDoc.data().photoURL) photoURL = userDoc.data().photoURL;
+      navUserImg.src = photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}`;
+
       loadConversations();
       initEmojiPicker();
     }
@@ -511,6 +559,17 @@
   async function openChat(chatId, otherUserId, name, avatar) {
     currentChatId = chatId;
     currentChatUser = otherUserId;
+    currentChatUserAvatar = avatar;
+
+    // Load persisted wallpaper
+    const savedWp = localStorage.getItem('meet_wallpaper_' + chatId);
+    if(savedWp) {
+        applyWallpaper(JSON.parse(savedWp));
+    } else {
+        messagesContainer.style.backgroundImage = 'none';
+        if(messagesContainer.querySelector('video')) messagesContainer.querySelector('video').remove();
+    }
+
     document.getElementById('emptyChat').style.display = 'none';
     document.getElementById('chatHeader').style.display = 'flex';
     document.getElementById('messagesContainer').style.display = 'flex';
@@ -523,6 +582,18 @@
       chatArea.classList.add('active');
     }
     loadMessages(chatId);
+    listenForTyping(chatId);
+  }
+
+  // 7. Listen for typing
+  function listenForTyping(chatId) {
+     onSnapshot(doc(db, "conversations", chatId), (doc) => {
+        if(doc.exists()) {
+            const data = doc.data();
+            const otherIsTyping = data.typing && data.typing[currentChatUser];
+            typingIndicator.style.display = otherIsTyping ? 'block' : 'none';
+        }
+     });
   }
 
   let unsubscribeMessages;
@@ -538,10 +609,14 @@
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const msg = change.doc.data();
-          const id = change.doc.id;
+          const isMe = msg.senderId === currentUser.uid;
           
+          // 4. Render Message with Avatars
           const div = document.createElement('div');
-          div.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
+          div.className = `message-wrapper ${isMe ? 'sent' : 'received'}`;
+          
+          // Choose Avatar
+          const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
           
           let content = "";
           if(msg.mediaType === 'image') content += `<img src="${msg.mediaUrl}" class="message-img">`;
@@ -549,6 +624,7 @@
           if(msg.text) content += `<div>${msg.text}</div>`;
 
           div.innerHTML = `
+             <img src="${avatarSrc}" class="message-avatar-small">
              <div class="message-bubble">
                ${content}
                <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '...'}</div>
@@ -557,15 +633,14 @@
           container.appendChild(div);
           container.scrollTop = container.scrollHeight;
 
-          // --- AI AUTO REPLY (Reply on RECEIVE) ---
-          // If message is from someone else, AI is ON, and message is new (<5s)
-          if(msg.senderId !== currentUser.uid && isAiOn && msg.timestamp) {
+          // AI Auto Reply
+          if(!isMe && isAiOn && msg.timestamp) {
             const now = new Date().getTime();
             const msgTime = msg.timestamp.toMillis();
             if (now - msgTime < 5000) { 
                 setTimeout(async () => {
                     await addDoc(collection(db, "conversations", chatId, "messages"), {
-                        text: "I am currently away, but my AI assistant received your message.",
+                        text: "🤖 [AI Auto-Reply] I received your message and will get back to you shortly.",
                         senderId: currentUser.uid, 
                         timestamp: serverTimestamp()
                     });
@@ -581,21 +656,28 @@
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
     messageInput.value = '';
+    messageInput.style.height = '45px'; // Reset height
+    
     await addDoc(collection(db, "conversations", currentChatId, "messages"), {
       text: text, senderId: currentUser.uid, timestamp: serverTimestamp()
     });
     await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
+    updateTypingStatus(false);
   });
 
-  // Search Logic
-  window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
+  // 1. Search Logic (Reset on Open)
+  window.openUserSearchOverlay = () => {
+      document.getElementById('userSearchInput').value = '';
+      document.getElementById('userSearchResults').innerHTML = '';
+      document.getElementById('userSearchOverlay').style.display = 'flex';
+  };
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
 
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
     const term = e.target.value.toLowerCase();
     if(term.length < 3) return;
     const resDiv = document.getElementById('userSearchResults');
-    resDiv.innerHTML = 'Searching...';
+    resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">Searching...</div>';
     
     const q = query(collection(db, "users"), where("email", ">=", term), where("email", "<=", term + '\uf8ff'), limit(5));
     const snap = await getDocs(q);
@@ -605,8 +687,12 @@
        const d = doc.data();
        const div = document.createElement('div');
        div.className = 'search-result-item';
-       div.innerHTML = `<div>${d.name || d.email}</div>`;
-       // CLICK TO START CHAT FIX
+       div.innerHTML = `
+         <div class="search-result-info">
+            <div>${d.name || 'User'}</div>
+            <div>${d.email}</div>
+         </div>
+       `;
        div.onclick = () => startNewChat(doc.id, d);
        resDiv.appendChild(div);
     });
@@ -618,11 +704,12 @@
     await setDoc(doc(db, "conversations", chatId), {
       participants: participants,
       participantNames: { [currentUser.uid]: currentUser.displayName || 'Me', [otherId]: otherData.name || 'User' },
+      participantAvatars: { [currentUser.uid]: navUserImg.src, [otherId]: otherData.photoURL || `https://ui-avatars.com/api/?name=${otherData.name}` },
       updatedAt: serverTimestamp(),
       lastMessage: ''
     }, {merge: true});
     closeUserSearchOverlay();
-    openChat(chatId, otherId, otherData.name || 'User', otherData.photoURL || 'https://via.placeholder.com/50');
+    openChat(chatId, otherId, otherData.name || 'User', otherData.photoURL || `https://ui-avatars.com/api/?name=${otherData.name}`);
   }
 
   document.getElementById('backButton').addEventListener('click', () => { chatArea.classList.remove('active'); });
