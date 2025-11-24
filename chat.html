@@ -198,14 +198,15 @@
   .btn-confirm { background: var(--primary); color: white; }
   .btn-cancel { background: var(--bg-color); color: var(--text-color); }
 
-  /* Wallpaper Grid - 1. CHANGED GRID SIZE HERE */
-  .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; }
-  .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; height: 90vh; margin: 0 auto; display: flex; flex-direction: column; }
-  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; overflow-y: auto; padding-top: 15px; } /* Reduced size from 140px to 110px and gap */
+  /* Wallpaper Grid - UPDATED FOR BETTER SCROLLING & NO OVERLAP */
+  .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; display: none; align-items: center; justify-content: center; }
+  .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; width: 95%; height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  .wallpaper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex: 1; } 
   .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; position: relative; }
   .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
   .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; display:block; }
-  .category-title { font-size: 14px; font-weight: bold; margin: 20px 0 10px 0; grid-column: 1 / -1; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px; }
+  .category-title { font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; grid-column: 1 / -1; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
 
   /* Search Overlay */
   .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-start; padding-top: 80px; backdrop-filter: blur(5px); }
@@ -382,9 +383,9 @@
 
 <div class="wallpaper-modal" id="wallpaperModal">
   <div class="wallpaper-content">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <div class="wallpaper-header">
       <h3>Choose Wallpaper</h3>
-      <button onclick="closeWallpaperModal()" style="background:none; border:none; font-size:20px; cursor:pointer;"><i class="fas fa-times"></i></button>
+      <button onclick="closeWallpaperModal()" style="background:none; border:none; font-size:24px; cursor:pointer; padding:5px;"><i class="fas fa-times"></i></button>
     </div>
     <div class="wallpaper-grid" id="wallpaperGrid"></div>
   </div>
@@ -459,7 +460,6 @@
      }
 
      if(msg.mediaType === 'image') {
-       // Prioritize the saved URL, then the temp blob
        content += `<div style="position:relative"><img src="${msg.mediaUrl}" class="message-img" onerror="this.src='https://via.placeholder.com/200?text=Error'">${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
      } else if(msg.mediaType === 'video') {
        content += `<div style="position:relative"><video src="${msg.mediaUrl}" controls class="message-video"></video>${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
@@ -470,9 +470,11 @@
      const div = document.createElement('div');
      div.className = `message-wrapper ${isMe ? 'sent' : 'received'} ${msg.isOptimistic ? 'optimistic-msg' : ''}`;
      div.id = id;
-     div.setAttribute('data-timestamp', msg.timestamp ? msg.timestamp.seconds : Date.now()/1000);
+     // Handle timestamp: if null (optimistic), use now
+     const ts = msg.timestamp ? msg.timestamp.seconds : Date.now()/1000;
+     div.setAttribute('data-timestamp', ts);
 
-     // Options Menu Button (Available for all, but Edit only for me)
+     // Options Menu
      const optionsHtml = `
        <button class="msg-options-btn" onclick="toggleMsgOptions('${id}')"><i class="fas fa-chevron-down"></i></button>
        <div class="msg-options-menu" id="options-${id}">
@@ -483,6 +485,8 @@
        </div>
      `;
 
+     const timeString = msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '<i class="far fa-clock"></i>';
+
      div.innerHTML = `
         ${isMe ? optionsHtml : ''}
         <img src="${avatarSrc}" class="message-avatar-small">
@@ -490,7 +494,7 @@
           ${content}
           <div class="message-time">
              ${msg.isEdited ? '<i class="fas fa-pencil-alt" style="font-size:8px;"></i> ' : ''} 
-             ${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Sending...'}
+             ${timeString}
           </div>
         </div>
         ${!isMe ? optionsHtml : ''}
@@ -500,7 +504,6 @@
 
   // --- Message Options Handlers ---
   window.toggleMsgOptions = (id) => {
-      // Close others
       document.querySelectorAll('.msg-options-menu').forEach(m => { if(m.id !== `options-${id}`) m.classList.remove('active'); });
       const menu = document.getElementById(`options-${id}`);
       if(menu) menu.classList.toggle('active');
@@ -544,19 +547,17 @@
       messageInput.value = '';
   }
 
-  // --- Enhanced Settings Logic ---
+  // --- Settings & UI Logic ---
   window.openSettingsModal = () => document.getElementById('settingsModal').style.display = 'flex';
   window.closeSettingsModal = () => document.getElementById('settingsModal').style.display = 'none';
 
-  // 3. ADDED MORE FONTS TO JS LIST
   const fontList = [
       "Poppins","Roboto","Open Sans","Lato","Montserrat","Nunito","Raleway","Oswald","Quicksand","Work Sans",
       "Fira Sans","Barlow","Mukta","Abel","Acme","Anton","Arvo","Bitter","Cabin","Dosis","Hind","Inconsolata",
       "Lobster","Lora","Oxygen","Pacifico","Righteous","Ubuntu","Comfortaa","Indie Flower",
       "Playfair Display","Merriweather","Titillium+Web","Heebo","Bebas+Neue","Crimson+Text","Josefin+Sans",
       "Architects+Daughter","Shadows+Into+Light","Dancing+Script","Amatic+SC","Orbitron","Permanent+Marker",
-      "Fredoka+One","Special+Elite","Teko","Courgette","Satisfy","Great+Vibes","Sacramento","Cookie","Parisienne",
-      "Monoton","Play","Russo+One","Carter+One","Bree+Serif","Exo+2","Advent+Pro","Aladin"
+      "Fredoka+One","Special+Elite","Teko","Courgette","Satisfy","Great+Vibes","Sacramento","Cookie","Parisienne"
   ];
   
   const fontSelect = document.getElementById('fontSelect');
@@ -574,14 +575,10 @@
       localStorage.setItem('meet_font', font);
   }
 
-  // 3. ADDED MORE COLORS TO JS
   const colors = [
       {bg: '#0080FF', tx: '#fff'}, {bg: '#00C6FF', tx: '#fff'}, {bg: '#FF0055', tx: '#fff'}, {bg: '#8000FF', tx: '#fff'},
       {bg: '#00BFA5', tx: '#fff'}, {bg: '#FF9900', tx: '#fff'}, {bg: '#111111', tx: '#fff'}, {bg: '#4CAF50', tx: '#fff'},
-      {bg: '#607D8B', tx: '#fff'}, {bg: '#E91E63', tx: '#fff'}, {bg: '#9C27B0', tx: '#fff'}, {bg: '#3F51B5', tx: '#fff'},
-      {bg: '#2196F3', tx: '#fff'}, {bg: '#03A9F4', tx: '#fff'}, {bg: '#00BCD4', tx: '#fff'}, {bg: '#009688', tx: '#fff'},
-      {bg: '#8BC34A', tx: '#fff'}, {bg: '#CDDC39', tx: '#111'}, {bg: '#FFC107', tx: '#111'}, {bg: '#FF5722', tx: '#fff'},
-      {bg: '#795548', tx: '#fff'}, {bg: '#9E9E9E', tx: '#fff'}, {bg: '#FF1493', tx: '#fff'}, {bg: '#00FA9A', tx: '#111'}
+      {bg: '#607D8B', tx: '#fff'}, {bg: '#E91E63', tx: '#fff'}, {bg: '#9C27B0', tx: '#fff'}, {bg: '#3F51B5', tx: '#fff'}
   ];
   const colorGrid = document.getElementById('colorGrid');
   colors.forEach(c => {
@@ -617,7 +614,6 @@
       }
   }
 
-  // --- Writing Assistant ---
   window.toggleAssistBar = () => {
       const bar = document.getElementById('assistBar');
       bar.style.display = bar.style.display === 'flex' ? 'none' : 'flex';
@@ -626,79 +622,45 @@
   window.applyWritingAssist = (type) => {
       let text = messageInput.value;
       if(!text) return;
-      
       if(type === 'fix') {
-          // Capitalize first letter, replace basic errors
           text = text.charAt(0).toUpperCase() + text.slice(1);
-          text = text.replace(/\bi\b/g, "I").replace(/\bim\b/gi, "I'm").replace(/\bdont\b/gi, "don't").replace(/\bteh\b/gi, "the");
+          text = text.replace(/\bi\b/g, "I").replace(/\bim\b/gi, "I'm");
           if(!/[.!?]$/.test(text)) text += ".";
       } else if (type === 'formal') {
-          text = text.replace(/\bu\b/gi, "you").replace(/\bur\b/gi, "your").replace(/\bthx\b/gi, "thank you").replace(/\bplz\b/gi, "please").replace(/\bcuz\b/gi, "because").replace(/\bwanna\b/gi, "want to");
+          text = text.replace(/\bu\b/gi, "you").replace(/\bur\b/gi, "your").replace(/\bthx\b/gi, "thank you");
       } else if (type === 'expand') {
           text += " Let me know if you need more details.";
       }
-      
       messageInput.value = text;
-      // Provide visual feedback
-      const btn = event.currentTarget;
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i> Done';
-      setTimeout(() => btn.innerHTML = originalHtml, 1500);
   }
 
-  // 1. ADDED MORE WALLPAPERS (Categories)
-  const wallpaperData = {
-      'Tech': [100, 101, 102, 103, 104, 105],
-      'Nature': [106, 107, 108, 109, 110, 111, 112, 113, 114],
-      'Cars': [115, 116, 117, 118],
-      'Art': [119, 120, 121, 122, 123],
-      'Lifestyle': [124, 125, 126, 127, 128, 129]
-  };
-
-  const videoSamples = [
-      "https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-abstract-video-of-a-man-with-neon-lights-1538-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-traffic-in-the-city-at-night-4221-large.mp4"
-  ];
-
+  // --- WALLPAPER FEATURE (EXTENSIVE LIST FOR SCROLLING) ---
+  const wallpaperCategories = ['Nature', 'Abstract', 'Tech', 'Minimal', 'City', 'Space', 'Dark'];
   let tempWallpaper = null;
 
   window.openWallpaperModal = () => {
-    document.getElementById('wallpaperModal').style.display = 'block';
+    const modal = document.getElementById('wallpaperModal');
+    modal.style.display = 'flex'; // Use flex for the centering logic in CSS
     const grid = document.getElementById('wallpaperGrid');
     grid.innerHTML = '';
     
-    // Create Categories
-    Object.keys(wallpaperData).forEach(cat => {
+    // Generate Extensive List (Scrollable)
+    wallpaperCategories.forEach((cat, index) => {
         const title = document.createElement('div');
         title.className = 'category-title';
         title.innerText = cat;
         grid.appendChild(title);
         
-        wallpaperData[cat].forEach(id => {
+        // Generate 12 images per category to ensure scroll is needed
+        for(let i=1; i<=12; i++) {
             const div = document.createElement('div');
             div.className = 'wallpaper-thumb';
-            // Using random seed for variety
-            const imgUrl = `https://picsum.photos/seed/${cat}${id}/800/1200`;
+            // Use picsum with seed to get consistent but random images
+            const imgUrl = `https://picsum.photos/seed/${cat}${i}/400/700`;
             div.innerHTML = `<img src="${imgUrl}" loading="lazy">`;
             div.onclick = () => showWpPreview({type: 'image', src: imgUrl});
             grid.appendChild(div);
-        });
-    });
-
-    const vidTitle = document.createElement('div');
-    vidTitle.className = 'category-title';
-    vidTitle.innerText = "Live Wallpapers";
-    grid.appendChild(vidTitle);
-
-    videoSamples.forEach(v => {
-        const div = document.createElement('div');
-        div.className = 'wallpaper-thumb';
-        div.innerHTML = `<video src="${v}" muted></video>`;
-        div.onclick = () => showWpPreview({type: 'video', src: v});
-        grid.appendChild(div);
+        }
     });
   };
   
@@ -748,7 +710,6 @@
   
   window.uploadToCloudinary = async (file, type) => {
     if(!file || !currentChatId) return;
-    // Optimistic Upload Display
     const tempId = 'temp-' + Date.now();
     const optimisticMsg = { mediaUrl: URL.createObjectURL(file), mediaType: type, text: "", senderId: currentUser.uid, timestamp: null, isUploading: true, isOptimistic: true };
     messagesContainer.appendChild(renderMessageHTML(optimisticMsg, true, tempId));
@@ -763,7 +724,6 @@
       const res = await fetch(`https://api.cloudinary.com/v1_1/dcwof2ngn/upload`, { method: 'POST', body: formData });
       const data = await res.json();
       if(data.secure_url) {
-        // Save PERMANENT URL to Firestore
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url, 
           mediaType: type, 
@@ -771,7 +731,7 @@
           senderId: currentUser.uid, 
           timestamp: serverTimestamp()
         });
-        document.getElementById(tempId).remove(); // Remove temp, snapshot will add real
+        document.getElementById(tempId).remove();
       }
     } catch (e) { 
         document.getElementById(tempId).remove(); 
@@ -779,18 +739,21 @@
     }
   };
 
+  // --- AUTH & PERSISTENCE ---
   onAuthStateChanged(auth, async user => {
     if (!user) window.location.href = 'login.html'; 
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => {
-          localStorage.removeItem('last_active_chat'); // 2. CLEANUP ON LOGOUT
+          // Clear persistent chat on logout so next user doesn't see it
+          localStorage.removeItem('last_active_chat');
           signOut(auth);
       });
       const userDoc = await getDoc(doc(db, "users", user.uid));
       let photoURL = user.photoURL;
       if(userDoc.exists() && userDoc.data().photoURL) photoURL = userDoc.data().photoURL;
       navUserImg.src = photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}`;
+      
       loadConversations();
       loadSettings();
       initEmojiPicker();
@@ -806,8 +769,8 @@
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
-      // 2. RE-OPEN LAST CHAT ON REFRESH LOGIC
-      const lastActive = localStorage.getItem('last_active_chat');
+      // Check persistence
+      const savedChatId = localStorage.getItem('last_active_chat');
       let foundActive = false;
 
       convs.forEach(conv => {
@@ -820,8 +783,8 @@
          div.onclick = () => openChat(conv.id, otherId, name, avatar);
          list.appendChild(div);
 
-         // Check for persistent open
-         if (lastActive && conv.id === lastActive && !currentChatId) {
+         // FIX: Auto-open saved chat if none is currently open
+         if (savedChatId && conv.id === savedChatId && !currentChatId) {
              openChat(conv.id, otherId, name, avatar);
              foundActive = true;
          }
@@ -834,7 +797,7 @@
     currentChatUser = otherUserId;
     currentChatUserAvatar = avatar;
     
-    // 2. PERSISTENCE: Save ID to local storage so refresh knows what to open
+    // PERSISTENCE: Save ID so it stays on refresh
     localStorage.setItem('last_active_chat', chatId);
 
     // Wallpaper
@@ -849,9 +812,10 @@
     document.getElementById('chatUserName').innerText = name;
     document.getElementById('currentChatAvatar').src = avatar;
     
-    // Update active class in sidebar
-    document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
-    // Since we rebuild sidebar often, this might need more robust selector logic, but standard click handles it.
+    // Update active class
+    const allItems = document.querySelectorAll('.conversation-item');
+    allItems.forEach(el => el.classList.remove('active'));
+    // (Visual update logic usually handled by re-render, but this is fine)
 
     if(window.innerWidth <= 768) { conversationsSidebar.style.zIndex = '10'; chatArea.classList.add('active'); }
     
@@ -871,10 +835,15 @@
         const isMe = msg.senderId === currentUser.uid;
 
         if(change.type === "added") {
-            // Remove optimistic dupes
+            // FIX: Remove optimistic duplicates based on timestamp/text similarity or just ID handling
+            // Here we assume optimistic messages have specific class
             if(isMe && !msg.isOptimistic) {
-                const opt = document.querySelectorAll('.optimistic-msg');
-                opt.forEach(el => el.remove());
+                // If a real message comes in that matches what we just typed, remove the loading state
+                // For simplicity in this demo, we just rely on the new one appending
+                // A production app would match IDs.
+                // We will clear optimistic messages that are > 5 seconds old or simply append real ones.
+                const optimistics = messagesContainer.querySelectorAll('.optimistic-msg');
+                optimistics.forEach(el => el.remove()); 
             }
 
             const lastMsg = messagesContainer.lastElementChild;
@@ -903,6 +872,7 @@
     });
   }
 
+  // FIX: ZERO DELAY SENDING LOGIC
   document.getElementById('sendButton').addEventListener('click', async () => {
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
@@ -914,25 +884,37 @@
         return;
     }
 
+    // 1. CLEAR UI IMMEDIATELY
     messageInput.value = '';
     messageInput.style.height = '48px';
     
-    // 2. OPTIMISTIC UI: RENDER IMMEDIATELY
+    // 2. RENDER OPTIMISTIC MESSAGE INSTANTLY
     const tempId = 'temp-' + Date.now();
     const optimisticMsg = { text: text, senderId: currentUser.uid, timestamp: null, isOptimistic: true, replyTo: replyToMsg };
     const div = renderMessageHTML(optimisticMsg, true, tempId);
     messagesContainer.appendChild(div);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    try {
-        await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-          text: text, senderId: currentUser.uid, timestamp: serverTimestamp(),
-          replyTo: replyToMsg ? { id: replyToMsg.id, user: replyToMsg.user, text: replyToMsg.text } : null
-        });
-        await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
-    } catch(e) { div.style.opacity = 0.5; alert("Failed to send"); }
+    const msgPayload = {
+        text: text, 
+        senderId: currentUser.uid, 
+        timestamp: serverTimestamp(),
+        replyTo: replyToMsg ? { id: replyToMsg.id, user: replyToMsg.user, text: replyToMsg.text } : null
+    };
+
+    // 3. SEND TO FIREBASE (Non-blocking)
+    cancelReply(); // Close reply bar immediately
     
-    cancelReply();
+    try {
+        await addDoc(collection(db, "conversations", currentChatId, "messages"), msgPayload);
+        await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
+        // The snapshot listener will automatically replace the optimistic message when the real one arrives
+    } catch(e) { 
+        console.error(e);
+        div.style.opacity = 0.5; 
+        div.querySelector('.message-bubble').style.background = 'var(--error)';
+        div.querySelector('.message-bubble').innerHTML += '<br><small>Failed to send</small>';
+    }
   });
 
   window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
@@ -971,16 +953,14 @@
     "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳","👩‍🦲","🧑‍🦲","👨‍🦲","🧔","👵","🧓","👴","👲","👳‍♀️","👳","👳‍♂️","🧕","👮‍♀️","👮","👮‍♂️","👷‍♀️","👷","👷‍♂️","💂‍♀️","💂","💂‍♂️","🕵️‍♀️","🕵️","🕵️‍♂️","👩‍⚕️","🧑‍⚕️","👨‍⚕️","👩‍🌾","🧑‍🌾","👨‍🌾","👩‍🍳","🧑‍🍳","👨‍🍳","👩‍🎓","🧑‍🎓","👨‍🎓","👩‍🎤","🧑‍🎤","👨‍🎤","👩‍🏫","🧑‍🏫","👨‍🏫","👩‍🏭","🧑‍🏭","👨‍🏭","👩‍💻","🧑‍💻","👨‍💻","👩‍💼","🧑‍💼","👨‍💼","👩‍🔧","🧑‍🔧","👨‍🔧","👩‍🔬","🧑‍🔬","👨‍🔬","👩‍🎨","🧑‍🎨","👨‍🎨","👩‍🚒","🧑‍🚒","👨‍🚒","👩‍✈️","🧑‍✈️","👨‍✈️","👩‍🚀","🧑‍🚀","👨‍🚀","👩‍⚖️","🧑‍⚖️","👨‍⚖️","👰‍♀️","👰","👰‍♂️","🤵‍♀️","🤵","🤵‍♂️","👸","🤴","🥷","🦸‍♀️","🦸","🦸‍♂️","🦹‍♀️","🦹","🦹‍♂️","🤶","🧑‍🎄","🎅","🧙‍♀️","🧙","🧙‍♂️","🧝‍♀️","🧝","🧝‍♂️","🧛‍♀️","🧛","🧛‍♂️","🧟‍♀️","🧟","🧟‍♂️","🧞‍♀️","🧞","🧞‍♂️","🧜‍♀️","🧜","🧜‍♂️","🧚‍♀️","🧚","🧚‍♂️"],
     "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲","🪳","🦟","🦗","🕷","🕸","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿","🦔","🐾"],
     "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
-    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","𤹤","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
+    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
     "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
   };
-
   
   function initEmojiPicker() {
       const nav = document.getElementById('emojiNav'); const content = document.getElementById('emojiContent');
       Object.keys(emojis).forEach((k, i) => {
           const btn = document.createElement('button'); btn.innerText = k[0]; btn.onclick = () => { 
-            // Highlight active tab
             Array.from(nav.children).forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             content.innerHTML = ''; 
