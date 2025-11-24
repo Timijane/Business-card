@@ -745,8 +745,7 @@
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => {
-          // Clear persistent chat on logout so next user doesn't see it
-          localStorage.removeItem('last_active_chat');
+          // REMOVED: localStorage.removeItem('last_active_chat');
           signOut(auth);
       });
       const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -769,36 +768,39 @@
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
-      // Check persistence
-      const savedChatId = localStorage.getItem('last_active_chat');
-      let foundActive = false;
-
+      // Removed check for 'last_active_chat' and the auto-open logic
+      
       convs.forEach(conv => {
          const otherId = conv.participants.find(p => p !== currentUser.uid);
          const name = conv.participantNames?.[otherId] || 'User';
          const avatar = conv.participantAvatars?.[otherId] || `https://ui-avatars.com/api/?name=${name}`;
          const div = document.createElement('div');
+         // Note: active class logic will only apply if currentChatId is set by user clicking
          div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
          div.innerHTML = `<img src="${avatar}" class="conversation-avatar"><div class="conversation-info"><div class="conversation-name">${name}</div><div class="conversation-preview">${conv.lastMessage || 'No messages'}</div></div>`;
+         // This click listener is now the *only* way to open a chat, fixing the auto-click issue.
          div.onclick = () => openChat(conv.id, otherId, name, avatar);
          list.appendChild(div);
-
-         // FIX: Auto-open saved chat if none is currently open
-         if (savedChatId && conv.id === savedChatId && !currentChatId) {
-             openChat(conv.id, otherId, name, avatar);
-             foundActive = true;
-         }
       });
     });
   }
 
   async function openChat(chatId, otherUserId, name, avatar) {
-    currentChatId = chatId;
-    currentChatUser = otherUserId;
-    currentChatUserAvatar = avatar;
+    // Only update chat ID if a different chat is opened
+    if (currentChatId !== chatId) {
+        // Clear previous messages listener if it exists
+        if(unsubscribeMessages) unsubscribeMessages();
+        messagesContainer.innerHTML = ''; 
+        currentChatId = chatId;
+        currentChatUser = otherUserId;
+        currentChatUserAvatar = avatar;
+    } else {
+        // If the same chat is clicked, just return on mobile for smooth transition
+        if(window.innerWidth <= 768) chatArea.classList.add('active');
+        return;
+    }
     
-    // PERSISTENCE: Save ID so it stays on refresh
-    localStorage.setItem('last_active_chat', chatId);
+    // REMOVED: localStorage.setItem('last_active_chat', chatId);
 
     // Wallpaper
     const savedWp = localStorage.getItem('meet_wallpaper_' + chatId);
@@ -815,7 +817,9 @@
     // Update active class
     const allItems = document.querySelectorAll('.conversation-item');
     allItems.forEach(el => el.classList.remove('active'));
-    // (Visual update logic usually handled by re-render, but this is fine)
+    // Find and set the active class on the currently selected item
+    document.querySelector(`#conversationsList .conversation-item[onclick*="${chatId}"]`).classList.add('active');
+
 
     if(window.innerWidth <= 768) { conversationsSidebar.style.zIndex = '10'; chatArea.classList.add('active'); }
     
@@ -824,7 +828,9 @@
 
   let unsubscribeMessages;
   function loadMessages(chatId) {
-    if(unsubscribeMessages) unsubscribeMessages();
+    // Check if the current chatId matches the requested one to prevent race conditions/wrong data loads
+    if (chatId !== currentChatId) return;
+
     messagesContainer.innerHTML = ''; 
     
     const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
@@ -840,7 +846,6 @@
             if(isMe && !msg.isOptimistic) {
                 // If a real message comes in that matches what we just typed, remove the loading state
                 // For simplicity in this demo, we just rely on the new one appending
-                // A production app would match IDs.
                 // We will clear optimistic messages that are > 5 seconds old or simply append real ones.
                 const optimistics = messagesContainer.querySelectorAll('.optimistic-msg');
                 optimistics.forEach(el => el.remove()); 
@@ -943,7 +948,9 @@
       participantAvatars: { [currentUser.uid]: navUserImg.src, [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name}` },
       updatedAt: serverTimestamp(), lastMessage: ''
     }, {merge: true});
-    closeUserSearchOverlay(); openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
+    closeUserSearchOverlay(); 
+    // Open the new chat instantly after creation/check
+    openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
 
    // --- EXPANDED EMOJIS (WhatsApp Style) ---
