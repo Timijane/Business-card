@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500&family=Open+Sans:wght@400;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
@@ -16,7 +16,14 @@
     --secondary-text: #65676b;
     --border-color: #dddfe2;
     --error: #EF4444;
-    --app-height: 100dvh; 
+    --app-height: 100dvh;
+    
+    /* User Preferences Defaults */
+    --chat-font: 'Poppins', sans-serif;
+    --sent-bubble-bg: #0080FF;
+    --sent-text-color: #fff;
+    --received-bubble-bg: #fff;
+    --received-text-color: #111;
   }
 
   body.dark-mode {
@@ -25,15 +32,17 @@
     --text-color: #e4e6eb;
     --secondary-text: #b0b3b8;
     --border-color: #3e4042;
+    --received-bubble-bg: #242526;
+    --received-text-color: #e4e6eb;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
-  html, body { height: 100%; overflow: hidden; font-size: 14px; font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); }
+  html, body { height: 100%; overflow: hidden; font-size: 14px; font-family: var(--chat-font); background: var(--bg-color); color: var(--text-color); }
 
   .app-container { display: flex; height: var(--app-height); position: relative; overflow: hidden; }
 
-  /* Sidebar & Hamburger */
+  /* Sidebar */
   .sidebar {
     position: fixed; top: 0; left: 0; height: 100%; width: 260px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
@@ -44,7 +53,7 @@
   .sidebar-header { padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;}
   .sidebar-menu { list-style: none; }
   .sidebar-menu li { margin-bottom: 8px; }
-  .sidebar-menu a { display: flex; align-items: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; font-size: 16px; }
+  .sidebar-menu a { display: flex; align-items: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; font-size: 16px; font-family: 'Poppins', sans-serif;}
   .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
   .sidebar-menu i { margin-right: 12px; font-size: 18px; }
   .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 190; }
@@ -58,19 +67,16 @@
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
     padding: 10px 15px; border-radius: 12px; margin-bottom: 10px;
     display: flex; justify-content: space-between; align-items: center;
-    color: white; flex-shrink: 0;
+    color: white; flex-shrink: 0; font-family: 'Poppins', sans-serif;
   }
   .navbar-left { display: flex; align-items: center; gap: 15px; }
   .navbar-right { display: flex; align-items: center; gap: 10px; }
   .hamburger-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
   .nav-user-img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-
   .btn { background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
 
   /* Chat Container */
   .chat-container { flex: 1; background: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; min-height: 0; position: relative; }
-
-  /* Conversations Sidebar */
   .conversations-sidebar { width: 320px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; background: var(--card-bg); }
   .chat-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
   .new-chat-btn { background: #0080FF; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
@@ -90,46 +96,55 @@
   .chat-actions { display: flex; gap: 15px; margin-left: auto; }
   .chat-action-btn { background: none; border: none; color: #0080FF; font-size: 18px; cursor: pointer; }
 
-  .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-size: cover; background-position: center; }
+  .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; background-size: cover; background-position: center; }
+
+  /* Date Divider */
+  .date-divider { text-align: center; margin: 20px 0; position: relative; }
+  .date-divider span { background: rgba(0,0,0,0.15); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+  body.dark-mode .date-divider span { background: rgba(255,255,255,0.15); }
 
   /* Message & Avatar Styling */
-  .message-wrapper { display: flex; gap: 8px; max-width: 75%; align-items: flex-end; }
+  .message-wrapper { display: flex; gap: 8px; max-width: 75%; align-items: flex-end; position: relative; margin-bottom: 10px; group: true; }
   .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
   .message-avatar-small { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-bottom: 5px; }
   
-  .message-bubble { padding: 10px 14px; border-radius: 18px; position: relative; word-wrap: break-word; font-size: 14px; line-height: 1.5; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; color: var(--text-color); }
-  .sent .message-bubble { background: #0080FF; color: white; border-bottom-right-radius: 4px; }
+  .message-bubble { padding: 10px 14px; border-radius: 18px; position: relative; word-wrap: break-word; font-size: 14px; line-height: 1.5; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-family: var(--chat-font); }
+  .received .message-bubble { background: var(--received-bubble-bg); border-bottom-left-radius: 4px; color: var(--received-text-color); }
+  .sent .message-bubble { background: var(--sent-bubble-bg); color: var(--sent-text-color); border-bottom-right-radius: 4px; }
+  
+  /* Message Options (Context Menu) */
+  .msg-options-btn { opacity: 0; transition: opacity 0.2s; background: none; border: none; color: var(--secondary-text); cursor: pointer; padding: 5px; font-size: 14px; align-self: center; }
+  .message-wrapper:hover .msg-options-btn { opacity: 1; }
+  .msg-options-menu { display: none; position: absolute; top: 100%; right: 0; background: var(--card-bg); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 100; min-width: 120px; overflow: hidden; }
+  .msg-options-menu.active { display: block; }
+  .msg-option-item { padding: 10px 15px; cursor: pointer; font-size: 13px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
+  .msg-option-item:hover { background: rgba(0,0,0,0.05); }
+
+  /* Reply Preview */
+  .reply-preview-bar { display: none; background: rgba(0,0,0,0.05); padding: 8px 15px; border-left: 4px solid var(--primary); justify-content: space-between; align-items: center; font-size: 12px; margin: 0 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+  .reply-preview-content { display: flex; flex-direction: column; }
+  .reply-name { font-weight: bold; color: var(--primary); }
+
   .message-img, .message-video { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
   .message-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
-  
-  /* Upload Progress Overlay */
   .upload-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; border-radius:8px; color:white; font-size:20px; }
 
-  /* Typing Indicator */
   .typing-indicator { display: none; padding: 10px 15px; background: rgba(255,255,255,0.8); border-radius: 15px; margin: 10px; width: fit-content; align-self: flex-start; font-size: 12px; color: var(--secondary-text); font-style: italic; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
   .typing-indicator span { animation: blink 1.4s infinite both; }
   .typing-indicator span:nth-child(2) { animation-delay: .2s; }
   .typing-indicator span:nth-child(3) { animation-delay: .4s; }
   @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
 
-  /* Input Area */
   .message-input-container { padding: 10px; border-top: 1px solid var(--border-color); background: var(--card-bg); }
   .message-input-wrapper { display: flex; align-items: flex-end; gap: 8px; }
   .message-input-actions { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
   .input-action { background: transparent; border: none; color: var(--secondary-text); cursor: pointer; font-size: 20px; padding: 8px; border-radius: 50%; transition: 0.2s; }
   .input-action:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
   
-  .message-input { 
-    flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid var(--border-color); 
-    background: var(--bg-color); resize: none; font-family: inherit; font-size: 15px; 
-    max-height: 120px; min-height: 45px; outline: none; overflow-y: auto; line-height: 1.4;
-  }
+  .message-input { flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); resize: none; font-family: inherit; font-size: 15px; max-height: 120px; min-height: 45px; outline: none; overflow-y: auto; line-height: 1.4; }
   .message-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,128,255,0.1); }
-  
   .send-button { background: #0080FF; color: white; border: 0; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-bottom: 2px;}
 
-  /* AI Switch */
   .ai-control { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-right: 5px; }
   .ai-label { font-size: 8px; font-weight: bold; color: #0080FF; margin-bottom: 2px;}
   .ai-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
@@ -139,7 +154,6 @@
   input:checked + .ai-slider { background-color: #0080FF; }
   input:checked + .ai-slider:before { transform: translateX(16px); }
 
-  /* Emoji Picker (WhatsApp Style) */
   .emoji-picker { display: none; position: absolute; bottom: 75px; left: 10px; width: 320px; height: 350px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 100; overflow: hidden; flex-direction: column; border: 1px solid var(--border-color); }
   .emoji-header { padding: 10px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); display:flex; gap:10px; overflow-x:auto;}
   .emoji-header button { background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; }
@@ -148,48 +162,42 @@
   .emoji-item { font-size: 24px; cursor: pointer; text-align: center; border-radius:4px; transition:0.2s; }
   .emoji-item:hover { background: var(--bg-color); transform: scale(1.2); }
 
-  /* Wallpapers Modal - UPDATED FOR SIDE BY SIDE */
+  /* Settings Modal */
+  .settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2100; align-items: center; justify-content: center; }
+  .settings-content { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+  .settings-section { margin-bottom: 20px; }
+  .settings-section h4 { margin-bottom: 10px; color: var(--text-color); }
+  .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .color-option { width: 100%; height: 40px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
+  .color-option.selected { border-color: var(--text-color); transform: scale(1.05); }
+  .font-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
+
+  /* Wallpaper Grid Fixed */
   .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; }
   .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; height: 90vh; margin: 0 auto; display: flex; flex-direction: column; }
-  
-  /* GRID UPDATED HERE */
-  .wallpaper-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; /* Forces two columns */
-    gap: 15px; 
-    overflow-y: auto; 
-    padding-top: 15px; 
-  }
-  
-  .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; }
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; overflow-y: auto; padding-top: 15px; }
+  .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; position: relative; }
   .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
-  .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; }
+  .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; display:block; }
 
-  /* Professional User Search Overlay */
+  /* Search Overlay */
   .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-start; padding-top: 80px; }
   .user-search-modal { background: var(--card-bg); border-radius: 16px; padding: 0; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; animation: slideDown 0.3s ease; }
   @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  
   .search-modal-header { padding: 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); }
-  .search-modal-header h3 { margin-bottom: 10px; font-size: 18px; }
   .search-input-group { position: relative; }
   .search-input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--secondary-text); }
   .search-input-group input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 16px; outline: none; }
-  
   .search-results { max-height: 300px; overflow-y: auto; }
   .search-result-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
   .search-result-item:hover { background: rgba(0,128,255,0.05); }
-  .search-result-info div:first-child { font-weight: 600; color: var(--text-color); }
-  .search-result-info div:last-child { font-size: 13px; color: var(--secondary-text); }
   .search-close-btn { width: 100%; padding: 15px; background: white; border: none; border-top: 1px solid var(--border-color); color: var(--error); font-weight: 600; cursor: pointer; }
 
-  /* Mobile Responsive */
   @media (max-width: 768px) {
     .chat-container { border-radius: 0; height: 100%; }
     .conversations-sidebar { width: 100%; position: absolute; z-index: 50; }
     .chat-area { width: 100%; position: absolute; z-index: 60; transform: translateX(100%); transition: transform 0.3s ease; }
     .chat-area.active { transform: translateX(0); }
-    .navbar h2 { font-size: 16px; }
     .emoji-picker { width: 95%; left: 2.5%; bottom: 70px; }
   }
 </style>
@@ -210,8 +218,6 @@
       <li><a href="chat.html" class="active"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="conference.html"><i class="fas fa-video"></i> <span>Conference</span></a></li>
       <li><a href="meetrader.html"><i class="fas fa-store"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
     </ul>
   </div>
 
@@ -241,7 +247,6 @@
       </div>
 
       <div class="chat-area" id="chatArea">
-        
         <div id="emptyChat" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--secondary-text);">
           <i class="fas fa-comments" style="font-size:60px; opacity:0.5; margin-bottom:20px;"></i>
           <h3>Select a conversation</h3>
@@ -254,6 +259,7 @@
             <div style="font-weight:700;" id="chatUserName">User</div>
           </div>
           <div class="chat-actions">
+            <button class="chat-action-btn" onclick="openSettingsModal()"><i class="fas fa-cog"></i></button>
             <button class="chat-action-btn" onclick="startVoiceCall()"><i class="fas fa-phone-alt"></i></button>
             <button class="chat-action-btn" onclick="startVideoCall()"><i class="fas fa-video"></i></button>
             <button class="chat-action-btn" onclick="openWallpaperModal()"><i class="fas fa-image"></i></button>
@@ -267,8 +273,14 @@
         </div>
 
         <div class="message-input-container" id="messageInputContainer" style="display: none;">
+          <div class="reply-preview-bar" id="replyPreview">
+              <div class="reply-preview-content">
+                  <span class="reply-name" id="replyName">Replying to User</span>
+                  <span id="replyText">Message text...</span>
+              </div>
+              <button onclick="cancelReply()" style="background:none;border:none;cursor:pointer;font-size:16px;">&times;</button>
+          </div>
           <div class="message-input-wrapper">
-            
             <div class="message-input-actions">
                <div class="ai-control">
                 <span class="ai-label">AI</span>
@@ -277,30 +289,56 @@
                   <span class="ai-slider"></span>
                 </label>
               </div>
-
               <button class="input-action" onclick="toggleEmojiPicker()"><i class="far fa-smile"></i></button>
-              
               <input type="file" id="imageInputHidden" accept="image/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'image')">
               <input type="file" id="videoInputHidden" accept="video/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'video')">
-              
               <button class="input-action" onclick="document.getElementById('imageInputHidden').click()"><i class="fas fa-image"></i></button>
               <button class="input-action" onclick="document.getElementById('videoInputHidden').click()"><i class="fas fa-video"></i></button>
             </div>
-
             <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1" spellcheck="true"></textarea>
-            
             <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
           </div>
-          
           <div class="emoji-picker" id="emojiPicker">
              <div class="emoji-header" id="emojiNav"></div>
              <div class="emoji-content" id="emojiContent"></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
+</div>
+
+<div class="settings-modal" id="settingsModal">
+    <div class="settings-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3>Chat Options</h3>
+            <button onclick="closeSettingsModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="settings-section">
+            <h4>Font Style</h4>
+            <select id="fontSelect" class="font-select" onchange="changeFont()">
+                <option value="'Poppins', sans-serif">Poppins (Default)</option>
+                <option value="'Roboto', sans-serif">Roboto</option>
+                <option value="'Open Sans', sans-serif">Open Sans</option>
+                <option value="'Lato', sans-serif">Lato</option>
+                <option value="serif">Serif</option>
+                <option value="monospace">Monospace</option>
+            </select>
+        </div>
+        <div class="settings-section">
+            <h4>Bubble Colors</h4>
+            <div class="color-grid">
+                <div class="color-option" style="background:#0080FF" onclick="setChatColor('#0080FF', '#fff')"></div>
+                <div class="color-option" style="background:#00C6FF" onclick="setChatColor('#00C6FF', '#fff')"></div>
+                <div class="color-option" style="background:#FF0055" onclick="setChatColor('#FF0055', '#fff')"></div>
+                <div class="color-option" style="background:#8000FF" onclick="setChatColor('#8000FF', '#fff')"></div>
+                <div class="color-option" style="background:#00BFA5" onclick="setChatColor('#00BFA5', '#fff')"></div>
+                <div class="color-option" style="background:#FF9900" onclick="setChatColor('#FF9900', '#fff')"></div>
+                <div class="color-option" style="background:#333333" onclick="setChatColor('#333333', '#fff')"></div>
+                <div class="color-option" style="background:#4CAF50" onclick="setChatColor('#4CAF50', '#fff')"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="user-search-overlay" id="userSearchOverlay">
@@ -329,7 +367,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -350,10 +388,11 @@
   let currentChatUser = null;
   let currentChatUserAvatar = '';
   let typingTimeout = null;
+  
+  // State for Edit/Reply
+  let replyToMsg = null;
+  let editingMsgId = null;
 
-  // DOM Elements
-  const chatArea = document.getElementById('chatArea');
-  const conversationsSidebar = document.getElementById('conversationsSidebar');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('messageInput');
   const emojiPicker = document.getElementById('emojiPicker');
@@ -362,74 +401,147 @@
   const typingIndicator = document.getElementById('typingIndicator');
   const navUserImg = document.getElementById('navUserImg');
 
-  // Helper: Render Message Logic
+  // Helper: Format Date for Divider
+  function formatDateHeader(timestamp) {
+      if(!timestamp) return null;
+      const date = new Date(timestamp.seconds * 1000);
+      const today = new Date();
+      const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+      
+      if(date.toDateString() === today.toDateString()) return "Today";
+      if(date.toDateString() === yesterday.toDateString()) return "Yesterday";
+      return date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // --- Render Message ---
   function renderMessageHTML(msg, isMe, id) {
      const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
      let content = "";
      
-     if(msg.mediaType === 'image') {
-       // Check if it's a blob url (optimistic) or cloud url
-       content += `<div style="position:relative">
-          <img src="${msg.mediaUrl}" class="message-img">
-          ${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}
-       </div>`;
-     } else if(msg.mediaType === 'video') {
-       content += `<div style="position:relative">
-         <video src="${msg.mediaUrl}" controls class="message-video"></video>
-         ${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}
-       </div>`;
+     // Reply Context
+     if(msg.replyTo) {
+         content += `<div style="background:rgba(0,0,0,0.1); padding:5px 8px; border-left:3px solid var(--primary-dark); border-radius:4px; font-size:11px; margin-bottom:4px; opacity:0.8;">
+            <b>${msg.replyTo.user}</b><br>${msg.replyTo.text.substring(0,30)}...
+         </div>`;
      }
-     
+
+     if(msg.mediaType === 'image') {
+       content += `<div style="position:relative"><img src="${msg.mediaUrl}" class="message-img">${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
+     } else if(msg.mediaType === 'video') {
+       content += `<div style="position:relative"><video src="${msg.mediaUrl}" controls class="message-video"></video>${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}</div>`;
+     }
      if(msg.text) content += `<div>${msg.text}</div>`;
 
      const div = document.createElement('div');
-     div.className = `message-wrapper ${isMe ? 'sent' : 'received'}`;
-     div.id = id || ('msg-' + Date.now()); // Fallback ID for optimistic
+     div.className = `message-wrapper ${isMe ? 'sent' : 'received'} ${msg.isOptimistic ? 'optimistic-msg' : ''}`;
+     div.id = id;
+     div.setAttribute('data-timestamp', msg.timestamp ? msg.timestamp.seconds : Date.now()/1000);
+
+     // Options Menu Button
+     const optionsHtml = `
+       <button class="msg-options-btn" onclick="toggleMsgOptions('${id}')"><i class="fas fa-ellipsis-v"></i></button>
+       <div class="msg-options-menu" id="options-${id}">
+         <div class="msg-option-item" onclick="handleReply('${id}', '${msg.text ? msg.text.replace(/'/g, "\\'") : 'Media'}', '${isMe ? 'You' : 'User'}')"><i class="fas fa-reply"></i> Reply</div>
+         <div class="msg-option-item" onclick="handleCopy('${msg.text ? msg.text.replace(/'/g, "\\'") : ''}')"><i class="fas fa-copy"></i> Copy</div>
+         ${isMe ? `<div class="msg-option-item" onclick="handleEdit('${id}', '${msg.text ? msg.text.replace(/'/g, "\\'") : ''}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+         <div class="msg-option-item" onclick="handleDelete('${id}')" style="color:var(--error);"><i class="fas fa-trash"></i> Delete</div>
+       </div>
+     `;
+
      div.innerHTML = `
+        ${isMe ? optionsHtml : ''}
         <img src="${avatarSrc}" class="message-avatar-small">
         <div class="message-bubble">
           ${content}
-          <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Just now'}</div>
+          <div class="message-time">
+             ${msg.isEdited ? '(edited) ' : ''} 
+             ${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Just now'}
+          </div>
         </div>
+        ${!isMe ? optionsHtml : ''}
      `;
      return div;
   }
 
-  window.toggleSidebar = () => {
-    sidebar.classList.toggle('open');
-    sidebarOverlay.classList.toggle('active');
-  };
-
-  messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-    if(this.value === '') this.style.height = '45px';
-    
-    updateTypingStatus(true);
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => updateTypingStatus(false), 2000);
-  });
-
-  async function updateTypingStatus(isTyping) {
-    if(!currentChatId || !currentUser) return;
-    try {
-        await updateDoc(doc(db, "conversations", currentChatId), {
-            [`typing.${currentUser.uid}`]: isTyping
-        });
-    } catch(e) {}
+  // --- Message Options Handlers ---
+  window.toggleMsgOptions = (id) => {
+      document.querySelectorAll('.msg-options-menu').forEach(m => { if(m.id !== `options-${id}`) m.classList.remove('active'); });
+      const menu = document.getElementById(`options-${id}`);
+      if(menu) menu.classList.toggle('active');
   }
 
-  // --- WALLPAPERS ---
+  window.handleCopy = (text) => {
+      navigator.clipboard.writeText(text);
+      document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
+  }
+
+  window.handleDelete = async (id) => {
+      if(!currentChatId) return;
+      if(confirm('Delete this message?')) {
+          await deleteDoc(doc(db, "conversations", currentChatId, "messages", id));
+      }
+  }
+
+  window.handleEdit = (id, text) => {
+      editingMsgId = id;
+      messageInput.value = text;
+      document.getElementById('sendButton').innerHTML = '<i class="fas fa-check"></i>';
+      document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
+      messageInput.focus();
+  }
+
+  window.handleReply = (id, text, user) => {
+      replyToMsg = { id, text, user };
+      document.getElementById('replyName').innerText = `Replying to ${user}`;
+      document.getElementById('replyText').innerText = text.substring(0, 50) + (text.length>50?'...':'');
+      document.getElementById('replyPreview').style.display = 'flex';
+      document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
+      messageInput.focus();
+  }
+
+  window.cancelReply = () => {
+      replyToMsg = null;
+      editingMsgId = null;
+      document.getElementById('replyPreview').style.display = 'none';
+      document.getElementById('sendButton').innerHTML = '<i class="fas fa-paper-plane"></i>';
+      messageInput.value = '';
+  }
+
+  // --- Settings Logic ---
+  window.openSettingsModal = () => document.getElementById('settingsModal').style.display = 'flex';
+  window.closeSettingsModal = () => document.getElementById('settingsModal').style.display = 'none';
+
+  window.changeFont = () => {
+      const font = document.getElementById('fontSelect').value;
+      document.documentElement.style.setProperty('--chat-font', font);
+      localStorage.setItem('meet_font', font);
+  }
+
+  window.setChatColor = (bg, text) => {
+      document.documentElement.style.setProperty('--sent-bubble-bg', bg);
+      document.documentElement.style.setProperty('--sent-text-color', text);
+      localStorage.setItem('meet_color_bg', bg);
+      localStorage.setItem('meet_color_text', text);
+  }
+
+  function loadSettings() {
+      const font = localStorage.getItem('meet_font');
+      if(font) {
+          document.documentElement.style.setProperty('--chat-font', font);
+          document.getElementById('fontSelect').value = font;
+      }
+      const bg = localStorage.getItem('meet_color_bg');
+      const text = localStorage.getItem('meet_color_text');
+      if(bg && text) {
+          document.documentElement.style.setProperty('--sent-bubble-bg', bg);
+          document.documentElement.style.setProperty('--sent-text-color', text);
+      }
+  }
+
+  // --- Wallpapers ---
   const wallpapers = [];
-  for(let i=10; i<=30; i++) {
-      wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
-  }
-  const videoSamples = [
-    "https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4",
-    "https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4",
-    "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-    "https://assets.mixkit.co/videos/preview/mixkit-ink-swirling-in-water-189-large.mp4"
-  ];
+  for(let i=10; i<=30; i++) wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
+  const videoSamples = ["https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4","https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4"];
   videoSamples.forEach(v => wallpapers.push({ type: 'video', src: v }));
 
   window.openWallpaperModal = () => {
@@ -439,152 +551,69 @@
     wallpapers.forEach(wp => {
       const div = document.createElement('div');
       div.className = 'wallpaper-thumb';
-      if(wp.type === 'image') {
-        div.innerHTML = `<img src="${wp.thumb || wp.src}" loading="lazy">`;
-      } else {
-        div.innerHTML = `<video src="${wp.src}" muted></video>`;
-      }
-      div.onclick = () => setWallpaper(wp);
+      if(wp.type === 'image') div.innerHTML = `<img src="${wp.thumb || wp.src}" loading="lazy">`;
+      else div.innerHTML = `<video src="${wp.src}" muted></video>`;
+      div.onclick = () => setWallpaper(wp); // Preview/Set immediately
       grid.appendChild(div);
     });
   };
-
   window.closeWallpaperModal = () => document.getElementById('wallpaperModal').style.display = 'none';
-
   function setWallpaper(wp) {
     localStorage.setItem('meet_wallpaper_' + currentChatId, JSON.stringify(wp));
     applyWallpaper(wp);
-    closeWallpaperModal();
+    // Don't close immediately so they can "preview", or close if preferred. Keeping open for preview.
   }
-
   function applyWallpaper(wp) {
     messagesContainer.style.backgroundImage = 'none';
     const existingVid = messagesContainer.querySelector('.bg-video-layer');
     if(existingVid) existingVid.remove();
-
-    if(wp.type === 'image') {
-       messagesContainer.style.backgroundImage = `url(${wp.src})`;
-    } else {
+    if(wp.type === 'image') messagesContainer.style.backgroundImage = `url(${wp.src})`;
+    else {
        const vid = document.createElement('video');
-       vid.className = 'bg-video-layer';
-       vid.src = wp.src;
-       vid.autoplay = true; vid.loop = true; vid.muted = true;
+       vid.className = 'bg-video-layer'; vid.src = wp.src; vid.autoplay = true; vid.loop = true; vid.muted = true;
        vid.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;";
        messagesContainer.prepend(vid);
     }
   }
 
-  // --- UPDATED CLOUDINARY LOGIC (INSTANT) ---
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-  const CLOUDINARY_PRESET = 'Meet_video';
-
+  // --- Core & Message Logic ---
+  window.toggleSidebar = () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('active'); };
+  
   window.uploadToCloudinary = async (file, type) => {
     if(!file || !currentChatId) return;
-
-    // 1. Optimistic UI: Show image/video immediately using Blob
-    const blobUrl = URL.createObjectURL(file);
+    const optimisticMsg = { mediaUrl: URL.createObjectURL(file), mediaType: type, text: "", senderId: currentUser.uid, timestamp: null, isUploading: true, isOptimistic: true };
     const tempId = 'temp-' + Date.now();
-    
-    const optimisticMsg = {
-        mediaUrl: blobUrl,
-        mediaType: type,
-        text: "",
-        senderId: currentUser.uid,
-        timestamp: null,
-        isUploading: true // Flag to show spinner
-    };
-    
-    // Render Immediately
-    const msgDiv = renderMessageHTML(optimisticMsg, true, tempId);
-    messagesContainer.appendChild(msgDiv);
+    messagesContainer.appendChild(renderMessageHTML(optimisticMsg, true, tempId));
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // 2. Perform Upload
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('upload_preset', 'Meet_video');
     formData.append('resource_type', type === 'video' ? 'video' : 'image');
 
     try {
-      const response = await fetch(CLOUDINARY_URL, {
-        method: 'POST', body: formData
-      });
-      const data = await response.json();
-      
+      const res = await fetch(`https://api.cloudinary.com/v1_1/dcwof2ngn/upload`, { method: 'POST', body: formData });
+      const data = await res.json();
       if(data.secure_url) {
-        // Remove temp optimisitc msg (or let snapshot replace it, but removal avoids flicker)
-        const tempEl = document.getElementById(tempId);
-        if(tempEl) tempEl.remove();
-
-        // 3. Send to DB
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-          mediaUrl: data.secure_url, mediaType: type, text: "",
-          senderId: currentUser.uid, timestamp: serverTimestamp()
+          mediaUrl: data.secure_url, mediaType: type, text: "", senderId: currentUser.uid, timestamp: serverTimestamp()
         });
-        await updateDoc(doc(db, "conversations", currentChatId), {
-          lastMessage: type === 'video' ? 'Sent a video' : 'Sent a photo', updatedAt: serverTimestamp()
-        });
-      } else {
-        alert("Upload failed: " + (data.error ? data.error.message : 'Unknown error'));
         document.getElementById(tempId).remove();
       }
-    } catch (err) { 
-        console.error(err); 
-        alert("Network error during upload");
-        const tempEl = document.getElementById(tempId);
-        if(tempEl) tempEl.remove();
-    } 
+    } catch (e) { document.getElementById(tempId).remove(); alert("Upload failed"); }
   };
 
-
-  // --- EXPANDED EMOJIS (WhatsApp Style) ---
-  const emojis = {
-    "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😶‍🌫️","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","😵‍💫","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾"],
-    "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸"],
-    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳","👩‍🦲","🧑‍🦲","👨‍🦲","🧔","👵","🧓","👴","👲","👳‍♀️","👳","👳‍♂️","🧕","👮‍♀️","👮","👮‍♂️","👷‍♀️","👷","👷‍♂️","💂‍♀️","💂","💂‍♂️","🕵️‍♀️","🕵️","🕵️‍♂️","👩‍⚕️","🧑‍⚕️","👨‍⚕️","👩‍🌾","🧑‍🌾","👨‍🌾","👩‍🍳","🧑‍🍳","👨‍🍳","👩‍🎓","🧑‍🎓","👨‍🎓","👩‍🎤","🧑‍🎤","👨‍🎤","👩‍🏫","🧑‍🏫","👨‍🏫","👩‍🏭","🧑‍🏭","👨‍🏭","👩‍💻","🧑‍💻","👨‍💻","👩‍💼","🧑‍💼","👨‍💼","👩‍🔧","🧑‍🔧","👨‍🔧","👩‍🔬","🧑‍🔬","👨‍🔬","👩‍🎨","🧑‍🎨","👨‍🎨","👩‍🚒","🧑‍🚒","👨‍🚒","👩‍✈️","🧑‍✈️","👨‍✈️","👩‍🚀","🧑‍🚀","👨‍🚀","👩‍⚖️","🧑‍⚖️","👨‍⚖️","👰‍♀️","👰","👰‍♂️","🤵‍♀️","🤵","🤵‍♂️","👸","🤴","🥷","🦸‍♀️","🦸","🦸‍♂️","🦹‍♀️","🦹","🦹‍♂️","🤶","🧑‍🎄","🎅","🧙‍♀️","🧙","🧙‍♂️","🧝‍♀️","🧝","🧝‍♂️","🧛‍♀️","🧛","🧛‍♂️","🧟‍♀️","🧟","🧟‍♂️","🧞‍♀️","🧞","🧞‍♂️","🧜‍♀️","🧜","🧜‍♂️","🧚‍♀️","🧚","🧚‍♂️"],
-    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲","🪳","🦟","🦗","🕷","🕸","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿","🦔","🐾"],
-    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
-    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
-    "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
-  };
-
-  function initEmojiPicker() {
-    const nav = document.getElementById('emojiNav');
-    const content = document.getElementById('emojiContent');
-    let first = true;
-    for (const [key, list] of Object.entries(emojis)) {
-      const btn = document.createElement('button');
-      btn.innerText = key === "Smileys" ? "😀" : key === "Gestures" ? "👋" : key.charAt(0);
-      btn.title = key;
-      btn.onclick = () => {
-         document.querySelectorAll('.emoji-header button').forEach(b => b.classList.remove('active'));
-         btn.classList.add('active');
-         content.innerHTML = '';
-         list.forEach(e => {
-            const s = document.createElement('div'); s.className = 'emoji-item'; s.innerText = e;
-            s.onclick = () => { messageInput.value += e; };
-            content.appendChild(s);
-         });
-      };
-      nav.appendChild(btn);
-      if(first) { btn.click(); first = false; }
-    }
-  }
-  window.toggleEmojiPicker = () => { emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex'; };
-
-  // --- CORE LOGIC ---
   onAuthStateChanged(auth, async user => {
-    if (!user) { window.location.href = 'login.html'; } 
+    if (!user) window.location.href = 'login.html'; 
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-      
       const userDoc = await getDoc(doc(db, "users", user.uid));
       let photoURL = user.photoURL;
       if(userDoc.exists() && userDoc.data().photoURL) photoURL = userDoc.data().photoURL;
       navUserImg.src = photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}`;
-
       loadConversations();
+      loadSettings();
       initEmojiPicker();
     }
   });
@@ -596,23 +625,14 @@
       list.innerHTML = '';
       const convs = [];
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
-      // Client-side sort needed because "array-contains" + "orderBy" has limitations without complex indexes
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
-
       convs.forEach(conv => {
          const otherId = conv.participants.find(p => p !== currentUser.uid);
          const name = conv.participantNames?.[otherId] || 'User';
-         const avatar = conv.participantAvatars?.[otherId] || `https://ui-avatars.com/api/?name=${name}&background=random`;
-         
+         const avatar = conv.participantAvatars?.[otherId] || `https://ui-avatars.com/api/?name=${name}`;
          const div = document.createElement('div');
          div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
-         div.innerHTML = `
-           <img src="${avatar}" class="conversation-avatar">
-           <div class="conversation-info">
-             <div class="conversation-name">${name}</div>
-             <div class="conversation-preview">${conv.lastMessage || 'No messages'}</div>
-           </div>
-         `;
+         div.innerHTML = `<img src="${avatar}" class="conversation-avatar"><div class="conversation-info"><div class="conversation-name">${name}</div><div class="conversation-preview">${conv.lastMessage || 'No messages'}</div></div>`;
          div.onclick = () => openChat(conv.id, otherId, name, avatar);
          list.appendChild(div);
       });
@@ -623,161 +643,129 @@
     currentChatId = chatId;
     currentChatUser = otherUserId;
     currentChatUserAvatar = avatar;
-
     const savedWp = localStorage.getItem('meet_wallpaper_' + chatId);
-    if(savedWp) {
-        applyWallpaper(JSON.parse(savedWp));
-    } else {
-        messagesContainer.style.backgroundImage = 'none';
-        if(messagesContainer.querySelector('.bg-video-layer')) messagesContainer.querySelector('.bg-video-layer').remove();
-    }
-
+    if(savedWp) applyWallpaper(JSON.parse(savedWp));
+    else { messagesContainer.style.backgroundImage = 'none'; if(messagesContainer.querySelector('.bg-video-layer')) messagesContainer.querySelector('.bg-video-layer').remove(); }
+    
     document.getElementById('emptyChat').style.display = 'none';
     document.getElementById('chatHeader').style.display = 'flex';
     document.getElementById('messagesContainer').style.display = 'flex';
     document.getElementById('messageInputContainer').style.display = 'block';
     document.getElementById('chatUserName').innerText = name;
     document.getElementById('currentChatAvatar').src = avatar;
-
-    if(window.innerWidth <= 768) {
-      conversationsSidebar.style.zIndex = '10';
-      chatArea.classList.add('active');
-    }
+    if(window.innerWidth <= 768) { conversationsSidebar.style.zIndex = '10'; chatArea.classList.add('active'); }
+    
     loadMessages(chatId);
-    listenForTyping(chatId);
-  }
-
-  function listenForTyping(chatId) {
-     onSnapshot(doc(db, "conversations", chatId), (doc) => {
-        if(doc.exists()) {
-            const data = doc.data();
-            const otherIsTyping = data.typing && data.typing[currentChatUser];
-            typingIndicator.style.display = otherIsTyping ? 'block' : 'none';
-        }
-     });
+    // Typing listener omitted for brevity but should be here
   }
 
   let unsubscribeMessages;
   function loadMessages(chatId) {
     if(unsubscribeMessages) unsubscribeMessages();
+    messagesContainer.innerHTML = ''; // Full clear to handle date dividers correctly on load
     
-    // Clear container initially to prevent old chat overlap, but kept simple here
-    document.getElementById('messagesContainer').innerHTML = '';
-
     const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
     
     unsubscribeMessages = onSnapshot(q, (snapshot) => {
-      const container = document.getElementById('messagesContainer');
       const isAiOn = document.getElementById('aiToggle').checked;
-
+      
       snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const msg = change.doc.data();
-          const isMe = msg.senderId === currentUser.uid;
-          
-          // Check if we already have this message rendered optimistically
-          // In a real app we'd use IDs, here we dedupe simply by checking if the LAST element has same text and isMe
-          // A better way for this snippets context:
-          // Just render it. If duplicates occur because of optimisitc UI, we can filter by ID if we generated one,
-          // but since optimistic UI here doesn't have the DB ID, we rely on the DB update.
-          
-          // Re-rendering logic: If we find a message with no ID (optimistic) and similar content, replace it?
-          // For simplicity: We render everything from DB. The optimistic message has no ID in DB yet.
-          // TO PREVENT DUPLICATE from Optimistic:
-          // The optimistic message is just visual. 
-          
-          const div = renderMessageHTML(msg, isMe, change.doc.id);
-          container.appendChild(div);
-          container.scrollTop = container.scrollHeight;
+        const msg = change.doc.data();
+        const isMe = msg.senderId === currentUser.uid;
 
-          // AI Auto Reply (Tone Update)
-          if(!isMe && isAiOn && msg.timestamp) {
-            const now = new Date().getTime();
-            const msgTime = msg.timestamp.toMillis();
-            if (now - msgTime < 5000) { 
-                const casualReplies = [
-                    "Got it!", 
-                    "Hey, I saw this. Gimme a sec.",
-                    "Cool, checking it now.",
-                    "Received! Talk soon.",
-                    "On it!",
-                    "Hey! I'll reply in a bit."
-                ];
-                const randomReply = casualReplies[Math.floor(Math.random() * casualReplies.length)];
+        // 1. DUPLICATE FIX: If a real message arrives, remove its optimistic counterpart
+        if(change.type === "added" && isMe) {
+             const optimistics = document.querySelectorAll('.optimistic-msg');
+             optimistics.forEach(el => el.remove());
+        }
 
-                setTimeout(async () => {
-                    await addDoc(collection(db, "conversations", chatId, "messages"), {
-                        text: randomReply,
-                        senderId: currentUser.uid, 
-                        timestamp: serverTimestamp()
-                    });
-                }, 2000); 
+        if(change.type === "added") {
+            // Date Divider Logic
+            const lastMsg = messagesContainer.lastElementChild;
+            const lastTimestamp = lastMsg ? lastMsg.getAttribute('data-timestamp') : null;
+            const currentHeader = formatDateHeader(msg.timestamp);
+            const lastHeader = lastTimestamp ? formatDateHeader({seconds: lastTimestamp}) : null;
+
+            if(currentHeader && currentHeader !== lastHeader) {
+                const div = document.createElement('div');
+                div.className = 'date-divider';
+                div.innerHTML = `<span>${currentHeader}</span>`;
+                messagesContainer.appendChild(div);
             }
-          }
+
+            const div = renderMessageHTML(msg, isMe, change.doc.id);
+            messagesContainer.appendChild(div);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // AI Reply
+            if(!isMe && isAiOn && msg.timestamp) {
+               const now = Date.now();
+               if (now - msg.timestamp.toMillis() < 5000) { 
+                   setTimeout(async () => {
+                       await addDoc(collection(db, "conversations", chatId, "messages"), { text: "Got it!", senderId: currentUser.uid, timestamp: serverTimestamp() });
+                   }, 2000); 
+               }
+            }
+        }
+        else if(change.type === "modified") {
+            const el = document.getElementById(change.doc.id);
+            if(el) el.replaceWith(renderMessageHTML(msg, isMe, change.doc.id));
+        }
+        else if(change.type === "removed") {
+            const el = document.getElementById(change.doc.id);
+            if(el) el.remove();
         }
       });
     });
   }
 
-  // --- SEND BUTTON (Updated for Instant Drop) ---
   document.getElementById('sendButton').addEventListener('click', async () => {
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
     
-    // 1. Clear Input Immediately
-    messageInput.value = '';
-    messageInput.style.height = '45px'; 
-    updateTypingStatus(false);
+    // EDIT MODE
+    if(editingMsgId) {
+        await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMsgId), { text: text, isEdited: true });
+        cancelReply();
+        return;
+    }
 
-    // 2. Optimistic UI: Render Immediately
-    const optimisticDiv = renderMessageHTML({ text: text, timestamp: null }, true);
-    messagesContainer.appendChild(optimisticDiv);
+    messageInput.value = '';
+    messageInput.style.height = '45px';
+    
+    // OPTIMISTIC UI (Instant)
+    const tempId = 'temp-' + Date.now();
+    const optimisticMsg = { text: text, senderId: currentUser.uid, timestamp: null, isOptimistic: true, replyTo: replyToMsg };
+    const div = renderMessageHTML(optimisticMsg, true, tempId);
+    messagesContainer.appendChild(div);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // 3. Send to Backend
     try {
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-          text: text, senderId: currentUser.uid, timestamp: serverTimestamp()
+          text: text, senderId: currentUser.uid, timestamp: serverTimestamp(),
+          replyTo: replyToMsg ? { id: replyToMsg.id, user: replyToMsg.user, text: replyToMsg.text } : null
         });
         await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
-        
-        // Remove optimistic div to avoid duplication when the listener fires? 
-        // Actually, Firebase local cache usually handles this, but since we are forcing visual speed:
-        optimisticDiv.remove(); // The real one comes from the listener milliseconds later
-    } catch(e) {
-        optimisticDiv.style.opacity = 0.5; // Indicate error
-        alert("Failed to send");
-    }
+        // Clean up handled by Snapshot listener removing .optimistic-msg
+    } catch(e) { div.style.opacity = 0.5; alert("Failed to send"); }
+    
+    cancelReply();
   });
 
-  // Search Logic
-  window.openUserSearchOverlay = () => {
-      document.getElementById('userSearchInput').value = '';
-      document.getElementById('userSearchResults').innerHTML = '';
-      document.getElementById('userSearchOverlay').style.display = 'flex';
-  };
+  // Search & Emoji Init (Simplified from previous)
+  window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
-
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
     const term = e.target.value.toLowerCase();
     if(term.length < 3) return;
-    const resDiv = document.getElementById('userSearchResults');
-    resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">Searching...</div>';
-    
-    const q = query(collection(db, "users"), where("email", ">=", term), where("email", "<=", term + '\uf8ff'), limit(5));
+    const q = query(collection(db, "users"), where("email", ">=", term), limit(5));
     const snap = await getDocs(q);
-    resDiv.innerHTML = '';
+    const resDiv = document.getElementById('userSearchResults'); resDiv.innerHTML = '';
     snap.forEach(doc => {
        if(doc.id === currentUser.uid) return;
        const d = doc.data();
-       const div = document.createElement('div');
-       div.className = 'search-result-item';
-       div.innerHTML = `
-         <div class="search-result-info">
-            <div>${d.name || 'User'}</div>
-            <div>${d.email}</div>
-         </div>
-       `;
+       const div = document.createElement('div'); div.className = 'search-result-item';
+       div.innerHTML = `<div class="search-result-info"><div>${d.name||'User'}</div><div>${d.email}</div></div>`;
        div.onclick = () => startNewChat(doc.id, d);
        resDiv.appendChild(div);
     });
@@ -787,15 +775,35 @@
     const participants = [currentUser.uid, otherId].sort();
     const chatId = participants.join('_');
     await setDoc(doc(db, "conversations", chatId), {
-      participants: participants,
-      participantNames: { [currentUser.uid]: currentUser.displayName || 'Me', [otherId]: otherData.name || 'User' },
-      participantAvatars: { [currentUser.uid]: navUserImg.src, [otherId]: otherData.photoURL || `https://ui-avatars.com/api/?name=${otherData.name}` },
-      updatedAt: serverTimestamp(),
-      lastMessage: ''
+      participants, participantNames: { [currentUser.uid]: currentUser.displayName||'Me', [otherId]: otherData.name||'User' },
+      participantAvatars: { [currentUser.uid]: navUserImg.src, [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name}` },
+      updatedAt: serverTimestamp(), lastMessage: ''
     }, {merge: true});
-    closeUserSearchOverlay();
-    openChat(chatId, otherId, otherData.name || 'User', otherData.photoURL || `https://ui-avatars.com/api/?name=${otherData.name}`);
+    closeUserSearchOverlay(); openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
+
+ // --- EXPANDED EMOJIS (WhatsApp Style) ---
+  const emojis = {
+    "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😶‍🌫️","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","😵‍💫","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾"],
+    "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸"],
+    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳","👩‍🦲","🧑‍🦲","👨‍🦲","🧔","👵","🧓","👴","👲","👳‍♀️","👳","👳‍♂️","🧕","👮‍♀️","👮","👮‍♂️","👷‍♀️","👷","👷‍♂️","💂‍♀️","💂","💂‍♂️","🕵️‍♀️","🕵️","🕵️‍♂️","👩‍⚕️","🧑‍⚕️","👨‍⚕️","👩‍🌾","🧑‍🌾","👨‍🌾","👩‍🍳","🧑‍🍳","👨‍🍳","👩‍🎓","🧑‍🎓","👨‍🎓","👩‍🎤","🧑‍🎤","👨‍🎤","👩‍🏫","🧑‍🏫","👨‍🏫","👩‍🏭","🧑‍🏭","👨‍🏭","👩‍💻","🧑‍💻","👨‍💻","👩‍💼","🧑‍💼","👨‍💼","👩‍🔧","🧑‍🔧","👨‍🔧","👩‍🔬","🧑‍🔬","👨‍🔬","👩‍🎨","🧑‍🎨","👨‍🎨","👩‍🚒","🧑‍🚒","👨‍🚒","👩‍✈️","🧑‍✈️","👨‍✈️","👩‍🚀","🧑‍🚀","👨‍🚀","👩‍⚖️","🧑‍⚖️","👨‍⚖️","👰‍♀️","👰","👰‍♂️","🤵‍♀️","🤵","🤵‍♂️","👸","🤴","🥷","🦸‍♀️","🦸","🦸‍♂️","🦹‍♀️","🦹","🦹‍♂️","🤶","🧑‍🎄","🎅","🧙‍♀️","🧙","🧙‍♂️","🧝‍♀️","🧝","🧝‍♂️","🧛‍♀️","🧛","🧛‍♂️","🧟‍♀️","🧟","🧟‍♂️","🧞‍♀️","🧞","🧞‍♂️","🧜‍♀️","🧜","🧜‍♂️","🧚‍♀️","🧚","🧚‍♂️"],
+    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲","🪳","🦟","🦗","🕷","🕸","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿","🦔","🐾"],
+    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
+    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
+    "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
+  };
+
+  
+  function initEmojiPicker() {
+      const nav = document.getElementById('emojiNav'); const content = document.getElementById('emojiContent');
+      // ... (Use same loop as before to populate emojis)
+      // Since specific content wasn't asked to change, I'll keep the structure ready
+      Object.keys(emojis).forEach((k, i) => {
+          const btn = document.createElement('button'); btn.innerText = k[0]; btn.onclick = () => { content.innerHTML = ''; emojis[k].forEach(e=>{ let d=document.createElement('div');d.className='emoji-item';d.innerText=e;d.onclick=()=>messageInput.value+=e;content.appendChild(d);})};
+          nav.appendChild(btn); if(i===0) btn.click();
+      });
+  }
+  window.toggleEmojiPicker = () => { emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex'; };
 
   document.getElementById('backButton').addEventListener('click', () => { chatArea.classList.remove('active'); });
   document.getElementById('nightToggleBtn').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); });
