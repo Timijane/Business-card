@@ -745,7 +745,8 @@
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => {
-          // REMOVED: localStorage.removeItem('last_active_chat');
+          // Clear persistent chat on logout so next user doesn't see it
+          localStorage.removeItem('last_active_chat');
           signOut(auth);
       });
       const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -768,39 +769,42 @@
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
-      // Removed check for 'last_active_chat' and the auto-open logic
+      // FIX: Check if user wants to restore chat (only if explicitly saved)
+      const savedChatId = localStorage.getItem('last_active_chat');
+      let shouldRestoreChat = localStorage.getItem('should_restore_chat') === 'true';
       
+      // Clear the restore flag for next time
+      localStorage.removeItem('should_restore_chat');
+
       convs.forEach(conv => {
          const otherId = conv.participants.find(p => p !== currentUser.uid);
          const name = conv.participantNames?.[otherId] || 'User';
          const avatar = conv.participantAvatars?.[otherId] || `https://ui-avatars.com/api/?name=${name}`;
          const div = document.createElement('div');
-         // Note: active class logic will only apply if currentChatId is set by user clicking
          div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
          div.innerHTML = `<img src="${avatar}" class="conversation-avatar"><div class="conversation-info"><div class="conversation-name">${name}</div><div class="conversation-preview">${conv.lastMessage || 'No messages'}</div></div>`;
-         // This click listener is now the *only* way to open a chat, fixing the auto-click issue.
-         div.onclick = () => openChat(conv.id, otherId, name, avatar);
+         div.onclick = () => {
+           // Set flag to restore this chat if page refreshes
+           localStorage.setItem('should_restore_chat', 'true');
+           openChat(conv.id, otherId, name, avatar);
+         };
          list.appendChild(div);
+
+         // FIX: Only restore chat if explicitly requested (not on first load)
+         if (shouldRestoreChat && savedChatId && conv.id === savedChatId && !currentChatId) {
+             openChat(conv.id, otherId, name, avatar);
+         }
       });
     });
   }
 
   async function openChat(chatId, otherUserId, name, avatar) {
-    // Only update chat ID if a different chat is opened
-    if (currentChatId !== chatId) {
-        // Clear previous messages listener if it exists
-        if(unsubscribeMessages) unsubscribeMessages();
-        messagesContainer.innerHTML = ''; 
-        currentChatId = chatId;
-        currentChatUser = otherUserId;
-        currentChatUserAvatar = avatar;
-    } else {
-        // If the same chat is clicked, just return on mobile for smooth transition
-        if(window.innerWidth <= 768) chatArea.classList.add('active');
-        return;
-    }
+    currentChatId = chatId;
+    currentChatUser = otherUserId;
+    currentChatUserAvatar = avatar;
     
-    // REMOVED: localStorage.setItem('last_active_chat', chatId);
+    // PERSISTENCE: Save ID so it stays on refresh
+    localStorage.setItem('last_active_chat', chatId);
 
     // Wallpaper
     const savedWp = localStorage.getItem('meet_wallpaper_' + chatId);
@@ -817,53 +821,50 @@
     // Update active class
     const allItems = document.querySelectorAll('.conversation-item');
     allItems.forEach(el => el.classList.remove('active'));
-    // Find and set the active class on the currently selected item
-    document.querySelector(`#conversationsList .conversation-item[onclick*="${chatId}"]`).classList.add('active');
+    event.currentTarget.classList.add('active');
 
-
-    if(window.innerWidth <= 768) { conversationsSidebar.style.zIndex = '10'; chatArea.classList.add('active'); }
+    if(window.innerWidth <= 768) { 
+      document.getElementById('conversationsSidebar').style.zIndex = '10'; 
+      document.getElementById('chatArea').classList.add('active'); 
+    }
     
     loadMessages(chatId);
   }
 
   let unsubscribeMessages;
   function loadMessages(chatId) {
-    // Check if the current chatId matches the requested one to prevent race conditions/wrong data loads
-    if (chatId !== currentChatId) return;
-
+    if(unsubscribeMessages) unsubscribeMessages();
     messagesContainer.innerHTML = ''; 
     
     const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
     
     unsubscribeMessages = onSnapshot(q, (snapshot) => {
+      let lastHeader = null;
+      
       snapshot.docChanges().forEach((change) => {
         const msg = change.doc.data();
         const isMe = msg.senderId === currentUser.uid;
 
         if(change.type === "added") {
-            // FIX: Remove optimistic duplicates based on timestamp/text similarity or just ID handling
-            // Here we assume optimistic messages have specific class
-            if(isMe && !msg.isOptimistic) {
-                // If a real message comes in that matches what we just typed, remove the loading state
-                // For simplicity in this demo, we just rely on the new one appending
-                // We will clear optimistic messages that are > 5 seconds old or simply append real ones.
-                const optimistics = messagesContainer.querySelectorAll('.optimistic-msg');
-                optimistics.forEach(el => el.remove()); 
+            // FIX: Better handling of optimistic messages
+            const existingMsg = document.getElementById(change.doc.id);
+            if (existingMsg && existingMsg.classList.contains('optimistic-msg')) {
+                // Replace optimistic message with real one
+                existingMsg.remove();
             }
 
-            const lastMsg = messagesContainer.lastElementChild;
-            const lastTimestamp = lastMsg ? lastMsg.getAttribute('data-timestamp') : null;
+            // Date header logic
             const currentHeader = formatDateHeader(msg.timestamp);
-            const lastHeader = lastTimestamp ? formatDateHeader({seconds: lastTimestamp}) : null;
-
             if(currentHeader && currentHeader !== lastHeader) {
-                const div = document.createElement('div'); div.className = 'date-divider'; div.innerHTML = `<span>${currentHeader}</span>`;
+                const div = document.createElement('div'); 
+                div.className = 'date-divider'; 
+                div.innerHTML = `<span>${currentHeader}</span>`;
                 messagesContainer.appendChild(div);
+                lastHeader = currentHeader;
             }
 
             const div = renderMessageHTML(msg, isMe, change.doc.id);
             messagesContainer.appendChild(div);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         else if(change.type === "modified") {
             const el = document.getElementById(change.doc.id);
@@ -874,10 +875,17 @@
             if(el) el.remove();
         }
       });
+      
+      // Scroll to bottom after all messages are loaded
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 100);
+    }, (error) => {
+      console.error("Error loading messages:", error);
     });
   }
 
-  // FIX: ZERO DELAY SENDING LOGIC
+  // FIX: Improved message sending with better error handling
   document.getElementById('sendButton').addEventListener('click', async () => {
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
@@ -895,7 +903,13 @@
     
     // 2. RENDER OPTIMISTIC MESSAGE INSTANTLY
     const tempId = 'temp-' + Date.now();
-    const optimisticMsg = { text: text, senderId: currentUser.uid, timestamp: null, isOptimistic: true, replyTo: replyToMsg };
+    const optimisticMsg = { 
+      text: text, 
+      senderId: currentUser.uid, 
+      timestamp: null, 
+      isOptimistic: true, 
+      replyTo: replyToMsg 
+    };
     const div = renderMessageHTML(optimisticMsg, true, tempId);
     messagesContainer.appendChild(div);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -912,29 +926,70 @@
     
     try {
         await addDoc(collection(db, "conversations", currentChatId, "messages"), msgPayload);
-        await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
-        // The snapshot listener will automatically replace the optimistic message when the real one arrives
+        await updateDoc(doc(db, "conversations", currentChatId), { 
+          lastMessage: text, 
+          updatedAt: serverTimestamp() 
+        });
     } catch(e) { 
-        console.error(e);
-        div.style.opacity = 0.5; 
+        console.error("Send error:", e);
+        // Show error state but keep message visible
+        div.style.opacity = 0.7; 
         div.querySelector('.message-bubble').style.background = 'var(--error)';
-        div.querySelector('.message-bubble').innerHTML += '<br><small>Failed to send</small>';
+        const timeEl = div.querySelector('.message-time');
+        if (timeEl) {
+            timeEl.innerHTML = 'Failed to send • ' + timeEl.innerHTML;
+        }
     }
+  });
+
+  // FIX: Add Enter key support for sending
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('sendButton').click();
+    }
+  });
+
+  // FIX: Auto-resize textarea
+  messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
   });
 
   window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
+  
+  // FIX: Improved user search
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
     const term = e.target.value.toLowerCase();
-    if(term.length < 3) return;
-    const q = query(collection(db, "users"), where("email", ">=", term), limit(5));
+    const resDiv = document.getElementById('userSearchResults'); 
+    resDiv.innerHTML = '';
+    
+    if(term.length < 2) {
+      resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:var(--secondary-text);">Type at least 2 characters to search</div>';
+      return;
+    }
+    
+    const q = query(collection(db, "users"), where("email", ">=", term), limit(10));
     const snap = await getDocs(q);
-    const resDiv = document.getElementById('userSearchResults'); resDiv.innerHTML = '';
+    
+    if(snap.empty) {
+      resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:var(--secondary-text);">No users found</div>';
+      return;
+    }
+    
     snap.forEach(doc => {
        if(doc.id === currentUser.uid) return;
        const d = doc.data();
-       const div = document.createElement('div'); div.className = 'search-result-item';
-       div.innerHTML = `<div class="search-result-info"><div>${d.name||'User'}</div><div>${d.email}</div></div>`;
+       const div = document.createElement('div'); 
+       div.className = 'search-result-item';
+       div.innerHTML = `
+         <img src="${d.photoURL || `https://ui-avatars.com/api/?name=${d.name||'User'}`}" class="conversation-avatar">
+         <div class="search-result-info" style="flex:1;">
+           <div style="font-weight:600;">${d.name||'User'}</div>
+           <div style="font-size:12px; color:var(--secondary-text);">${d.email}</div>
+         </div>
+       `;
        div.onclick = () => startNewChat(doc.id, d);
        resDiv.appendChild(div);
     });
@@ -944,12 +999,21 @@
     const participants = [currentUser.uid, otherId].sort();
     const chatId = participants.join('_');
     await setDoc(doc(db, "conversations", chatId), {
-      participants, participantNames: { [currentUser.uid]: currentUser.displayName||'Me', [otherId]: otherData.name||'User' },
-      participantAvatars: { [currentUser.uid]: navUserImg.src, [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name}` },
-      updatedAt: serverTimestamp(), lastMessage: ''
+      participants, 
+      participantNames: { 
+        [currentUser.uid]: currentUser.displayName||'Me', 
+        [otherId]: otherData.name||'User' 
+      },
+      participantAvatars: { 
+        [currentUser.uid]: navUserImg.src, 
+        [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name||'User'}` 
+      },
+      updatedAt: serverTimestamp(), 
+      lastMessage: ''
     }, {merge: true});
     closeUserSearchOverlay(); 
-    // Open the new chat instantly after creation/check
+    // Set restore flag for this new chat
+    localStorage.setItem('should_restore_chat', 'true');
     openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
 
@@ -978,8 +1042,30 @@
   }
   window.toggleEmojiPicker = () => { emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex'; };
 
-  document.getElementById('backButton').addEventListener('click', () => { chatArea.classList.remove('active'); });
-  document.getElementById('nightToggleBtn').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); });
+  // FIX: Improved back button behavior
+  document.getElementById('backButton').addEventListener('click', () => { 
+    document.getElementById('chatArea').classList.remove('active'); 
+    // Clear the restore flag when user manually goes back
+    localStorage.removeItem('should_restore_chat');
+  });
+  
+  document.getElementById('nightToggleBtn').addEventListener('click', () => { 
+    document.body.classList.toggle('dark-mode'); 
+  });
+
+  // FIX: Close emoji picker when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!emojiPicker.contains(e.target) && !e.target.closest('.input-action')) {
+      emojiPicker.style.display = 'none';
+    }
+  });
+
+  // FIX: Close message options when clicking elsewhere
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.msg-options-btn') && !e.target.closest('.msg-options-menu')) {
+      document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
+    }
+  });
 </script>
 </body>
 </html>
