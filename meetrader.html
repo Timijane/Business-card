@@ -171,7 +171,19 @@
   .product-seller { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; color: var(--secondary-text); }
   .seller-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; overflow: hidden; }
   .seller-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .product-desc { font-size: 14px; color: var(--secondary-text); margin-bottom: 15px; flex: 1; line-height: 1.4; }
+  .product-desc { 
+    font-size: 13px; /* REDUCED FONT SIZE */
+    color: var(--secondary-text); 
+    margin-bottom: 15px; 
+    flex: 1; 
+    line-height: 1.4;
+    max-height: 3.9em; /* ~3 lines of 13px text */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+  }
   
   /* NEW: Rating Display */
   .product-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 13px; color: gold; }
@@ -238,6 +250,11 @@
   .review-item { background: var(--bg-color); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
   .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: var(--secondary-text); }
   .delete-review { color: var(--error); cursor: pointer; font-size: 12px; }
+  
+  /* Review Summary */
+  .review-summary { margin-bottom: 15px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); }
+  .review-summary .stars { color: gold; font-size: 1.2em; }
+  .review-summary .count { font-size: 14px; color: var(--secondary-text); margin-left: 10px; }
 
   /* Notification Items */
   .notif-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
@@ -568,6 +585,7 @@
 
             <div class="reviews-section">
                 <h4>Reviews & Ratings</h4>
+                <div id="reviewSummary" class="review-summary"></div>
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
                     <select id="newRating" class="form-select" style="width:100px;">
                         <option value="5">5 ★★★★★</option>
@@ -613,7 +631,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { 
         getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
-        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp 
+        onSnapshot, query, where, orderBy, updateDoc, setDoc, arrayUnion, arrayRemove, serverTimestamp, runTransaction 
     } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
@@ -645,13 +663,42 @@
         return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
     }
 
+    // Function 2: Calculates Average Rating (Used for real-time display)
     function calculateAverageRating(reviews) {
         if (!reviews || reviews.length === 0) return { avg: 0, count: 0 };
-        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-        return { avg: total / reviews.length, count: reviews.length };
+        const validReviews = reviews.filter(r => r.rating > 0);
+        if (validReviews.length === 0) return { avg: 0, count: 0 };
+        const total = validReviews.reduce((sum, r) => sum + r.rating, 0);
+        return { avg: total / validReviews.length, count: validReviews.length };
+    }
+
+    // Function 3: Start a Chat (Reused logic for chat initiation)
+    async function startChat(targetUserId, targetUserName, targetUserPhoto) {
+        if (!currentUser) return alert("Please log in to start a chat.");
+        if (targetUserId === currentUser.uid) return alert("You cannot chat with yourself.");
+
+        const participants = [currentUser.uid, targetUserId].sort();
+        const chatId = participants.join('_'); // Consistent chat ID
+
+        try {
+            const chatRef = doc(db, "conversations", chatId);
+            const chatDoc = await getDoc(chatRef);
+
+            if (!chatDoc.exists()) {
+                await setDoc(chatRef, {
+                    participants: participants,
+                    names: { [currentUser.uid]: currentUser.displayName || 'User', [targetUserId]: targetUserName || 'Other User' },
+                    lastMessage: 'Chat started.',
+                    lastMessageTime: serverTimestamp(),
+                    createdAt: serverTimestamp()
+                });
+            }
+            window.location.href = `chat.html?chatId=${chatId}`;
+        } catch(e) { console.error("Error starting chat:", e); alert("Failed to start chat."); }
     }
 
     window.viewProfile = (targetId) => { if(targetId) window.location.href = `profile.html?uid=${targetId}`; };
+    window.startChat = startChat;
 
     // --- AUTH & INIT ---
     onAuthStateChanged(auth, async (user) => {
@@ -660,7 +707,7 @@
             const userDoc = await getDoc(doc(db, "users", user.uid));
             const userData = userDoc.exists() ? userDoc.data() : {};
             
-            // Fix: Update currentUser displayName/photoURL with data from Firestore
+            // Sync current user details from Firestore (important for profile pic updates)
             currentUser.displayName = userData.displayName || user.displayName;
             currentUser.photoURL = userData.photoURL || user.photoURL;
 
@@ -741,8 +788,9 @@
                         ${stars}
                         <span>(${count} reviews)</span>
                     </div>
+                    <p class="product-desc">${item.description}</p>
                     <div class="product-actions">
-                        <button class="action-btn-product btn-msg" onclick="viewProfile('${item.sellerId}')"><i class="fas fa-comment"></i> Chat</button>
+                        <button class="action-btn-product btn-msg" onclick="startChat('${item.sellerId}', '${item.sellerName}', '${item.sellerPhoto}')"><i class="fas fa-comment"></i> Chat</button>
                         <button class="action-btn-product btn-buy" onclick="openDetail('${item.id}')"><i class="fas fa-search"></i> Details</button>
                     </div>
                 </div>
@@ -866,6 +914,7 @@
 
     document.getElementById('postForm').onsubmit = async (e) => {
         e.preventDefault();
+        if(!currentUser) { alert("Please log in to post an item."); return; }
         if(uploadedImages.length === 0) { alert("Please add at least one image"); return; }
         
         const btn = e.target.querySelector('button');
@@ -878,7 +927,7 @@
             await addDoc(collection(db, "meetrader"), {
                 sellerId: currentUser.uid,
                 sellerName: currentUser.displayName || "User",
-                sellerPhoto: currentUser.photoURL || null,
+                sellerPhoto: currentUser.photoURL || null, // Use the synced photoURL
                 title: document.getElementById('pTitle').value,
                 price: document.getElementById('pPrice').value,
                 currency: document.getElementById('pCurrency').value,
@@ -943,8 +992,18 @@
 
     function renderReviews() {
         const list = document.getElementById('reviewsList');
+        const summary = document.getElementById('reviewSummary');
         list.innerHTML = '';
         const reviews = currentItem.reviews || [];
+        const { avg, count } = calculateAverageRating(reviews);
+        const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
+        
+        summary.innerHTML = `
+            <strong>Average Rating:</strong> 
+            <span class="stars">${stars}</span> 
+            (${avg.toFixed(1)} / 5) 
+            <span class="count">(${count} reviews)</span>
+        `;
         
         if (reviews.length === 0) {
              list.innerHTML = '<div style="text-align:center; padding:10px; color:#888;">No reviews yet.</div>';
@@ -954,11 +1013,14 @@
         reviews.forEach((r, idx) => {
             const div = document.createElement('div');
             div.className = 'review-item';
-            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            const reviewStars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            const isOwner = r.uid === currentUser.uid;
+            
+            // Only allow owner to delete their own review
             div.innerHTML = `
                 <div class="review-header">
-                    <strong>${r.name} <span style="color:gold">${stars}</span></strong>
-                    ${r.uid === currentUser.uid ? `<span class="delete-review" onclick="deleteReview('${currentItem.id}', ${idx})">Delete</span>` : ''}
+                    <strong>${r.name} <span style="color:gold">${reviewStars}</span></strong>
+                    ${isOwner ? `<span class="delete-review" onclick="deleteReview('${currentItem.id}', ${r.uid}, '${r.date}')">Delete</span>` : ''}
                 </div>
                 <div>${r.text}</div>
             `;
@@ -966,34 +1028,55 @@
         });
     }
 
+    // Function 4: Submit Review (Updated with logic for review restrictions and notification)
     window.submitReview = async () => {
-        const textInput = document.getElementById('newReviewText');
-        const text = textInput.value.trim();
-        const rating = document.getElementById('newRating').value;
-        if(!text) return;
+        if (!currentUser) { alert("Please log in to submit a review."); return; }
         if (!currentItem || !currentItem.id) return;
 
+        const textInput = document.getElementById('newReviewText');
+        const text = textInput.value.trim();
+        const rating = parseInt(document.getElementById('newRating').value);
+        if(!text) { alert("Review text cannot be empty."); return; }
+        
+        // 1. Block item owner from reviewing
+        if (currentItem.sellerId === currentUser.uid) {
+            alert("You cannot review your own item.");
+            return;
+        }
+
+        // 2. Enforce Max Two Reviews
+        const userReviews = (currentItem.reviews || []).filter(r => r.uid === currentUser.uid);
+        if (userReviews.length >= 2) {
+            alert("You can only review an item a maximum of two times.");
+            return;
+        }
+        
         const newReview = {
             uid: currentUser.uid,
             name: currentUser.displayName || 'User',
             text: text,
-            rating: parseInt(rating),
-            date: new Date().toISOString()
+            rating: rating,
+            date: new Date().toISOString() // Use ISO string for unique review ID in arrayRemove
         };
         
-        // Prevent duplicate review by the same user (simple check, could be more robust)
-        if (currentItem.reviews && currentItem.reviews.some(r => r.uid === currentUser.uid)) {
-            alert("You have already reviewed this item.");
-            return;
-        }
-
         try {
-            // Update Firestore
+            // Use arrayUnion to add the review
             await updateDoc(doc(db, "meetrader", currentItem.id), {
                 reviews: arrayUnion(newReview)
             });
             
-            // Optimistic update for immediate display
+            // 3. Send Notification to Seller
+            await addDoc(collection(db, "notifications"), {
+                targetUserId: currentItem.sellerId,
+                senderId: currentUser.uid,
+                text: `${currentUser.displayName || 'A user'} reviewed and rated your item: **${currentItem.title}** (${rating} stars)`,
+                read: false,
+                type: 'meetrader_review',
+                itemId: currentItem.id,
+                createdAt: serverTimestamp()
+            });
+
+            // Optimistic update for immediate display (local array refresh)
             currentItem.reviews = currentItem.reviews || [];
             currentItem.reviews.push(newReview);
             renderReviews();
@@ -1005,25 +1088,38 @@
         } catch(e) { console.error("Failed to submit review:", e); alert("Failed to submit review. Please try again."); }
     };
     
-    // Expose deleteReview for onclick usage (needs window scope)
-    window.deleteReview = async (itemId, idx) => {
+    // Function 5: Delete Review (Uses UID and ISO Date for arrayRemove to ensure correct deletion)
+    window.deleteReview = async (itemId, reviewUid, reviewDate) => {
         if(!confirm("Delete review?")) return;
         
-        // Find the item in allItems and the specific review
+        // Find the specific review object to remove
         const item = allItems.find(i => i.id === itemId);
-        if (!item || !item.reviews || !item.reviews[idx]) return;
+        const reviewToDelete = (item.reviews || []).find(r => r.uid === reviewUid && r.date === reviewDate);
+
+        if (!reviewToDelete) {
+             console.error("Review not found for deletion.");
+             return;
+        }
         
-        const reviewToDelete = item.reviews[idx];
+        // Ensure only the reviewer can delete it
+        if (reviewToDelete.uid !== currentUser.uid) {
+            alert("You can only delete your own reviews.");
+            return;
+        }
 
         try {
+            // Use arrayRemove with the exact object to remove it from the array
             await updateDoc(doc(db, "meetrader", itemId), {
                 reviews: arrayRemove(reviewToDelete)
             });
             
             // Update the local currentItem and re-render reviews
             if (currentItem && currentItem.id === itemId) {
-                currentItem.reviews.splice(idx, 1);
-                renderReviews();
+                const index = currentItem.reviews.findIndex(r => r.uid === reviewUid && r.date === reviewDate);
+                if (index > -1) {
+                    currentItem.reviews.splice(index, 1);
+                    renderReviews();
+                }
             }
             
             // Re-render products on main page
