@@ -102,6 +102,9 @@
   .sent .message-bubble { background: #0080FF; color: white; border-bottom-right-radius: 4px; }
   .message-img, .message-video { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
   .message-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
+  
+  /* Upload Progress Overlay */
+  .upload-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; border-radius:8px; color:white; font-size:20px; }
 
   /* Typing Indicator */
   .typing-indicator { display: none; padding: 10px 15px; background: rgba(255,255,255,0.8); border-radius: 15px; margin: 10px; width: fit-content; align-self: flex-start; font-size: 12px; color: var(--secondary-text); font-style: italic; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -137,7 +140,7 @@
   input:checked + .ai-slider:before { transform: translateX(16px); }
 
   /* Emoji Picker (WhatsApp Style) */
-  .emoji-picker { display: none; position: absolute; bottom: 75px; left: 10px; width: 320px; height: 300px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 100; overflow: hidden; flex-direction: column; border: 1px solid var(--border-color); }
+  .emoji-picker { display: none; position: absolute; bottom: 75px; left: 10px; width: 320px; height: 350px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 100; overflow: hidden; flex-direction: column; border: 1px solid var(--border-color); }
   .emoji-header { padding: 10px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); display:flex; gap:10px; overflow-x:auto;}
   .emoji-header button { background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; }
   .emoji-header button.active { opacity:1; border-bottom: 2px solid var(--primary); }
@@ -145,12 +148,21 @@
   .emoji-item { font-size: 24px; cursor: pointer; text-align: center; border-radius:4px; transition:0.2s; }
   .emoji-item:hover { background: var(--bg-color); transform: scale(1.2); }
 
-  /* Wallpapers Modal */
+  /* Wallpapers Modal - UPDATED FOR SIDE BY SIDE */
   .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; }
   .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; height: 90vh; margin: 0 auto; display: flex; flex-direction: column; }
-  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; overflow-y: auto; padding-top: 15px; }
+  
+  /* GRID UPDATED HERE */
+  .wallpaper-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; /* Forces two columns */
+    gap: 15px; 
+    overflow-y: auto; 
+    padding-top: 15px; 
+  }
+  
   .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; }
-  .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.05); }
+  .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
   .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; }
 
   /* Professional User Search Overlay */
@@ -350,18 +362,49 @@
   const typingIndicator = document.getElementById('typingIndicator');
   const navUserImg = document.getElementById('navUserImg');
 
+  // Helper: Render Message Logic
+  function renderMessageHTML(msg, isMe, id) {
+     const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
+     let content = "";
+     
+     if(msg.mediaType === 'image') {
+       // Check if it's a blob url (optimistic) or cloud url
+       content += `<div style="position:relative">
+          <img src="${msg.mediaUrl}" class="message-img">
+          ${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}
+       </div>`;
+     } else if(msg.mediaType === 'video') {
+       content += `<div style="position:relative">
+         <video src="${msg.mediaUrl}" controls class="message-video"></video>
+         ${msg.isUploading ? '<div class="upload-overlay"><i class="fas fa-spinner fa-spin"></i></div>' : ''}
+       </div>`;
+     }
+     
+     if(msg.text) content += `<div>${msg.text}</div>`;
+
+     const div = document.createElement('div');
+     div.className = `message-wrapper ${isMe ? 'sent' : 'received'}`;
+     div.id = id || ('msg-' + Date.now()); // Fallback ID for optimistic
+     div.innerHTML = `
+        <img src="${avatarSrc}" class="message-avatar-small">
+        <div class="message-bubble">
+          ${content}
+          <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Just now'}</div>
+        </div>
+     `;
+     return div;
+  }
+
   window.toggleSidebar = () => {
     sidebar.classList.toggle('open');
     sidebarOverlay.classList.toggle('active');
   };
 
-  // --- 8. Auto Expand Input Logic ---
   messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
     if(this.value === '') this.style.height = '45px';
     
-    // Trigger Typing
     updateTypingStatus(true);
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => updateTypingStatus(false), 2000);
@@ -376,19 +419,16 @@
     } catch(e) {}
   }
 
-  // --- 3. WALLPAPERS (Persist + Load Fast) ---
-  // Using picsum id for consistency and caching
+  // --- WALLPAPERS ---
   const wallpapers = [];
-  for(let i=10; i<=40; i++) {
+  for(let i=10; i<=30; i++) {
       wallpapers.push({ type: 'image', src: `https://picsum.photos/id/${i}/800/1200`, thumb: `https://picsum.photos/id/${i}/200/300` });
   }
-  // Videos
   const videoSamples = [
     "https://assets.mixkit.co/videos/preview/mixkit-white-sand-beach-background-1564-large.mp4",
     "https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4",
     "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-    "https://assets.mixkit.co/videos/preview/mixkit-ink-swirling-in-water-189-large.mp4",
-    "https://assets.mixkit.co/videos/preview/mixkit-red-lights-in-darkness-1383-large.mp4"
+    "https://assets.mixkit.co/videos/preview/mixkit-ink-swirling-in-water-189-large.mp4"
   ];
   videoSamples.forEach(v => wallpapers.push({ type: 'video', src: v }));
 
@@ -412,14 +452,12 @@
   window.closeWallpaperModal = () => document.getElementById('wallpaperModal').style.display = 'none';
 
   function setWallpaper(wp) {
-    // 3. Persist Wallpaper
     localStorage.setItem('meet_wallpaper_' + currentChatId, JSON.stringify(wp));
     applyWallpaper(wp);
     closeWallpaperModal();
   }
 
   function applyWallpaper(wp) {
-    // Clear existing
     messagesContainer.style.backgroundImage = 'none';
     const existingVid = messagesContainer.querySelector('.bg-video-layer');
     if(existingVid) existingVid.remove();
@@ -436,29 +474,49 @@
     }
   }
 
-  // --- 2. CLOUDINARY UPLOAD ---
+  // --- UPDATED CLOUDINARY LOGIC (INSTANT) ---
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video';
+
   window.uploadToCloudinary = async (file, type) => {
     if(!file || !currentChatId) return;
-    const cloudName = "demo"; // REPLACE WITH YOUR REAL CLOUD NAME
-    const uploadPreset = "meet_app"; // REPLACE WITH YOUR PRESET
-    
-    // Simulate loading
-    const buttonIcon = type === 'image' ? 'fa-image' : 'fa-video';
-    const btn = document.querySelector(`.input-action .${buttonIcon}`).parentElement;
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
+    // 1. Optimistic UI: Show image/video immediately using Blob
+    const blobUrl = URL.createObjectURL(file);
+    const tempId = 'temp-' + Date.now();
+    
+    const optimisticMsg = {
+        mediaUrl: blobUrl,
+        mediaType: type,
+        text: "",
+        senderId: currentUser.uid,
+        timestamp: null,
+        isUploading: true // Flag to show spinner
+    };
+    
+    // Render Immediately
+    const msgDiv = renderMessageHTML(optimisticMsg, true, tempId);
+    messagesContainer.appendChild(msgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 2. Perform Upload
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', uploadPreset);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
     formData.append('resource_type', type === 'video' ? 'video' : 'image');
 
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${type === 'video' ? 'video' : 'image'}/upload`, {
+      const response = await fetch(CLOUDINARY_URL, {
         method: 'POST', body: formData
       });
       const data = await response.json();
+      
       if(data.secure_url) {
+        // Remove temp optimisitc msg (or let snapshot replace it, but removal avoids flicker)
+        const tempEl = document.getElementById(tempId);
+        if(tempEl) tempEl.remove();
+
+        // 3. Send to DB
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url, mediaType: type, text: "",
           senderId: currentUser.uid, timestamp: serverTimestamp()
@@ -467,22 +525,27 @@
           lastMessage: type === 'video' ? 'Sent a video' : 'Sent a photo', updatedAt: serverTimestamp()
         });
       } else {
-        alert("Upload failed. Configure Cloudinary correctly.");
+        alert("Upload failed: " + (data.error ? data.error.message : 'Unknown error'));
+        document.getElementById(tempId).remove();
       }
-    } catch (err) { console.error(err); } 
-    finally { btn.innerHTML = originalContent; }
+    } catch (err) { 
+        console.error(err); 
+        alert("Network error during upload");
+        const tempEl = document.getElementById(tempId);
+        if(tempEl) tempEl.remove();
+    } 
   };
 
 
-  // --- 6. FULL EMOJI PICKER ---
+  // --- EXPANDED EMOJIS (WhatsApp Style) ---
   const emojis = {
-    "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚"],
-    "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊"],
-    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳"],
-    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊"],
-    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑"],
-    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅"],
-    "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽"]
+    "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😶‍🌫️","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","😵‍💫","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾"],
+    "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸"],
+    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳","👩‍🦲","🧑‍🦲","👨‍🦲","🧔","👵","🧓","👴","👲","👳‍♀️","👳","👳‍♂️","🧕","👮‍♀️","👮","👮‍♂️","👷‍♀️","👷","👷‍♂️","💂‍♀️","💂","💂‍♂️","🕵️‍♀️","🕵️","🕵️‍♂️","👩‍⚕️","🧑‍⚕️","👨‍⚕️","👩‍🌾","🧑‍🌾","👨‍🌾","👩‍🍳","🧑‍🍳","👨‍🍳","👩‍🎓","🧑‍🎓","👨‍🎓","👩‍🎤","🧑‍🎤","👨‍🎤","👩‍🏫","🧑‍🏫","👨‍🏫","👩‍🏭","🧑‍🏭","👨‍🏭","👩‍💻","🧑‍💻","👨‍💻","👩‍💼","🧑‍💼","👨‍💼","👩‍🔧","🧑‍🔧","👨‍🔧","👩‍🔬","🧑‍🔬","👨‍🔬","👩‍🎨","🧑‍🎨","👨‍🎨","👩‍🚒","🧑‍🚒","👨‍🚒","👩‍✈️","🧑‍✈️","👨‍✈️","👩‍🚀","🧑‍🚀","👨‍🚀","👩‍⚖️","🧑‍⚖️","👨‍⚖️","👰‍♀️","👰","👰‍♂️","🤵‍♀️","🤵","🤵‍♂️","👸","🤴","🥷","🦸‍♀️","🦸","🦸‍♂️","🦹‍♀️","🦹","🦹‍♂️","🤶","🧑‍🎄","🎅","🧙‍♀️","🧙","🧙‍♂️","🧝‍♀️","🧝","🧝‍♂️","🧛‍♀️","🧛","🧛‍♂️","🧟‍♀️","🧟","🧟‍♂️","🧞‍♀️","🧞","🧞‍♂️","🧜‍♀️","🧜","🧜‍♂️","🧚‍♀️","🧚","🧚‍♂️"],
+    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲","🪳","🦟","🦗","🕷","🕸","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿","🦔","🐾"],
+    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
+    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
+    "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
   };
 
   function initEmojiPicker() {
@@ -516,7 +579,6 @@
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
       
-      // 5. Load User Profile Pic for Navbar
       const userDoc = await getDoc(doc(db, "users", user.uid));
       let photoURL = user.photoURL;
       if(userDoc.exists() && userDoc.data().photoURL) photoURL = userDoc.data().photoURL;
@@ -534,6 +596,7 @@
       list.innerHTML = '';
       const convs = [];
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
+      // Client-side sort needed because "array-contains" + "orderBy" has limitations without complex indexes
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
 
       convs.forEach(conv => {
@@ -561,13 +624,12 @@
     currentChatUser = otherUserId;
     currentChatUserAvatar = avatar;
 
-    // Load persisted wallpaper
     const savedWp = localStorage.getItem('meet_wallpaper_' + chatId);
     if(savedWp) {
         applyWallpaper(JSON.parse(savedWp));
     } else {
         messagesContainer.style.backgroundImage = 'none';
-        if(messagesContainer.querySelector('video')) messagesContainer.querySelector('video').remove();
+        if(messagesContainer.querySelector('.bg-video-layer')) messagesContainer.querySelector('.bg-video-layer').remove();
     }
 
     document.getElementById('emptyChat').style.display = 'none';
@@ -585,7 +647,6 @@
     listenForTyping(chatId);
   }
 
-  // 7. Listen for typing
   function listenForTyping(chatId) {
      onSnapshot(doc(db, "conversations", chatId), (doc) => {
         if(doc.exists()) {
@@ -600,6 +661,9 @@
   function loadMessages(chatId) {
     if(unsubscribeMessages) unsubscribeMessages();
     
+    // Clear container initially to prevent old chat overlap, but kept simple here
+    document.getElementById('messagesContainer').innerHTML = '';
+
     const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
     
     unsubscribeMessages = onSnapshot(q, (snapshot) => {
@@ -611,40 +675,43 @@
           const msg = change.doc.data();
           const isMe = msg.senderId === currentUser.uid;
           
-          // 4. Render Message with Avatars
-          const div = document.createElement('div');
-          div.className = `message-wrapper ${isMe ? 'sent' : 'received'}`;
+          // Check if we already have this message rendered optimistically
+          // In a real app we'd use IDs, here we dedupe simply by checking if the LAST element has same text and isMe
+          // A better way for this snippets context:
+          // Just render it. If duplicates occur because of optimisitc UI, we can filter by ID if we generated one,
+          // but since optimistic UI here doesn't have the DB ID, we rely on the DB update.
           
-          // Choose Avatar
-          const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
+          // Re-rendering logic: If we find a message with no ID (optimistic) and similar content, replace it?
+          // For simplicity: We render everything from DB. The optimistic message has no ID in DB yet.
+          // TO PREVENT DUPLICATE from Optimistic:
+          // The optimistic message is just visual. 
           
-          let content = "";
-          if(msg.mediaType === 'image') content += `<img src="${msg.mediaUrl}" class="message-img">`;
-          else if(msg.mediaType === 'video') content += `<video src="${msg.mediaUrl}" controls class="message-video"></video>`;
-          if(msg.text) content += `<div>${msg.text}</div>`;
-
-          div.innerHTML = `
-             <img src="${avatarSrc}" class="message-avatar-small">
-             <div class="message-bubble">
-               ${content}
-               <div class="message-time">${msg.timestamp ? new Date(msg.timestamp.seconds*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '...'}</div>
-             </div>
-          `;
+          const div = renderMessageHTML(msg, isMe, change.doc.id);
           container.appendChild(div);
           container.scrollTop = container.scrollHeight;
 
-          // AI Auto Reply
+          // AI Auto Reply (Tone Update)
           if(!isMe && isAiOn && msg.timestamp) {
             const now = new Date().getTime();
             const msgTime = msg.timestamp.toMillis();
             if (now - msgTime < 5000) { 
+                const casualReplies = [
+                    "Got it!", 
+                    "Hey, I saw this. Gimme a sec.",
+                    "Cool, checking it now.",
+                    "Received! Talk soon.",
+                    "On it!",
+                    "Hey! I'll reply in a bit."
+                ];
+                const randomReply = casualReplies[Math.floor(Math.random() * casualReplies.length)];
+
                 setTimeout(async () => {
                     await addDoc(collection(db, "conversations", chatId, "messages"), {
-                        text: "🤖 [AI Auto-Reply] I received your message and will get back to you shortly.",
+                        text: randomReply,
                         senderId: currentUser.uid, 
                         timestamp: serverTimestamp()
                     });
-                }, 3000); 
+                }, 2000); 
             }
           }
         }
@@ -652,20 +719,38 @@
     });
   }
 
+  // --- SEND BUTTON (Updated for Instant Drop) ---
   document.getElementById('sendButton').addEventListener('click', async () => {
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
-    messageInput.value = '';
-    messageInput.style.height = '45px'; // Reset height
     
-    await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-      text: text, senderId: currentUser.uid, timestamp: serverTimestamp()
-    });
-    await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
+    // 1. Clear Input Immediately
+    messageInput.value = '';
+    messageInput.style.height = '45px'; 
     updateTypingStatus(false);
+
+    // 2. Optimistic UI: Render Immediately
+    const optimisticDiv = renderMessageHTML({ text: text, timestamp: null }, true);
+    messagesContainer.appendChild(optimisticDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 3. Send to Backend
+    try {
+        await addDoc(collection(db, "conversations", currentChatId, "messages"), {
+          text: text, senderId: currentUser.uid, timestamp: serverTimestamp()
+        });
+        await updateDoc(doc(db, "conversations", currentChatId), { lastMessage: text, updatedAt: serverTimestamp() });
+        
+        // Remove optimistic div to avoid duplication when the listener fires? 
+        // Actually, Firebase local cache usually handles this, but since we are forcing visual speed:
+        optimisticDiv.remove(); // The real one comes from the listener milliseconds later
+    } catch(e) {
+        optimisticDiv.style.opacity = 0.5; // Indicate error
+        alert("Failed to send");
+    }
   });
 
-  // 1. Search Logic (Reset on Open)
+  // Search Logic
   window.openUserSearchOverlay = () => {
       document.getElementById('userSearchInput').value = '';
       document.getElementById('userSearchResults').innerHTML = '';
