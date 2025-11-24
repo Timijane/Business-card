@@ -35,11 +35,10 @@
 
   .app-container { display: flex; height: 100%; }
 
-  /* 1. SIDEBAR (MENU BAR) */
+  /* 5. SIDEBAR RESTORED */
   .sidebar {
     width: 250px; background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
     display: flex; flex-direction: column; padding: 20px; color: white; flex-shrink: 0;
-    transition: transform 0.3s ease-in-out; /* Added for mobile transition */
   }
   .sidebar h2 { margin-bottom: 30px; font-size: 24px; font-weight: 700; }
   .sidebar ul { list-style: none; }
@@ -51,7 +50,7 @@
   .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.2); }
   .sidebar i { width: 25px; margin-right: 10px; text-align: center; }
 
-  /* 5. NOTIFICATION BADGE ON SIDEBAR ICON */
+  /* 6. NOTIFICATION BADGE ON SIDEBAR ICON */
   .nav-badge {
       position: absolute; right: 10px; top: 10px; width: 10px; height: 10px;
       background: #FF0000; border-radius: 50%; display: none; border: 1px solid white;
@@ -64,17 +63,14 @@
     width: 320px; background: var(--card-bg); border-right: 1px solid var(--border-color);
     display: flex; flex-direction: column; flex-shrink: 0;
   }
-  .search-container { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; } /* Adjusted for menu btn */
-  .search-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .menu-btn-mobile { display: none; background: none; border: none; font-size: 24px; color: var(--text-color); cursor: pointer; }
-
+  .search-container { padding: 15px; border-bottom: 1px solid var(--border-color); }
   .search-input {
     width: 100%; padding: 10px; border-radius: 20px; border: 1px solid var(--border-color);
     background: var(--bg-color); color: var(--text-color); outline: none;
   }
   .new-chat-btn {
-    background: var(--primary); color: white; border: none;
-    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    float: right; background: var(--primary); color: white; border: none;
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer; margin-bottom: 10px;
   }
   .conversations-list { flex: 1; overflow-y: auto; }
   
@@ -93,8 +89,8 @@
     border-radius: 50%; border: 2px solid var(--card-bg);
   }
   /* Explicit colors for requirements */
-  .is-online { background-color: #10B981 !important; /* Green */ }
-  .is-offline { background-color: #EF4444 !important; /* Red */ }
+  .is-online { background-color: #00FF00 !important; /* Green */ }
+  .is-offline { background-color: #FF0000 !important; /* Red */ }
 
   .conv-info { flex: 1; min-width: 0; }
   .conv-name { font-weight: 600; font-size: 15px; }
@@ -112,7 +108,7 @@
   .chat-header-user { display: flex; align-items: center; gap: 10px; }
   .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
   .header-info { display: flex; flex-direction: column; }
-  
+  /* 8. TYPING INDICATOR */
   .typing-status { font-size: 11px; color: var(--primary); font-weight: 600; display: none; }
   
   .header-actions button {
@@ -135,9 +131,9 @@
   .received .message-bubble { background: var(--card-bg); border-bottom-left-radius: 4px; }
   .sent .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
   
-  .msg-media { max-width: 100%; border-radius: 10px; margin-top: 5px; cursor: pointer; } /* Handles both image/video */
+  .msg-image { max-width: 100%; border-radius: 10px; margin-top: 5px; cursor: pointer; }
 
-  /* Read Receipt Ticks */
+  /* 7. READ RECEIPT TICKS */
   .msg-meta {
       display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 2px;
       font-size: 10px; opacity: 0.8;
@@ -148,7 +144,7 @@
   .tick-read { color: #00ffff; text-shadow: 0 0 5px rgba(0,0,255,0.5); } /* 3 ticks / Blueish */
   .received .ticks { display: none; } /* Only show ticks on sent messages */
 
-  /* Actions Menu */
+  /* 4. ACTIONS MENU */
   .message:hover .msg-actions { opacity: 1; pointer-events: auto; }
   .msg-actions {
     position: absolute; top: -25px; right: 0; opacity: 0; transition: opacity 0.2s;
@@ -166,7 +162,7 @@
   
   .input-controls { display: flex; align-items: center; gap: 10px; }
   
-  /* 4. AI TOGGLE STYLING */
+  /* 9. M LOGO FOR AI */
   .ai-switch-container { display: flex; align-items: center; gap: 5px; margin-right: 5px; }
   .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -200,63 +196,13 @@
   
   .edit-indicator { font-size: 10px; font-style: italic; opacity: 0.7; }
 
-  /* --- MOBILE RESPONSIVENESS UPDATES --- */
   @media (max-width: 768px) {
-    /* Menu visibility toggle */
-    .sidebar { 
-        width: 250px; 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        height: 100%; 
-        z-index: 3000; 
-        transform: translateX(-250px);
-    }
-    .sidebar.sidebar-mobile-visible {
-        transform: translateX(0);
-    }
-    
-    .chat-interface {
-        /* Prevents the chat list from shifting when the menu opens */
-        position: relative; 
-        width: 100%;
-    }
-    .conversations-sidebar { 
-        width: 100%; 
-    }
-    
-    /* Show Menu Button */
-    .menu-btn-mobile { 
-        display: block; 
-    }
-    
-    .search-header { 
-        justify-content: space-between; 
-    }
-    .search-header h3 {
-        flex-grow: 1;
-    }
-
-    /* Chat Area Management */
-    .chat-area { 
-        display: none; 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
-        z-index: 1000; 
-    }
-    .chat-area.active { 
-        display: flex; 
-    }
-    .back-btn { 
-        display: inline-block !important; 
-        margin-right: 10px; 
-    }
-    .wallpaper-grid { 
-        grid-template-columns: repeat(2, 1fr); 
-    }
+    .sidebar { display: none; }
+    .conversations-sidebar { width: 100%; }
+    .chat-area { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+    .chat-area.active { display: flex; }
+    .back-btn { display: inline-block !important; margin-right: 10px; }
+    .wallpaper-grid { grid-template-columns: repeat(2, 1fr); }
   }
   .back-btn { display: none; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color); }
 </style>
@@ -264,14 +210,15 @@
 <body>
 
 <div class="app-container">
-  <div class="sidebar" id="appSidebar">
+  <div class="sidebar">
     <h2>MEET</h2>
     <ul>
       <li><a href="feed.html"><i class="fas fa-home"></i> Feed</a></li>
       <li>
           <a href="chat.html" class="active">
               <i class="fas fa-comment"></i> Chat
-              <span class="nav-badge" id="sidebarBadge"></span> </a>
+              <span class="nav-badge" id="sidebarBadge"></span>
+          </a>
       </li>
       <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
       <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -281,11 +228,8 @@
   <div class="chat-interface">
     <div class="conversations-sidebar" id="convSidebar">
       <div class="search-container">
-        <div class="search-header">
-            <button class="menu-btn-mobile" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <h3>Messages</h3>
-            <button class="new-chat-btn" onclick="openUserSearch()"><i class="fas fa-plus"></i></button>
-        </div>
+        <button class="new-chat-btn" onclick="openUserSearch()"><i class="fas fa-plus"></i></button>
+        <h3 style="margin-bottom:10px">Messages</h3>
         <input type="text" class="search-input" id="chatSearch" placeholder="Search chats...">
       </div>
       <div class="conversations-list" id="conversationsList"></div>
@@ -328,13 +272,15 @@
         <div class="input-controls">
           <div class="ai-switch-container" title="AI Auto-Reply">
              <label class="switch">
-               <input type="checkbox" id="aiToggle"> <span class="slider"></span>
+               <input type="checkbox" id="aiToggle">
+               <span class="slider"></span>
              </label>
              <span class="ai-logo">M</span>
           </div>
 
           <button class="input-icon-btn" onclick="toggleEmoji()"><i class="far fa-smile"></i></button>
-          <input type="file" id="imageInput" accept="image/*,video/*" style="display:none" onchange="handleImageUpload(this)"> <button class="input-icon-btn" onclick="document.getElementById('imageInput').click()"><i class="far fa-image"></i></button>
+          <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+          <button class="input-icon-btn" onclick="document.getElementById('imageInput').click()"><i class="far fa-image"></i></button>
           <button class="input-icon-btn" title="Voice Note"><i class="fas fa-microphone"></i></button>
 
           <textarea class="message-input" id="messageInput" placeholder="Type a message..."></textarea>
@@ -384,71 +330,28 @@
   let picker = null;
   let typingTimeout = null;
 
-  // Mobile Menu Toggle Function
-  window.toggleSidebar = () => {
-      document.getElementById('appSidebar').classList.toggle('sidebar-mobile-visible');
-  }
-  
-  // FIX 1: Placeholder function for the new chat (+) button
-  window.openUserSearch = () => {
-      alert("Search functionality goes here to start a new chat!");
-      // In a real app, this would open a modal/page to search users and initiate a new conversation document.
-  }
-
-
-  // 3. Wallpapers Data (50+ options expanded with AI themes)
+  // 3. Wallpapers Data
   const wallpapers = [
       { name: "Default", val: "var(--bg-color)" },
       { name: "MEET 3D", val: "linear-gradient(135deg, #00C6FF, #0072ff)" },
-      // --- Wallpaper Fix: Added background-repeat: no-repeat; to URL vals ---
-      { name: "AI Cyberpunk", val: "url('https://source.unsplash.com/random/800x600/?cyberpunk,neon') no-repeat center center / cover" },
-      { name: "AI Abstract Art", val: "url('https://source.unsplash.com/random/800x600/?abstract,digital,art') no-repeat center center / cover" },
-      { name: "Love Heart", val: "url('https://source.unsplash.com/random/800x600/?love,heart') no-repeat center center / cover" },
-      { name: "War Zone", val: "url('https://source.unsplash.com/random/800x600/?war,city,destruction') no-repeat center center / cover" },
-      { name: "AI Minimalist", val: "url('https://source.unsplash.com/random/800x600/?minimal,pastel,geometric') no-repeat center center / cover" },
+      { name: "Love", val: "url('https://source.unsplash.com/random/800x600/?love')" },
+      { name: "War AI", val: "url('https://source.unsplash.com/random/800x600/?war,cyperpunk')" },
+      { name: "MEET Logo", val: "radial-gradient(circle, #0080FF, #000)" },
       { name: "Dark Space", val: "#1a1a1a" },
       { name: "Sunset", val: "linear-gradient(to right, #ff7e5f, #feb47b)" },
-      { name: "Ocean Wave", val: "linear-gradient(to right, #2b5876, #4e4376)" },
-      { name: "Forest Nature", val: "url('https://source.unsplash.com/random/800x600/?forest,nature') no-repeat center center / cover" },
-      { name: "New York City", val: "url('https://source.unsplash.com/random/800x600/?newyork,city') no-repeat center center / cover" },
-      { name: "AI Sci-Fi", val: "url('https://source.unsplash.com/random/800x600/?sci-fi,future') no-repeat center center / cover" },
+      { name: "Ocean", val: "linear-gradient(to right, #2b5876, #4e4376)" },
+      { name: "Nature", val: "url('https://source.unsplash.com/random/800x600/?nature')" },
+      { name: "City", val: "url('https://source.unsplash.com/random/800x600/?city')" },
+      { name: "Abstract", val: "url('https://source.unsplash.com/random/800x600/?abstract')" },
+      { name: "Tech", val: "url('https://source.unsplash.com/random/800x600/?technology')" },
       { name: "Purple Mist", val: "linear-gradient(to top, #30cfd0 0%, #330867 100%)" },
-      { name: "Midnight Black", val: "#000000" },
+      { name: "Midnight", val: "#000000" },
       { name: "Clean White", val: "#ffffff" },
-      { name: "Beige Tan", val: "#f5f5dc" },
-      { name: "Deep Galaxy", val: "url('https://source.unsplash.com/random/800x600/?deep,galaxy') no-repeat center center / cover" },
-      { name: "Rain Drops", val: "url('https://source.unsplash.com/random/800x600/?rain,window') no-repeat center center / cover" },
-      { name: "Minimal Grey", val: "#e0e0e0" },
-      { name: "Cyber Matrix", val: "linear-gradient(45deg, #ff00cc, #333399)" },
-      { name: "AI Fantasy", val: "url('https://source.unsplash.com/random/800x600/?fantasy,medieval,magic') no-repeat center center / cover" },
-      { name: "AI Watercolor", val: "url('https://source.unsplash.com/random/800x600/?watercolor,painting') no-repeat center center / cover" },
-      { name: "AI Lava Flow", val: "url('https://source.unsplash.com/random/800x600/?lava,volcano') no-repeat center center / cover" },
-      { name: "AI Gold Marble", val: "url('https://source.unsplash.com/random/800x600/?gold,marble,texture') no-repeat center center / cover" },
-      { name: "AI Sketch", val: "url('https://source.unsplash.com/random/800x600/?pencil,sketch') no-repeat center center / cover" },
-      { name: "AI Retro Wave", val: "url('https://source.unsplash.com/random/800x600/?retrowave,80s') no-repeat center center / cover" },
-      { name: "AI Pastel Dreams", val: "url('https://source.unsplash.com/random/800x600/?pastel,clouds') no-repeat center center / cover" },
-      { name: "AI Geometric", val: "url('https://source.unsplash.com/random/800x600/?geometric,pattern') no-repeat center center / cover" },
-      { name: "AI Space Station", val: "url('https://source.unsplash.com/random/800x600/?space,station') no-repeat center center / cover" },
-      { name: "Crimson Red", val: "#dc143c" },
-      { name: "Emerald Green", val: "#50c878" },
-      { name: "Royal Blue", val: "#4169e1" },
-      { name: "Golden Yellow", val: "#ffc300" },
-      { name: "Silver", val: "#c0c0c0" },
-      { name: "Bronze", val: "#cd7f32" },
-      { name: "Gradient Pink", val: "linear-gradient(to right, #ff9a9e, #fad0c4)" },
-      { name: "Gradient Ocean", val: "linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)" },
-      { name: "Gradient Sunset", val: "linear-gradient(to right, #f77062 0%, #fe5196 100%)" },
-      { name: "Gradient Forest", val: "linear-gradient(to top, #00c6fb 0%, #005bea 100%)" },
-      { name: "AI Bokeh", val: "url('https://source.unsplash.com/random/800x600/?bokeh,lights') no-repeat center center / cover" },
-      { name: "AI Abstract Paint", val: "url('https://source.unsplash.com/random/800x600/?abstract,oil,paint') no-repeat center center / cover" },
-      { name: "AI Dark Moody", val: "url('https://source.unsplash.com/random/800x600/?dark,moody') no-repeat center center / cover" },
-      { name: "AI Glitch", val: "url('https://source.unsplash.com/random/800x600/?glitch,broken,screen') no-repeat center center / cover" },
-      { name: "AI Vaporwave", val: "url('https://source.unsplash.com/random/800x600/?vaporwave,statue') no-repeat center center / cover" },
-      { name: "AI Isometric", val: "url('https://source.unsplash.com/random/800x600/?isometric,building') no-repeat center center / cover" },
-      { name: "AI Neon Animals", val: "url('https://source.unsplash.com/random/800x600/?neon,animal') no-repeat center center / cover" },
-      { name: "AI Mountain", val: "url('https://source.unsplash.com/random/800x600/?mountain,landscape') no-repeat center center / cover" },
-      { name: "AI Car Race", val: "url('https://source.unsplash.com/random/800x600/?race,car') no-repeat center center / cover" },
-      { name: "AI Flower Field", val: "url('https://source.unsplash.com/random/800x600/?flower,field') no-repeat center center / cover" },
+      { name: "Beige", val: "#f5f5dc" },
+      { name: "Galaxy", val: "url('https://source.unsplash.com/random/800x600/?galaxy')" },
+      { name: "Rain", val: "url('https://source.unsplash.com/random/800x600/?rain')" },
+      { name: "Minimal", val: "#e0e0e0" },
+      { name: "Cyber", val: "linear-gradient(45deg, #ff00cc, #333399)" }
   ];
 
   // Init Emoji
@@ -476,10 +379,7 @@
         initWallpapers();
         
         const savedWP = localStorage.getItem('meet_wallpaper');
-        if(savedWP) {
-            // FIX 3: Properly apply complex background value
-            document.getElementById('chatArea').style.background = savedWP;
-        }
+        if(savedWP) document.getElementById('chatArea').style.background = savedWP;
     }
   });
 
@@ -490,15 +390,11 @@
           const div = document.createElement('div');
           div.className = 'wallpaper-option';
           div.innerText = wp.name;
-          
-          // FIX 3: Correctly apply background for both color/gradient and URL
-          div.style.background = wp.val; 
-          
+          div.style.background = wp.val;
+          div.style.backgroundSize = 'cover';
           div.onclick = () => {
-              const styleVal = wp.val; // Use the raw value from the array
-              // FIX 3: Properly apply complex background value
-              document.getElementById('chatArea').style.background = styleVal;
-              localStorage.setItem('meet_wallpaper', styleVal);
+              document.getElementById('chatArea').style.background = wp.val;
+              localStorage.setItem('meet_wallpaper', wp.val);
               document.getElementById('wallpaperModal').style.display = 'none';
           };
           grid.appendChild(div);
@@ -510,7 +406,7 @@
     onSnapshot(q, snap => {
         const list = document.getElementById('conversationsList');
         list.innerHTML = '';
-        let hasUnread = false; 
+        let hasUnread = false;
 
         snap.forEach(d => {
             const chat = { id: d.id, ...d.data() };
@@ -518,9 +414,16 @@
             const name = chat.participantNames?.[otherId] || 'User';
             const avatar = chat.participantAvatars?.[otherId] || 'https://via.placeholder.com/50';
             
+            // 2. REAL TIME STATUS (Green/Red)
             const status = chat.status?.[otherId];
-            const isOnline = status?.isOnline || false;
+            let isOnline = false;
+            // Check manual online status from DB users collection
+            // We use a listener inside loadChat usually, but here we can rely on chat object data if synced
+            // For robustness, assume 'status' field in conversation is updated via triggers/client
+            if(status?.isOnline) isOnline = true;
             
+            // 6. NOTIFICATION CHECK
+            // Logic: If last message not from me, and I haven't opened it (simple check)
             const isUnread = chat.lastMessageSender !== currentUser.uid && !chat.readBy?.[currentUser.uid];
             if(isUnread) hasUnread = true;
 
@@ -545,6 +448,7 @@
             list.appendChild(item);
         });
         
+        // Update Sidebar Badge
         document.getElementById('sidebarBadge').style.display = hasUnread ? 'block' : 'none';
     });
   }
@@ -556,7 +460,6 @@
       document.getElementById('messagesWrapper').style.display = 'flex';
       document.getElementById('inputArea').style.display = 'block';
       document.getElementById('chatArea').classList.add('active'); 
-      document.getElementById('appSidebar').classList.remove('sidebar-mobile-visible'); // Hide menu on chat load (mobile)
 
       document.getElementById('headerAvatar').src = avatar;
       document.getElementById('headerName').innerText = name;
@@ -569,9 +472,6 @@
       loadMessages(chatId);
       watchTyping(chatId, userId);
   }
-  
-  // Storage for the last message ID to prevent AI re-replying on redraw
-  let lastProcessedMessageId = null;
 
   function loadMessages(chatId) {
       const q = query(collection(db, "conversations", chatId, "messages"), orderBy("timestamp", "asc"));
@@ -582,20 +482,26 @@
               const msg = { id: d.id, ...d.data() };
               const isMe = msg.senderId === currentUser.uid;
               
+              // 1. FIXED SENDER AVATAR
+              // If me: use my profile data. If them: use header avatar.
               const myAvatar = currentUserData.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`;
-              const otherAvatar = document.getElementById('headerAvatar').src;
-              const avatarSrc = isMe ? myAvatar : otherAvatar;
+              const avatarSrc = isMe ? myAvatar : document.getElementById('headerAvatar').src;
 
+              // 7. READ RECEIPTS
               let ticksHtml = '';
               if(isMe) {
+                  // Logic: 1 tick (sent), 2 ticks (delivered/user online), 3 ticks (read)
+                  // We simulate based on simple flags since backend is limited
                   let tickClass = 'tick-sent'; 
                   let tickIcon = '<i class="fas fa-check"></i>';
                   
+                  // If chat is marked read by other user
+                  // We need to fetch conv data to know this, passing simplest logic:
                   if(msg.read) { 
                       tickClass = 'tick-read'; 
-                      tickIcon = '<i class="fas fa-check-double"></i> <i class="fas fa-check" style="margin-left:-8px"></i>'; 
-                  } else if (msg.delivered) { 
-                      tickClass = 'tick-delivered'; 
+                      tickIcon = '<i class="fas fa-check-double"></i> <i class="fas fa-check" style="margin-left:-8px"></i>'; // 3 ticks sim
+                  } else {
+                      tickClass = 'tick-delivered'; // Default to 2 ticks for UX
                       tickIcon = '<i class="fas fa-check-double"></i>';
                   }
                   ticksHtml = `<span class="ticks ${tickClass}">${tickIcon}</span>`;
@@ -604,9 +510,10 @@
               const div = document.createElement('div');
               div.className = `message ${isMe ? 'sent' : 'received'}`;
               
+              // 4. ACTIONS MENU (Edit/Reply/Delete)
               let actions = `
                   <div class="msg-actions">
-                      <i class="fas fa-reply" onclick="startReply('${msg.id}', '${msg.text ? msg.text.replace(/'/g, "\\'") : "Media"}')"></i>
+                      <i class="fas fa-reply" onclick="startReply('${msg.id}', '${msg.text ? msg.text.replace(/'/g, "\\'") : "Image"}')"></i>
                       ${isMe ? `<i class="fas fa-edit" onclick="startEdit('${msg.id}', '${msg.text ? msg.text.replace(/'/g, "\\'") : ""}')"></i>
                                 <i class="fas fa-trash" onclick="deleteMsg('${msg.id}')"></i>` : ''}
                   </div>`;
@@ -614,14 +521,7 @@
               let content = '';
               if(msg.replyTo) content += `<div class="reply-preview"><small>Replying to:</small> ${msg.replyTo}</div>`;
               
-              if(msg.imageUrl) {
-                  if (msg.mediaType === 'video') {
-                      content += `<video src="${msg.imageUrl}" class="msg-media" controls></video>`;
-                  } else {
-                      content += `<img src="${msg.imageUrl}" class="msg-media" onclick="window.open(this.src)">`;
-                  }
-              }
-
+              if(msg.imageUrl) content += `<img src="${msg.imageUrl}" class="msg-image" onclick="window.open(this.src)">`;
               if(msg.text) content += `<span>${msg.text}</span>`;
               
               if(msg.isAI) content += `<br><br><em style="font-size:10px; color:${getComputedStyle(document.documentElement).getPropertyValue('--ai-color')};">......this message is written by ai</em>`;
@@ -639,50 +539,12 @@
                   </div>
               `;
               wrapper.appendChild(div);
-              
-              // FIX 2: AI LOGIC - Check for incoming messages and prevent re-reply on redraw
-              if (!isMe && msg.id !== lastProcessedMessageId) {
-                  if (document.getElementById('aiToggle').checked) {
-                      // Trigger AI reply only if the toggle is on AND it's a new, incoming message
-                      handleIncomingMessage(msg.text, msg.senderId); 
-                  }
-                  lastProcessedMessageId = msg.id; // Mark as processed
-              }
           });
           wrapper.scrollTop = wrapper.scrollHeight;
       });
   }
 
-  // New function to handle AI replies based on incoming messages
-  // FIX 2: Added senderId to properly update conversation metadata
-  async function handleIncomingMessage(incomingText, originalSenderId) {
-      if (!currentChatId) return;
-
-      // 4. AI REPLY LOGIC - only replies to incoming messages
-      setTimeout(async () => {
-          const reply = getSmartReply(incomingText);
-          
-          await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-               text: reply,
-               senderId: currentUser.uid, // Sent *as* the currently logged in user
-               timestamp: serverTimestamp(),
-               isAI: true, // Flag it as an AI-generated message
-               type: 'text',
-               read: false
-           });
-           
-           // Update Conversation Metadata
-           await updateDoc(doc(db, "conversations", currentChatId), {
-               lastMessage: reply,
-               lastMessageSender: currentUser.uid, // This makes the AI message the "last message"
-               updatedAt: serverTimestamp()
-           });
-
-      }, 3000); // 3 Seconds Delay
-  }
-
-
-  // Typing Indicator Listener
+  // 8. TYPING INDICATOR LISTENER
   function watchTyping(chatId, otherUserId) {
       onSnapshot(doc(db, "conversations", chatId), (doc) => {
           if(doc.exists()) {
@@ -690,6 +552,11 @@
               const isTyping = data.typing?.[otherUserId];
               const el = document.getElementById('typingStatus');
               el.style.display = isTyping ? 'inline' : 'none';
+              
+              // Update read status for UI ticks if user enters
+              if(data.readBy?.[otherUserId]) {
+                  // Could trigger re-render or update ticks class dynamically
+              }
           }
       });
   }
@@ -706,41 +573,39 @@
       }, 1000);
   });
 
-  // 4. SMART AI REPLY GENERATOR
+  // 10. SMART AI REPLY
   function getSmartReply(userText) {
       const lower = userText.toLowerCase();
-      if(lower.includes('hello') || lower.includes('hi')) return "Hello there! I'm currently set to auto-reply. How can I assist you?";
-      if(lower.includes('how are you')) return "I'm running smoothly, thanks for asking! What were you hoping to chat about?";
-      if(lower.includes('price') || lower.includes('cost')) return "That sounds like a topic for a human associate. Can you rephrase or wait for a direct response?";
-      if(lower.includes('meet') || lower.includes('platform')) return "MEET is the future of connections! Is there something specific about the platform I can clarify?";
-      if(lower.includes('thanks') || lower.includes('thank you')) return "No problem at all! Happy to help with a quick auto-response.";
-      if(lower.includes('help')) return "This is an automated reply. Please send a brief message, or wait for the user to disable the AI mode for a manual reply.";
-      if(lower.includes('bye') || lower.includes('goodbye')) return "Auto-reply saying goodbye! Talk to you later (or wait for my human boss).";
-      return "Received! The user has auto-reply activated and will likely see your message shortly. I'm just bridging the gap for now.";
+      if(lower.includes('hello') || lower.includes('hi')) return "Hello there! How can I help you today?";
+      if(lower.includes('how are you')) return "I'm just a bot, but I'm functioning perfectly! How about you?";
+      if(lower.includes('price') || lower.includes('cost')) return "We can discuss the pricing details. What is your budget?";
+      if(lower.includes('meet')) return "MEET is the best place to connect with opportunities!";
+      if(lower.includes('bye')) return "Goodbye! Have a wonderful day.";
+      return "That's interesting! Tell me more.";
   }
 
   document.getElementById('sendBtn').onclick = sendMessage;
   async function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
-      // NOTE: AI toggle status is now only used in handleIncomingMessage
+      const isAI = document.getElementById('aiToggle').checked;
 
       if(!text && !editingMessageId) return;
 
       if(editingMessageId) {
-          // EDIT MESSAGE
+          // 4. EDIT MESSAGE
           await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMessageId), {
               text: text, edited: true
           });
           cancelContext();
       } else {
-          // SEND NEW (always sent as user)
+          // SEND NEW
           let payload = {
               text: text,
               senderId: currentUser.uid,
               timestamp: serverTimestamp(),
               type: 'text',
-              read: false
+              read: false // For read receipts
           };
           
           if(replyToId) {
@@ -758,12 +623,26 @@
           });
 
           cancelContext();
-          // NO AI REPLY HERE - AI only replies to incoming messages (handled in loadMessages)
+
+          // 10. AI REPLY LOGIC
+          if(isAI) {
+              setTimeout(async () => {
+                 const reply = getSmartReply(text);
+                 await addDoc(collection(db, "conversations", currentChatId, "messages"), {
+                      text: reply,
+                      senderId: currentUser.uid, // Sent as user
+                      timestamp: serverTimestamp(),
+                      isAI: true,
+                      type: 'text',
+                      read: false
+                  });
+              }, 3000); // 3 Seconds Delay
+          }
       }
       input.value = '';
   }
 
-  // ACTION HANDLERS
+  // 4. ACTION HANDLERS
   window.startEdit = (id, text) => {
       editingMessageId = id;
       document.getElementById('messageInput').value = text;
@@ -790,7 +669,7 @@
       if(confirm('Delete this message?')) await deleteDoc(doc(db, "conversations", currentChatId, "messages", id));
   }
 
-  // 6. MEDIA UPLOAD (Image/Video)
+  // Image Upload
   window.handleImageUpload = async (input) => {
       const file = input.files[0];
       if(!file) return;
@@ -799,37 +678,20 @@
       formData.append("file", file);
       formData.append("upload_preset", CLOUDINARY_PRESET);
       
-      const mediaType = file.type.startsWith('video') ? 'video' : 'image';
-      
       try {
-          document.getElementById('messageInput').placeholder = `Uploading ${mediaType}...`;
-          
-          // Cloudinary handles compression and URL generation for both
+          document.getElementById('messageInput').placeholder = "Uploading...";
           const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
           const data = await res.json();
           
           await addDoc(collection(db, "conversations", currentChatId, "messages"), {
               imageUrl: data.secure_url,
-              mediaType: mediaType,
               senderId: currentUser.uid,
               timestamp: serverTimestamp(),
-              type: mediaType,
+              type: 'image',
               read: false
           });
-          
-          // Update Conversation Metadata
-          await updateDoc(doc(db, "conversations", currentChatId), {
-              lastMessage: `[${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)}]`,
-              lastMessageSender: currentUser.uid,
-              updatedAt: serverTimestamp()
-          });
-
           document.getElementById('messageInput').placeholder = "Type a message...";
-          input.value = ''; // Clear file input
-      } catch(e) { 
-          console.error(e); 
-          document.getElementById('messageInput').placeholder = "Upload failed.";
-      }
+      } catch(e) { console.error(e); }
   }
 
   // Wallpapers
