@@ -22,7 +22,8 @@
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
     --success: #10B981;
     --heart-color: #FF4136;
-    --detail-blue: #007bff;
+    /* NEW: Course Details Blue Color */
+    --detail-blue: #007bff; 
   }
 
   body.dark-mode {
@@ -100,12 +101,12 @@
   .course-header { position: relative; height: 150px; }
   .course-thumb { height: 100%; width: 100%; object-fit: cover; background: #eee; }
   
-  /* Poster Image Overlay - Increased size */
+  /* Poster Image Overlay - Increased size (Req 4) */
   .poster-badge {
-    position: absolute; bottom: -20px; right: 15px;
-    width: 48px; height: 48px;
+    position: absolute; bottom: -20px; right: 15px; /* Moved down slightly */
+    width: 48px; height: 48px; /* Increased size */
     border-radius: 50%;
-    border: 3px solid var(--card-bg);
+    border: 3px solid var(--card-bg); /* Thicker border */
     background: var(--edu-primary);
     overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;
   }
@@ -127,7 +128,7 @@
   
   .c-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
   
-  /* Love Button Style */
+  /* Love Button Style (Req 2) */
   .btn-love {
       background: none; border: 1px solid var(--border-color); color: var(--secondary-text); 
       padding: 6px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;
@@ -140,12 +141,12 @@
   .btn-join { flex: 1; background: var(--edu-primary); color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
   .btn-join.joined { background: var(--success); cursor: default; }
 
-  /* Course Details Button Style */
+  /* NEW: Course Details Button Style */
   .btn-course-details {
     flex: 1;
-    background: var(--detail-blue);
+    background: var(--detail-blue); /* Blue background */
     color: white; 
-    border: none;
+    border: none; /* No border for a solid look */
     padding: 6px; 
     border-radius: 6px; 
     cursor: pointer; 
@@ -159,7 +160,7 @@
   .modal-head { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
   .modal-body { padding: 20px; }
   
-  /* Detail Modal Specific Styles */
+  /* Detail Modal Specific Styles (Req 5) */
   #detailModal .modal-box { max-width: 750px; text-align: left; }
   .detail-header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
   .detail-title { font-size: 24px; margin-bottom: 10px; font-weight: 700; color: var(--edu-primary); }
@@ -294,6 +295,7 @@
           <textarea id="cDescription" class="form-textarea" placeholder="Briefly describe what this content covers (min 10 chars)" required></textarea>
         </div>
 
+
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
           <div class="form-group">
             <label class="form-label">Category</label>
@@ -340,6 +342,7 @@
           <label class="form-label">Instructor Bio (Optional)</label>
           <textarea id="cInstructorBio" class="form-textarea" placeholder="A short bio for your course page (max 500 chars)"></textarea>
         </div>
+
 
         <div class="form-group">
           <label class="form-label">Cover Image (Compressed)</label>
@@ -460,6 +463,7 @@
   </div>
 </div>
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
@@ -467,7 +471,8 @@
 
   // --- FIREBASE CONFIG ---
   const firebaseConfig = {
-      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+      // NOTE: Replace this with your ACTUAL Firebase configuration!
+      apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM", 
       authDomain: "meet-6e159.firebaseapp.com",
       databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
       projectId: "meet-6e159",
@@ -486,6 +491,7 @@
   window.closeCreateModal = () => { document.getElementById('createModal').style.display = 'none'; document.getElementById('createForm').reset(); document.getElementById('thumbPreview').style.display = 'none'; thumbBase64 = null; };
 
   // --- CLOUDINARY CONFIG ---
+  // NOTE: Replace with your ACTUAL Cloudinary details!
   const CLOUD_NAME = "dcwof2ngn"; 
   const UPLOAD_PRESET = "Meet_video";
   const CLOUDINARY_GENERIC_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; 
@@ -493,8 +499,8 @@
   let currentUser = null;
   let currentType = 'long-video';
   let thumbBase64 = null; 
-  let loveCounts = {}; 
-  let reviewCounts = {}; 
+  let loveCounts = {};
+  let reviewCounts = {};
 
   // --- AUTH & USER PROFILE ---
   onAuthStateChanged(auth, async (user) => {
@@ -516,7 +522,7 @@
     }
   });
 
-  // --- COMPRESSION LOGIC ---
+  // --- COMPRESSION LOGIC (For Thumbnails) ---
   const compressImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -546,7 +552,7 @@
     if (fileOrBase64 instanceof File) {
         formData.append("file", fileOrBase64);
     } else if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:')) {
-        formData.append("file", fileOrBase64);
+        formData.append("file", fileOrBase64); 
     } else {
         throw new Error("Invalid file or Base64 string provided for upload.");
     }
@@ -595,9 +601,9 @@
     document.getElementById('statDocs').innerText = docs.length;
     document.getElementById('statLearners').innerText = learners;
 
-    renderGrid('coursesFeed', courses);
-    renderGrid('videosFeed', videos);
-    renderGrid('docsFeed', docs);
+    renderGrid('coursesFeed', courses); // Full Course Videos
+    renderGrid('videosFeed', videos); // Quick Videos
+    renderGrid('docsFeed', docs); // Notes & Documents
   });
 
   function renderGrid(id, items) {
@@ -606,6 +612,7 @@
     if(!items.length) { container.innerHTML = '<div style="padding:10px; color:#888;">No content yet.</div>'; return; }
 
     items.forEach(item => {
+      // **FIXED: Enrollment/Love checks rely on currentUser being set**
       const isJoined = currentUser && item.learners?.includes(currentUser.uid);
       const isLoved = currentUser && item.lovedBy?.includes(currentUser.uid);
       const loves = loveCounts[item.id] || 0;
@@ -619,14 +626,16 @@
       let hasCertificate = item.hasCert && item.type !== 'document';
 
       if (item.type === 'long-video') {
+          // Full Course
           actionButtons = `
             <button class="btn-course-details" onclick="viewDetails('${item.id}')">Course Details</button>
-            <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')`}">
+            <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
               ${isJoined ? 'Enrolled' : 'Enroll'}
             </button>
           `;
           hasCertificate = item.hasCert;
       } else {
+          // Quick Video / Document
           actionButtons = `<button class="btn-detail" onclick="viewDetails('${item.id}')">Details</button>`;
           hasCertificate = item.hasCert && item.type === 'quick-video'; 
       }
@@ -661,55 +670,39 @@
     });
   }
 
-  // --- FIXED LOVE TOGGLE LOGIC ---
+  // --- LOVE TOGGLE LOGIC (Uses arrayUnion/arrayRemove) ---
   window.toggleLove = async (courseId) => {
-    if (!currentUser) { 
-      alert("Login required to show love."); 
-      return; 
-    }
-    
+    if (!currentUser) { alert("Login required to show love."); return; }
     const courseRef = doc(db, "meetversity_courses", courseId);
-    
+
+    const courseCard = document.querySelector(`.course-card .btn-love[onclick*="${courseId}"]`);
+    const isLoved = courseCard?.classList.contains('loved');
+
     try {
-      // Get current state first
-      const courseDoc = await getDoc(courseRef);
-      if (!courseDoc.exists()) {
-        alert("Course not found.");
-        return;
-      }
-      
-      const courseData = courseDoc.data();
-      const isLoved = courseData.lovedBy?.includes(currentUser.uid);
-      
-      if (isLoved) {
-        await updateDoc(courseRef, { 
-          lovedBy: arrayRemove(currentUser.uid) 
-        });
-      } else {
-        await updateDoc(courseRef, { 
-          lovedBy: arrayUnion(currentUser.uid) 
-        });
-      }
-      // Real-time update handled by onSnapshot listener
+        if (isLoved) {
+            // Unlove: arrayRemove is safe
+            await updateDoc(courseRef, { lovedBy: arrayRemove(currentUser.uid) });
+            courseCard?.classList.remove('loved');
+        } else {
+            // Love: arrayUnion is safe and prevents duplicates
+            await updateDoc(courseRef, { lovedBy: arrayUnion(currentUser.uid) });
+            courseCard?.classList.add('loved');
+        }
+        // UI update for counts happens via the main onSnapshot listener
     } catch (e) {
-      console.error("Love toggle failed:", e);
-      alert(`Failed to update love status: ${e.message}. Please check console for details.`);
+        console.error("Love toggle failed:", e);
+        alert("Failed to update love status. (Check Firebase Rules)");
     }
   };
 
+
   // --- DETAILS MODAL LOGIC ---
   window.viewDetails = async (courseId) => {
-    if (!currentUser) { 
-      alert("Login required to view content details."); 
-      return; 
-    }
+    if (!currentUser) { alert("Login required to view content details."); return; }
     
     const courseRef = doc(db, "meetversity_courses", courseId);
     const courseDoc = await getDoc(courseRef);
-    if (!courseDoc.exists()) { 
-      alert("Content not found."); 
-      return; 
-    }
+    if (!courseDoc.exists()) { alert("Content not found."); return; }
     const data = courseDoc.data();
 
     document.getElementById('courseDetailTitle').innerText = data.title;
@@ -746,20 +739,13 @@
         outlineSection.style.display = 'none';
     }
 
-    const isJoined = currentUser && data.learners?.includes(currentUser.uid);
-    
     if(data.type === 'long-video' && data.hasCert) {
         certInfo.innerHTML = '<i class="fas fa-certificate"></i> This course offers a MEET Certificate upon completion.';
         joinBtn.style.display = 'block';
         joinBtn.dataset.courseId = courseId;
         joinBtn.dataset.courseTitle = data.title;
-        joinBtn.innerText = isJoined ? 'Enrolled' : 'Enroll';
-        joinBtn.disabled = isJoined;
-        if (!isJoined) {
-            joinBtn.onclick = () => openApplicationModal(courseId, data.title);
-        } else {
-            joinBtn.onclick = null;
-        }
+        joinBtn.innerText = data.learners?.includes(currentUser.uid) ? 'Enrolled' : 'Enroll';
+        joinBtn.disabled = data.learners?.includes(currentUser.uid);
     } else if (data.type === 'quick-video') {
          joinBtn.style.display = 'none';
          if(data.hasCert) {
@@ -774,17 +760,15 @@
 
     document.getElementById('detailModal').style.display = 'flex';
   };
-
   window.closeDetailModal = () => {
     document.getElementById('detailModal').style.display = 'none';
   };
 
-  // --- FIXED APPLICATION FORM MODAL LOGIC ---
+
+  // --- APPLICATION FORM MODAL LOGIC (Enrollment) ---
+
   window.openApplicationModal = (courseId, title) => {
-    if (!currentUser) { 
-      alert("Login required to apply for a course."); 
-      return; 
-    }
+    if (!currentUser) { alert("Login required to apply for a course."); return; }
     document.getElementById('applyCourseId').value = courseId;
     document.getElementById('applyCourseTitle').innerText = title;
     
@@ -792,6 +776,7 @@
     document.getElementById('applicantEmail').value = currentUser.email || '';
 
     document.getElementById('applicationModal').style.display = 'flex';
+    document.getElementById('detailModal').style.display = 'none';
   };
 
   window.closeApplicationModal = () => {
@@ -816,7 +801,7 @@
     submitBtn.disabled = true;
 
     try {
-        // 1. Save Application to 'course_applications' collection
+        // 1. Save Application
         await addDoc(collection(db, "course_applications"), {
             courseId: courseId,
             applicantId: currentUser.uid,
@@ -828,17 +813,17 @@
         });
 
         // 2. Mark user as 'learner' in the course document
+        // **FIXED: arrayUnion prevents duplicate enrollment**
         await updateDoc(doc(db, "meetversity_courses", courseId), {
             learners: arrayUnion(currentUser.uid)
         });
 
-        alert("Application submitted successfully! You are now enrolled in the course.");
+        alert("Form submitted, You are successfully enrolled!");
         closeApplicationModal();
-        closeDetailModal();
 
     } catch (e) {
         console.error("Application submission failed:", e);
-        alert(`Submission failed: ${e.message}. Please check console for details.`);
+        alert(`Submission failed: ${e.message || "An unknown error occurred. (Check Firebase Rules)"}`);
     } finally {
         submitBtn.innerText = "Submit Application";
         submitBtn.disabled = false;
@@ -846,6 +831,7 @@
   };
 
   // --- CREATION FORM LOGIC ---
+
   window.setType = (type, btn) => {
       currentType = type;
       document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -868,7 +854,7 @@
           document.getElementById('cDuration').placeholder = 'e.g. 5m 30s';
           learnSection.style.display = 'none';
           certCheckboxGroup.style.display = 'flex';
-      } else {
+      } else { // long-video
           label.innerText = "Upload Full Course Video File";
           mediaInput.accept = "video/*";
           document.getElementById('cDuration').placeholder = 'e.g. 2h 30m';
@@ -895,6 +881,7 @@
       }
   };
 
+  // Main Submit Logic
   window.submitCourse = async () => {
       const btn = document.getElementById('submitBtn');
       const progress = document.getElementById('mediaProgress');
@@ -936,12 +923,15 @@
       fill.style.width = '10%';
 
       try {
+          // 1. Upload Thumbnail
           const thumbUrl = await uploadToCloudinary(thumbBase64);
           fill.style.width = '40%';
 
+          // 2. Upload Main Content
           const mediaUrl = await uploadToCloudinary(mediaFile); 
           fill.style.width = '80%';
 
+          // 3. Save to Firestore
           await addDoc(collection(db, "meetversity_courses"), {
               title, 
               description, 
@@ -970,7 +960,7 @@
 
       } catch(e) {
           console.error("Final Submission Error:", e);
-          alert(`Upload failed: ${e.message}. Please check console for details.`);
+          alert(`Upload failed: ${e.message || "An unknown error occurred."}`);
       } finally {
           btn.innerText = "Public Course";
           btn.disabled = false;
