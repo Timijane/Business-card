@@ -621,7 +621,7 @@
       if (item.type === 'long-video') {
           actionButtons = `
             <button class="btn-course-details" onclick="viewDetails('${item.id}')">Course Details</button>
-            <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
+            <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')`}">
               ${isJoined ? 'Enrolled' : 'Enroll'}
             </button>
           `;
@@ -669,10 +669,18 @@
     }
     
     const courseRef = doc(db, "meetversity_courses", courseId);
-    const courseCard = document.querySelector(`.course-card .btn-love[onclick*="${courseId}"]`);
-    const isLoved = courseCard?.classList.contains('loved');
-
+    
     try {
+      // Get current state first
+      const courseDoc = await getDoc(courseRef);
+      if (!courseDoc.exists()) {
+        alert("Course not found.");
+        return;
+      }
+      
+      const courseData = courseDoc.data();
+      const isLoved = courseData.lovedBy?.includes(currentUser.uid);
+      
       if (isLoved) {
         await updateDoc(courseRef, { 
           lovedBy: arrayRemove(currentUser.uid) 
@@ -685,7 +693,7 @@
       // Real-time update handled by onSnapshot listener
     } catch (e) {
       console.error("Love toggle failed:", e);
-      alert("Failed to update love status. Please check console for details.");
+      alert(`Failed to update love status: ${e.message}. Please check console for details.`);
     }
   };
 
@@ -830,7 +838,7 @@
 
     } catch (e) {
         console.error("Application submission failed:", e);
-        alert(`Submission failed: ${e.message || "Please try again."}`);
+        alert(`Submission failed: ${e.message}. Please check console for details.`);
     } finally {
         submitBtn.innerText = "Submit Application";
         submitBtn.disabled = false;
@@ -962,7 +970,7 @@
 
       } catch(e) {
           console.error("Final Submission Error:", e);
-          alert(`Upload failed: ${e.message || "An unknown error occurred."}`);
+          alert(`Upload failed: ${e.message}. Please check console for details.`);
       } finally {
           btn.innerText = "Public Course";
           btn.disabled = false;
