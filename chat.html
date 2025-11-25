@@ -189,7 +189,7 @@
 
   .font-select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-size: 16px; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
 
-  /* Wallpaper Preview Modal */
+  /* Wallpaper Preview Modal - IMPROVED FOR MOBILE */
   .wallpaper-preview-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2200; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
   .wallpaper-preview-card { width: 90%; max-width: 400px; background: var(--card-bg); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
   .preview-visual { height: 400px; background: #eee; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -199,7 +199,7 @@
   .btn-confirm { background: var(--primary); color: white; }
   .btn-cancel { background: var(--bg-color); color: var(--text-color); }
 
-  /* Wallpaper Grid - FIXED FOR MOBILE */
+  /* Wallpaper Grid - IMPROVED FOR MOBILE */
   .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; align-items: center; justify-content: center; }
   .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; width: 95%; height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
   .wallpaper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
@@ -229,6 +229,32 @@
     .chat-area.active { transform: translateX(0); }
     .emoji-picker { width: 95%; left: 2.5%; bottom: 70px; }
     .wallpaper-grid { grid-template-columns: repeat(2, 1fr); }
+    
+    /* Mobile-specific wallpaper improvements */
+    .wallpaper-preview-card {
+      width: 95%;
+      max-width: none;
+      border-radius: 16px;
+      height: 80vh;
+    }
+    
+    .preview-visual {
+      height: 60vh;
+    }
+    
+    .preview-actions {
+      padding: 15px;
+      flex-direction: column;
+    }
+    
+    .wallpaper-thumb {
+      aspect-ratio: 3/4;
+    }
+    
+    .wallpaper-content {
+      padding: 15px;
+      height: 85vh;
+    }
   }
 </style>
 </head>
@@ -734,7 +760,7 @@
       messageInput.value = text;
   }
 
-  // --- WALLPAPER FEATURE (FIXED FOR MOBILE) ---
+  // --- WALLPAPER FEATURE (IMPROVED FOR MOBILE) ---
   const wallpaperCategories = ['Nature', 'Abstract', 'Tech', 'Minimal', 'City', 'Space', 'Dark'];
   let tempWallpaper = null;
 
@@ -797,6 +823,9 @@
 
     if(wp.type === 'image') {
         messagesContainer.style.backgroundImage = `url(${wp.src})`;
+        messagesContainer.style.backgroundSize = 'cover';
+        messagesContainer.style.backgroundPosition = 'center';
+        messagesContainer.style.backgroundAttachment = 'fixed';
     } else {
        const vid = document.createElement('video');
        vid.className = 'bg-video-layer'; vid.src = wp.src; vid.autoplay = true; vid.loop = true; vid.muted = true;
@@ -1065,7 +1094,7 @@
   window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
     
-  // FIX: Improved user search
+  // FIX: Improved user search - Users can be re-added after deletion
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
     const term = e.target.value.toLowerCase();
     const resDiv = document.getElementById('userSearchResults'); 
@@ -1101,22 +1130,35 @@
     });
   });
 
+  // MODIFIED: Users can re-add deleted conversations as fresh chats
   async function startNewChat(otherId, otherData) {
     const participants = [currentUser.uid, otherId].sort();
     const chatId = participants.join('_');
-    await setDoc(doc(db, "conversations", chatId), {
-      participants, 
-      participantNames: { 
-        [currentUser.uid]: currentUser.displayName||'Me', 
-        [otherId]: otherData.name||'User' 
-      },
-      participantAvatars: { 
-        [currentUser.uid]: navUserImg.src, 
-        [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name||'User'}` 
-      },
-      updatedAt: serverTimestamp(), 
-      lastMessage: ''
-    }, {merge: true});
+    
+    // Check if conversation already exists
+    const existingConv = await getDoc(doc(db, "conversations", chatId));
+    
+    if (existingConv.exists()) {
+      // Conversation exists, just open it
+      const convData = existingConv.data();
+      openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
+    } else {
+      // Create a new conversation
+      await setDoc(doc(db, "conversations", chatId), {
+        participants, 
+        participantNames: { 
+          [currentUser.uid]: currentUser.displayName||'Me', 
+          [otherId]: otherData.name||'User' 
+        },
+        participantAvatars: { 
+          [currentUser.uid]: navUserImg.src, 
+          [otherId]: otherData.photoURL||`https://ui-avatars.com/api/?name=${otherData.name||'User'}` 
+        },
+        updatedAt: serverTimestamp(), 
+        lastMessage: ''
+      }, {merge: true});
+    }
+    
     closeUserSearchOverlay(); 
     openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
