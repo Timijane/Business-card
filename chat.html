@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Chat Professional</title>
-<link href="https://fonts.googleapis.com/css2?family=Abel&family=Abril+Fatface&family=Acme&family=Advent+Pro&family=Aladin&family=Amatic+SC&family=Anton&family=Architects+Daughter&family=Archivo&family=Arvo&family=Barlow&family=Bebas+Neue&family=Bitter&family=Bree+Serif&family=Cabin&family=Carter+One&family=Catamaran&family=Caveat&family=Comfortaa&family=Cookie&family=Courgette&family=Crimson+Text&family=Dancing+Script&family=Dosis&family=Exo+2&family=Fira+Sans&family=Fredoka+One&family=Gloria+Hallelujah&family=Great+Vibes&family=Heebo&family=Hind&family=Inconsolata&family=Indie+Flower&family=Josefin+Sans&family=Kaushan+Script&family=Lato&family=Lobster&family=Lora&family=Merriweather&family=Monoton&family=Montserrat&family=Mukta&family=Nunito&family=Open+Sans&family=Orbitron&family=Oswald&family=Oxygen&family=Pacifico&family=Parisienne&family=Patua+One&family=Permanent+Marker&family=Play&family=Playfair+Display&family=Poppins:wght@300;400;500;600;700&family=Quicksand&family=Raleway&family=Righteous&family=Roboto&family=Rubik&family=Russo+One&family=Sacramento&family=Satisfy&family=Shadows+Into+Light&family=Source+Sans+Pro&family=Special+Elite&family=Teko&family=Titillium+Web&family=Ubuntu&family=Varela+Round&family=Work+Sans&family=Yellowtail&family=Zilla+Slab&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
@@ -112,6 +112,8 @@
   .message-wrapper { display: flex; gap: 8px; max-width: 80%; align-items: flex-end; position: relative; margin-bottom: 10px; group: true; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
+  .message-wrapper.optimistic-msg { opacity: 0.7; }
+  
   .message-avatar-small { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-bottom: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   
   .message-bubble { padding: 10px 16px; border-radius: 20px; position: relative; word-wrap: break-word; font-size: 15px; line-height: 1.5; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); font-family: var(--chat-font); }
@@ -198,15 +200,44 @@
   .btn-confirm { background: var(--primary); color: white; }
   .btn-cancel { background: var(--bg-color); color: var(--text-color); }
 
-  /* Wallpaper Grid - UPDATED FOR BETTER SCROLLING & NO OVERLAP */
-  .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; display: none; align-items: center; justify-content: center; }
-  .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 800px; width: 95%; height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  /* Wallpaper Grid - UPDATED FOR PERFECT 4 GRID */
+  .wallpaper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; align-items: center; justify-content: center; }
+  .wallpaper-content { background: var(--card-bg); border-radius: 12px; padding: 20px; max-width: 900px; width: 95%; height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
   .wallpaper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
-  .wallpaper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex: 1; } 
-  .wallpaper-thumb { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; background: #eee; position: relative; }
+  
+  /* FIXED: Strict 4 Column Grid */
+  .wallpaper-grid { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 15px; 
+      overflow-y: auto; 
+      padding: 5px; 
+      flex: 1; 
+  }
+  .wallpaper-thumb { 
+      aspect-ratio: 9/16; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      cursor: pointer; 
+      border: 3px solid transparent; 
+      transition: transform 0.2s; 
+      background: #eee; 
+      position: relative; 
+      width: 100%;
+  }
   .wallpaper-thumb:hover { border-color: #0080FF; transform: scale(1.02); }
   .wallpaper-thumb img, .wallpaper-thumb video { width: 100%; height: 100%; object-fit: cover; display:block; }
-  .category-title { font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; grid-column: 1 / -1; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+  .category-title { 
+      font-size: 14px; 
+      font-weight: bold; 
+      margin: 25px 0 10px 0; 
+      grid-column: 1 / -1; /* Spans all 4 columns */
+      color: var(--secondary-text); 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      border-bottom: 1px solid var(--border-color); 
+      padding-bottom: 5px; 
+  }
 
   /* Search Overlay */
   .user-search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-start; padding-top: 80px; backdrop-filter: blur(5px); }
@@ -227,6 +258,7 @@
     .chat-area { width: 100%; position: absolute; z-index: 60; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .chat-area.active { transform: translateX(0); }
     .emoji-picker { width: 95%; left: 2.5%; bottom: 70px; }
+    .wallpaper-grid { grid-template-columns: repeat(2, 1fr); } /* 2 cols on mobile */
   }
 </style>
 </head>
@@ -551,21 +583,12 @@
   window.openSettingsModal = () => document.getElementById('settingsModal').style.display = 'flex';
   window.closeSettingsModal = () => document.getElementById('settingsModal').style.display = 'none';
 
-  const fontList = [
-      "Poppins","Roboto","Open Sans","Lato","Montserrat","Nunito","Raleway","Oswald","Quicksand","Work Sans",
-      "Fira Sans","Barlow","Mukta","Abel","Acme","Anton","Arvo","Bitter","Cabin","Dosis","Hind","Inconsolata",
-      "Lobster","Lora","Oxygen","Pacifico","Righteous","Ubuntu","Comfortaa","Indie Flower",
-      "Playfair Display","Merriweather","Titillium+Web","Heebo","Bebas+Neue","Crimson+Text","Josefin+Sans",
-      "Architects+Daughter","Shadows+Into+Light","Dancing+Script","Amatic+SC","Orbitron","Permanent+Marker",
-      "Fredoka+One","Special+Elite","Teko","Courgette","Satisfy","Great+Vibes","Sacramento","Cookie","Parisienne"
-  ];
-  
+  const fontList = ["Poppins","Roboto","Open Sans","Lato","Montserrat","Nunito"];
   const fontSelect = document.getElementById('fontSelect');
   fontList.forEach(f => {
       const opt = document.createElement('option');
-      opt.value = `'${f.replace('+',' ')}', sans-serif`;
-      opt.text = f.replace('+',' ');
-      opt.style.fontFamily = f.replace('+',' ');
+      opt.value = `'${f}', sans-serif`;
+      opt.text = f;
       fontSelect.appendChild(opt);
   });
 
@@ -634,28 +657,25 @@
       messageInput.value = text;
   }
 
-  // --- WALLPAPER FEATURE (EXTENSIVE LIST FOR SCROLLING) ---
+  // --- WALLPAPER FEATURE (Corrected Grid) ---
   const wallpaperCategories = ['Nature', 'Abstract', 'Tech', 'Minimal', 'City', 'Space', 'Dark'];
   let tempWallpaper = null;
 
   window.openWallpaperModal = () => {
     const modal = document.getElementById('wallpaperModal');
-    modal.style.display = 'flex'; // Use flex for the centering logic in CSS
+    modal.style.display = 'flex';
     const grid = document.getElementById('wallpaperGrid');
     grid.innerHTML = '';
     
-    // Generate Extensive List (Scrollable)
-    wallpaperCategories.forEach((cat, index) => {
+    wallpaperCategories.forEach((cat) => {
         const title = document.createElement('div');
         title.className = 'category-title';
         title.innerText = cat;
         grid.appendChild(title);
         
-        // Generate 12 images per category to ensure scroll is needed
-        for(let i=1; i<=12; i++) {
+        for(let i=1; i<=8; i++) {
             const div = document.createElement('div');
             div.className = 'wallpaper-thumb';
-            // Use picsum with seed to get consistent but random images
             const imgUrl = `https://picsum.photos/seed/${cat}${i}/400/700`;
             div.innerHTML = `<img src="${imgUrl}" loading="lazy">`;
             div.onclick = () => showWpPreview({type: 'image', src: imgUrl});
@@ -724,6 +744,7 @@
       const res = await fetch(`https://api.cloudinary.com/v1_1/dcwof2ngn/upload`, { method: 'POST', body: formData });
       const data = await res.json();
       if(data.secure_url) {
+        // Send real message
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url, 
           mediaType: type, 
@@ -731,7 +752,7 @@
           senderId: currentUser.uid, 
           timestamp: serverTimestamp()
         });
-        document.getElementById(tempId).remove();
+        // The snapshot listener will handle replacing the optimistic message
       }
     } catch (e) { 
         document.getElementById(tempId).remove(); 
@@ -745,10 +766,10 @@
     else {
       currentUser = user;
       document.getElementById('logoutBtn').addEventListener('click', () => {
-          // Clear persistent chat on logout so next user doesn't see it
-          localStorage.removeItem('last_active_chat');
+          localStorage.removeItem('last_active_chat'); // Clear persistent chat on logout
           signOut(auth);
       });
+      
       const userDoc = await getDoc(doc(db, "users", user.uid));
       let photoURL = user.photoURL;
       if(userDoc.exists() && userDoc.data().photoURL) photoURL = userDoc.data().photoURL;
@@ -757,6 +778,21 @@
       loadConversations();
       loadSettings();
       initEmojiPicker();
+
+      // FIXED: Restore chat view on reload
+      const savedChatId = localStorage.getItem('last_active_chat');
+      if (savedChatId) {
+          try {
+             const chatDoc = await getDoc(doc(db, "conversations", savedChatId));
+             if(chatDoc.exists()) {
+                 const data = chatDoc.data();
+                 const otherId = data.participants.find(p => p !== user.uid);
+                 const name = data.participantNames ? data.participantNames[otherId] : 'User';
+                 const avatar = data.participantAvatars ? data.participantAvatars[otherId] : `https://ui-avatars.com/api/?name=${name}`;
+                 openChat(savedChatId, otherId, name, avatar);
+             }
+          } catch(e) { console.error("Error restoring chat", e); }
+      }
     }
   });
 
@@ -769,13 +805,6 @@
       snapshot.forEach(doc => convs.push({id: doc.id, ...doc.data()}));
       convs.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
-      // FIX: Check if user wants to restore chat (only if explicitly saved)
-      const savedChatId = localStorage.getItem('last_active_chat');
-      let shouldRestoreChat = localStorage.getItem('should_restore_chat') === 'true';
-      
-      // Clear the restore flag for next time
-      localStorage.removeItem('should_restore_chat');
-
       convs.forEach(conv => {
          const otherId = conv.participants.find(p => p !== currentUser.uid);
          const name = conv.participantNames?.[otherId] || 'User';
@@ -784,16 +813,9 @@
          div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
          div.innerHTML = `<img src="${avatar}" class="conversation-avatar"><div class="conversation-info"><div class="conversation-name">${name}</div><div class="conversation-preview">${conv.lastMessage || 'No messages'}</div></div>`;
          div.onclick = () => {
-           // Set flag to restore this chat if page refreshes
-           localStorage.setItem('should_restore_chat', 'true');
-           openChat(conv.id, otherId, name, avatar);
+             openChat(conv.id, otherId, name, avatar);
          };
          list.appendChild(div);
-
-         // FIX: Only restore chat if explicitly requested (not on first load)
-         if (shouldRestoreChat && savedChatId && conv.id === savedChatId && !currentChatId) {
-             openChat(conv.id, otherId, name, avatar);
-         }
       });
     });
   }
@@ -821,8 +843,8 @@
     // Update active class
     const allItems = document.querySelectorAll('.conversation-item');
     allItems.forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-
+    // We might not have the click event here if called from reload, so we manually find it or let the list rebuild handle it
+    
     if(window.innerWidth <= 768) { 
       document.getElementById('conversationsSidebar').style.zIndex = '10'; 
       document.getElementById('chatArea').classList.add('active'); 
@@ -846,11 +868,11 @@
         const isMe = msg.senderId === currentUser.uid;
 
         if(change.type === "added") {
-            // FIX: Better handling of optimistic messages
-            const existingMsg = document.getElementById(change.doc.id);
-            if (existingMsg && existingMsg.classList.contains('optimistic-msg')) {
-                // Replace optimistic message with real one
-                existingMsg.remove();
+            // FIXED: Double Message Logic
+            // If we receive a new message, remove any "optimistic" messages that were manually added
+            const optimistic = document.querySelector('.optimistic-msg');
+            if (optimistic && isMe) {
+                 optimistic.remove();
             }
 
             // Date header logic
@@ -885,7 +907,7 @@
     });
   }
 
-  // FIX: Improved message sending with better error handling
+  // FIXED: Improved message sending logic
   document.getElementById('sendButton').addEventListener('click', async () => {
     const text = messageInput.value.trim();
     if(!text || !currentChatId) return;
@@ -901,7 +923,7 @@
     messageInput.value = '';
     messageInput.style.height = '48px';
     
-    // 2. RENDER OPTIMISTIC MESSAGE INSTANTLY
+    // 2. RENDER OPTIMISTIC MESSAGE (Instant Feedback)
     const tempId = 'temp-' + Date.now();
     const optimisticMsg = { 
       text: text, 
@@ -921,7 +943,8 @@
         replyTo: replyToMsg ? { id: replyToMsg.id, user: replyToMsg.user, text: replyToMsg.text } : null
     };
 
-    // 3. SEND TO FIREBASE (Non-blocking)
+    // 3. SEND TO FIREBASE
+    const replyRef = replyToMsg; // Capture reference before clearing
     cancelReply(); // Close reply bar immediately
     
     try {
@@ -932,17 +955,18 @@
         });
     } catch(e) { 
         console.error("Send error:", e);
-        // Show error state but keep message visible
-        div.style.opacity = 0.7; 
-        div.querySelector('.message-bubble').style.background = 'var(--error)';
-        const timeEl = div.querySelector('.message-time');
-        if (timeEl) {
-            timeEl.innerHTML = 'Failed to send • ' + timeEl.innerHTML;
+        // Show error state on the optimistic message
+        const failedDiv = document.getElementById(tempId);
+        if(failedDiv) {
+            failedDiv.style.opacity = 0.7; 
+            failedDiv.querySelector('.message-bubble').style.background = 'var(--error)';
+            const timeEl = failedDiv.querySelector('.message-time');
+            if (timeEl) timeEl.innerHTML = 'Failed to send • ' + timeEl.innerHTML;
         }
     }
   });
 
-  // FIX: Add Enter key support for sending
+  // Enter key support
   messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -950,7 +974,7 @@
     }
   });
 
-  // FIX: Auto-resize textarea
+  // Auto-resize textarea
   messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
@@ -959,7 +983,7 @@
   window.openUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'flex';
   window.closeUserSearchOverlay = () => document.getElementById('userSearchOverlay').style.display = 'none';
   
-  // FIX: Improved user search
+  // User Search
   document.getElementById('userSearchInput').addEventListener('input', async (e) => {
     const term = e.target.value.toLowerCase();
     const resDiv = document.getElementById('userSearchResults'); 
@@ -1012,19 +1036,13 @@
       lastMessage: ''
     }, {merge: true});
     closeUserSearchOverlay(); 
-    // Set restore flag for this new chat
-    localStorage.setItem('should_restore_chat', 'true');
     openChat(chatId, otherId, otherData.name||'User', otherData.photoURL);
   }
 
-   // --- EXPANDED EMOJIS (WhatsApp Style) ---
+   // --- EMOJIS (WhatsApp Style) ---
   const emojis = {
     "Smileys": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😶‍🌫️","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","😵‍💫","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾"],
     "Gestures": ["👋","🤚","🖐","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸"],
-    "People": ["👶","👧","🧒","👦","👩","🧑","👨","👩‍🦱","🧑‍🦱","👨‍🦱","👩‍🦰","🧑‍🦰","👨‍🦰","👱‍♀️","👱","👱‍♂️","👩‍🦳","🧑‍🦳","👨‍🦳","👩‍🦲","🧑‍🦲","👨‍🦲","🧔","👵","🧓","👴","👲","👳‍♀️","👳","👳‍♂️","🧕","👮‍♀️","👮","👮‍♂️","👷‍♀️","👷","👷‍♂️","💂‍♀️","💂","💂‍♂️","🕵️‍♀️","🕵️","🕵️‍♂️","👩‍⚕️","🧑‍⚕️","👨‍⚕️","👩‍🌾","🧑‍🌾","👨‍🌾","👩‍🍳","🧑‍🍳","👨‍🍳","👩‍🎓","🧑‍🎓","👨‍🎓","👩‍🎤","🧑‍🎤","👨‍🎤","👩‍🏫","🧑‍🏫","👨‍🏫","👩‍🏭","🧑‍🏭","👨‍🏭","👩‍💻","🧑‍💻","👨‍💻","👩‍💼","🧑‍💼","👨‍💼","👩‍🔧","🧑‍🔧","👨‍🔧","👩‍🔬","🧑‍🔬","👨‍🔬","👩‍🎨","🧑‍🎨","👨‍🎨","👩‍🚒","🧑‍🚒","👨‍🚒","👩‍✈️","🧑‍✈️","👨‍✈️","👩‍🚀","🧑‍🚀","👨‍🚀","👩‍⚖️","🧑‍⚖️","👨‍⚖️","👰‍♀️","👰","👰‍♂️","🤵‍♀️","🤵","🤵‍♂️","👸","🤴","🥷","🦸‍♀️","🦸","🦸‍♂️","🦹‍♀️","🦹","🦹‍♂️","🤶","🧑‍🎄","🎅","🧙‍♀️","🧙","🧙‍♂️","🧝‍♀️","🧝","🧝‍♂️","🧛‍♀️","🧛","🧛‍♂️","🧟‍♀️","🧟","🧟‍♂️","🧞‍♀️","🧞","🧞‍♂️","🧜‍♀️","🧜","🧜‍♂️","🧚‍♀️","🧚","🧚‍♂️"],
-    "Animals": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲","🪳","🦟","🦗","🕷","🕸","🦂","🐢","🐍","🦎","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🦧","🦣","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🐐","🦌","🐕","🐩","🦮","🐕‍🦺","🐈","🐈‍⬛","🐓","🦃","🦚","🦜","🦢","🦩","🕊","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿","🦔","🐾"],
-    "Food": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🦴","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","☕️","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊"],
-    "Activities": ["⚽️","🏀","🏈","⚾️","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳️","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸","🥌","🎿","⛷","🏂","🪂","🏋️‍♀️","🏋️","🏋️‍♂️","🤼‍♀️","🤼","🤼‍♂️","🤸‍♀️","🤸","🤸‍♂️","⛹️‍♀️","⛹️","⛹️‍♂️","🤺","🤾‍♀️","🤾","🤾‍♂️","🏌️‍♀️","🏌️","🏌️‍♂️","🏇","🧘‍♀️","🧘","🧘‍♂️","🏄‍♀️","🏄","🏄‍♂️","🏊‍♀️","🏊","🏊‍♂️","🤽‍♀️","🤽","🤽‍♂️","🚣‍♀️","🚣","🚣‍♂️","🧗‍♀️","🧗","🧗‍♂️","🚵‍♀️","🚵","🚵‍♂️","🚴‍♀️","🚴","🚴‍♂️","🏆","🥇","🥈","🥉","🏅","🎖","🏵","🎗","🎫","🎟","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟","🎯","🎳","🎮","🎰","🧩"],
     "Objects": ["⌚️","📱","💻","⌨️","🖥","🖨","🖱","🖲","🕹","🗜","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽","🎞","📞","☎️","📟","📠","📺","📻","🎙","🎚","🎛","🧭","⏱","⏲","⏰","🕰","⌛️","⏳","📡","🔋","🔌","💡","🔦","🕯","🪔","🧯","🛢","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒","🛠","⛏","🪚","🔩","⚙️","🪤","🧱","⛓","🧲","🔫","💣","🧨","🪓","🔪","🗡","⚔️","🛡","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","💈","⚗️","🔭","🔬","🕳","🩹","🩺","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡","🧹","🪠","🧺","🧻","🚽","🚰","🚿","🛁","🛀","🧼","🪥","🪒","🧽","🪣","🧴","🛎","🔑","🗝","🚪","🪑","🛋","🛏","🛌","🧸","🪆","🖼","🪞","🪟","🛍","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒","🗓","📆","📅","🗑","📇","🗃","🗳","🗄","📋","📁","📂","🗂","🗞","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇","📐","📏","🧮","📌","📍","✂️","🖊","🖋","✒️","🖌","🖍","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"]
   };
   
@@ -1042,25 +1060,23 @@
   }
   window.toggleEmojiPicker = () => { emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex'; };
 
-  // FIX: Improved back button behavior
   document.getElementById('backButton').addEventListener('click', () => { 
     document.getElementById('chatArea').classList.remove('active'); 
-    // Clear the restore flag when user manually goes back
-    localStorage.removeItem('should_restore_chat');
+    localStorage.removeItem('last_active_chat'); // Explicitly going back clears the state
   });
   
   document.getElementById('nightToggleBtn').addEventListener('click', () => { 
     document.body.classList.toggle('dark-mode'); 
   });
 
-  // FIX: Close emoji picker when clicking outside
+  // Close emoji picker when clicking outside
   document.addEventListener('click', (e) => {
     if (!emojiPicker.contains(e.target) && !e.target.closest('.input-action')) {
       emojiPicker.style.display = 'none';
     }
   });
 
-  // FIX: Close message options when clicking elsewhere
+  // Close message options when clicking elsewhere
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.msg-options-btn') && !e.target.closest('.msg-options-menu')) {
       document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
