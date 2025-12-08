@@ -170,78 +170,6 @@
   .detail-outline li { margin-bottom: 5px; font-size: 14px; list-style-type: none; }
   .detail-outline li i { color: var(--success); margin-right: 5px; }
 
-  /* --- CHAT STYLES (NEW) --- */
-  .classroom-chat {
-      margin-top: 30px;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
-  body.dark-mode .classroom-chat {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-  }
-
-  .chat-feed {
-      height: 300px;
-      overflow-y: scroll;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid #eee;
-      padding: 15px;
-      margin-bottom: 10px;
-  }
-  body.dark-mode .chat-feed {
-      background: var(--bg-color);
-      border-color: var(--border-color);
-  }
-
-  .message {
-      padding: 8px 12px;
-      border-radius: 15px;
-      max-width: 80%;
-      font-size: 14px;
-      word-wrap: break-word;
-  }
-
-  .message.other {
-      background: #e4e6eb; /* Light grey for others */
-      color: var(--text-color);
-      align-self: flex-start;
-      border-top-left-radius: 2px;
-  }
-  body.dark-mode .message.other {
-      background: #3e4042;
-  }
-
-  .message.self {
-      background: #0080FF; /* Primary blue for current user */
-      color: white;
-      align-self: flex-end;
-      border-top-right-radius: 2px;
-  }
-
-  .message strong {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 2px;
-  }
-
-  .message small {
-      display: block;
-      font-size: 10px;
-      color: #65676b;
-      margin-top: 3px;
-      text-align: right;
-  }
-
-  .message.self small {
-      color: rgba(255, 255, 255, 0.7);
-  }
-  /* --- END CHAT STYLES --- */
-
   /* Form Elements */
   .form-group { margin-bottom: 15px; }
   .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
@@ -501,8 +429,37 @@
       <h3 id="detailModalTitle">Content Details</h3>
       <button onclick="closeDetailModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
     </div>
-    <div class="modal-body" id="detailModalBodyContent">
+    <div class="modal-body">
+      <div class="detail-header">
+          <div class="detail-title" id="courseDetailTitle"></div>
+          <div class="detail-creator">
+              <div id="detailCreatorBadge" class="poster-badge" style="width:36px; height:36px;"></div>
+              <span>By <span id="courseDetailCreator"></span></span>
+          </div>
+          <div class="detail-meta" style="margin-top: 10px; font-size: 12px; color: var(--secondary-text);">
+              <span id="courseDetailCategory"></span> | Duration: <span id="courseDetailDuration"></span>
+          </div>
       </div>
+
+      <div class="detail-section">
+          <h4>Course Summary</h4>
+          <p id="courseDetailDescription"></p>
+          
+          <h4>Instructor Profile</h4>
+          <p class="detail-bio" id="courseDetailBio"></p>
+      </div>
+
+      <div class="detail-section" id="detailOutlineSection">
+          <h4>Course Outline / Learning Outcomes</h4>
+          <ul id="courseDetailOutline" class="detail-outline"></ul>
+      </div>
+
+      <button class="create-btn" id="detailJoinBtn" style="width:100%; margin-top: 20px; display:none;" onclick="openApplicationModal(this.dataset.courseId, this.dataset.courseTitle)">
+          Enroll / Join Class
+      </button>
+      <div id="detailCertificateInfo" style="margin-top:10px; font-size:12px; font-weight:600; color:var(--success); text-align:center;"></div>
+      <div id="detailMediaEmbed" style="margin-top:20px; text-align: center;"></div>
+    </div>
   </div>
 </div>
 
@@ -511,17 +468,13 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  
-  // <<< NEW: RTDB IMPORTS >>>
-  import { getDatabase, ref, push, onValue, limitToLast } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-  // <<< END NEW IMPORTS >>>
 
   // --- FIREBASE CONFIG ---
   const firebaseConfig = {
       // NOTE: Replace this with your ACTUAL Firebase configuration!
       apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM", 
       authDomain: "meet-6e159.firebaseapp.com",
-      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com", // <<< CRITICAL FOR RTDB
+      databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
       projectId: "meet-6e159",
       storageBucket: "meet-6e159-firebasestorage.app",
       messagingSenderId: "252353608421",
@@ -531,12 +484,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  
-  // <<< NEW: RTDB INITIALIZATION >>>
-  const rtdb = getDatabase(app); 
-  window.rtdb = rtdb; // Expose globally
-  // <<< END NEW INITIALIZATION >>>
-  
   window.auth = auth;
   
   // Expose modal functions globally for inline HTML calls
@@ -544,6 +491,7 @@
   window.closeCreateModal = () => { document.getElementById('createModal').style.display = 'none'; document.getElementById('createForm').reset(); document.getElementById('thumbPreview').style.display = 'none'; thumbBase64 = null; };
 
   // --- CLOUDINARY CONFIG ---
+  // NOTE: Replace with your ACTUAL Cloudinary details!
   const CLOUD_NAME = "dcwof2ngn"; 
   const UPLOAD_PRESET = "Meet_video";
   const CLOUDINARY_GENERIC_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; 
@@ -553,8 +501,6 @@
   let thumbBase64 = null; 
   let loveCounts = {};
   let reviewCounts = {};
-  
-  let chatUnsubscriber = null; // To hold the RTDB listener reference
 
   // --- AUTH & USER PROFILE ---
   onAuthStateChanged(auth, async (user) => {
@@ -575,69 +521,6 @@
       document.getElementById('userNameDisplay').innerText = "Guest";
     }
   });
-
-  // --- CHAT FUNCTIONS (NEW) ---
-  const sendMessage = (courseId) => {
-    const inputElement = document.getElementById(`messageInput-${courseId}`);
-    const text = inputElement.value.trim();
-    const type = 'message'; // Simple message type for now
-    
-    if (!window.currentUser || !text || !courseId) return; 
-
-    const messagesRef = ref(window.rtdb, `course_chats/${courseId}/messages`);
-    
-    push(messagesRef, {
-        senderId: window.currentUser.uid,
-        senderName: window.currentUser.displayName || (window.currentUser.email ? window.currentUser.email.split('@')[0] : 'User'),
-        text: text,
-        timestamp: Date.now(),
-        type: type 
-    })
-    .then(() => {
-        inputElement.value = ''; // Clear input on success
-    })
-    .catch(error => {
-        console.error("Failed to send message:", error);
-        alert("Failed to send message. Check network or rules.");
-    });
-  };
-
-  const setupChatListener = (courseId) => {
-    const messagesFeed = document.getElementById(`messagesFeed-${courseId}`);
-    if (!messagesFeed) return;
-
-    // Remove previous listener if one exists
-    if (chatUnsubscriber) chatUnsubscriber();
-
-    const messagesRef = ref(window.rtdb, `course_chats/${courseId}/messages`);
-    const chatQuery = query(messagesRef, limitToLast(50));
-    
-    // onValue returns the function to unsubscribe/stop listening
-    chatUnsubscriber = onValue(chatQuery, (snapshot) => {
-        messagesFeed.innerHTML = ''; // Clear and redraw all loaded messages
-        
-        snapshot.forEach((childSnapshot) => {
-            const messageData = childSnapshot.val();
-            const isSelf = messageData.senderId === window.currentUser.uid;
-            
-            const msgEl = document.createElement('div');
-            msgEl.className = `message ${isSelf ? 'self' : 'other'}`;
-            
-            const senderDisplay = isSelf ? 'You' : messageData.senderName;
-
-            msgEl.innerHTML = `
-                ${!isSelf ? `<strong>${senderDisplay}:</strong>` : ''}
-                <span>${messageData.text}</span>
-                <small>${new Date(messageData.timestamp).toLocaleTimeString()}</small>
-            `;
-            messagesFeed.appendChild(msgEl);
-        });
-        
-        // Auto-scroll to the bottom
-        messagesFeed.scrollTop = messagesFeed.scrollHeight;
-    });
-  };
-  // --- END CHAT FUNCTIONS ---
 
   // --- COMPRESSION LOGIC (For Thumbnails) ---
   const compressImage = (file) => {
@@ -700,6 +583,7 @@
 
     snapshot.docChanges().forEach(change => {
         const data = { id: change.doc.id, ...change.doc.data() };
+        // Update local counts for real-time display
         loveCounts[data.id] = data.lovedBy ? data.lovedBy.length : 0;
         reviewCounts[data.id] = data.reviewCount || 0;
     });
@@ -728,6 +612,7 @@
     if(!items.length) { container.innerHTML = '<div style="padding:10px; color:#888;">No content yet.</div>'; return; }
 
     items.forEach(item => {
+      // **FIXED: Enrollment/Love checks rely on currentUser being set**
       const isJoined = currentUser && item.learners?.includes(currentUser.uid);
       const isLoved = currentUser && item.lovedBy?.includes(currentUser.uid);
       const loves = loveCounts[item.id] || 0;
@@ -741,6 +626,7 @@
       let hasCertificate = item.hasCert && item.type !== 'document';
 
       if (item.type === 'long-video') {
+          // Full Course
           actionButtons = `
             <button class="btn-course-details" onclick="viewDetails('${item.id}')">Course Details</button>
             <button class="btn-join ${isJoined ? 'joined' : ''}" ${isJoined ? 'disabled' : ''} onclick="${isJoined ? '' : `openApplicationModal('${item.id}', '${item.title}')`}">
@@ -749,6 +635,7 @@
           `;
           hasCertificate = item.hasCert;
       } else {
+          // Quick Video / Document
           actionButtons = `<button class="btn-detail" onclick="viewDetails('${item.id}')">Details</button>`;
           hasCertificate = item.hasCert && item.type === 'quick-video'; 
       }
@@ -793,12 +680,15 @@
 
     try {
         if (isLoved) {
+            // Unlove: arrayRemove is safe
             await updateDoc(courseRef, { lovedBy: arrayRemove(currentUser.uid) });
             courseCard?.classList.remove('loved');
         } else {
+            // Love: arrayUnion is safe and prevents duplicates
             await updateDoc(courseRef, { lovedBy: arrayUnion(currentUser.uid) });
             courseCard?.classList.add('loved');
         }
+        // UI update for counts happens via the main onSnapshot listener
     } catch (e) {
         console.error("Love toggle failed:", e);
         alert("Failed to update love status. (Check Firebase Rules)");
@@ -806,7 +696,7 @@
   };
 
 
-  // --- DETAILS MODAL LOGIC (INCLUDING CHAT) ---
+  // --- DETAILS MODAL LOGIC ---
   window.viewDetails = async (courseId) => {
     if (!currentUser) { alert("Login required to view content details."); return; }
     
@@ -814,100 +704,64 @@
     const courseDoc = await getDoc(courseRef);
     if (!courseDoc.exists()) { alert("Content not found."); return; }
     const data = courseDoc.data();
-    
-    const isEnrolled = data.learners?.includes(currentUser.uid);
-    const detailModalBody = document.getElementById('detailModalBodyContent');
-    
-    // --- START: Build HTML Content for Detail Modal ---
-    let html = `
-        <div class="detail-header">
-            <div class="detail-title">${data.title}</div>
-            <div class="detail-creator">
-                <div id="detailCreatorBadge" class="poster-badge" style="width:36px; height:36px;">${data.instructorPhoto ? `<img src="${data.instructorPhoto}" style="width:100%;height:100%;object-fit:cover;">` : (data.instructorName?.[0]||'U')}</div>
-                <span>By ${data.instructorName}</span>
-            </div>
-            <div class="detail-meta" style="margin-top: 10px; font-size: 12px; color: var(--secondary-text);">
-                ${data.category} | Duration: ${data.duration}
-            </div>
-        </div>
 
-        <div class="detail-section">
-            <h4>Course Summary</h4>
-            <p>${data.description}</p>
-            
-            <h4>Instructor Profile</h4>
-            <p class="detail-bio">${data.instructorBio || "The creator has not provided a bio."}</p>
-        </div>
-        
-        <div class="detail-section" id="detailOutlineSection-${courseId}" style="${(data.outcomes && data.outcomes.length > 0) ? 'display:block;' : 'display:none;'}">
-            <h4>Course Outline / Learning Outcomes</h4>
-            <ul class="detail-outline">
-                ${(data.outcomes || []).map(item => `<li><i class="fas fa-check-circle"></i> ${item}</li>`).join('')}
-            </ul>
-        </div>
+    document.getElementById('courseDetailTitle').innerText = data.title;
+    document.getElementById('courseDetailCreator').innerText = data.instructorName;
+    document.getElementById('courseDetailCategory').innerText = data.category;
+    document.getElementById('courseDetailDuration').innerText = data.duration;
+    document.getElementById('courseDetailDescription').innerText = data.description;
+    document.getElementById('courseDetailBio').innerText = data.instructorBio || "The creator has not provided a bio.";
 
-        <div id="detailCertificateInfo-${courseId}" style="margin-top:10px; font-size:12px; font-weight:600; color:var(--success); text-align:center;">
-             ${(data.type !== 'document' && data.hasCert) ? '<i class="fas fa-certificate"></i> This content offers a MEET Certificate.' : ''}
-        </div>
-        
-        <button class="create-btn" id="detailJoinBtn-${courseId}" 
-                style="width:100%; margin-top: 20px; display:${data.type === 'long-video' ? 'block' : 'none'};" 
-                onclick="${isEnrolled ? '' : `openApplicationModal('${courseId}', '${data.title}')`}"
-                data-course-id="${courseId}" data-course-title="${data.title}" ${isEnrolled ? 'disabled' : ''}>
-            ${isEnrolled ? 'Enrolled' : 'Enroll / Join Class'}
-        </button>
-
-        <div id="detailMediaEmbed-${courseId}" style="margin-top:20px; text-align: center;">
-             <a href="${data.mediaUrl}" target="_blank" style="color:var(--primary); font-size:14px;"><i class="fas fa-external-link-alt"></i> View Content File</a>
-        </div>
-        
-        ${isEnrolled ? `
-            <div class="classroom-chat">
-                <h3><i class="fas fa-comments"></i> Live Class Discussion</h3>
-                <div id="messagesFeed-${courseId}" class="chat-feed">
-                    <p style="text-align:center; color:#999;">Loading real-time discussion...</p>
-                </div>
-                <div class="chat-input-area" style="display: flex; margin-top: 10px; gap: 10px;">
-                    <input type="text" id="messageInput-${courseId}" placeholder="Type message or question..." maxlength="450" 
-                           style="flex-grow: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--border-color); background:var(--bg-color); color:var(--text-color);">
-                    <button id="sendBtn-${courseId}" style="background: var(--edu-primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
-                        Send <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        ` : ''}
-        `;
-    // --- END: Build HTML Content for Detail Modal ---
-    
-    detailModalBody.innerHTML = html;
-    document.getElementById('detailModal').style.display = 'flex';
-    
-    // --- ATTACH CHAT LISTENERS (Only if Enrolled) ---
-    if (isEnrolled) {
-        // 1. Start the real-time message listener
-        setupChatListener(courseId);
-
-        // 2. Attach the Send button event
-        document.getElementById(`sendBtn-${courseId}`).addEventListener('click', () => {
-            sendMessage(courseId);
-        });
-
-        // 3. Attach the Enter key event
-        document.getElementById(`messageInput-${courseId}`).addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage(courseId);
-            }
-        });
+    const creatorBadge = document.getElementById('detailCreatorBadge');
+    if(data.instructorPhoto) {
+        creatorBadge.innerHTML = `<img src="${data.instructorPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+        creatorBadge.innerHTML = data.instructorName?.[0]||'U';
+        creatorBadge.style.backgroundColor = '#0080FF';
     }
-    // --- END CHAT LISTENERS ---
+
+    const outlineUl = document.getElementById('courseDetailOutline');
+    const outlineSection = document.getElementById('detailOutlineSection');
+    const certInfo = document.getElementById('detailCertificateInfo');
+    const joinBtn = document.getElementById('detailJoinBtn');
+    
+    outlineUl.innerHTML = '';
+    certInfo.innerHTML = '';
+    
+    if (data.outcomes && data.outcomes.length > 0) {
+        data.outcomes.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+            outlineUl.appendChild(li);
+        });
+        outlineSection.style.display = 'block';
+    } else {
+        outlineSection.style.display = 'none';
+    }
+
+    if(data.type === 'long-video' && data.hasCert) {
+        certInfo.innerHTML = '<i class="fas fa-certificate"></i> This course offers a MEET Certificate upon completion.';
+        joinBtn.style.display = 'block';
+        joinBtn.dataset.courseId = courseId;
+        joinBtn.dataset.courseTitle = data.title;
+        joinBtn.innerText = data.learners?.includes(currentUser.uid) ? 'Enrolled' : 'Enroll';
+        joinBtn.disabled = data.learners?.includes(currentUser.uid);
+    } else if (data.type === 'quick-video') {
+         joinBtn.style.display = 'none';
+         if(data.hasCert) {
+             certInfo.innerHTML = '<i class="fas fa-certificate"></i> This quick video offers a MEET Certificate.';
+         }
+    } else {
+        joinBtn.style.display = 'none';
+    }
+
+    const mediaEmbed = document.getElementById('detailMediaEmbed');
+    mediaEmbed.innerHTML = `<a href="${data.mediaUrl}" target="_blank" style="color:var(--primary); font-size:14px;"><i class="fas fa-external-link-alt"></i> View Content File</a>`;
+
+    document.getElementById('detailModal').style.display = 'flex';
   };
-  
   window.closeDetailModal = () => {
     document.getElementById('detailModal').style.display = 'none';
-    if (chatUnsubscriber) {
-        chatUnsubscriber(); // Stop the real-time chat listener
-        chatUnsubscriber = null;
-    }
   };
 
 
@@ -959,13 +813,13 @@
         });
 
         // 2. Mark user as 'learner' in the course document
+        // **FIXED: arrayUnion prevents duplicate enrollment**
         await updateDoc(doc(db, "meetversity_courses", courseId), {
             learners: arrayUnion(currentUser.uid)
         });
 
         alert("Form submitted, You are successfully enrolled!");
         closeApplicationModal();
-        viewDetails(courseId); // Refresh the detail view to show the chat
 
     } catch (e) {
         console.error("Application submission failed:", e);
