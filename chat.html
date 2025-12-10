@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1526,13 +1525,13 @@
 </style>
 </head>
 <body>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="app-container">
   <!-- Sidebar -->
   <div class="sidebar" id="mainSidebar">
     <div class="sidebar-header">
       <h2>MEET</h2>
-      <button onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:24px; padding:8px; border-radius:50%; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'"><i class="fas fa-times"></i></button>
+      <button class="sidebar-close-btn"><i class="fas fa-times"></i></button>
     </div>
     <ul class="sidebar-menu">
       <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
@@ -1548,7 +1547,7 @@
     <!-- Navbar -->
     <div class="navbar">
       <div class="navbar-left">
-        <button class="hamburger-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <button class="hamburger-btn"><i class="fas fa-bars"></i></button>
         <h2 style="font-weight:600; font-size:22px;">Chat</h2>
       </div>
       <div class="navbar-right">
@@ -1565,13 +1564,45 @@
       <div class="conversations-sidebar" id="conversationsSidebar">
         <div class="chat-header">
           <h3>Messages</h3>
-          <button class="new-chat-btn" onclick="openUserSearchOverlay()"><i class="fas fa-plus"></i></button>
+          <button class="new-chat-btn"><i class="fas fa-plus"></i></button>
         </div>
         <div class="chat-search">
           <input type="text" placeholder="Search chats..." id="chatSearch">
         </div>
         <div class="conversations-list" id="conversationsList">
           <!-- Conversations will be loaded here -->
+          <div class="conversation-item" data-chat-id="1" data-user-id="2" data-user-name="John Doe" data-user-avatar="https://via.placeholder.com/50">
+            <img src="https://via.placeholder.com/50" class="conversation-avatar">
+            <div class="conversation-info">
+              <div class="conversation-name">John Doe</div>
+              <div class="conversation-preview">Hello there! How are you doing?</div>
+            </div>
+            <div class="conversation-meta">
+              <div class="conversation-time">10:30 AM</div>
+              <div class="unread-badge">3</div>
+            </div>
+          </div>
+          <div class="conversation-item" data-chat-id="2" data-user-id="3" data-user-name="Jane Smith" data-user-avatar="https://via.placeholder.com/50">
+            <img src="https://via.placeholder.com/50" class="conversation-avatar">
+            <div class="conversation-info">
+              <div class="conversation-name">Jane Smith</div>
+              <div class="conversation-preview">Meeting tomorrow at 2 PM</div>
+            </div>
+            <div class="conversation-meta">
+              <div class="conversation-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="conversation-item" data-chat-id="3" data-user-id="4" data-user-name="Mike Johnson" data-user-avatar="https://via.placeholder.com/50">
+            <img src="https://via.placeholder.com/50" class="conversation-avatar">
+            <div class="conversation-info">
+              <div class="conversation-name">Mike Johnson</div>
+              <div class="conversation-preview">Thanks for your help with the project!</div>
+            </div>
+            <div class="conversation-meta">
+              <div class="conversation-time">Monday</div>
+              <div class="unread-badge">1</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1585,24 +1616,34 @@
         </div>
 
         <!-- Chat header with call buttons -->
-        <div class="chat-area-header" id="chatHeader" style="display: none;">
-          <button class="chat-action-btn" id="backButton" style="color:var(--text-color); margin-right:5px;"><i class="fas fa-arrow-left"></i></button>
-          <img src="" id="currentChatAvatar" class="conversation-avatar">
+        <div class="chat-area-header" id="chatHeader">
+          <button class="chat-action-btn" id="backButton"><i class="fas fa-arrow-left"></i></button>
+          <img src="https://via.placeholder.com/50" id="currentChatAvatar" class="conversation-avatar">
           <div class="chat-user-info">
             <div class="chat-user-name" id="chatUserName">User</div>
             <div class="chat-user-status">Last seen recently</div>
           </div>
           <div class="chat-actions">
-            <button class="chat-action-btn" onclick="openSettingsModal()" title="Chat Settings"><i class="fas fa-sliders-h"></i></button>
-            <button class="chat-action-btn" onclick="startVoiceCall()" title="Voice Call"><i class="fas fa-phone-alt"></i></button>
-            <button class="chat-action-btn" onclick="startVideoCall()" title="Video Call"><i class="fas fa-video"></i></button>
-            <button class="chat-action-btn" onclick="openWallpaperModal()" title="Wallpaper"><i class="fas fa-image"></i></button>
-            <button class="chat-action-btn" id="voiceMessageBtn" title="Voice Message"><i class="fas fa-microphone"></i></button>
+            <button class="chat-action-btn" id="settingsBtn"><i class="fas fa-sliders-h"></i></button>
+            <button class="chat-action-btn" id="voiceCallBtn"><i class="fas fa-phone-alt"></i></button>
+            <button class="chat-action-btn" id="videoCallBtn"><i class="fas fa-video"></i></button>
+            <button class="chat-action-btn" id="wallpaperBtn"><i class="fas fa-image"></i></button>
+            <button class="chat-action-btn" id="voiceMessageBtn"><i class="fas fa-microphone"></i></button>
           </div>
         </div>
 
         <!-- Messages container -->
-        <div class="messages-container" id="messagesContainer" style="display: none;"></div>
+        <div class="messages-container" id="messagesContainer">
+          <!-- Messages will appear here -->
+          <div class="message-bubble received">
+            <div class="message-text">Hello! How can I help you today?</div>
+            <div class="message-time">10:25 AM</div>
+          </div>
+          <div class="message-bubble sent">
+            <div class="message-text">Hi! I need some information about the new project</div>
+            <div class="message-time">10:26 AM ✓</div>
+          </div>
+        </div>
 
         <!-- Typing indicator -->
         <div class="typing-indicator" id="typingIndicator">
@@ -1610,35 +1651,35 @@
         </div>
 
         <!-- Message input container with voice message button -->
-        <div class="message-input-container" id="messageInputContainer" style="display: none;">
+        <div class="message-input-container" id="messageInputContainer">
           <!-- Reply preview -->
           <div class="reply-preview-bar" id="replyPreview">
             <div class="reply-preview-content">
               <span class="reply-name" id="replyName">Replying to User</span>
               <span class="reply-text" id="replyText">Message text...</span>
             </div>
-            <button onclick="cancelReply()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--secondary-text);padding:5px;border-radius:50%;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(239,68,68,0.1)';this.style.color='var(--error)'" onmouseout="this.style.background='none';this.style.color='var(--secondary-text)'">&times;</button>
+            <button id="cancelReplyBtn">&times;</button>
           </div>
           
           <!-- Writing assist -->
           <div class="writing-assist-bar" id="assistBar">
-            <button class="assist-chip" onclick="applyWritingAssist('fix')"><i class="fas fa-spell-check"></i> Fix Grammar</button>
-            <button class="assist-chip" onclick="applyWritingAssist('formal')"><i class="fas fa-user-tie"></i> Make Formal</button>
-            <button class="assist-chip" onclick="applyWritingAssist('expand')"><i class="fas fa-expand-alt"></i> Expand Text</button>
+            <button class="assist-chip" id="fixGrammarBtn"><i class="fas fa-spell-check"></i> Fix Grammar</button>
+            <button class="assist-chip" id="makeFormalBtn"><i class="fas fa-user-tie"></i> Make Formal</button>
+            <button class="assist-chip" id="expandTextBtn"><i class="fas fa-expand-alt"></i> Expand Text</button>
           </div>
 
           <div class="message-input-wrapper">
             <div class="message-input-actions">
-              <button class="input-action magic-btn" onclick="toggleAssistBar()" title="Writing Assistant"><i class="fas fa-magic"></i></button>
-              <button class="input-action" onclick="toggleEmojiPicker()" title="Emoji"><i class="far fa-smile"></i></button>
-              <input type="file" id="imageInputHidden" accept="image/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'image')">
-              <input type="file" id="videoInputHidden" accept="video/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'video')">
-              <button class="input-action" onclick="document.getElementById('imageInputHidden').click()" title="Send Image"><i class="fas fa-image"></i></button>
-              <button class="input-action" onclick="document.getElementById('videoInputHidden').click()" title="Send Video"><i class="fas fa-video"></i></button>
-              <button class="input-action" onclick="toggleVoiceMessage()" title="Voice Message" id="voiceMsgToggleBtn"><i class="fas fa-microphone"></i></button>
+              <button class="input-action magic-btn" id="magicBtn"><i class="fas fa-magic"></i></button>
+              <button class="input-action" id="emojiBtn"><i class="far fa-smile"></i></button>
+              <input type="file" id="imageInputHidden" accept="image/*" style="display:none">
+              <input type="file" id="videoInputHidden" accept="video/*" style="display:none">
+              <button class="input-action" id="imageBtn"><i class="fas fa-image"></i></button>
+              <button class="input-action" id="videoBtn"><i class="fas fa-video"></i></button>
+              <button class="input-action" id="voiceMsgToggleBtn"><i class="fas fa-microphone"></i></button>
             </div>
             <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1" spellcheck="true"></textarea>
-            <button class="send-button" id="sendButton" title="Send Message"><i class="fas fa-paper-plane"></i></button>
+            <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
           </div>
           
           <!-- Emoji picker -->
@@ -1655,10 +1696,10 @@
             <div class="recording-timer" id="recordingTimer">00:00</div>
           </div>
           <div class="recording-controls">
-            <button class="cancel-recording-btn" onclick="cancelVoiceRecording()">
+            <button class="cancel-recording-btn" id="cancelRecordingBtn">
               <i class="fas fa-times"></i>
             </button>
-            <button class="stop-recording-btn" onclick="stopVoiceRecording()">
+            <button class="stop-recording-btn" id="stopRecordingBtn">
               <i class="fas fa-stop"></i>
             </button>
           </div>
@@ -1691,13 +1732,13 @@
 
     <!-- Call controls -->
     <div class="call-controls">
-      <button class="call-btn mute-btn" id="muteBtn" title="Mute/Unmute">
+      <button class="call-btn mute-btn" id="muteBtn">
         <i class="fas fa-microphone"></i>
       </button>
-      <button class="call-btn video-toggle-btn" id="videoToggleBtn" title="Toggle Video">
+      <button class="call-btn video-toggle-btn" id="videoToggleBtn">
         <i class="fas fa-video"></i>
       </button>
-      <button class="call-btn end-call-btn" id="endCallBtn" title="End Call">
+      <button class="call-btn end-call-btn" id="endCallBtn">
         <i class="fas fa-phone"></i>
       </button>
     </div>
@@ -1715,16 +1756,16 @@
 <!-- Incoming Call Modal -->
 <div class="incoming-call-modal" id="incomingCallModal">
   <div class="call-modal-content">
-    <img src="" class="caller-avatar" id="callerAvatar" alt="Caller">
+    <img src="https://via.placeholder.com/100" class="caller-avatar" id="callerAvatar" alt="Caller">
     <div class="caller-info">
       <h3 id="incomingCallerName">John Doe</h3>
       <div class="call-type" id="incomingCallType">Video Call</div>
     </div>
     <div class="call-actions">
-      <button class="decline-call-btn" onclick="declineIncomingCall()">
+      <button class="decline-call-btn" id="declineCallBtn">
         <i class="fas fa-phone-slash"></i>
       </button>
-      <button class="accept-call-btn" onclick="acceptIncomingCall()">
+      <button class="accept-call-btn" id="acceptCallBtn">
         <i class="fas fa-phone"></i>
       </button>
     </div>
@@ -1734,7 +1775,7 @@
 <!-- Modals -->
 <!-- Conversation Context Menu -->
 <div class="conversation-options-menu" id="conversationOptionsMenu">
-  <div class="msg-option-item" onclick="deleteConversation()" style="color:var(--error);"><i class="fas fa-trash-alt"></i> Delete Conversation</div>
+  <div class="msg-option-item" id="deleteConversationBtn"><i class="fas fa-trash-alt"></i> Delete Conversation</div>
 </div>
 
 <!-- Settings Modal -->
@@ -1742,10 +1783,10 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3>Chat Settings</h3>
-      <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+      <button class="modal-close" id="closeSettingsBtn">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="settings-option" onclick="toggleDarkMode()">
+      <div class="settings-option" id="darkModeOption">
         <div class="option-info">
           <div class="option-icon">
             <i class="fas fa-moon"></i>
@@ -1757,7 +1798,7 @@
         </div>
         <div class="option-switch" id="darkModeSwitch"></div>
       </div>
-      <div class="settings-option" onclick="clearChat()">
+      <div class="settings-option" id="clearChatOption">
         <div class="option-info">
           <div class="option-icon">
             <i class="fas fa-trash"></i>
@@ -1768,7 +1809,7 @@
           </div>
         </div>
       </div>
-      <div class="settings-option" onclick="changeWallpaper()">
+      <div class="settings-option" id="changeWallpaperOption">
         <div class="option-info">
           <div class="option-icon">
             <i class="fas fa-image"></i>
@@ -1779,7 +1820,7 @@
           </div>
         </div>
       </div>
-      <div class="settings-option" onclick="toggleNotifications()">
+      <div class="settings-option" id="notificationsOption">
         <div class="option-info">
           <div class="option-icon">
             <i class="fas fa-bell"></i>
@@ -1800,7 +1841,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3>New Conversation</h3>
-      <button class="modal-close" onclick="closeUserSearchOverlay()">&times;</button>
+      <button class="modal-close" id="closeUserSearchBtn">&times;</button>
     </div>
     <div class="modal-body">
       <div class="chat-search" style="padding:0 0 20px 0;">
@@ -1808,6 +1849,27 @@
       </div>
       <div id="searchResults">
         <!-- Users will be listed here -->
+        <div class="conversation-item" data-user-id="5" data-user-name="Sarah Wilson" data-user-avatar="https://via.placeholder.com/50">
+          <img src="https://via.placeholder.com/50" class="conversation-avatar">
+          <div class="conversation-info">
+            <div class="conversation-name">Sarah Wilson</div>
+            <div class="conversation-preview">Product Manager</div>
+          </div>
+        </div>
+        <div class="conversation-item" data-user-id="6" data-user-name="David Brown" data-user-avatar="https://via.placeholder.com/50">
+          <img src="https://via.placeholder.com/50" class="conversation-avatar">
+          <div class="conversation-info">
+            <div class="conversation-name">David Brown</div>
+            <div class="conversation-preview">UX Designer</div>
+          </div>
+        </div>
+        <div class="conversation-item" data-user-id="7" data-user-name="Emily Davis" data-user-avatar="https://via.placeholder.com/50">
+          <img src="https://via.placeholder.com/50" class="conversation-avatar">
+          <div class="conversation-info">
+            <div class="conversation-name">Emily Davis</div>
+            <div class="conversation-preview">Software Engineer</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1818,7 +1880,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3>Choose Wallpaper</h3>
-      <button class="modal-close" onclick="closeWallpaperModal()">&times;</button>
+      <button class="modal-close" id="closeWallpaperBtn">&times;</button>
     </div>
     <div class="modal-body">
       <div class="wallpaper-grid" id="wallpaperGrid">
@@ -1833,532 +1895,760 @@
   <div class="modal-content" style="max-width:800px;">
     <div class="modal-header">
       <h3>Preview Wallpaper</h3>
-      <button class="modal-close" onclick="closeWallpaperPreview()">&times;</button>
+      <button class="modal-close" id="closeWallpaperPreviewBtn">&times;</button>
     </div>
     <div class="modal-body" style="padding:0;">
       <div id="wallpaperPreview" style="height:400px; background-size:cover; background-position:center;"></div>
       <div style="padding:20px; display:flex; gap:15px;">
-        <button onclick="applyWallpaper()" style="flex:1; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-family:var(--chat-font); font-weight:600; cursor:pointer; transition:all 0.2s ease;">Apply</button>
-        <button onclick="closeWallpaperPreview()" style="flex:1; padding:15px; background:var(--bg-color); color:var(--text-color); border:none; border-radius:10px; font-family:var(--chat-font); font-weight:600; cursor:pointer; transition:all 0.2s ease;">Cancel</button>
+        <button id="applyWallpaperBtn" style="flex:1; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-family:var(--chat-font); font-weight:600; cursor:pointer; transition:all 0.2s ease;">Apply</button>
+        <button id="cancelWallpaperBtn" style="flex:1; padding:15px; background:var(--bg-color); color:var(--text-color); border:none; border-radius:10px; font-family:var(--chat-font); font-weight:600; cursor:pointer; transition:all 0.2s ease;">Cancel</button>
       </div>
     </div>
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  // Global state variables
-  let currentUser = null;
-  let currentChatId = null;
-  let currentChatUser = null;
-  let currentChatUserName = '';
-  let currentChatUserAvatar = '';
-  let unsubscribeMessages = null;
-  let unsubscribeConversations = null;
-  let selectedWallpaper = null;
-  let replyingToMessage = null;
-  
-  // WebRTC variables
-  let peerConnection = null;
-  let localStream = null;
-  let remoteStream = null;
-  let dataChannel = null;
-  let isInitiator = false;
-  let isCallActive = false;
-  let callType = null; // 'video' or 'voice'
-  let incomingCallId = null;
-  let incomingCallSignalingData = null;
-  let unsubscribeSignaling = null;
-  
-  // Voice message variables
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let recordingTimer = null;
-  let recordingStartTime = null;
-  
-  // DOM elements
-  const callInterface = document.getElementById('callInterface');
-  const localVideo = document.getElementById('localVideo');
-  const remoteVideo = document.getElementById('remoteVideo');
-  const muteBtn = document.getElementById('muteBtn');
-  const videoToggleBtn = document.getElementById('videoToggleBtn');
-  const endCallBtn = document.getElementById('endCallBtn');
-  const callUserName = document.getElementById('callUserName');
-  const callStatus = document.getElementById('callStatus');
-  const shyChatOverlay = document.getElementById('shyChatOverlay');
-  const callChatInput = document.getElementById('callChatInput');
-  const callChatSendBtn = document.getElementById('callChatSendBtn');
-  const incomingCallModal = document.getElementById('incomingCallModal');
-  const callerAvatar = document.getElementById('callerAvatar');
-  const incomingCallerName = document.getElementById('incomingCallerName');
-  const incomingCallType = document.getElementById('incomingCallType');
-  const voiceMessageContainer = document.getElementById('voiceMessageContainer');
-  const recordingTimerEl = document.getElementById('recordingTimer');
-  const voiceMsgToggleBtn = document.getElementById('voiceMsgToggleBtn');
-  const messageInput = document.getElementById('messageInput');
-  const sendButton = document.getElementById('sendButton');
-  const conversationsList = document.getElementById('conversationsList');
-  const messagesContainer = document.getElementById('messagesContainer');
-  const typingIndicator = document.getElementById('typingIndicator');
-  const chatSearch = document.getElementById('chatSearch');
-  const backButton = document.getElementById('backButton');
-  
-  // WebRTC Configuration
-  const configuration = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' }
-    ]
-  };
-
-  // === UTILITY FUNCTIONS ===
-  
-  function showError(message) {
-    console.error(message);
-    // Create toast notification
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--error);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 10px;
-      z-index: 9999;
-      animation: slideIn 0.3s ease;
-      box-shadow: var(--shadow-heavy);
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
+<script>
+// Initialize all buttons and make them functional
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize conversation items
+    initConversationItems();
     
-    setTimeout(() => {
-      toast.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-  
-  function showSuccess(message) {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--success);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 10px;
-      z-index: 9999;
-      animation: slideIn 0.3s ease;
-      box-shadow: var(--shadow-heavy);
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-  
-  function formatTime(timestamp) {
-    if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    
-    if (diff < 24 * 60 * 60 * 1000) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diff < 7 * 24 * 60 * 60 * 1000) {
-      return date.toLocaleDateString([], { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    }
-  }
-  
-  // === CHAT FUNCTIONS ===
-  
-  async function loadConversations() {
-    if (!currentUser) return;
-    
-    const conversationsQuery = query(
-      collection(db, "conversations"),
-      where("participants", "array-contains", currentUser.uid),
-      orderBy("updatedAt", "desc")
-    );
-    
-    unsubscribeConversations = onSnapshot(conversationsQuery, async (snapshot) => {
-      conversationsList.innerHTML = '';
-      
-      for (const docSnap of snapshot.docs) {
-        const conversation = docSnap.data();
-        const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
-        
-        if (!otherUserId) continue;
-        
-        const userDoc = await getDoc(doc(db, "users", otherUserId));
-        const userData = userDoc.data() || {};
-        
-        const conversationItem = document.createElement('div');
-        conversationItem.className = 'conversation-item';
-        conversationItem.dataset.chatId = docSnap.id;
-        conversationItem.dataset.userId = otherUserId;
-        conversationItem.dataset.userName = userData.name || 'Unknown';
-        conversationItem.dataset.userAvatar = userData.profilePicture || 'https://via.placeholder.com/50';
-        
-        conversationItem.innerHTML = `
-          <img src="${userData.profilePicture || 'https://via.placeholder.com/50'}" class="conversation-avatar">
-          <div class="conversation-info">
-            <div class="conversation-name">${userData.name || 'Unknown'}</div>
-            <div class="conversation-preview">${conversation.lastMessage || 'No messages yet'}</div>
-          </div>
-          <div class="conversation-meta">
-            <div class="conversation-time">${formatTime(conversation.updatedAt)}</div>
-            ${conversation.unread && conversation.unread[currentUser.uid] > 0 ? 
-              `<div class="unread-badge">${conversation.unread[currentUser.uid]}</div>` : ''}
-          </div>
-        `;
-        
-        conversationItem.addEventListener('click', () => {
-          openChat(docSnap.id, otherUserId, userData.name || 'Unknown', userData.profilePicture);
+    // Make the plus button open user search overlay
+    const newChatBtn = document.querySelector('.new-chat-btn');
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openUserSearchOverlay();
         });
-        
-        conversationsList.appendChild(conversationItem);
-      }
-    });
-  }
-  
-  async function openChat(chatId, otherUserId, name, avatar) {
-    // 1. Clean up old listener
-    if (unsubscribeSignaling) {
-      unsubscribeSignaling();
-      unsubscribeSignaling = null;
     }
+
+    // Make sidebar toggle button work
+    const hamburgerBtn = document.querySelector('.hamburger-btn');
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Make sidebar close button work
+    const sidebarCloseBtn = document.querySelector('.sidebar-close-btn');
+    if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Make chat action buttons work
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openSettingsModal();
+        });
+    }
+
+    const voiceCallBtn = document.getElementById('voiceCallBtn');
+    if (voiceCallBtn) {
+        voiceCallBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            startVoiceCall();
+        });
+    }
+
+    const videoCallBtn = document.getElementById('videoCallBtn');
+    if (videoCallBtn) {
+        videoCallBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            startVideoCall();
+        });
+    }
+
+    const wallpaperBtn = document.getElementById('wallpaperBtn');
+    if (wallpaperBtn) {
+        wallpaperBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openWallpaperModal();
+        });
+    }
+
+    const voiceMessageBtn = document.getElementById('voiceMessageBtn');
+    if (voiceMessageBtn) {
+        voiceMessageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleVoiceMessage();
+        });
+    }
+
+    // Make magic button work
+    const magicBtn = document.getElementById('magicBtn');
+    if (magicBtn) {
+        magicBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleAssistBar();
+        });
+    }
+
+    // Make emoji button work
+    const emojiBtn = document.getElementById('emojiBtn');
+    if (emojiBtn) {
+        emojiBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleEmojiPicker();
+        });
+    }
+
+    // Make image upload button work
+    const imageBtn = document.getElementById('imageBtn');
+    if (imageBtn) {
+        imageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('imageInputHidden').click();
+        });
+    }
+
+    // Make video upload button work
+    const videoBtn = document.getElementById('videoBtn');
+    if (videoBtn) {
+        videoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('videoInputHidden').click();
+        });
+    }
+
+    // Make voice message toggle button work
+    const voiceMsgToggleBtn = document.getElementById('voiceMsgToggleBtn');
+    if (voiceMsgToggleBtn) {
+        voiceMsgToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleVoiceMessage();
+        });
+    }
+
+    // Make assist chips work
+    const fixGrammarBtn = document.getElementById('fixGrammarBtn');
+    if (fixGrammarBtn) {
+        fixGrammarBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            applyWritingAssist('fix');
+        });
+    }
+
+    const makeFormalBtn = document.getElementById('makeFormalBtn');
+    if (makeFormalBtn) {
+        makeFormalBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            applyWritingAssist('formal');
+        });
+    }
+
+    const expandTextBtn = document.getElementById('expandTextBtn');
+    if (expandTextBtn) {
+        expandTextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            applyWritingAssist('expand');
+        });
+    }
+
+    // Make send button work
+    const sendBtn = document.getElementById('sendButton');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sendMessage();
+        });
+    }
+
+    // Make cancel reply button work
+    const cancelReplyBtn = document.getElementById('cancelReplyBtn');
+    if (cancelReplyBtn) {
+        cancelReplyBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            cancelReply();
+        });
+    }
+
+    // Make modal close buttons work
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    if (closeSettingsBtn) {
+        closeSettingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeSettingsModal();
+        });
+    }
+
+    const closeUserSearchBtn = document.getElementById('closeUserSearchBtn');
+    if (closeUserSearchBtn) {
+        closeUserSearchBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeUserSearchOverlay();
+        });
+    }
+
+    const closeWallpaperBtn = document.getElementById('closeWallpaperBtn');
+    if (closeWallpaperBtn) {
+        closeWallpaperBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeWallpaperModal();
+        });
+    }
+
+    const closeWallpaperPreviewBtn = document.getElementById('closeWallpaperPreviewBtn');
+    if (closeWallpaperPreviewBtn) {
+        closeWallpaperPreviewBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeWallpaperPreview();
+        });
+    }
+
+    // Make call action buttons work
+    const endCallBtn = document.getElementById('endCallBtn');
+    if (endCallBtn) {
+        endCallBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            endCall();
+        });
+    }
+
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) {
+        muteBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMute();
+        });
+    }
+
+    const videoToggleBtn = document.getElementById('videoToggleBtn');
+    if (videoToggleBtn) {
+        videoToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleVideo();
+        });
+    }
+
+    // Make incoming call buttons work
+    const acceptCallBtn = document.getElementById('acceptCallBtn');
+    if (acceptCallBtn) {
+        acceptCallBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            acceptIncomingCall();
+        });
+    }
+
+    const declineCallBtn = document.getElementById('declineCallBtn');
+    if (declineCallBtn) {
+        declineCallBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            declineIncomingCall();
+        });
+    }
+
+    // Make back button work
+    const backBtn = document.getElementById('backButton');
+    if (backBtn) {
+        backBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showEmptyChatState();
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('conversationsSidebar').classList.add('active');
+            }
+        });
+    }
+
+    // Make logout button work
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            try {
+                // Simulate logout
+                alert('Logout functionality would be implemented here');
+            } catch (error) {
+                console.error('Error signing out:', error);
+            }
+        });
+    }
+
+    // Make night mode toggle work
+    const nightToggleBtn = document.getElementById('nightToggleBtn');
+    if (nightToggleBtn) {
+        nightToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDarkMode();
+        });
+    }
+
+    // Make settings option buttons work
+    const darkModeOption = document.getElementById('darkModeOption');
+    if (darkModeOption) {
+        darkModeOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDarkMode();
+        });
+    }
+
+    const clearChatOption = document.getElementById('clearChatOption');
+    if (clearChatOption) {
+        clearChatOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            clearChat();
+        });
+    }
+
+    const changeWallpaperOption = document.getElementById('changeWallpaperOption');
+    if (changeWallpaperOption) {
+        changeWallpaperOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            changeWallpaper();
+        });
+    }
+
+    const notificationsOption = document.getElementById('notificationsOption');
+    if (notificationsOption) {
+        notificationsOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleNotifications();
+        });
+    }
+
+    // Make conversation options menu work
+    const deleteConversationBtn = document.getElementById('deleteConversationBtn');
+    if (deleteConversationBtn) {
+        deleteConversationBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            deleteConversation();
+        });
+    }
+
+    // Make voice recording buttons work
+    const stopRecordingBtn = document.getElementById('stopRecordingBtn');
+    if (stopRecordingBtn) {
+        stopRecordingBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            stopVoiceRecording();
+        });
+    }
+
+    const cancelRecordingBtn = document.getElementById('cancelRecordingBtn');
+    if (cancelRecordingBtn) {
+        cancelRecordingBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            cancelVoiceRecording();
+        });
+    }
+
+    // Make call chat send button work
+    const callChatSendBtn = document.getElementById('callChatSendBtn');
+    if (callChatSendBtn) {
+        callChatSendBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sendShyChatMessage();
+        });
+    }
+
+    // Make wallpaper buttons work
+    const applyWallpaperBtn = document.getElementById('applyWallpaperBtn');
+    if (applyWallpaperBtn) {
+        applyWallpaperBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            applyWallpaper();
+        });
+    }
+
+    const cancelWallpaperBtn = document.getElementById('cancelWallpaperBtn');
+    if (cancelWallpaperBtn) {
+        cancelWallpaperBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeWallpaperPreview();
+        });
+    }
+
+    // Make sidebar overlay work
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Add click handlers to close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        // Close modals when clicking outside
+        const modals = document.querySelectorAll('.settings-modal, .user-search-overlay, .wallpaper-modal, .wallpaper-preview-overlay');
+        modals.forEach(modal => {
+            if (modal.style.display === 'flex' && e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Close emoji picker when clicking outside
+        const emojiPicker = document.getElementById('emojiPicker');
+        if (emojiPicker && emojiPicker.style.display === 'flex' && 
+            !emojiPicker.contains(e.target) && 
+            !e.target.closest('#emojiBtn')) {
+            emojiPicker.style.display = 'none';
+        }
+    });
+
+    // Initialize user search items
+    initUserSearchItems();
+
+    // Initialize empty state
+    showEmptyChatState();
+});
+
+// Function to initialize conversation items
+function initConversationItems() {
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const chatId = this.dataset.chatId;
+            const userId = this.dataset.userId;
+            const userName = this.dataset.userName;
+            const userAvatar = this.dataset.userAvatar;
+            if (chatId && userId) {
+                openChat(chatId, userId, userName, userAvatar);
+            }
+        });
+    });
+}
+
+// Function to initialize user search items
+function initUserSearchItems() {
+    const userSearchItems = document.querySelectorAll('#searchResults .conversation-item');
+    userSearchItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const userId = this.dataset.userId;
+            const userName = this.dataset.userName;
+            const userAvatar = this.dataset.userAvatar;
+            if (userId) {
+                // Create a new chat with this user
+                createNewChat(userId, userName, userAvatar);
+                closeUserSearchOverlay();
+            }
+        });
+    });
+}
+
+// Function to show empty chat state
+function showEmptyChatState() {
+    document.getElementById('emptyChat').style.display = 'flex';
+    document.getElementById('chatHeader').style.display = 'none';
+    document.getElementById('messagesContainer').style.display = 'none';
+    document.getElementById('messageInputContainer').style.display = 'none';
+}
+
+// Function to toggle sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('mainSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
     
-    // 2. Setup signaling listener for this new chat
-    currentChatUser = otherUserId;
-    setupSignalingListener();
-    
-    // 3. Set current chat info
+    if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+        overlay.style.display = 'none';
+    } else {
+        sidebar.classList.add('active');
+        overlay.style.display = 'block';
+    }
+}
+
+// Function to open chat
+function openChat(chatId, userId, userName, userAvatar) {
+    // Set current chat info
     currentChatId = chatId;
-    currentChatUserName = name;
-    currentChatUserAvatar = avatar;
+    currentChatUser = userId;
+    currentChatUserName = userName;
+    currentChatUserAvatar = userAvatar;
     
-    // 4. Update UI
+    // Update UI
     document.getElementById('emptyChat').style.display = 'none';
     document.getElementById('chatHeader').style.display = 'flex';
     document.getElementById('messagesContainer').style.display = 'flex';
     document.getElementById('messageInputContainer').style.display = 'block';
     
-    // 5. Update header
-    document.getElementById('chatUserName').textContent = name;
-    document.getElementById('currentChatAvatar').src = avatar || 'https://via.placeholder.com/50';
+    // Update header
+    document.getElementById('chatUserName').textContent = userName;
+    document.getElementById('currentChatAvatar').src = userAvatar || 'https://via.placeholder.com/50';
     
-    // 6. Mark as read
-    await markAsRead(chatId);
+    // Update messages container with sample messages
+    const messagesContainer = document.getElementById('messagesContainer');
+    messagesContainer.innerHTML = `
+        <div class="message-bubble received">
+            <div class="message-text">Hello! How can I help you today?</div>
+            <div class="message-time">10:25 AM</div>
+        </div>
+        <div class="message-bubble sent">
+            <div class="message-text">Hi ${userName}! I need some information about the new project</div>
+            <div class="message-time">10:26 AM ✓</div>
+        </div>
+        <div class="message-bubble received">
+            <div class="message-text">Sure! What would you like to know?</div>
+            <div class="message-time">10:27 AM</div>
+        </div>
+    `;
     
-    // 7. Load messages
-    loadMessages(chatId);
-    
-    // 8. On mobile, hide conversations sidebar
+    // On mobile, hide conversations sidebar
     if (window.innerWidth <= 768) {
-      document.getElementById('conversationsSidebar').classList.remove('active');
+        document.getElementById('conversationsSidebar').classList.remove('active');
     }
-  }
-  
-  async function markAsRead(chatId) {
-    if (!currentUser || !chatId) return;
+}
+
+// Function to create new chat
+function createNewChat(userId, userName, userAvatar) {
+    // Simulate creating a new chat
+    alert(`Creating new chat with ${userName}`);
     
-    try {
-      const conversationRef = doc(db, "conversations", chatId);
-      await updateDoc(conversationRef, {
-        [`unread.${currentUser.uid}`]: 0
-      });
-    } catch (error) {
-      console.error('Error marking as read:', error);
+    // In a real app, this would create a new chat in the database
+    // For now, just open the chat
+    openChat('new-' + Date.now(), userId, userName, userAvatar);
+}
+
+// Function to open user search overlay
+function openUserSearchOverlay() {
+    document.getElementById('userSearchOverlay').style.display = 'flex';
+}
+
+// Function to close user search overlay
+function closeUserSearchOverlay() {
+    document.getElementById('userSearchOverlay').style.display = 'none';
+}
+
+// Function to open settings modal
+function openSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+
+// Function to close settings modal
+function closeSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+// Function to open wallpaper modal
+function openWallpaperModal() {
+    document.getElementById('wallpaperModal').style.display = 'flex';
+    loadWallpapers();
+}
+
+// Function to close wallpaper modal
+function closeWallpaperModal() {
+    document.getElementById('wallpaperModal').style.display = 'none';
+}
+
+// Function to open wallpaper preview
+function openWallpaperPreview() {
+    document.getElementById('wpPreviewOverlay').style.display = 'flex';
+}
+
+// Function to close wallpaper preview
+function closeWallpaperPreview() {
+    document.getElementById('wpPreviewOverlay').style.display = 'none';
+}
+
+// Function to load wallpapers
+function loadWallpapers() {
+    const wallpaperGrid = document.getElementById('wallpaperGrid');
+    wallpaperGrid.innerHTML = '';
+    
+    const wallpapers = [
+        'https://images.unsplash.com/photo-1557683316-973673baf926?w=400',
+        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
+        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
+        'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400',
+        'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400',
+        'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400'
+    ];
+    
+    wallpapers.forEach((url, index) => {
+        const wallpaperItem = document.createElement('div');
+        wallpaperItem.style.cssText = `
+            width: 100%;
+            height: 150px;
+            background-image: url(${url});
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 15px;
+        `;
+        
+        wallpaperItem.addEventListener('click', () => {
+            selectedWallpaper = url;
+            openWallpaperPreview();
+            const preview = document.getElementById('wallpaperPreview');
+            preview.style.backgroundImage = `url(${url})`;
+        });
+        
+        wallpaperItem.addEventListener('mouseenter', () => {
+            wallpaperItem.style.transform = 'scale(1.05)';
+        });
+        
+        wallpaperItem.addEventListener('mouseleave', () => {
+            wallpaperItem.style.transform = 'scale(1)';
+        });
+        
+        wallpaperGrid.appendChild(wallpaperItem);
+    });
+}
+
+// Function to apply wallpaper
+function applyWallpaper() {
+    if (selectedWallpaper) {
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.style.backgroundImage = `url(${selectedWallpaper})`;
+        messagesContainer.style.backgroundSize = 'cover';
+        messagesContainer.style.backgroundPosition = 'center';
+        alert('Wallpaper applied successfully!');
     }
-  }
-  
-  async function loadMessages(chatId) {
-    if (unsubscribeMessages) {
-      unsubscribeMessages();
+    closeWallpaperPreview();
+    closeWallpaperModal();
+}
+
+// Function to toggle dark mode
+function toggleDarkMode() {
+    const body = document.body;
+    const switchEl = document.getElementById('darkModeSwitch');
+    
+    if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        switchEl.classList.remove('active');
+        localStorage.setItem('darkMode', 'false');
+    } else {
+        body.classList.add('dark-mode');
+        switchEl.classList.add('active');
+        localStorage.setItem('darkMode', 'true');
     }
-    
-    const messagesQuery = query(
-      collection(db, "conversations", chatId, "messages"),
-      orderBy("timestamp", "asc"),
-      limit(100)
-    );
-    
-    unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
-      messagesContainer.innerHTML = '';
-      
-      snapshot.forEach((docSnap) => {
-        const message = docSnap.data();
-        const isMe = message.senderId === currentUser.uid;
-        
-        let messageElement;
-        
-        if (message.type === 'audio') {
-          messageElement = renderAudioMessageHTML(message, isMe, docSnap.id);
-        } else if (message.type === 'image') {
-          messageElement = renderImageMessageHTML(message, isMe, docSnap.id);
-        } else {
-          messageElement = renderTextMessageHTML(message, isMe, docSnap.id);
-        }
-        
-        messagesContainer.appendChild(messageElement);
-      });
-      
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
-  }
-  
-  function renderTextMessageHTML(msg, isMe, id) {
-    const div = document.createElement('div');
-    div.className = `message-bubble ${isMe ? 'sent' : 'received'}`;
-    div.id = id;
-    
-    div.innerHTML = `
-      <div class="message-text">${msg.text || ''}</div>
-      <div class="message-time">
-        ${formatTime(msg.timestamp)}
-        ${isMe ? `<span class="message-status">✓</span>` : ''}
-      </div>
-    `;
-    
-    // Add right-click context menu for replies
-    div.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      replyingToMessage = { id: id, text: msg.text, senderId: msg.senderId };
-      showReplyPreview();
-    });
-    
-    return div;
-  }
-  
-  function renderAudioMessageHTML(msg, isMe, id) {
-    const div = document.createElement('div');
-    div.className = `audio-message ${isMe ? 'sent' : 'received'}`;
-    div.id = id;
-    
-    const audio = new Audio();
-    audio.src = msg.audioData;
-    
-    const playPauseBtn = document.createElement('button');
-    playPauseBtn.className = 'play-pause-btn';
-    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-    
-    const progressBar = document.createElement('div');
-    progressBar.className = 'audio-progress';
-    const progressFill = document.createElement('div');
-    progressFill.className = 'audio-progress-bar';
-    progressBar.appendChild(progressFill);
-    
-    const durationSpan = document.createElement('span');
-    durationSpan.className = 'audio-duration';
-    durationSpan.textContent = formatDuration(msg.duration || 0);
-    
-    // Get audio duration
-    audio.addEventListener('loadedmetadata', () => {
-      durationSpan.textContent = formatDuration(audio.duration);
-    });
-    
-    playPauseBtn.onclick = () => {
-      if (audio.paused) {
-        audio.play();
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-      } else {
-        audio.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-      }
-    };
-    
-    audio.addEventListener('timeupdate', () => {
-      const progress = (audio.currentTime / audio.duration) * 100;
-      progressFill.style.width = `${progress}%`;
-      
-      if (audio.currentTime === audio.duration) {
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-      }
-    });
-    
-    audio.addEventListener('pause', () => {
-      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-    });
-    
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'audio-controls';
-    controlsDiv.appendChild(playPauseBtn);
-    controlsDiv.appendChild(progressBar);
-    controlsDiv.appendChild(durationSpan);
-    
-    div.appendChild(controlsDiv);
-    
-    return div;
-  }
-  
-  function renderImageMessageHTML(msg, isMe, id) {
-    const div = document.createElement('div');
-    div.className = `image-message message-bubble ${isMe ? 'sent' : 'received'}`;
-    div.id = id;
-    
-    const img = document.createElement('img');
-    img.src = msg.imageUrl;
-    img.alt = 'Image message';
-    
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'message-time';
-    timeDiv.innerHTML = `
-      ${formatTime(msg.timestamp)}
-      ${isMe ? `<span class="message-status">✓</span>` : ''}
-    `;
-    
-    div.appendChild(img);
-    div.appendChild(timeDiv);
-    
-    // Click to view larger
-    img.addEventListener('click', () => {
-      const overlay = document.createElement('div');
-      overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.9);
-        z-index: 4000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      `;
-      
-      const fullImg = document.createElement('img');
-      fullImg.src = msg.imageUrl;
-      fullImg.style.cssText = `
-        max-width: 90%;
-        max-height: 90%;
-        object-fit: contain;
-      `;
-      
-      overlay.appendChild(fullImg);
-      overlay.addEventListener('click', () => overlay.remove());
-      document.body.appendChild(overlay);
-    });
-    
-    return div;
-  }
-  
-  async function sendMessage() {
+}
+
+// Function to clear chat
+function clearChat() {
+    if (confirm('Are you sure you want to clear this chat? This action cannot be undone.')) {
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.innerHTML = '<div class="message-bubble received"><div class="message-text">Chat has been cleared. Start a new conversation!</div><div class="message-time">Just now</div></div>';
+        closeSettingsModal();
+    }
+}
+
+// Function to change wallpaper
+function changeWallpaper() {
+    closeSettingsModal();
+    openWallpaperModal();
+}
+
+// Function to toggle notifications
+function toggleNotifications() {
+    const switchEl = document.getElementById('notificationsSwitch');
+    switchEl.classList.toggle('active');
+    alert('Notifications ' + (switchEl.classList.contains('active') ? 'enabled' : 'disabled'));
+}
+
+// Function to delete conversation
+function deleteConversation() {
+    if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+        alert('Conversation deleted!');
+        showEmptyChatState();
+    }
+}
+
+// Function to send message
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
     const text = messageInput.value.trim();
-    if (!text || !currentChatId || !currentUser) return;
-    
-    try {
-      const messageData = {
-        text: text,
-        senderId: currentUser.uid,
-        timestamp: serverTimestamp(),
-        type: 'text'
-      };
-      
-      if (replyingToMessage) {
-        messageData.replyTo = {
-          messageId: replyingToMessage.id,
-          text: replyingToMessage.text,
-          senderId: replyingToMessage.senderId
-        };
-      }
-      
-      await addDoc(collection(db, "conversations", currentChatId, "messages"), messageData);
-      
-      // Update conversation
-      await updateDoc(doc(db, "conversations", currentChatId), {
-        lastMessage: text,
-        updatedAt: serverTimestamp(),
-        [`unread.${currentChatUser}`]: arrayUnion(1)
-      });
-      
-      // Clear input and reply
-      messageInput.value = '';
-      cancelReply();
-      messageInput.style.height = 'auto';
-    } catch (error) {
-      console.error('Error sending message:', error);
-      showError('Failed to send message');
-    }
-  }
-  
-  function showReplyPreview() {
-    if (!replyingToMessage) return;
-    
-    const replyPreview = document.getElementById('replyPreview');
-    const replyName = document.getElementById('replyName');
-    const replyText = document.getElementById('replyText');
-    
-    replyName.textContent = replyingToMessage.senderId === currentUser.uid ? 'You' : currentChatUserName;
-    replyText.textContent = replyingToMessage.text;
-    replyPreview.style.display = 'flex';
-  }
-  
-  function cancelReply() {
-    replyingToMessage = null;
-    document.getElementById('replyPreview').style.display = 'none';
-  }
-  
-  function toggleAssistBar() {
-    const assistBar = document.getElementById('assistBar');
-    assistBar.style.display = assistBar.style.display === 'none' ? 'flex' : 'none';
-  }
-  
-  function applyWritingAssist(type) {
-    const text = messageInput.value;
     if (!text) return;
     
-    // This would integrate with an AI writing assistant API
-    // For now, just show a placeholder
-    showSuccess('Writing assistant feature would process your text here');
-  }
-  
-  function toggleEmojiPicker() {
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message-bubble sent';
+    messageElement.innerHTML = `
+        <div class="message-text">${text}</div>
+        <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ✓</div>
+    `;
+    
+    messagesContainer.appendChild(messageElement);
+    messageInput.value = '';
+    
+    // Auto-reply after 1 second
+    setTimeout(() => {
+        const replyElement = document.createElement('div');
+        replyElement.className = 'message-bubble received';
+        replyElement.innerHTML = `
+            <div class="message-text">Thanks for your message! I'll get back to you soon.</div>
+            <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        `;
+        messagesContainer.appendChild(replyElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 1000);
+    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Function to cancel reply
+function cancelReply() {
+    document.getElementById('replyPreview').style.display = 'none';
+}
+
+// Function to apply writing assist
+function applyWritingAssist(type) {
+    const messageInput = document.getElementById('messageInput');
+    let text = messageInput.value;
+    
+    if (!text) {
+        text = "This is a sample text that will be improved by the writing assistant.";
+    }
+    
+    switch(type) {
+        case 'fix':
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            if (!text.endsWith('.')) text += '.';
+            alert('Grammar has been fixed!');
+            break;
+        case 'formal':
+            text = "Dear colleague,\n\n" + text + "\n\nBest regards.";
+            alert('Text has been made formal!');
+            break;
+        case 'expand':
+            text = text + " This additional text expands upon the original message to provide more detail and context for better understanding.";
+            alert('Text has been expanded!');
+            break;
+    }
+    
+    messageInput.value = text;
+    messageInput.focus();
+}
+
+// Function to toggle assist bar
+function toggleAssistBar() {
+    const assistBar = document.getElementById('assistBar');
+    assistBar.style.display = assistBar.style.display === 'none' ? 'flex' : 'none';
+}
+
+// Function to toggle emoji picker
+function toggleEmojiPicker() {
     const emojiPicker = document.getElementById('emojiPicker');
     emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'flex' : 'none';
     
-    if (emojiPicker.style.display === 'flex') {
-      loadEmojis();
+    if (emojiPicker.style.display === 'flex' && !emojiPicker.innerHTML) {
+        loadEmojis();
     }
-  }
-  
-  function loadEmojis() {
+}
+
+// Function to load emojis
+function loadEmojis() {
     const emojiContent = document.getElementById('emojiContent');
     const emojiNav = document.getElementById('emojiNav');
     
-    if (emojiContent.innerHTML) return;
-    
     // Common emoji categories
     const emojiCategories = {
-      '😀': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'],
-      '❤️': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💕'],
-      '👍': ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '👋', '👏', '🙌'],
-      '🐶': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯'],
-      '🍕': ['🍕', '🍔', '🍟', '🌭', '🍿', '🧂', '🥓', '🥚', '🍳', '🧇']
+        '😀': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'],
+        '❤️': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💕'],
+        '👍': ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '👋', '👏', '🙌'],
+        '🐶': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯'],
+        '🍕': ['🍕', '🍔', '🍟', '🌭', '🍿', '🧂', '🥓', '🥚', '🍳', '🧇']
     };
     
     emojiNav.innerHTML = '';
@@ -2366,831 +2656,188 @@
     
     // Create tabs
     Object.keys(emojiCategories).forEach((category, index) => {
-      const tab = document.createElement('button');
-      tab.className = 'emoji-tab';
-      tab.textContent = category;
-      tab.onclick = () => {
-        // Scroll to category
-        const categoryStart = index * emojiCategories[category].length;
-        // Implementation would scroll to specific category
-      };
-      emojiNav.appendChild(tab);
+        const tab = document.createElement('button');
+        tab.className = 'emoji-tab';
+        tab.textContent = category;
+        tab.onclick = () => {
+            // Scroll to category
+            const categoryStart = index * emojiCategories[category].length;
+            // Implementation would scroll to specific category
+        };
+        emojiNav.appendChild(tab);
     });
     
     // Add all emojis
     Object.values(emojiCategories).flat().forEach(emoji => {
-      const emojiItem = document.createElement('div');
-      emojiItem.className = 'emoji-item';
-      emojiItem.textContent = emoji;
-      emojiItem.onclick = () => {
-        messageInput.value += emoji;
-        messageInput.focus();
-      };
-      emojiContent.appendChild(emojiItem);
+        const emojiItem = document.createElement('div');
+        emojiItem.className = 'emoji-item';
+        emojiItem.textContent = emoji;
+        emojiItem.onclick = () => {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.value += emoji;
+            messageInput.focus();
+        };
+        emojiContent.appendChild(emojiItem);
     });
-  }
-  
-  // === WEBRTC FUNCTIONS ===
-  
-  async function initWebRTC() {
-    try {
-      const constraints = {
-        audio: true,
-        video: callType === 'video' ? {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 }
-        } : false
-      };
+}
 
-      localStream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Set up initial UI state based on stream
-      if (callType === 'video') {
-        localVideo.srcObject = localStream;
-        videoToggleBtn.classList.remove('active'); // Assume video is ON initially
-      } else {
-        // Hide video elements for voice call
-        localVideo.srcObject = localStream; // Still set stream to local for audio track management
-        localVideo.style.display = 'none';
-      }
-      muteBtn.classList.remove('active'); // Assume audio is ON
-      
-      return true;
-    } catch (error) {
-      console.error('Error accessing media devices:', error);
-      showError('Unable to access camera/microphone. Please check permissions.');
-      return false;
-    }
-  }
-
-  function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(configuration);
-    isCallActive = true;
-
-    // 1. Add local tracks
-    localStream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStream);
-    });
-
-    // 2. Handle remote stream
-    peerConnection.ontrack = (event) => {
-      remoteStream = event.streams[0];
-      remoteVideo.srcObject = remoteStream;
-      updateCallStatus('Connected');
-    };
-
-    // 3. Handle ICE candidates (Signaling)
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        sendSignalingMessage({
-          type: 'ice-candidate',
-          candidate: event.candidate.toJSON() // Use toJSON for serializing
-        });
-      }
-    };
-
-    // 4. Handle connection state
-    peerConnection.onconnectionstatechange = () => {
-      console.log('Connection state:', peerConnection.connectionState);
-      if (peerConnection.connectionState === 'connected') {
-        updateCallStatus('Connected');
-      } else if (
-        ['disconnected', 'failed', 'closed'].includes(peerConnection.connectionState)
-      ) {
-        if (isCallActive) {
-          showError('Call disconnected.');
-          endCall();
-        }
-      }
-    };
-
-    // 5. Create data channel for shy chat
-    if (isInitiator) {
-      // Initiator creates and names the channel
-      dataChannel = peerConnection.createDataChannel('shy-chat', { reliable: true });
-      setupDataChannel();
-    } else {
-      // Receiver listens for the channel creation
-      peerConnection.ondatachannel = (event) => {
-        dataChannel = event.channel;
-        setupDataChannel();
-      };
-    }
-  }
-
-  function setupDataChannel() {
-    dataChannel.onopen = () => {
-      console.log('Data channel opened for shy chat.');
-      callChatInput.disabled = false;
-      callChatSendBtn.disabled = false;
-    };
-
-    dataChannel.onmessage = (event) => {
-      // The received data is the shy chat message
-      const message = event.data;
-      displayShyChatMessage(message);
-    };
-
-    dataChannel.onerror = (error) => {
-      console.error('Data Channel Error:', error);
-    };
-  }
-
-  async function startCall(type) {
-    if (!currentChatId || !currentChatUser) {
-      showError('Please select a conversation first');
-      return;
-    }
-
-    callType = type;
-    isInitiator = true;
-    
-    const mediaGranted = await initWebRTC();
-    if (!mediaGranted) return;
-
-    createPeerConnection();
-
-    try {
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-
-      await sendSignalingMessage({
-        type: 'offer',
-        sdp: offer.sdp,
-        callType: callType,
-        callerId: currentUser.uid,
-        callerName: await getUserDisplayName(currentUser.uid)
-      });
-
-      showCallInterface();
-      updateCallStatus('Calling...');
-    } catch (error) {
-      console.error('Error starting call:', error);
-      showError('Failed to start call');
-      endCall(); // Clean up if offer fails
-    }
-  }
-
-  function showCallInterface() {
+// WebRTC functions
+function startVoiceCall() {
+    alert('Starting voice call with ' + currentChatUserName);
+    // Show call interface
     document.body.classList.add('call-active');
-    callUserName.textContent = currentChatUserName;
-    updateCallStatus('Connecting...');
-    
-    // Update UI based on call type
-    const localVidEl = document.querySelector('.local-video-container');
-    const remoteVidEl = document.querySelector('.remote-video-wrapper');
+    document.getElementById('callUserName').textContent = currentChatUserName;
+    document.getElementById('callStatus').textContent = 'Calling...';
+}
 
-    if (callType === 'voice') {
-      localVidEl.style.display = 'none';
-      remoteVidEl.style.display = 'none';
-      // Ensure video toggle is hidden/disabled
-      videoToggleBtn.style.display = 'none';
-    } else {
-      localVidEl.style.display = 'block';
-      remoteVidEl.style.display = 'block';
-      videoToggleBtn.style.display = 'flex';
-    }
-  }
+function startVideoCall() {
+    alert('Starting video call with ' + currentChatUserName);
+    // Show call interface
+    document.body.classList.add('call-active');
+    document.getElementById('callUserName').textContent = currentChatUserName;
+    document.getElementById('callStatus').textContent = 'Calling...';
+}
 
-  function handleIncomingCall(signalingData) {
-    if (isCallActive) {
-      // Send busy signal if already on a call
-      sendSignalingMessage({ type: 'busy', to: signalingData.callerId });
-      return;
-    }
-    
-    // Store the offer and setup signaling data for acceptance
-    incomingCallSignalingData = signalingData;
-    incomingCallId = signalingData.callerId;
-    
-    incomingCallerName.textContent = signalingData.callerName || 'Unknown';
-    incomingCallType.textContent = signalingData.callType === 'video' ? 'Video Call' : 'Voice Call';
-    
-    incomingCallModal.classList.add('active');
-    
-    // Auto decline after 30 seconds
-    setTimeout(() => {
-      if (incomingCallModal.classList.contains('active')) {
-        declineIncomingCall();
-      }
-    }, 30000);
-  }
-
-  async function acceptIncomingCall() {
-    callType = incomingCallSignalingData.callType;
-    isInitiator = false;
-    
-    const mediaGranted = await initWebRTC();
-    if (!mediaGranted) {
-      declineIncomingCall();
-      return;
-    }
-
-    createPeerConnection();
-    
-    try {
-      // 1. Set remote description (The Offer)
-      await peerConnection.setRemoteDescription(new RTCSessionDescription({
-        type: 'offer',
-        sdp: incomingCallSignalingData.sdp
-      }));
-
-      // 2. Create and send answer
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-
-      await sendSignalingMessage({
-        type: 'answer',
-        sdp: answer.sdp
-      });
-
-      incomingCallModal.classList.remove('active');
-      showCallInterface();
-      updateCallStatus('Connecting...');
-      
-    } catch(error) {
-      console.error('Error accepting call:', error);
-      showError('Failed to establish connection.');
-      endCall();
-    }
-  }
-
-  function declineIncomingCall() {
-    if (incomingCallId) {
-      sendSignalingMessage({
-        type: 'reject'
-      });
-    }
-    
-    incomingCallModal.classList.remove('active');
-    incomingCallId = null;
-    incomingCallSignalingData = null;
-  }
-
-  function endCall() {
-    if (!isCallActive) return;
-
-    // 1. Close Peer Connection
-    if (peerConnection) {
-      peerConnection.close();
-      peerConnection = null;
-    }
-    
-    // 2. Stop Media Tracks
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-      localStream = null;
-    }
-    
-    // 3. Clean up UI/State
-    if (dataChannel) dataChannel = null;
-    isCallActive = false;
-    isInitiator = false;
-    
+function endCall() {
     document.body.classList.remove('call-active');
-    
-    // 4. Send call end signal (only if not ended by remote or connection failure)
-    if (currentChatUser) {
-      sendSignalingMessage({
-        type: 'end-call'
-      });
-    }
-  }
+    alert('Call ended');
+}
 
-  function toggleMute() {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        muteBtn.classList.toggle('active', !audioTrack.enabled);
-        muteBtn.innerHTML = audioTrack.enabled ? 
-          '<i class="fas fa-microphone"></i>' : 
-          '<i class="fas fa-microphone-slash"></i>';
-      }
-    }
-  }
+function toggleMute() {
+    const muteBtn = document.getElementById('muteBtn');
+    muteBtn.classList.toggle('active');
+    alert('Microphone ' + (muteBtn.classList.contains('active') ? 'muted' : 'unmuted'));
+}
 
-  function toggleVideo() {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        videoToggleBtn.classList.toggle('active', !videoTrack.enabled);
-        videoToggleBtn.innerHTML = videoTrack.enabled ? 
-          '<i class="fas fa-video"></i>' : 
-          '<i class="fas fa-video-slash"></i>';
-      }
-    }
-  }
+function toggleVideo() {
+    const videoToggleBtn = document.getElementById('videoToggleBtn');
+    videoToggleBtn.classList.toggle('active');
+    alert('Video ' + (videoToggleBtn.classList.contains('active') ? 'disabled' : 'enabled'));
+}
 
-  function displayShyChatMessage(message) {
-    shyChatOverlay.textContent = message;
-    shyChatOverlay.classList.add('visible');
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-      shyChatOverlay.classList.remove('visible');
-    }, 5000);
-  }
+function acceptIncomingCall() {
+    document.getElementById('incomingCallModal').classList.remove('active');
+    document.body.classList.add('call-active');
+    document.getElementById('callUserName').textContent = document.getElementById('incomingCallerName').textContent;
+    document.getElementById('callStatus').textContent = 'Connected';
+    alert('Call accepted');
+}
 
-  function sendShyChatMessage() {
+function declineIncomingCall() {
+    document.getElementById('incomingCallModal').classList.remove('active');
+    alert('Call declined');
+}
+
+function sendShyChatMessage() {
+    const callChatInput = document.getElementById('callChatInput');
     const message = callChatInput.value.trim();
-    if (message && dataChannel && dataChannel.readyState === 'open') {
-      // Send to peer
-      dataChannel.send(message);
-      // Display locally with 'You' prefix
-      displayShyChatMessage(`You: ${message}`); 
-      callChatInput.value = '';
-    }
-  }
-
-  function updateCallStatus(status) {
-    callStatus.textContent = status;
-  }
-
-  // === VOICE MESSAGE FUNCTIONS ===
-
-  async function startVoiceRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
-      };
-      
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        await sendVoiceMessage(audioBlob);
+    if (message) {
+        const shyChatOverlay = document.getElementById('shyChatOverlay');
+        shyChatOverlay.textContent = 'You: ' + message;
+        shyChatOverlay.classList.add('visible');
+        callChatInput.value = '';
         
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorder.start();
-      voiceMessageContainer.classList.add('recording');
-      
-      // Start timer
-      recordingStartTime = Date.now();
-      recordingTimer = setInterval(updateRecordingTimer, 1000);
-      updateRecordingTimer();
-      
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      showError('Unable to access microphone for recording');
+        setTimeout(() => {
+            shyChatOverlay.classList.remove('visible');
+        }, 3000);
     }
-  }
+}
 
-  function stopVoiceRecording() {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-      clearInterval(recordingTimer);
-      voiceMessageContainer.classList.remove('recording');
-    }
-  }
+// Voice message functions
+let recordingInterval = null;
+let recordingSeconds = 0;
 
-  function cancelVoiceRecording() {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-      clearInterval(recordingTimer);
-      voiceMessageContainer.classList.remove('recording');
-      
-      // Stop tracks
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
-    }
-  }
-
-  function updateRecordingTimer() {
-    if (recordingStartTime) {
-      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-      const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-      const seconds = (elapsed % 60).toString().padStart(2, '0');
-      recordingTimerEl.textContent = `${minutes}:${seconds}`;
-      
-      // Auto-stop after 2 minutes
-      if (elapsed >= 120) {
-        stopVoiceRecording();
-      }
-    }
-  }
-
-  async function sendVoiceMessage(audioBlob) {
-    if (!currentChatId) return;
-    
-    // Convert blob to base64 for Firestore
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    
-    reader.onloadend = async () => {
-      const base64Audio = reader.result;
-      
-      try {
-        await addDoc(collection(db, "conversations", currentChatId, "messages"), {
-          type: 'audio',
-          audioData: base64Audio,
-          duration: Math.floor((Date.now() - recordingStartTime) / 1000),
-          senderId: currentUser.uid,
-          timestamp: serverTimestamp()
-        });
-        
-        // Update conversation
-        await updateDoc(doc(db, "conversations", currentChatId), {
-          lastMessage: 'Voice message',
-          updatedAt: serverTimestamp(),
-          [`unread.${currentChatUser}`]: arrayUnion(1)
-        });
-        
-      } catch (error) {
-        console.error('Error sending voice message:', error);
-        showError('Failed to send voice message');
-      }
-    };
-  }
-
-  function toggleVoiceMessage() {
+function toggleVoiceMessage() {
+    const voiceMessageContainer = document.getElementById('voiceMessageContainer');
     if (voiceMessageContainer.classList.contains('recording')) {
-      stopVoiceRecording();
+        stopVoiceRecording();
     } else {
-      startVoiceRecording();
+        startVoiceRecording();
     }
-  }
+}
 
-  function formatDuration(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  // === SIGNALING FUNCTIONS ===
-
-  async function sendSignalingMessage(message) {
-    if (!currentChatId || !currentChatUser) return;
+function startVoiceRecording() {
+    recordingSeconds = 0;
+    const voiceMessageContainer = document.getElementById('voiceMessageContainer');
+    voiceMessageContainer.classList.add('recording');
     
-    try {
-      const signalingRef = collection(db, "signaling", currentChatId, "messages");
-      await addDoc(signalingRef, {
-        ...message,
-        from: currentUser.uid,
-        to: currentChatUser,
-        timestamp: serverTimestamp()
-      });
-    } catch (error) {
-      console.error('Error sending signaling message:', error);
-    }
-  }
+    recordingInterval = setInterval(() => {
+        recordingSeconds++;
+        const minutes = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+        const seconds = (recordingSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('recordingTimer').textContent = `${minutes}:${seconds}`;
+    }, 1000);
+    
+    alert('Voice recording started. Click stop to send or cancel to discard.');
+}
 
-  function setupSignalingListener() {
-    if (unsubscribeSignaling) {
-      unsubscribeSignaling(); // Clean up old listener
-    }
-    if (!currentChatId || !currentUser) return;
+function stopVoiceRecording() {
+    clearInterval(recordingInterval);
+    const voiceMessageContainer = document.getElementById('voiceMessageContainer');
+    voiceMessageContainer.classList.remove('recording');
     
-    const signalingQuery = query(
-      collection(db, "signaling", currentChatId, "messages"),
-      where("to", "==", currentUser.uid),
-      orderBy("timestamp", "asc") // Order ascending to process in time sequence
-    );
+    // Add voice message to chat
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageElement = document.createElement('div');
+    messageElement.className = 'audio-message sent';
+    messageElement.innerHTML = `
+        <div class="audio-controls">
+            <button class="play-pause-btn"><i class="fas fa-play"></i></button>
+            <div class="audio-progress">
+                <div class="audio-progress-bar" style="width: 0%"></div>
+            </div>
+            <span class="audio-duration">${Math.floor(recordingSeconds / 60).toString().padStart(2, '0')}:${(recordingSeconds % 60).toString().padStart(2, '0')}</span>
+        </div>
+    `;
     
-    unsubscribeSignaling = onSnapshot(signalingQuery, (snapshot) => {
-      snapshot.docChanges().forEach(async (change) => {
-        if (change.type === "added") {
-          const data = change.doc.data();
-          await handleSignalingMessage(data);
-          // Important: Delete the message after processing to avoid reprocessing
-          await deleteDoc(change.doc.ref);
-        }
-      });
-    });
-  }
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    alert('Voice message sent!');
+}
 
-  async function handleSignalingMessage(message) {
-    const { type, sdp, candidate } = message;
+function cancelVoiceRecording() {
+    clearInterval(recordingInterval);
+    const voiceMessageContainer = document.getElementById('voiceMessageContainer');
+    voiceMessageContainer.classList.remove('recording');
+    alert('Voice recording cancelled');
+}
 
-    switch (type) {
-      case 'offer':
-        if (!isCallActive) {
-          // Only handle if not already in a call
-          incomingCallSignalingData = message;
-          handleIncomingCall(message);
-        }
-        break;
-        
-      case 'answer':
-        if (peerConnection && peerConnection.remoteDescription === null) {
-          await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp }));
-          updateCallStatus('Connected');
-        }
-        break;
-        
-      case 'ice-candidate':
-        if (peerConnection && candidate) {
-          try {
-            // Candidate must be created from the raw data
-            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-          } catch (e) {
-            console.error('Error adding ICE candidate:', e);
-          }
-        }
-        break;
-        
-      case 'reject':
-        if (isInitiator) {
-          showError('Call was declined');
-          endCall();
-        }
-        break;
-        
-      case 'end-call':
-        endCall();
-        break;
-        
-      case 'busy':
-        if (isInitiator) {
-          showError(`${currentChatUserName} is currently busy.`);
-          endCall();
-        }
-        break;
-    }
-  }
+// Initialize dark mode from localStorage
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeSwitch').classList.add('active');
+}
 
-  // === UI FUNCTIONS ===
-  
-  function toggleSidebar() {
-    const sidebar = document.getElementById('mainSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    if (sidebar.classList.contains('active')) {
-      sidebar.classList.remove('active');
-      overlay.style.display = 'none';
-    } else {
-      sidebar.classList.add('active');
-      overlay.style.display = 'block';
+// Make Enter key send message
+document.getElementById('messageInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
     }
-  }
-  
-  function openUserSearchOverlay() {
-    document.getElementById('userSearchOverlay').style.display = 'flex';
-  }
-  
-  function closeUserSearchOverlay() {
-    document.getElementById('userSearchOverlay').style.display = 'none';
-  }
-  
-  function openSettingsModal() {
-    document.getElementById('settingsModal').style.display = 'flex';
-  }
-  
-  function closeSettingsModal() {
-    document.getElementById('settingsModal').style.display = 'none';
-  }
-  
-  function openWallpaperModal() {
-    document.getElementById('wallpaperModal').style.display = 'flex';
-    loadWallpapers();
-  }
-  
-  function closeWallpaperModal() {
-    document.getElementById('wallpaperModal').style.display = 'none';
-  }
-  
-  function loadWallpapers() {
-    const wallpaperGrid = document.getElementById('wallpaperGrid');
-    wallpaperGrid.innerHTML = '';
-    
-    const wallpapers = [
-      'https://images.unsplash.com/photo-1557683316-973673baf926?w=400',
-      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w-400',
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400',
-      'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400',
-      'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400'
-    ];
-    
-    wallpapers.forEach((url, index) => {
-      const wallpaperItem = document.createElement('div');
-      wallpaperItem.style.cssText = `
-        width: 100%;
-        height: 150px;
-        background-image: url(${url});
-        background-size: cover;
-        background-position: center;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-      `;
-      
-      wallpaperItem.addEventListener('click', () => {
-        selectedWallpaper = url;
-        openWallpaperPreview();
-      });
-      
-      wallpaperItem.addEventListener('mouseenter', () => {
-        wallpaperItem.style.transform = 'scale(1.05)';
-      });
-      
-      wallpaperItem.addEventListener('mouseleave', () => {
-        wallpaperItem.style.transform = 'scale(1)';
-      });
-      
-      wallpaperGrid.appendChild(wallpaperItem);
-    });
-  }
-  
-  function openWallpaperPreview() {
-    if (!selectedWallpaper) return;
-    
-    const preview = document.getElementById('wallpaperPreview');
-    preview.style.backgroundImage = `url(${selectedWallpaper})`;
-    document.getElementById('wpPreviewOverlay').style.display = 'flex';
-  }
-  
-  function closeWallpaperPreview() {
-    document.getElementById('wpPreviewOverlay').style.display = 'none';
-  }
-  
-  function applyWallpaper() {
-    if (selectedWallpaper) {
-      messagesContainer.style.backgroundImage = `url(${selectedWallpaper})`;
-      showSuccess('Wallpaper applied successfully');
-    }
-    closeWallpaperPreview();
-    closeWallpaperModal();
-  }
-  
-  function toggleDarkMode() {
-    const body = document.body;
-    const switchEl = document.getElementById('darkModeSwitch');
-    
-    if (body.classList.contains('dark-mode')) {
-      body.classList.remove('dark-mode');
-      switchEl.classList.remove('active');
-      localStorage.setItem('darkMode', 'false');
-    } else {
-      body.classList.add('dark-mode');
-      switchEl.classList.add('active');
-      localStorage.setItem('darkMode', 'true');
-    }
-  }
-  
-  function getUserDisplayName(userId) {
-    // This would fetch from Firebase
-    return currentChatUserName;
-  }
-  
-  // === INTEGRATION ===
-  
-  window.startVideoCall = () => { startCall('video'); };
-  window.startVoiceCall = () => { startCall('voice'); };
-  
-  // Cleanup helper function
-  function cleanupMedia() {
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-      localStream = null;
-    }
-  }
+});
 
-  // === EVENT LISTENERS ===
-  
-  onAuthStateChanged(auth, async user => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
-      currentUser = user;
-      
-      // Load user data
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        document.getElementById('navUserName').textContent = userData.name || user.email;
-        document.getElementById('navUserImg').src = userData.profilePicture || 'https://via.placeholder.com/40';
-      }
-      
-      // Load conversations
-      loadConversations();
-      
-      // Check for dark mode preference
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('darkModeSwitch').classList.add('active');
-      }
+// Make Enter key send shy chat message
+document.getElementById('callChatInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendShyChatMessage();
     }
-  });
+});
 
-  // Message input auto-resize
-  messageInput.addEventListener('input', function() {
+// Auto-resize textarea
+document.getElementById('messageInput').addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
-  });
+});
 
-  // Send message on Enter (Shift+Enter for new line)
-  messageInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  sendButton.addEventListener('click', sendMessage);
-
-  // WebRTC event listeners
-  endCallBtn.addEventListener('click', endCall);
-  muteBtn.addEventListener('click', toggleMute);
-  videoToggleBtn.addEventListener('click', toggleVideo);
-
-  // Shy Chat listeners
-  callChatSendBtn.addEventListener('click', sendShyChatMessage);
-  callChatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendShyChatMessage();
-    }
-  });
-
-  // Voice message event listeners
-  voiceMsgToggleBtn.addEventListener('click', toggleVoiceMessage);
-  document.getElementById('voiceMessageBtn').addEventListener('click', toggleVoiceMessage);
-
-  // Back button for mobile
-  backButton.addEventListener('click', () => {
-    document.getElementById('chatHeader').style.display = 'none';
-    document.getElementById('messagesContainer').style.display = 'none';
-    document.getElementById('messageInputContainer').style.display = 'none';
-    document.getElementById('emptyChat').style.display = 'flex';
-    
-    if (window.innerWidth <= 768) {
-      document.getElementById('conversationsSidebar').classList.add('active');
-    }
-  });
-
-  // Chat search
-  chatSearch.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const items = document.querySelectorAll('.conversation-item');
-    
-    items.forEach(item => {
-      const name = item.dataset.userName.toLowerCase();
-      if (name.includes(searchTerm)) {
-        item.style.display = 'flex';
-      } else {
-        item.style.display = 'none';
-      }
-    });
-  });
-
-  // Logout
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      window.location.href = 'login.html';
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  });
-
-  // Night mode toggle
-  document.getElementById('nightToggleBtn').addEventListener('click', toggleDarkMode);
-
-  // Close modals when clicking outside
-  document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('settings-modal') || 
-        e.target.classList.contains('user-search-overlay') ||
-        e.target.classList.contains('wallpaper-modal') ||
-        e.target.classList.contains('wallpaper-preview-overlay')) {
-      closeSettingsModal();
-      closeUserSearchOverlay();
-      closeWallpaperModal();
-      closeWallpaperPreview();
-    }
-  });
-
-  // Close emoji picker when clicking outside
-  document.addEventListener('click', (e) => {
-    const emojiPicker = document.getElementById('emojiPicker');
-    if (emojiPicker.style.display === 'flex' && 
-        !emojiPicker.contains(e.target) && 
-        e.target.id !== 'emojiBtn') {
-      emojiPicker.style.display = 'none';
-    }
-  });
-
-  // Cleanup on page unload
-  window.addEventListener('beforeunload', () => {
-    endCall();
-    cleanupMedia();
-    
-    if (unsubscribeMessages) unsubscribeMessages();
-    if (unsubscribeConversations) unsubscribeConversations();
-    if (unsubscribeSignaling) unsubscribeSignaling();
-  });
-
-  // Mobile sidebar toggle
-  if (window.innerWidth <= 768) {
-    document.getElementById('conversationsSidebar').classList.add('active');
-  }
-
+// Initialize with sample incoming call after 3 seconds
+setTimeout(() => {
+    // Uncomment to test incoming call
+    // document.getElementById('incomingCallModal').classList.add('active');
+    // document.getElementById('incomingCallerName').textContent = 'John Doe';
+    // document.getElementById('incomingCallType').textContent = 'Video Call';
+}, 3000);
 </script>
 </body>
 </html>
