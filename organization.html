@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEET - Organization Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
+
     <style>
         :root {
             --primary: #0061FF;
@@ -14,6 +20,7 @@
             --text: #111827;
             --muted: #6b7280;
             --error: #EF4444;
+            --success: #10B981;
             --radius: 12px;
             --shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
         }
@@ -80,6 +87,7 @@
             width: 100%;
             margin-bottom: 15px;
             transition: background 0.2s;
+            position: relative;
         }
         .btn-primary {
             background: linear-gradient(90deg, var(--primary), var(--accent));
@@ -204,6 +212,47 @@
         body.dark .dark-mode-toggle {
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Message Styles */
+        #messageContainer {
+            margin-bottom: 15px;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: left;
+            margin-top: -10px; /* Adjust spacing */
+        }
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Spinner for Buttons */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -211,35 +260,39 @@
 
     <div class="container" id="mainContainer">
         <div class="logo"><div class="logo-icon"></div> MEET</div>
-        
-        <div id="loginSection">
+        <div id="messageContainer"></div> <div id="loginSection">
             <h2>Welcome Back!</h2>
             <p class="subtitle">Access your organization portal.</p>
 
-            <button class="btn btn-primary" onclick="showSignup('CEO')">🚀 Sign up as CEO (New Org)</button>
-            <button class="btn btn-secondary" onclick="showSignup('BOD')">👥 Sign up as Board Member</button>
-            <button class="btn btn-secondary" onclick="showSignup('Employee')">🧑‍💻 Sign up as Employee</button>
+            <div style="margin-bottom: 30px;">
+                <button class="btn btn-primary" onclick="showSignup('CEO')">🚀 Sign up as CEO (New Org)</button>
+                <button class="btn btn-secondary" onclick="showSignup('BOD')">👥 Sign up as Board Member</button>
+                <button class="btn btn-secondary" onclick="showSignup('Employee')">🧑‍💻 Sign up as Employee</button>
+            </div>
 
-            <div style="margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
-                <h3 style="margin-top: 0; font-size: 18px;">Existing Users</h3>
-                <form onsubmit="handleLogin(event)">
+            <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
+                <h3 style="margin-top: 0; font-size: 18px;">Existing Users Login</h3>
+                <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail" class="form-label">Email Address</label>
                         <input type="email" id="loginEmail" class="form-input" required placeholder="your.name@company.com">
                     </div>
                     <div class="form-group">
-                        <label for="loginPassword" class="form-label">Temporary/Custom Password</label>
+                        <label for="loginPassword" class="form-label">Custom Password</label>
                         <input type="password" id="loginPassword" class="form-input" required placeholder="********">
                     </div>
-                    <button type="submit" class="btn btn-primary">Login to Portal</button>
+                    <button type="submit" id="loginBtn" class="btn btn-primary">
+                        <span id="loginText">Login to Portal</span>
+                        <span id="loginSpinner" class="spinner" style="display: none;"></span>
+                    </button>
                 </form>
             </div>
         </div>
 
         <div id="ceoSignupSection" style="display: none;">
             <h2>CEO Sign Up</h2>
-            <p class="subtitle">Establish your organization on MEET.</p>
-            <form onsubmit="handleCeoSignup(event)">
+            <p class="subtitle">Establish your organization on MEET. You set your own password.</p>
+            <form id="ceoSignupForm" onsubmit="handleCeoSignup(event)">
                 <div class="form-group">
                     <label class="form-label">CEO Name</label>
                     <div class="name-fields">
@@ -268,7 +321,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="govID" class="form-label">Government Issued ID</label>
+                    <label for="govID" class="form-label">Government Issued ID Upload</label>
                     <div class="name-fields">
                         <select id="govIDType" class="form-select" style="flex: 0.5;" required>
                             <option value="">Select ID Type</option>
@@ -277,12 +330,16 @@
                             <option value="National ID">National ID Card</option>
                             <option value="Business Registration">Business Registration Doc</option>
                         </select>
-                        <input type="file" id="govID" class="form-input" style="flex: 1.5;" required>
+                        <input type="file" id="govID" class="form-input" style="flex: 1.5; padding: 10px;" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="ceoEmail" class="form-label">Official CEO Email</label>
                     <input type="email" id="ceoEmail" class="form-input" required placeholder="ceo@acmecorp.com">
+                </div>
+                <div class="form-group">
+                    <label for="ceoPassword" class="form-label">Create CEO Password</label>
+                    <input type="password" id="ceoPassword" class="form-input" required placeholder="Minimum 6 characters">
                 </div>
                 <div class="form-group">
                     <label for="orgTaxID" class="form-label">Tax ID / Business Registration Number</label>
@@ -295,19 +352,23 @@
                     <span class="slider"></span>
                 </label>
                 
-                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Create Organization Account</button>
+                <button type="submit" id="ceoSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
+                    <span id="ceoSignupText">Create Organization Account</span>
+                    <span id="ceoSignupSpinner" class="spinner" style="display: none;"></span>
+                </button>
                 <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Login</button>
             </form>
         </div>
 
         <div id="memberSignupSection" style="display: none;">
             <h2 id="memberSignupTitle">Sign Up</h2>
-            <p class="subtitle">Join your organization's private network. (Approval Required)</p>
-            <form onsubmit="handleMemberSignup(event)">
+            <p class="subtitle">Join your organization's network. Your access is subject to CEO approval.</p>
+            <form id="memberSignupForm" onsubmit="handleMemberSignup(event)">
                 <input type="hidden" id="memberRole">
                 <div class="form-group">
-                    <label class="form-label">Organization Name (or ID)</label>
+                    <label class="form-label">Organization Name</label>
                     <input type="text" id="memberOrgName" class="form-input" required placeholder="Acme Corp LLC">
+                    <small style="color:var(--muted)">Ensure the organization name is exact.</small>
                 </div>
                 <div class="form-group">
                     <label for="memberName" class="form-label">Full Name</label>
@@ -318,7 +379,7 @@
                     <input type="tel" id="memberPhone" class="form-input" required placeholder="+2348012345678">
                 </div>
                 <div class="form-group">
-                    <label for="memberEmail" class="form-label">Official Email Address</label>
+                    <label for="memberEmail" class="form-label">Official Email Address (where password will be sent)</label>
                     <input type="email" id="memberEmail" class="form-input" required placeholder="timi.jones@acmecorp.com">
                 </div>
                 <div class="form-group" id="memberPositionGroup">
@@ -326,7 +387,10 @@
                     <input type="text" id="memberPosition" class="form-input" required placeholder="e.g., HR Director, Software Engineer">
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Submit for Approval</button>
+                <button type="submit" id="memberSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
+                    <span id="memberSignupText">Submit for Approval</span>
+                    <span id="memberSignupSpinner" class="spinner" style="display: none;"></span>
+                </button>
                 <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Login</button>
             </form>
         </div>
@@ -335,15 +399,94 @@
             <div class="wait-icon">⏳</div>
             <h2>Waiting for Approval</h2>
             <p>Your sign-up request has been successfully submitted to the organization's CEO/Admin.</p>
-            <p>A custom password will be sent to your email (<span id="waitEmail" style="font-weight: 600;"></span>) upon approval.</p>
-            <p class="wait-quote">"The only way to do great work is to love what you do." - Steve Jobs</p>
+            <p>A **custom password** will be securely sent to your mail (<span id="waitEmail" style="font-weight: 600;"></span>) upon approval.</p>
+            <p class="wait-quote">"Kindness in words creates confidence. Kindness in thinking creates profoundness. Kindness in giving creates love." - Lao Tzu</p>
             <p style="font-size: 12px; color: var(--error); margin-top: 20px;">**Do not attempt to log in until you receive your custom password.**</p>
             <button type="button" class="btn btn-primary" onclick="showSection('login')">Return to Login Screen</button>
         </div>
     </div>
 
-    <script>
-        // Dark mode toggle
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            query, 
+            where, 
+            getDocs, 
+            addDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // =======================================================
+        // 🛑 IMPORTANT: REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL CONFIGURATION
+        // (Copied directly from the provided code)
+        // =======================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+            authDomain: "meet-6e159.firebaseapp.com",
+            projectId: "meet-6e159",
+            storageBucket: "meet-6e159.firebasestorage.app",
+            messagingSenderId: "252353608421",
+            appId: "1:252353608421:web:6706056048e9a8f12db20c",
+            measurementId: "G-9BFPPVMMRF",
+            databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com/"
+        };
+        const CLOUDINARY_UPLOAD_PRESET = "meet_org_id_preset"; 
+        const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // You must replace this.
+        // =======================================================
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM elements
+        const messageContainer = document.getElementById('messageContainer');
+
+        // --- Utility Functions (Adopted from provided code) ---
+
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function showMessage(message, type = 'error') {
+            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+
+        function clearMessage() { 
+            messageContainer.innerHTML = ''; 
+        }
+
+        function setLoading(buttonId, isLoading) {
+            const button = document.getElementById(buttonId);
+            const text = button.querySelector('span:first-child');
+            const spinner = button.querySelector('.spinner');
+            
+            if (!button || !text || !spinner) return;
+            
+            if (isLoading) { 
+                button.disabled = true;
+                text.style.display = 'none';
+                spinner.style.display = 'inline-block';
+            } else { 
+                button.disabled = false;
+                text.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            }
+        }
+
+        // --- Dark mode toggle ---
         const darkToggle = document.getElementById('darkToggle');
         (function initTheme() {
             const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
@@ -357,6 +500,7 @@
             darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
         });
 
+        // --- Section Navigation ---
         function showSection(sectionId) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('ceoSignupSection').style.display = 'none';
@@ -364,8 +508,8 @@
             document.getElementById('approvalWaitSection').style.display = 'none';
             
             document.getElementById(sectionId + 'Section').style.display = 'block';
+            clearMessage();
 
-            // Ensure we are showing the correct title for member signup
             if (sectionId === 'memberSignup') {
                 const role = document.getElementById('memberRole').value;
                 document.getElementById('memberSignupTitle').textContent = role === 'BOD' ? 'Board Member Sign Up' : 'Employee Sign Up';
@@ -381,64 +525,218 @@
             }
         }
 
-        function handleCeoSignup(event) {
-            event.preventDefault();
-            // In a real application, this would send data to the backend, 
-            // validate, and create the organization.
-            const orgName = document.getElementById('orgName').value;
-            const ceoName = document.getElementById('ceoFirstName').value + ' ' + document.getElementById('ceoSurname').value;
+        // --- Utility Function: Cloudinary Upload ---
+        async function uploadFileToCloudinary(file) {
+            if (!file) return null;
             
-            alert(`✅ Organization "${orgName}" created by CEO ${ceoName}! You can now log in with the official CEO email and an initial default password (which you must change on first login).`);
-            showSection('login');
+            const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        url: data.secure_url,
+                        public_id: data.public_id
+                    };
+                } else {
+                    console.error("Cloudinary Upload failed:", await response.text());
+                    return null;
+                }
+            } catch (error) {
+                console.error("Cloudinary Network Error:", error);
+                return null;
+            }
         }
 
-        function handleMemberSignup(event) {
+        // --- CEO Sign Up (Sets Password, Creates Organization and User) ---
+        async function handleCeoSignup(event) {
             event.preventDefault();
+            
+            setLoading('ceoSignupBtn', true);
+            clearMessage();
+            
+            // Sanitize and collect data
+            const ceoEmail = sanitizeInput(document.getElementById('ceoEmail').value);
+            const orgName = sanitizeInput(document.getElementById('orgName').value);
+            const ceoFirstName = sanitizeInput(document.getElementById('ceoFirstName').value);
+            const ceoSurname = sanitizeInput(document.getElementById('ceoSurname').value);
+            const orgTaxID = sanitizeInput(document.getElementById('orgTaxID').value);
+            const govIDFile = document.getElementById('govID').files[0];
+            const ceoPassword = document.getElementById('ceoPassword').value;
+
+            if (ceoPassword.length < 6) {
+                showMessage('Password must be at least 6 characters.', 'error');
+                setLoading('ceoSignupBtn', false);
+                return;
+            }
+
+            try {
+                showMessage('Uploading ID card and creating organization...', 'success');
+                const idUpload = await uploadFileToCloudinary(govIDFile);
+                if (!idUpload) {
+                    throw new Error("Failed to upload government ID. Check Cloudinary preset or file.");
+                }
+                
+                // 1. Create User in Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, ceoEmail, ceoPassword);
+                const user = userCredential.user;
+                const fullName = `${ceoFirstName} ${ceoSurname}`;
+
+                // 2. Create Organization Document in Firestore
+                const orgRef = doc(collection(db, 'organizations'));
+                const orgData = {
+                    orgId: orgRef.id,
+                    name: orgName,
+                    type: document.getElementById('orgType').value,
+                    taxId: orgTaxID,
+                    ceoUid: user.uid,
+                    idProofUrl: idUpload.url,
+                    hasBoard: document.getElementById('hasBoardToggle').checked,
+                    createdAt: serverTimestamp()
+                };
+                await setDoc(orgRef, orgData);
+
+                // 3. Create CEO User Profile in Firestore
+                const userData = {
+                    uid: user.uid,
+                    orgId: orgRef.id,
+                    name: fullName,
+                    email: ceoEmail,
+                    role: 'CEO',
+                    status: 'Active',
+                    isDelegate: true,
+                    joinedAt: serverTimestamp()
+                };
+                await setDoc(doc(db, 'users', user.uid), userData);
+
+                showMessage(`Organization "${orgName}" created successfully! Redirecting...`, 'success');
+                setTimeout(() => {
+                    window.location.href = `organization-dashboard-simulated.html?role=CEO&orgId=${orgRef.id}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error("CEO Sign Up Error:", error.message);
+                let errorMessage = 'Sign Up Failed.';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'An account with this email already exists.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showMessage(`❌ ${errorMessage}`, 'error');
+            } finally {
+                setLoading('ceoSignupBtn', false);
+            }
+        }
+
+        // --- BOD/Employee Sign Up (Submits for Approval) ---
+        async function handleMemberSignup(event) {
+            event.preventDefault();
+            
+            setLoading('memberSignupBtn', true);
+            clearMessage();
+            
+            // Sanitize and collect data
             const role = document.getElementById('memberRole').value;
-            const fullName = document.getElementById('memberName').value;
-            const email = document.getElementById('memberEmail').value;
+            const email = sanitizeInput(document.getElementById('memberEmail').value);
+            const orgName = sanitizeInput(document.getElementById('memberOrgName').value);
+            const memberName = sanitizeInput(document.getElementById('memberName').value);
+            const memberPhone = sanitizeInput(document.getElementById('memberPhone').value);
+            const memberPosition = sanitizeInput(document.getElementById('memberPosition').value);
 
-            // Simulate sending approval request to the CEO/Admin
-            document.getElementById('waitEmail').textContent = email;
-            
-            // Show the waiting screen
-            showSection('approvalWait');
-            
-            // In a real app, the CEO would get a notification:
-            // "New ${role} signup request from ${fullName} at ${email}"
-            
-            // CEO's flow: 
-            // 1. CEO clicks Approve in their Admin Portal
-            // 2. CEO is prompted to write a welcome message and generate a custom password.
-            // 3. System sends email: "Welcome ${fullName}, your custom password is [PASSWORD]"
-            // 4. User can now log in.
+            try {
+                // 1. Find the target organization
+                const q = query(collection(db, 'organizations'), where('name', '==', orgName));
+                const orgQuery = await getDocs(q);
+                
+                if (orgQuery.empty) {
+                    throw new Error(`Organization "${orgName}" not found. Check the name.`);
+                }
+                const organization = orgQuery.docs[0].data();
+                
+                // 2. Create a Pending Approval document
+                await addDoc(collection(db, 'pending_approvals'), {
+                    orgId: organization.orgId,
+                    orgName: organization.name,
+                    name: memberName,
+                    email: email,
+                    phone: memberPhone,
+                    position: memberPosition,
+                    requestedRole: role,
+                    status: 'Pending',
+                    requestedAt: serverTimestamp()
+                });
+
+                // 3. Show the Waiting screen
+                document.getElementById('waitEmail').textContent = email;
+                showSection('approvalWait');
+                
+            } catch (error) {
+                console.error("Member Sign Up Error:", error.message);
+                showMessage(`❌ Sign Up Failed: ${error.message}`, 'error');
+            } finally {
+                setLoading('memberSignupBtn', false);
+            }
         }
 
-        function handleLogin(event) {
+        // --- User Login (Checks Role and Status) ---
+        async function handleLogin(event) {
             event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            // In a real application:
-            // 1. Send email/password to the server for authentication.
-            // 2. Server validates credentials and checks user status (Active/Suspended/Sacked).
-            // 3. Server provides a token and redirects to the appropriate dashboard/portal.
             
-            // Simulation:
-            if (email.toLowerCase().includes('ceo') && password) {
-                alert('🔑 CEO Login Successful! Redirecting to Organization Dashboard.');
-                // In a real app: window.location.href = 'dashboard-ceo.html';
-                window.location.href = 'organization-dashboard-simulated.html';
-            } else if (email.toLowerCase().includes('board') && password) {
-                alert('🔑 Board Member Login Successful! Redirecting to Board Portal.');
-                // In a real app: window.location.href = 'dashboard-board.html';
-                window.location.href = 'organization-dashboard-simulated.html';
-            } else if (email.toLowerCase().includes('employee') && password) {
-                alert('🔑 Employee Login Successful! Redirecting to Employee Portal.');
-                // In a real app: window.location.href = 'dashboard-employee.html';
-                window.location.href = 'organization-dashboard-simulated.html';
-            } else {
-                alert('❌ Login Failed. Check your email or custom password, or wait for CEO approval.');
+            setLoading('loginBtn', true);
+            clearMessage();
+            
+            // Sanitize and collect data
+            const email = sanitizeInput(document.getElementById('loginEmail').value);
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                // 1. Sign In using Firebase Authentication
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // 2. Fetch User Role and Status from Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (!userDoc.exists()) {
+                    await auth.signOut();
+                    throw new Error("User profile not found. If you just signed up, please wait for CEO approval.");
+                }
+                
+                const userData = userDoc.data();
+                const { role, status, orgId } = userData;
+                
+                // 3. Check Status
+                if (status !== 'Active') {
+                    await auth.signOut();
+                    throw new Error(`Your account status is ${status}. Access denied.`);
+                }
+
+                // 4. Redirect based on Role
+                showMessage(`🔑 Login Successful as ${role}! Redirecting...`, 'success');
+                setTimeout(() => {
+                    window.location.href = `organization-dashboard-simulated.html?role=${role}&orgId=${orgId}`;
+                }, 1000);
+
+            } catch (error) {
+                console.error("Login Error:", error.code, error.message);
+                let errorMessage = 'Login failed. Please check your credentials.';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                     errorMessage = 'Invalid email or custom password.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed login attempts. Please try again later.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showMessage(`❌ ${errorMessage}`, 'error');
+            } finally {
+                setLoading('loginBtn', false);
             }
         }
         
