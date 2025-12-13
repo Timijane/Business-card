@@ -1,544 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEET - Organization Portal</title>
-<style>
-/* --- CORE VARIABLES FROM YOUR DESIGN --- */
-:root{ --primary:#0061FF; --accent:#5AE4A8; --bg:#f7f9fb; --card:#fff; --text:#111827; --muted:#6b7280; --radius:12px; --shadow: 0 6px 18px rgba(16,24,40,0.06); --danger: #ef4444; --warning: #f59e0b; }
-body.dark { --bg:#081226; --card:#0b1726; --text:#e6eef8; --muted:#93a3bd; --shadow: 0 6px 18px rgba(0,0,0,0.6); }
-*{box-sizing:border-box}
-body{ margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow: hidden;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEET - Organization Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0061FF;
+            --primary-dark: #004ecc;
+            --text: #111827;
+            --text-light: #6b7280;
+            --bg: #F3F4F6;
+            --card: #ffffff;
+            --border: #E5E7EB;
+            --success: #10B981;
+        }
 
-/* --- UTILITIES --- */
-.hidden { display: none !important; }
-.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
-.btn-primary { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; }
-.btn-outline { border: 1px solid var(--muted); background: transparent; color: var(--text); }
-.btn-danger { background: var(--danger); color: white; }
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
 
-/* --- LANDING / AUTH SCREEN --- */
-#auth-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg); z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    overflow-y: auto; padding: 20px;
-}
-.auth-card {
-    background: var(--card); padding: 40px; border-radius: 16px;
-    box-shadow: var(--shadow); width: 100%; max-width: 500px;
-    text-align: center;
-}
-.role-select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
-.role-btn { padding: 15px 5px; border: 1px solid var(--muted); border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; }
-.role-btn:hover, .role-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0,97,255,0.05); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-/* --- FORMS --- */
-input, select, textarea {
-    width: 100%; padding: 12px; margin: 8px 0 16px;
-    border: 1px solid var(--muted); border-radius: 8px;
-    background: var(--bg); color: var(--text);
-}
-.file-drop { border: 2px dashed var(--muted); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
+        /* --- Main Container --- */
+        .auth-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+        }
 
-/* --- MAIN LAYOUT (From your snippet) --- */
-header{ display:flex; align-items:center; justify-content: space-between; padding:12px 20px; background:var(--card); box-shadow:var(--shadow); }
-.brand { font-weight:700; font-size:18px; color:var(--primary); display: flex; align-items: center; gap: 10px; }
-.layout{ display:flex; flex:1; overflow:hidden; }
-aside{ width:240px; background:var(--card); padding:18px; display:flex; flex-direction:column; gap:8px; border-right: 1px solid rgba(0,0,0,0.05); }
-aside button{ border:0; background:transparent; padding:12px; border-radius:10px; text-align:left; color:var(--muted); cursor:pointer; font-weight: 600; }
-aside button.active{ color:var(--primary); background:rgba(0,97,255,0.06); }
-main{ flex:1; padding:20px; overflow-y:auto; background: var(--bg); }
+        .header {
+            text-align: center;
+            padding: 40px 40px 20px 40px;
+        }
 
-/* --- DASHBOARD SECTIONS --- */
-.dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-.feed-container { max-width: 800px; margin: 0 auto; }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
+            border-radius: 12px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
 
-/* --- POST CARD --- */
-.post-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-.post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-.avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; object-fit: cover; }
-.post-meta small { color: var(--muted); display: block; }
-.post-actions { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; }
-.debate-room { background: var(--bg); border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid var(--muted); }
-.chat-msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--card); font-size: 13px; max-width: 80%; }
-.chat-msg.me { background: rgba(0,97,255,0.1); margin-left: auto; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 30px; }
 
-/* --- ADMIN PANEL --- */
-.admin-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); margin-bottom: 10px; border-radius: 8px; box-shadow: var(--shadow); }
-.status-active { color: #10B981; }
-.status-sacked { color: #EF4444; }
-.status-pending { color: #F59E0B; }
+        /* --- Views --- */
+        .view-section {
+            padding: 0 40px 40px 40px;
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease forwards;
+        }
 
-</style>
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Role Buttons --- */
+        .role-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .role-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .role-card:hover {
+            border-color: var(--primary);
+            background: #f8FAff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,97,255,0.1);
+        }
+
+        .role-icon {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .role-info h3 { font-size: 16px; font-weight: 600; }
+        .role-info span { font-size: 12px; color: var(--text-light); }
+
+        /* --- Forms --- */
+        .form-group { margin-bottom: 16px; }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,97,255,0.1);
+        }
+
+        .file-upload-box {
+            border: 2px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #FAFAFA;
+        }
+        .file-upload-box:hover { border-color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-text {
+            background: transparent;
+            color: var(--text-light);
+            margin-top: 15px;
+        }
+        .btn-text:hover { color: var(--text); text-decoration: underline; }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .divider {
+            margin: 25px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            line-height: 0.1em;
+        }
+        .divider span { background: #fff; padding: 0 10px; color: var(--text-light); font-size: 12px; }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* Success State */
+        .success-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .quote-box {
+            font-style: italic;
+            color: var(--text-light);
+            border-left: 3px solid var(--primary);
+            padding-left: 15px;
+            margin: 20px 0;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
 </head>
 <body>
 
-<div id="auth-overlay">
-    <div class="auth-card" id="login-view">
-        <h2 style="color:var(--primary)">MEET Organization Login</h2>
-        <p>Sign in with your generated credentials</p>
-        <input type="email" id="login-email" placeholder="Email Address">
-        <input type="password" id="login-pass" placeholder="Custom Password">
-        <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
-        <p style="margin-top:20px; font-size:14px;">New here? <a href="#" onclick="showSignup()">Create Account</a></p>
-    </div>
-
-    <div class="auth-card hidden" id="signup-view">
-        <h3>Create Account</h3>
-        <div class="role-select-grid">
-            <button class="role-btn active" onclick="setRole('CEO')">CEO</button>
-            <button class="role-btn" onclick="setRole('BoD')">Board</button>
-            <button class="role-btn" onclick="setRole('Employee')">Employee</button>
+    <div class="auth-container">
+        
+        <div class="header">
+            <div class="logo">M</div>
+            <h1 id="header-title">Welcome to MEET</h1>
+            <p class="subtitle" id="header-subtitle">Select your role to continue</p>
         </div>
 
-        <div id="form-ceo">
-            <input type="text" id="ceo-surname" placeholder="Surname">
-            <input type="text" id="ceo-firstname" placeholder="First Name">
-            <input type="text" id="org-name" placeholder="Official Organization Name">
-            <select id="org-type">
-                <option value="" disabled selected>Type of Organization</option>
-                <option value="sole">Sole Proprietorship</option>
-                <option value="partnership">Partnership</option>
-                <option value="llc">Limited Liability Company</option>
-                <option value="ngo">Non-Profit / NGO</option>
-            </select>
-            <div class="file-drop">📄 Upload Gov Issued ID</div>
-            <label style="display:flex; align-items:center; gap:10px; font-size:14px; text-align:left; margin-bottom:10px;">
-                <input type="checkbox" style="width:auto; margin:0" id="has-board"> 
-                Does this organization have a Board of Directors?
-            </label>
+        <div id="view-select" class="view-section active">
+            <div class="role-grid">
+                <button class="role-card" onclick="openForm('CEO')">
+                    <div class="role-icon">👔</div>
+                    <div class="role-info">
+                        <h3>Sign up as CEO</h3>
+                        <span>Create Organization & Admin Account</span>
+                    </div>
+                </button>
+
+                <button class="role-card" onclick="openForm('Board Member')">
+                    <div class="role-icon">⚖️</div>
+                    <div class="role-info">
+                        <h3>Sign up as Board Member</h3>
+                        <span>Apply for Board Access</span>
+                    </div>
+                </button>
+
+                <button class="role-card" onclick="openForm('Employee')">
+                    <div class="role-icon">💼</div>
+                    <div class="role-info">
+                        <h3>Sign up as Employee</h3>
+                        <span>Apply for Staff Access</span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="#" onclick="openLogin()">Log In</a>
+            </div>
         </div>
 
-        <div id="form-staff" class="hidden">
-            <input type="text" id="staff-name" placeholder="Full Name">
-            <input type="email" id="staff-email" placeholder="Email Address">
-            <input type="tel" id="staff-phone" placeholder="Phone Number">
-            <input type="text" id="staff-position" placeholder="Current Position (e.g. HR Manager)">
-            <div class="file-drop">📄 Upload CV/Resume</div>
-            <p style="font-size:12px; color:var(--warning); text-align:left; background:rgba(245,158,11,0.1); padding:10px; border-radius:6px;">
-                Note: No password required now. Upon approval, your CEO will generate and email your credentials.
+        <div id="view-login" class="view-section">
+            <form onsubmit="event.preventDefault(); alert('Login Logic Here');">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="e.g. name@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Custom Password</label>
+                    <input type="password" placeholder="Enter the password sent to your email" required>
+                </div>
+                <button class="btn btn-primary">Secure Login</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Back to options</button>
+        </div>
+
+        <div id="view-signup-ceo" class="view-section">
+            <form onsubmit="handleSignup(event, 'CEO')">
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1">
+                        <label>Surname</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>First Name</label>
+                        <input type="text" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Official Organization Name</label>
+                    <input type="text" placeholder="Company Ltd." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Type of Organization</label>
+                    <select required>
+                        <option value="" disabled selected>Select Type</option>
+                        <option value="Sole Proprietorship">Sole Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="LLC">Limited Liability Company (LLC)</option>
+                        <option value="Corporation">Corporation</option>
+                        <option value="NGO">Non-Profit / NGO</option>
+                    </select>
+                </div>
+
+                <div class="toggle-switch">
+                    <input type="checkbox" id="hasBoard" style="width:auto;">
+                    <label for="hasBoard" style="margin:0; cursor:pointer;">Does this organization have a Board of Directors?</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Gov. Issued Valid Card (Verification)</label>
+                    <div class="file-upload-box" onclick="document.getElementById('ceo-id').click()">
+                        <span style="font-size:24px">🪪</span><br>
+                        <small>Click to upload Passport/ID/License</small>
+                        <input type="file" id="ceo-id" hidden>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email (For Admin Access)</label>
+                    <input type="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" required>
+                </div>
+
+                <button class="btn btn-primary">Create Organization</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Cancel</button>
+        </div>
+
+        <div id="view-signup-staff" class="view-section">
+            <div style="background:#fff3cd; padding:10px; border-radius:6px; font-size:12px; margin-bottom:15px; color:#856404; border:1px solid #ffeeba;">
+                ⚠ <strong>Strict Access:</strong> No password is created now. It will be generated by the CEO upon approval.
+            </div>
+
+            <form onsubmit="handleSignup(event, 'STAFF')">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="staff-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="staff-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="+1 234..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Position</label>
+                    <input type="text" id="staff-pos" placeholder="e.g. Marketing Manager / Board Treasurer" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Professional Documentation</label>
+                    <div class="file-upload-box" onclick="document.getElementById('staff-file').click()">
+                        <span style="font-size:24px">📄</span><br>
+                        <small>Upload CV, Resume, or Board credentials</small>
+                        <input type="file" id="staff-file" hidden>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary">Submit for Approval</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Cancel</button>
+        </div>
+
+        <div id="view-success" class="view-section" style="text-align:center">
+            <div style="font-size:50px; margin-bottom:10px;">⏳</div>
+            <h2 style="color:var(--text)">Application Submitted</h2>
+            <p style="color:var(--text-light); margin-top:10px;">
+                Kindly wait for approval from the organization. 
+                <br>Notifications will be sent to: <strong id="success-email">email@address.com</strong>
             </p>
+            
+            <div class="quote-box">
+                "Patience is not simply the ability to wait - it's how we behave while we're waiting. Greatness takes time."
+            </div>
+
+            <p style="font-size:12px; color:var(--text-light)">
+                If approved, the CEO will generate your custom credentials. If declined, access will be restricted.
+            </p>
+            
+            <button class="btn btn-primary" onclick="window.location.reload()">Return to Home</button>
         </div>
-        
-        <button class="btn btn-primary" style="width:100%" onclick="submitSignup()">Submit Application</button>
-        <p style="margin-top:15px; font-size:13px; cursor:pointer" onclick="showLogin()">Back to Login</p>
+
     </div>
-</div>
 
-<div id="app-container" class="layout hidden">
-    <aside>
-        <div class="brand">
-            <div style="width:30px;height:30px;background:var(--primary);border-radius:6px;"></div>
-            <span id="nav-org-name">MEET Org</span>
-        </div>
-        <br>
-        <button class="active" onclick="navTo('feed')">📰 Organization Feed</button>
-        <button onclick="navTo('profile')">👤 My Portal</button>
-        <button onclick="navTo('dashboard')">🏢 Org Dashboard</button>
-        <button id="admin-link" class="hidden" onclick="navTo('admin')">⚙️ CEO Admin / HR</button>
-        <div style="flex:1"></div>
-        <button onclick="logout()" style="color:var(--danger)">🚪 Logout</button>
-    </aside>
+    <script>
+        // State variables
+        let currentRole = '';
 
-    <main>
-        <header style="margin-bottom:20px; border-radius:12px;">
-            <div class="left">
-                <span style="font-weight:bold" id="page-title">News Feed</span>
-            </div>
-            <div class="header-right">
-                <span id="user-display-name">User</span>
-                <div class="status-dot"></div>
-            </div>
-        </header>
+        // Helper to hide all views
+        function hideAllViews() {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
 
-        <section id="view-feed" class="view-section">
-            <div class="post-card" id="create-post-box">
-                <textarea id="post-content" rows="3" placeholder="Make an announcement..." style="border:none; background:rgba(0,0,0,0.03);"></textarea>
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div style="display:flex; gap:10px;">
-                        <select id="post-privacy" style="width:auto; margin:0; padding:8px;">
-                            <option value="org">🔒 Organization Only</option>
-                            <option value="public">🌍 Public MEET Feed</option>
-                            <option value="both">🔒 + 🌍 Both</option>
-                        </select>
-                        <label style="display:flex; align-items:center; gap:5px; font-size:13px;">
-                            <input type="checkbox" id="post-debate" style="width:auto; margin:0"> Allow Debate
-                        </label>
-                    </div>
-                    <button class="btn btn-primary" onclick="createPost()">Post Announcement</button>
-                </div>
-            </div>
+        // 1. Open Login
+        function openLogin() {
+            hideAllViews();
+            document.getElementById('header-title').innerText = "Sign In";
+            document.getElementById('header-subtitle').innerText = "Access your organization portal";
+            document.getElementById('view-login').classList.add('active');
+        }
 
-            <div id="feed-stream">
-                </div>
-        </section>
+        // 2. Open Specific Form
+        function openForm(role) {
+            hideAllViews();
+            currentRole = role;
+            
+            if (role === 'CEO') {
+                document.getElementById('header-title').innerText = "Create Organization";
+                document.getElementById('header-subtitle').innerText = "Register as CEO / Owner";
+                document.getElementById('view-signup-ceo').classList.add('active');
+            } else {
+                // Shared form for Employee and Board, title changes
+                document.getElementById('header-title').innerText = role + " Application";
+                document.getElementById('header-subtitle').innerText = "Submit details for CEO approval";
+                document.getElementById('staff-pos').placeholder = role === 'Board Member' ? 'e.g. Chairman, Treasurer' : 'e.g. HR Manager, Developer';
+                document.getElementById('view-signup-staff').classList.add('active');
+            }
+        }
 
-        <section id="view-profile" class="view-section hidden">
-            <div class="post-card" style="text-align:center;">
-                <img src="https://ui-avatars.com/api/?name=User" class="avatar" style="width:100px; height:100px; margin-bottom:15px;" id="profile-img">
-                <h2 id="profile-name">Name</h2>
-                <span class="badge" style="background:var(--primary); color:white" id="profile-role">Role</span>
-                <span class="badge" style="background:#10B981; color:white" id="profile-status">Active</span>
+        // 3. Go Back
+        function goBack() {
+            hideAllViews();
+            document.getElementById('header-title').innerText = "Welcome to MEET";
+            document.getElementById('header-subtitle').innerText = "Select your role to continue";
+            document.getElementById('view-select').classList.add('active');
+        }
+
+        // 4. Handle Submission
+        function handleSignup(e, type) {
+            e.preventDefault(); // Stop reload
+
+            if (type === 'CEO') {
+                // CEO Logic: Normally creates account immediately
+                alert("Organization Created! You can now log in.");
+                openLogin();
+            } else {
+                // Staff Logic: Show Waiting Screen
+                const email = document.getElementById('staff-email').value;
                 
-                <div style="margin-top:20px; text-align:left; max-width:500px; margin-left:auto; margin-right:auto;">
-                    <p><strong>Email:</strong> <span id="profile-email">email@org.com</span></p>
-                    <p><strong>Phone:</strong> <span id="profile-phone">...</span></p>
-                    <p><strong>Position:</strong> <span id="profile-position">...</span></p>
-                    <hr>
-                    <p><em>"Success is not final, failure is not fatal: it is the courage to continue that counts."</em></p>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-admin" class="view-section hidden">
-            <h3>📝 Pending Approvals</h3>
-            <div id="pending-list">
-                <p class="text-muted">No pending applications.</p>
-            </div>
-
-            <h3 style="margin-top:40px;">👥 Staff Management</h3>
-            <div id="staff-list">
-                </div>
-        </section>
-
-        <section id="view-dashboard" class="view-section hidden">
-            <div class="post-card">
-                <h2 style="color:var(--primary)">Mission & Vision</h2>
-                <p>To revolutionize the industry through strict adherence to excellence and innovation.</p>
-                <h3>Organization Stats</h3>
-                <div style="display:flex; gap:20px;">
-                    <div style="background:#eef3ff; padding:20px; border-radius:8px; text-align:center; flex:1">
-                        <h1>12</h1>
-                        <small>Employees</small>
-                    </div>
-                    <div style="background:#eef3ff; padding:20px; border-radius:8px; text-align:center; flex:1">
-                        <h1>4</h1>
-                        <small>Board Members</small>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-</div>
-
-<script>
-/* --- 1. MOCKED BACKEND DATA & STATE --- */
-let users = [
-    // Pre-seeded CEO for testing login: email: ceo@test.com, pass: 1234
-    { id: 1, name: 'Timi Boss', email: 'ceo@test.com', pass: '1234', role: 'CEO', position: 'Chief Executive', status: 'Active', orgName: 'Timi Corp', type: 'sole' }
-];
-let pendingUsers = [];
-let posts = [
-    { id: 1, authorId: 1, authorName: 'Timi Boss', content: 'Welcome to the new digital HQ. Please update your portals.', type: 'org', debate: false, acks: [] },
-    { id: 2, authorId: 1, authorName: 'Timi Boss', content: 'We are launching a new product next week! Let us discuss the strategy.', type: 'org', debate: true, chats: [] }
-];
-let currentUser = null;
-let currentRole = 'CEO'; // For signup form toggle
-
-/* --- 2. AUTHENTICATION LOGIC --- */
-function setRole(role) {
-    currentRole = role;
-    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    if(role === 'CEO') {
-        document.getElementById('form-ceo').classList.remove('hidden');
-        document.getElementById('form-staff').classList.add('hidden');
-    } else {
-        document.getElementById('form-ceo').classList.add('hidden');
-        document.getElementById('form-staff').classList.remove('hidden');
-    }
-}
-
-function showSignup() {
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('signup-view').classList.remove('hidden');
-}
-
-function showLogin() {
-    document.getElementById('signup-view').classList.add('hidden');
-    document.getElementById('login-view').classList.remove('hidden');
-}
-
-function submitSignup() {
-    if(currentRole === 'CEO') {
-        const name = document.getElementById('ceo-surname').value + ' ' + document.getElementById('ceo-firstname').value;
-        const org = document.getElementById('org-name').value;
-        // In a real app, this creates the org. Here we simulate success.
-        alert(`Organization "${org}" created! Check your email for login credentials.`);
-        // Creating user silently for demo
-        users.push({ id: Date.now(), name: name, email: name.replace(/\s/g,'').toLowerCase()+'@meet.com', pass: 'ceo123', role: 'CEO', orgName: org, status: 'Active' });
-        showLogin();
-    } else {
-        const name = document.getElementById('staff-name').value;
-        const email = document.getElementById('staff-email').value;
-        const position = document.getElementById('staff-position').value;
-        
-        pendingUsers.push({ id: Date.now(), name, email, role: currentRole, position, status: 'Pending' });
-        
-        // Success Message
-        document.getElementById('signup-view').innerHTML = `
-            <div style="text-align:center; padding:20px;">
-                <h2 style="color:#10B981">Application Sent!</h2>
-                <p>Kindly wait for approval from the organization.</p>
-                <p>It will be sent to your mail: <strong>${email}</strong></p>
-                <blockquote style="font-style:italic; color:#666; margin:20px 0;">"Patience is not the ability to wait, but the ability to keep a good attitude while waiting."</blockquote>
-                <button class="btn btn-outline" onclick="location.reload()">Return Home</button>
-            </div>
-        `;
-    }
-}
-
-function handleLogin() {
-    const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-pass').value;
-    
-    const user = users.find(u => u.email === email && u.pass === pass);
-    
-    if(user) {
-        if(user.status === 'Sacked' || user.status === 'Suspended') {
-            alert('Access Denied: Your portal has been ' + user.status);
-            return;
+                hideAllViews();
+                document.getElementById('header-title').innerText = "Status: Pending";
+                document.getElementById('header-subtitle').innerText = "Good luck for the waiting period";
+                document.getElementById('success-email').innerText = email;
+                document.getElementById('view-success').classList.add('active');
+            }
         }
-        currentUser = user;
-        document.getElementById('auth-overlay').classList.add('hidden');
-        document.getElementById('app-container').classList.remove('hidden');
-        initApp();
-    } else {
-        alert('Invalid Credentials or Account not approved yet.');
-    }
-}
-
-function logout() {
-    currentUser = null;
-    location.reload();
-}
-
-/* --- 3. APP LOGIC --- */
-function initApp() {
-    document.getElementById('user-display-name').innerText = currentUser.name;
-    document.getElementById('nav-org-name').innerText = currentUser.orgName || 'Organization';
-    
-    // Setup Profile View
-    document.getElementById('profile-name').innerText = currentUser.name;
-    document.getElementById('profile-role').innerText = currentUser.role;
-    document.getElementById('profile-email').innerText = currentUser.email;
-    document.getElementById('profile-position').innerText = currentUser.position || currentUser.role;
-
-    // Permissions
-    if(currentUser.role === 'CEO') {
-        document.getElementById('admin-link').classList.remove('hidden');
-        document.getElementById('create-post-box').classList.remove('hidden');
-    } else {
-        document.getElementById('create-post-box').classList.add('hidden');
-    }
-
-    renderFeed();
-    renderAdmin();
-}
-
-function navTo(page) {
-    document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-    document.getElementById('view-'+page).classList.remove('hidden');
-    
-    document.querySelectorAll('aside button').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
-    const titles = { 'feed': 'Organization Feed', 'profile': 'My Portal', 'admin': 'Admin Dashboard', 'dashboard': 'Org Overview' };
-    document.getElementById('page-title').innerText = titles[page];
-}
-
-/* --- 4. FEED & DEBATE SYSTEM --- */
-function createPost() {
-    const txt = document.getElementById('post-content').value;
-    const priv = document.getElementById('post-privacy').value;
-    const debate = document.getElementById('post-debate').checked;
-    
-    if(!txt) return alert('Write something first!');
-    
-    posts.unshift({
-        id: Date.now(),
-        authorId: currentUser.id,
-        authorName: currentUser.name,
-        content: txt,
-        type: priv,
-        debate: debate,
-        acks: [],
-        chats: []
-    });
-    
-    document.getElementById('post-content').value = '';
-    renderFeed();
-}
-
-function renderFeed() {
-    const container = document.getElementById('feed-stream');
-    container.innerHTML = '';
-    
-    posts.forEach(post => {
-        // Logic: Show post?
-        // If post is Org only, public can't see (not implemented public view here, but logical check)
-        
-        let actions = '';
-        if(post.type === 'org' || post.type === 'both') {
-            const hasAck = post.acks.includes(currentUser.id);
-            actions += `<button class="btn btn-outline" onclick="acknowledge(${post.id})" ${hasAck?'disabled':''}>
-                ${hasAck ? '✅ Acknowledged' : '👍 Acknowledge'}
-            </button>`;
-        }
-        
-        if(post.type === 'public' || post.type === 'both') {
-            actions += `<button class="btn btn-outline">⭐ Star</button> <button class="btn btn-outline">♻️ Recycle</button>`;
-        }
-        
-        let debateHTML = '';
-        if(post.debate) {
-            debateHTML = `
-                <button class="btn btn-primary" style="margin-left:auto" onclick="toggleDebate(${post.id})">💬 Open Debate Room</button>
-                <div id="debate-${post.id}" class="debate-room hidden">
-                    <div id="chat-stream-${post.id}">
-                        ${post.chats.map(c => `<div class="chat-msg ${c.uid===currentUser.id?'me':''}"><strong>${c.name}:</strong> ${c.msg}</div>`).join('')}
-                    </div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <input type="text" id="chat-in-${post.id}" placeholder="Debate this..." style="margin:0">
-                        <button class="btn btn-primary" onclick="sendChat(${post.id})">Send</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        const badge = post.type === 'org' ? '<span class="badge" style="background:blue;color:white">Org Only</span>' : 
-                      post.type === 'public' ? '<span class="badge" style="background:green;color:white">Public</span>' :
-                      '<span class="badge" style="background:purple;color:white">Global</span>';
-
-        const card = `
-            <div class="post-card">
-                <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=${post.authorName}" class="avatar">
-                    <div>
-                        <strong>${post.authorName}</strong> ${badge}
-                        <small>Just now</small>
-                    </div>
-                </div>
-                <div style="font-size:15px; line-height:1.5">${post.content}</div>
-                <div class="post-actions">
-                    ${actions}
-                    ${debateHTML}
-                </div>
-                <div style="margin-top:10px; font-size:12px; color:#888">
-                    ${post.acks.length} people acknowledged this.
-                </div>
-            </div>
-        `;
-        container.innerHTML += card;
-    });
-}
-
-function acknowledge(pid) {
-    const p = posts.find(x => x.id === pid);
-    if(!p.acks.includes(currentUser.id)) {
-        p.acks.push(currentUser.id);
-        renderFeed();
-    }
-}
-
-function toggleDebate(pid) {
-    document.getElementById(`debate-${pid}`).classList.toggle('hidden');
-}
-
-function sendChat(pid) {
-    const input = document.getElementById(`chat-in-${pid}`);
-    const msg = input.value;
-    if(!msg) return;
-    
-    const p = posts.find(x => x.id === pid);
-    p.chats.push({ uid: currentUser.id, name: currentUser.name, msg: msg });
-    input.value = '';
-    renderFeed();
-    // Re-open the chat
-    document.getElementById(`debate-${pid}`).classList.remove('hidden');
-}
-
-/* --- 5. ADMIN / CEO FUNCTIONS --- */
-function renderAdmin() {
-    // Render Pending
-    const pendingDiv = document.getElementById('pending-list');
-    if(pendingUsers.length === 0) {
-        pendingDiv.innerHTML = '<p class="text-muted">No pending applications.</p>';
-    } else {
-        pendingDiv.innerHTML = pendingUsers.map(u => `
-            <div class="admin-row">
-                <div>
-                    <strong>${u.name}</strong> (${u.role})<br>
-                    <small>${u.position} • ${u.email}</small>
-                </div>
-                <div>
-                    <button class="btn btn-primary" style="padding:5px 10px" onclick="approveUser(${u.id})">Approve</button>
-                    <button class="btn btn-danger" style="padding:5px 10px" onclick="declineUser(${u.id})">Decline</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Render Active Staff
-    const staffDiv = document.getElementById('staff-list');
-    const staff = users.filter(u => u.role !== 'CEO'); // Don't show CEO to himself
-    staffDiv.innerHTML = staff.map(u => `
-        <div class="admin-row">
-            <div>
-                <strong>${u.name}</strong> (${u.role})<br>
-                <small>${u.position} • Status: <span class="${u.status==='Active'?'status-active':'status-sacked'}">${u.status}</span></small>
-            </div>
-            <div>
-                <button class="btn btn-outline" onclick="changeStatus(${u.id}, 'Active')">Activate</button>
-                <button class="btn btn-outline" style="color:orange; border-color:orange" onclick="changeStatus(${u.id}, 'Suspended')">Suspend</button>
-                <button class="btn btn-outline" style="color:red; border-color:red" onclick="changeStatus(${u.id}, 'Sacked')">Sack</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function approveUser(uid) {
-    const idx = pendingUsers.findIndex(u => u.id === uid);
-    if(idx === -1) return;
-    
-    const user = pendingUsers[idx];
-    
-    // CEO generates password logic
-    const customPass = prompt(`Approve ${user.name}? \nEnter a custom password for them (This will be emailed to them):`, "OrgPass123");
-    
-    if(customPass) {
-        // Move to active users
-        user.pass = customPass;
-        user.status = 'Active';
-        user.orgName = currentUser.orgName;
-        users.push(user);
-        pendingUsers.splice(idx, 1);
-        
-        alert(`User Approved! \n\nWe have simulated sending an email to ${user.email} with Password: ${customPass}`);
-        renderAdmin();
-    }
-}
-
-function declineUser(uid) {
-    if(confirm('Are you sure you want to decline this application?')) {
-        pendingUsers = pendingUsers.filter(u => u.id !== uid);
-        renderAdmin();
-    }
-}
-
-function changeStatus(uid, status) {
-    const u = users.find(x => x.id === uid);
-    if(u) {
-        u.status = status;
-        alert(`${u.name} is now ${status}`);
-        renderAdmin();
-    }
-}
-
-</script>
+    </script>
 </body>
 </html>
