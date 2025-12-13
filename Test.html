@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEET - Organization Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0061FF;
+            --primary-dark: #004ecc;
+            --text: #111827;
+            --text-light: #6b7280;
+            --bg: #F3F4F6;
+            --card: #ffffff;
+            --border: #E5E7EB;
+            --success: #10B981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* --- Main Container --- */
+        .auth-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 40px 20px 40px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
+            border-radius: 12px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 30px; }
+
+        /* --- Views --- */
+        .view-section {
+            padding: 0 40px 40px 40px;
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Role Buttons --- */
+        .role-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .role-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .role-card:hover {
+            border-color: var(--primary);
+            background: #f8FAff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,97,255,0.1);
+        }
+
+        .role-icon {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .role-info h3 { font-size: 16px; font-weight: 600; }
+        .role-info span { font-size: 12px; color: var(--text-light); }
+
+        /* --- Forms --- */
+        .form-group { margin-bottom: 16px; }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,97,255,0.1);
+        }
+
+        .file-upload-box {
+            border: 2px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #FAFAFA;
+        }
+        .file-upload-box:hover { border-color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-text {
+            background: transparent;
+            color: var(--text-light);
+            margin-top: 15px;
+        }
+        .btn-text:hover { color: var(--text); text-decoration: underline; }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .divider {
+            margin: 25px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            line-height: 0.1em;
+        }
+        .divider span { background: #fff; padding: 0 10px; color: var(--text-light); font-size: 12px; }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* Success State */
+        .success-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .quote-box {
+            font-style: italic;
+            color: var(--text-light);
+            border-left: 3px solid var(--primary);
+            padding-left: 15px;
+            margin: 20px 0;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        
+        <div class="header">
+            <div class="logo">M</div>
+            <h1 id="header-title">Welcome to MEET</h1>
+            <p class="subtitle" id="header-subtitle">Select your role to continue</p>
+        </div>
+
+        <div id="view-select" class="view-section active">
+            <div class="role-grid">
+                <button class="role-card" onclick="openForm('CEO')">
+                    <div class="role-icon">👔</div>
+                    <div class="role-info">
+                        <h3>Sign up as CEO</h3>
+                        <span>Create Organization & Admin Account</span>
+                    </div>
+                </button>
+
+                <button class="role-card" onclick="openForm('Board Member')">
+                    <div class="role-icon">⚖️</div>
+                    <div class="role-info">
+                        <h3>Sign up as Board Member</h3>
+                        <span>Apply for Board Access</span>
+                    </div>
+                </button>
+
+                <button class="role-card" onclick="openForm('Employee')">
+                    <div class="role-icon">💼</div>
+                    <div class="role-info">
+                        <h3>Sign up as Employee</h3>
+                        <span>Apply for Staff Access</span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="#" onclick="openLogin()">Log In</a>
+            </div>
+        </div>
+
+        <div id="view-login" class="view-section">
+            <form onsubmit="event.preventDefault(); alert('Login Logic Here');">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="e.g. name@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Custom Password</label>
+                    <input type="password" placeholder="Enter the password sent to your email" required>
+                </div>
+                <button class="btn btn-primary">Secure Login</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Back to options</button>
+        </div>
+
+        <div id="view-signup-ceo" class="view-section">
+            <form onsubmit="handleSignup(event, 'CEO')">
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1">
+                        <label>Surname</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>First Name</label>
+                        <input type="text" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Official Organization Name</label>
+                    <input type="text" placeholder="Company Ltd." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Type of Organization</label>
+                    <select required>
+                        <option value="" disabled selected>Select Type</option>
+                        <option value="Sole Proprietorship">Sole Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="LLC">Limited Liability Company (LLC)</option>
+                        <option value="Corporation">Corporation</option>
+                        <option value="NGO">Non-Profit / NGO</option>
+                    </select>
+                </div>
+
+                <div class="toggle-switch">
+                    <input type="checkbox" id="hasBoard" style="width:auto;">
+                    <label for="hasBoard" style="margin:0; cursor:pointer;">Does this organization have a Board of Directors?</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Gov. Issued Valid Card (Verification)</label>
+                    <div class="file-upload-box" onclick="document.getElementById('ceo-id').click()">
+                        <span style="font-size:24px">🪪</span><br>
+                        <small>Click to upload Passport/ID/License</small>
+                        <input type="file" id="ceo-id" hidden>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email (For Admin Access)</label>
+                    <input type="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" required>
+                </div>
+
+                <button class="btn btn-primary">Create Organization</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Cancel</button>
+        </div>
+
+        <div id="view-signup-staff" class="view-section">
+            <div style="background:#fff3cd; padding:10px; border-radius:6px; font-size:12px; margin-bottom:15px; color:#856404; border:1px solid #ffeeba;">
+                ⚠ <strong>Strict Access:</strong> No password is created now. It will be generated by the CEO upon approval.
+            </div>
+
+            <form onsubmit="handleSignup(event, 'STAFF')">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="staff-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="staff-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="+1 234..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Position</label>
+                    <input type="text" id="staff-pos" placeholder="e.g. Marketing Manager / Board Treasurer" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Professional Documentation</label>
+                    <div class="file-upload-box" onclick="document.getElementById('staff-file').click()">
+                        <span style="font-size:24px">📄</span><br>
+                        <small>Upload CV, Resume, or Board credentials</small>
+                        <input type="file" id="staff-file" hidden>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary">Submit for Approval</button>
+            </form>
+            <button class="btn btn-text" onclick="goBack()">← Cancel</button>
+        </div>
+
+        <div id="view-success" class="view-section" style="text-align:center">
+            <div style="font-size:50px; margin-bottom:10px;">⏳</div>
+            <h2 style="color:var(--text)">Application Submitted</h2>
+            <p style="color:var(--text-light); margin-top:10px;">
+                Kindly wait for approval from the organization. 
+                <br>Notifications will be sent to: <strong id="success-email">email@address.com</strong>
+            </p>
+            
+            <div class="quote-box">
+                "Patience is not simply the ability to wait - it's how we behave while we're waiting. Greatness takes time."
+            </div>
+
+            <p style="font-size:12px; color:var(--text-light)">
+                If approved, the CEO will generate your custom credentials. If declined, access will be restricted.
+            </p>
+            
+            <button class="btn btn-primary" onclick="window.location.reload()">Return to Home</button>
+        </div>
+
+    </div>
+
+    <script>
+        // State variables
+        let currentRole = '';
+
+        // Helper to hide all views
+        function hideAllViews() {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
+
+        // 1. Open Login
+        function openLogin() {
+            hideAllViews();
+            document.getElementById('header-title').innerText = "Sign In";
+            document.getElementById('header-subtitle').innerText = "Access your organization portal";
+            document.getElementById('view-login').classList.add('active');
+        }
+
+        // 2. Open Specific Form
+        function openForm(role) {
+            hideAllViews();
+            currentRole = role;
+            
+            if (role === 'CEO') {
+                document.getElementById('header-title').innerText = "Create Organization";
+                document.getElementById('header-subtitle').innerText = "Register as CEO / Owner";
+                document.getElementById('view-signup-ceo').classList.add('active');
+            } else {
+                // Shared form for Employee and Board, title changes
+                document.getElementById('header-title').innerText = role + " Application";
+                document.getElementById('header-subtitle').innerText = "Submit details for CEO approval";
+                document.getElementById('staff-pos').placeholder = role === 'Board Member' ? 'e.g. Chairman, Treasurer' : 'e.g. HR Manager, Developer';
+                document.getElementById('view-signup-staff').classList.add('active');
+            }
+        }
+
+        // 3. Go Back
+        function goBack() {
+            hideAllViews();
+            document.getElementById('header-title').innerText = "Welcome to MEET";
+            document.getElementById('header-subtitle').innerText = "Select your role to continue";
+            document.getElementById('view-select').classList.add('active');
+        }
+
+        // 4. Handle Submission
+        function handleSignup(e, type) {
+            e.preventDefault(); // Stop reload
+
+            if (type === 'CEO') {
+                // CEO Logic: Normally creates account immediately
+                alert("Organization Created! You can now log in.");
+                openLogin();
+            } else {
+                // Staff Logic: Show Waiting Screen
+                const email = document.getElementById('staff-email').value;
+                
+                hideAllViews();
+                document.getElementById('header-title').innerText = "Status: Pending";
+                document.getElementById('header-subtitle').innerText = "Good luck for the waiting period";
+                document.getElementById('success-email').innerText = email;
+                document.getElementById('view-success').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
