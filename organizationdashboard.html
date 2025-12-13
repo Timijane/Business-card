@@ -1,814 +1,544 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MEET — Organization Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEET - Organization Portal</title>
 <style>
-  :root{
-    --primary:#0061FF;
-    --accent:#5AE4A8;
-    --bg:#f7f9fb;
-    --card:#fff;
-    --text:#111827;
-    --muted:#6b7280;
-    --radius:12px;
-    --shadow: 0 6px 18px rgba(16,24,40,0.06);
-  }
-  body.dark {
-    --bg:#081226;
-    --card:#0b1726;
-    --text:#e6eef8;
-    --muted:#93a3bd;
-    --shadow: 0 6px 18px rgba(0,0,0,0.6);
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family:Inter,system-ui,Segoe UI,Arial;
-    background:var(--bg);
-    color:var(--text);
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    transition:background .35s,color .35s;
-  }
+/* --- CORE VARIABLES FROM YOUR DESIGN --- */
+:root{ --primary:#0061FF; --accent:#5AE4A8; --bg:#f7f9fb; --card:#fff; --text:#111827; --muted:#6b7280; --radius:12px; --shadow: 0 6px 18px rgba(16,24,40,0.06); --danger: #ef4444; --warning: #f59e0b; }
+body.dark { --bg:#081226; --card:#0b1726; --text:#e6eef8; --muted:#93a3bd; --shadow: 0 6px 18px rgba(0,0,0,0.6); }
+*{box-sizing:border-box}
+body{ margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow: hidden;}
 
-  /* header */
-  header{
-    display:flex;
-    align-items:center;
-    gap:16px;
-    padding:12px 20px;
-    background:var(--card);
-    box-shadow:var(--shadow);
-    position:sticky;
-    top:0;
-    z-index:50;
-  }
-  .left {
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .logo-icon{
-    width:44px;height:44px;border-radius:8px;
-    background:linear-gradient(135deg,var(--primary),var(--accent));
-    display:flex;align-items:center;justify-content:center;
-    -webkit-mask:url('#m-mask');mask:url('#m-mask') center/contain no-repeat;
-  }
-  .brand {
-    font-weight:700;font-size:18px;color:var(--primary);
-  }
-  .search {
-    flex:1;display:flex;align-items:center;gap:10px;background:#eef3ff;border-radius:10px;padding:8px 12px;
-    max-width:600px;
-  }
-  body.dark .search{background:#0f2134}
-  .search input{border:0;background:transparent;outline:none;width:100%;color:var(--text)}
-  .header-right{display:flex;align-items:center;gap:10px}
+/* --- UTILITIES --- */
+.hidden { display: none !important; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+.btn-primary { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; }
+.btn-outline { border: 1px solid var(--muted); background: transparent; color: var(--text); }
+.btn-danger { background: var(--danger); color: white; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 
-  .status-dot{
-    width:10px;height:10px;border-radius:50%;background:#34D399;border:2px solid var(--card);box-shadow:0 0 0 4px rgba(52,211,153,0.09);
-    display:inline-block;margin-left:6px;
-  }
-
-  /* layout */
-  .layout{display:flex;flex:1;overflow:hidden}
-  aside{
-    width:240px;background:var(--card);padding:18px;border-right:1px solid rgba(0,0,0,0.03);
-    display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);
-    transition: width 0.3s ease;
-  }
-  aside button{
-    border:0;background:transparent;padding:12px 14px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted);cursor:pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    width: 100%;
-    font-family: inherit;
-    font-size: inherit;
-  }
-  aside button.active{color:var(--primary);background:linear-gradient(90deg, rgba(0,97,255,0.06), rgba(90,228,168,0.03));}
-  aside button .menu-text {
-    transition: opacity 0.3s ease;
-  }
-  main{flex:1;padding:0;overflow:hidden;display:flex;}
-
-  /* Dashboard Styles */
-  .dashboard-container {
-    width: 100%;
-    padding: 30px;
-    overflow-y: auto;
-  }
-
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-
-  .dashboard-title {
-    font-size: 28px;
-    font-weight: 700;
-  }
-
-  .dashboard-subtitle {
-    color: var(--muted);
-    margin-top: 5px;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
-  }
-
-  .btn-primary {
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    color: white;
-  }
-
-  .btn-secondary {
-    background: var(--card);
-    color: var(--text);
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-
-  body.dark .btn-secondary {
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  /* Announcement Form */
-  .announcement-form {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: var(--shadow);
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 14px;
-  }
-
-  .form-input, .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid rgba(0,0,0,0.1);
-    background: var(--bg);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    transition: border 0.3s;
-  }
-
-  body.dark .form-input, 
-  body.dark .form-textarea {
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .form-input:focus, .form-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-  }
-
-  .form-textarea {
-    resize: vertical;
-    min-height: 120px;
-  }
-
-  .file-upload {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .file-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    background: var(--bg);
-    border: 1px dashed rgba(0,0,0,0.2);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-  }
-
-  body.dark .file-btn {
-    border: 1px dashed rgba(255,255,255,0.2);
-  }
-
-  .visibility-options {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  .visibility-option {
-    flex: 1;
-    padding: 15px;
-    border: 2px solid rgba(0,0,0,0.1);
-    border-radius: 8px;
+/* --- LANDING / AUTH SCREEN --- */
+#auth-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    overflow-y: auto; padding: 20px;
+}
+.auth-card {
+    background: var(--card); padding: 40px; border-radius: 16px;
+    box-shadow: var(--shadow); width: 100%; max-width: 500px;
     text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
+}
+.role-select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+.role-btn { padding: 15px 5px; border: 1px solid var(--muted); border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; }
+.role-btn:hover, .role-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0,97,255,0.05); }
 
-  body.dark .visibility-option {
-    border: 2px solid rgba(255,255,255,0.1);
-  }
+/* --- FORMS --- */
+input, select, textarea {
+    width: 100%; padding: 12px; margin: 8px 0 16px;
+    border: 1px solid var(--muted); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+}
+.file-drop { border: 2px dashed var(--muted); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
 
-  .visibility-option.selected {
-    border-color: var(--primary);
-    background: rgba(0,97,255,0.05);
-  }
+/* --- MAIN LAYOUT (From your snippet) --- */
+header{ display:flex; align-items:center; justify-content: space-between; padding:12px 20px; background:var(--card); box-shadow:var(--shadow); }
+.brand { font-weight:700; font-size:18px; color:var(--primary); display: flex; align-items: center; gap: 10px; }
+.layout{ display:flex; flex:1; overflow:hidden; }
+aside{ width:240px; background:var(--card); padding:18px; display:flex; flex-direction:column; gap:8px; border-right: 1px solid rgba(0,0,0,0.05); }
+aside button{ border:0; background:transparent; padding:12px; border-radius:10px; text-align:left; color:var(--muted); cursor:pointer; font-weight: 600; }
+aside button.active{ color:var(--primary); background:rgba(0,97,255,0.06); }
+main{ flex:1; padding:20px; overflow-y:auto; background: var(--bg); }
 
-  .visibility-title {
-    font-weight: 600;
-    margin-bottom: 5px;
-  }
+/* --- DASHBOARD SECTIONS --- */
+.dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.feed-container { max-width: 800px; margin: 0 auto; }
 
-  .visibility-desc {
-    font-size: 12px;
-    color: var(--muted);
-  }
+/* --- POST CARD --- */
+.post-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; object-fit: cover; }
+.post-meta small { color: var(--muted); display: block; }
+.post-actions { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; }
+.debate-room { background: var(--bg); border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid var(--muted); }
+.chat-msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--card); font-size: 13px; max-width: 80%; }
+.chat-msg.me { background: rgba(0,97,255,0.1); margin-left: auto; }
 
-  /* Announcement Feed */
-  .announcement-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+/* --- ADMIN PANEL --- */
+.admin-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); margin-bottom: 10px; border-radius: 8px; box-shadow: var(--shadow); }
+.status-active { color: #10B981; }
+.status-sacked { color: #EF4444; }
+.status-pending { color: #F59E0B; }
 
-  .announcement-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
-  }
-
-  .announcement-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-  }
-
-  .announcement-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .announcement-info {
-    flex: 1;
-  }
-
-  .announcement-author {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .announcement-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .visibility-badge {
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 600;
-  }
-
-  .badge-organization {
-    background: rgba(0,97,255,0.1);
-    color: var(--primary);
-  }
-
-  .badge-public {
-    background: rgba(90,228,168,0.1);
-    color: var(--accent);
-  }
-
-  .badge-both {
-    background: rgba(139,92,246,0.1);
-    color: #8B5CF6;
-  }
-
-  .announcement-content {
-    margin-bottom: 15px;
-    line-height: 1.5;
-  }
-
-  .announcement-media {
-    margin-bottom: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .announcement-media img,
-  .announcement-media video {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .announcement-actions {
-    display: flex;
-    gap: 20px;
-    border-top: 1px solid rgba(0,0,0,0.05);
-    padding-top: 15px;
-  }
-
-  body.dark .announcement-actions {
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover {
-    background: rgba(0,0,0,0.05);
-  }
-
-  body.dark .action-btn:hover {
-    background: rgba(255,255,255,0.05);
-  }
-
-  .action-btn.active {
-    color: var(--primary);
-  }
-
-  /* Network Status */
-  .network-status {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card);
-    padding: 8px 16px;
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 100;
-  }
-
-  .status-online {
-    color: #34D399;
-  }
-
-  /* Mobile Go Live Button */
-  .mobile-go-live {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 50px;
-    font-weight: 700;
-    box-shadow: var(--shadow);
-    z-index: 100;
-    cursor: pointer;
-  }
-
-  /* Responsive */
-  @media (max-width:900px){
-    aside {
-      width: 70px;
-    }
-    aside button {
-      justify-content: center;
-      padding: 10px 6px;
-    }
-    .menu-text {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-    }
-    .search {
-      max-width: 400px;
-    }
-    .visibility-options {
-      flex-direction: column;
-    }
-    .mobile-go-live {
-      display: block;
-    }
-  }
-
-  @media (max-width:768px){
-    .search {
-      max-width: 300px;
-    }
-    .dashboard-container {
-      padding: 20px;
-    }
-  }
-
-  @media (max-width:640px){
-    .search {
-      max-width: 200px;
-    }
-  }
-
-  @media (max-width:480px){
-    .search {
-      max-width: 150px;
-    }
-    .brand {
-      display: none;
-    }
-    .dashboard-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-    }
-    .announcement-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
 </style>
 </head>
 <body>
 
-<!-- SVG mask resource -->
-<svg style="position:absolute;width:0;height:0" aria-hidden>
-  <defs>
-    <mask id="m-mask" viewBox="0 0 100 100">
-      <path fill="white" d="M10 80 L10 20 L30 60 L50 20 L70 60 L90 20 L90 80 L70 40 L50 80 L30 40 Z"/>
-    </mask>
-  </defs>
-</svg>
-
-<header>
-  <div class="left">
-    <div class="logo-icon" title="MEET"></div>
-    <div class="brand">MEET</div>
-  </div>
-
-  <div class="search">
-    <span>🔍</span>
-    <input id="search" placeholder="Search announcements, employees..." />
-  </div>
-
-  <div class="header-right">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:12px;color:var(--muted)">Online</div>
-      <div class="status-dot" title="You are online"></div>
-    </div>
-    <button id="darkToggle" title="Toggle dark mode">🌙</button>
-    <div style="display:flex;align-items:center;gap:8px">
-      <img id="userPic" src="https://i.pravatar.cc/100?img=5" style="width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover" alt="You">
-      <div style="font-weight:700">Alex (Manager)</div>
-    </div>
-  </div>
-</header>
-
-<div class="layout">
-  <aside>
-    <button class="active" onclick="showSection('announcements')">
-      📢 <span class="menu-text">Announcements</span>
-    </button>
-    <button onclick="showSection('companyProfile')">
-      🏢 <span class="menu-text">Company Profile</span>
-    </button>
-    <button onclick="showSection('employeePortal')">
-      👥 <span class="menu-text">Employee Portal</span>
-    </button>
-    <button onclick="location.href='conference.html'">
-      🎥 <span class="menu-text">Start Conference</span>
-    </button>
-    <button onclick="location.href='feed.html'">
-      ← <span class="menu-text">Back to General</span>
-    </button>
-
-    <div style="flex:1"></div>
-    <button id="goLive" style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:0;padding:10px;border-radius:10px;font-weight:700;display:flex;align-items:center;gap:12px;justify-content:center">
-      <span class="menu-text">Go Live</span>
-    </button>
-  </aside>
-
-  <main>
-    <!-- Announcements Section -->
-    <div class="dashboard-container" id="announcementsSection">
-      <div class="dashboard-header">
-        <div>
-          <h1 class="dashboard-title">Organization Announcements</h1>
-          <p class="dashboard-subtitle">Share updates with your team and the MEET community</p>
-        </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" onclick="toggleAnnouncementForm()">Make Announcement</button>
-        </div>
-      </div>
-
-      <!-- Announcement Form -->
-      <div class="announcement-form" id="announcementForm" style="display: none;">
-        <div class="form-group">
-          <label class="form-label">Announcement Content</label>
-          <textarea class="form-textarea" placeholder="What would you like to announce?" id="announcementContent"></textarea>
-        </div>
-
-        <div class="file-upload">
-          <button type="button" class="file-btn" onclick="document.getElementById('fileInput').click()">
-            📎 Attach File
-          </button>
-          <button type="button" class="file-btn" onclick="document.getElementById('imageInput').click()">
-            🖼️ Add Photo
-          </button>
-          <button type="button" class="file-btn" onclick="document.getElementById('videoInput').click()">
-            🎥 Add Video
-          </button>
-          <input type="file" id="fileInput" style="display:none" accept=".pdf,.doc,.docx">
-          <input type="file" id="imageInput" style="display:none" accept="image/*">
-          <input type="file" id="videoInput" style="display:none" accept="video/*">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Visibility</label>
-          <div class="visibility-options">
-            <div class="visibility-option" onclick="selectVisibility('organization')">
-              <div class="visibility-title">Organization Only</div>
-              <div class="visibility-desc">Visible only to employees</div>
-            </div>
-            <div class="visibility-option" onclick="selectVisibility('public')">
-              <div class="visibility-title">Public MEET Feed</div>
-              <div class="visibility-desc">Visible to all MEET users</div>
-            </div>
-            <div class="visibility-option" onclick="selectVisibility('both')">
-              <div class="visibility-title">Both</div>
-              <div class="visibility-desc">Organization & Public feed</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;justify-content:flex-end">
-          <button class="btn btn-secondary" onclick="toggleAnnouncementForm()">Cancel</button>
-          <button class="btn btn-primary" onclick="publishAnnouncement()">Announce</button>
-        </div>
-      </div>
-
-      <!-- Announcement Feed -->
-      <div class="announcement-feed" id="announcementFeed">
-        <!-- Announcements will be populated by JavaScript -->
-      </div>
+<div id="auth-overlay">
+    <div class="auth-card" id="login-view">
+        <h2 style="color:var(--primary)">MEET Organization Login</h2>
+        <p>Sign in with your generated credentials</p>
+        <input type="email" id="login-email" placeholder="Email Address">
+        <input type="password" id="login-pass" placeholder="Custom Password">
+        <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
+        <p style="margin-top:20px; font-size:14px;">New here? <a href="#" onclick="showSignup()">Create Account</a></p>
     </div>
 
-    <!-- Other sections will be added here -->
-    <div class="dashboard-container" id="companyProfileSection" style="display: none;">
-      <!-- Company Profile content will go here -->
-    </div>
+    <div class="auth-card hidden" id="signup-view">
+        <h3>Create Account</h3>
+        <div class="role-select-grid">
+            <button class="role-btn active" onclick="setRole('CEO')">CEO</button>
+            <button class="role-btn" onclick="setRole('BoD')">Board</button>
+            <button class="role-btn" onclick="setRole('Employee')">Employee</button>
+        </div>
 
-    <div class="dashboard-container" id="employeePortalSection" style="display: none;">
-      <!-- Employee Portal content will go here -->
+        <div id="form-ceo">
+            <input type="text" id="ceo-surname" placeholder="Surname">
+            <input type="text" id="ceo-firstname" placeholder="First Name">
+            <input type="text" id="org-name" placeholder="Official Organization Name">
+            <select id="org-type">
+                <option value="" disabled selected>Type of Organization</option>
+                <option value="sole">Sole Proprietorship</option>
+                <option value="partnership">Partnership</option>
+                <option value="llc">Limited Liability Company</option>
+                <option value="ngo">Non-Profit / NGO</option>
+            </select>
+            <div class="file-drop">📄 Upload Gov Issued ID</div>
+            <label style="display:flex; align-items:center; gap:10px; font-size:14px; text-align:left; margin-bottom:10px;">
+                <input type="checkbox" style="width:auto; margin:0" id="has-board"> 
+                Does this organization have a Board of Directors?
+            </label>
+        </div>
+
+        <div id="form-staff" class="hidden">
+            <input type="text" id="staff-name" placeholder="Full Name">
+            <input type="email" id="staff-email" placeholder="Email Address">
+            <input type="tel" id="staff-phone" placeholder="Phone Number">
+            <input type="text" id="staff-position" placeholder="Current Position (e.g. HR Manager)">
+            <div class="file-drop">📄 Upload CV/Resume</div>
+            <p style="font-size:12px; color:var(--warning); text-align:left; background:rgba(245,158,11,0.1); padding:10px; border-radius:6px;">
+                Note: No password required now. Upon approval, your CEO will generate and email your credentials.
+            </p>
+        </div>
+        
+        <button class="btn btn-primary" style="width:100%" onclick="submitSignup()">Submit Application</button>
+        <p style="margin-top:15px; font-size:13px; cursor:pointer" onclick="showLogin()">Back to Login</p>
     </div>
-  </main>
 </div>
 
-<!-- Mobile Go Live Button -->
-<button class="mobile-go-live" id="mobileGoLive">Go Live</button>
+<div id="app-container" class="layout hidden">
+    <aside>
+        <div class="brand">
+            <div style="width:30px;height:30px;background:var(--primary);border-radius:6px;"></div>
+            <span id="nav-org-name">MEET Org</span>
+        </div>
+        <br>
+        <button class="active" onclick="navTo('feed')">📰 Organization Feed</button>
+        <button onclick="navTo('profile')">👤 My Portal</button>
+        <button onclick="navTo('dashboard')">🏢 Org Dashboard</button>
+        <button id="admin-link" class="hidden" onclick="navTo('admin')">⚙️ CEO Admin / HR</button>
+        <div style="flex:1"></div>
+        <button onclick="logout()" style="color:var(--danger)">🚪 Logout</button>
+    </aside>
 
-<!-- Network Status -->
-<div class="network-status" id="networkStatus">
-  <span class="status-online">●</span> Connected to MEET Network
+    <main>
+        <header style="margin-bottom:20px; border-radius:12px;">
+            <div class="left">
+                <span style="font-weight:bold" id="page-title">News Feed</span>
+            </div>
+            <div class="header-right">
+                <span id="user-display-name">User</span>
+                <div class="status-dot"></div>
+            </div>
+        </header>
+
+        <section id="view-feed" class="view-section">
+            <div class="post-card" id="create-post-box">
+                <textarea id="post-content" rows="3" placeholder="Make an announcement..." style="border:none; background:rgba(0,0,0,0.03);"></textarea>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; gap:10px;">
+                        <select id="post-privacy" style="width:auto; margin:0; padding:8px;">
+                            <option value="org">🔒 Organization Only</option>
+                            <option value="public">🌍 Public MEET Feed</option>
+                            <option value="both">🔒 + 🌍 Both</option>
+                        </select>
+                        <label style="display:flex; align-items:center; gap:5px; font-size:13px;">
+                            <input type="checkbox" id="post-debate" style="width:auto; margin:0"> Allow Debate
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="createPost()">Post Announcement</button>
+                </div>
+            </div>
+
+            <div id="feed-stream">
+                </div>
+        </section>
+
+        <section id="view-profile" class="view-section hidden">
+            <div class="post-card" style="text-align:center;">
+                <img src="https://ui-avatars.com/api/?name=User" class="avatar" style="width:100px; height:100px; margin-bottom:15px;" id="profile-img">
+                <h2 id="profile-name">Name</h2>
+                <span class="badge" style="background:var(--primary); color:white" id="profile-role">Role</span>
+                <span class="badge" style="background:#10B981; color:white" id="profile-status">Active</span>
+                
+                <div style="margin-top:20px; text-align:left; max-width:500px; margin-left:auto; margin-right:auto;">
+                    <p><strong>Email:</strong> <span id="profile-email">email@org.com</span></p>
+                    <p><strong>Phone:</strong> <span id="profile-phone">...</span></p>
+                    <p><strong>Position:</strong> <span id="profile-position">...</span></p>
+                    <hr>
+                    <p><em>"Success is not final, failure is not fatal: it is the courage to continue that counts."</em></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin" class="view-section hidden">
+            <h3>📝 Pending Approvals</h3>
+            <div id="pending-list">
+                <p class="text-muted">No pending applications.</p>
+            </div>
+
+            <h3 style="margin-top:40px;">👥 Staff Management</h3>
+            <div id="staff-list">
+                </div>
+        </section>
+
+        <section id="view-dashboard" class="view-section hidden">
+            <div class="post-card">
+                <h2 style="color:var(--primary)">Mission & Vision</h2>
+                <p>To revolutionize the industry through strict adherence to excellence and innovation.</p>
+                <h3>Organization Stats</h3>
+                <div style="display:flex; gap:20px;">
+                    <div style="background:#eef3ff; padding:20px; border-radius:8px; text-align:center; flex:1">
+                        <h1>12</h1>
+                        <small>Employees</small>
+                    </div>
+                    <div style="background:#eef3ff; padding:20px; border-radius:8px; text-align:center; flex:1">
+                        <h1>4</h1>
+                        <small>Board Members</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script>
-// Dark mode toggle
-const darkToggle = document.getElementById('darkToggle');
-(function initTheme(){
-  const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-  if(t==='dark') document.body.classList.add('dark');
-  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-})();
-darkToggle.addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-  const now = document.body.classList.contains('dark') ? 'dark' : 'light';
-  localStorage.setItem('meet_theme', now);
-  darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
-});
-
-// Go Live buttons
-document.getElementById('goLive').addEventListener('click', goLive);
-document.getElementById('mobileGoLive').addEventListener('click', goLive);
-
-function goLive() {
-  alert('Going live feature would start a live stream or video call');
-}
-
-// Section Navigation
-function showSection(section) {
-  // Hide all sections
-  document.getElementById('announcementsSection').style.display = 'none';
-  document.getElementById('companyProfileSection').style.display = 'none';
-  document.getElementById('employeePortalSection').style.display = 'none';
-  
-  // Remove active class from all buttons
-  document.querySelectorAll('aside button').forEach(btn => btn.classList.remove('active'));
-  
-  // Show selected section and activate button
-  document.getElementById(section + 'Section').style.display = 'block';
-  event.currentTarget.classList.add('active');
-}
-
-// Announcement functionality
-let selectedVisibility = 'organization';
-let announcements = [
-  {
-    id: 1,
-    author: "Alex Johnson",
-    avatar: "https://i.pravatar.cc/100?img=5",
-    content: "Welcome to our new team members! We're excited to have you onboard. Please complete your profiles in the employee portal.",
-    visibility: "organization",
-    timestamp: "2 hours ago",
-    likes: 12,
-    comments: 3,
-    shares: 1,
-    liked: false
-  },
-  {
-    id: 2,
-    author: "Sarah Chen",
-    avatar: "https://i.pravatar.cc/100?img=2",
-    content: "Our company has been featured in Tech Magazine for our innovative approach to remote work! Check out the article.",
-    media: "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-    mediaType: "image",
-    visibility: "public",
-    timestamp: "1 day ago",
-    likes: 45,
-    comments: 8,
-    shares: 12,
-    liked: true
-  },
-  {
-    id: 3,
-    author: "Marcus Lee",
-    avatar: "https://i.pravatar.cc/100?img=22",
-    content: "Quarterly performance reviews are now available in the employee portal. Please review and schedule meetings with your managers.",
-    visibility: "both",
-    timestamp: "3 days ago",
-    likes: 28,
-    comments: 5,
-    shares: 2,
-    liked: false
-  }
+/* --- 1. MOCKED BACKEND DATA & STATE --- */
+let users = [
+    // Pre-seeded CEO for testing login: email: ceo@test.com, pass: 1234
+    { id: 1, name: 'Timi Boss', email: 'ceo@test.com', pass: '1234', role: 'CEO', position: 'Chief Executive', status: 'Active', orgName: 'Timi Corp', type: 'sole' }
 ];
+let pendingUsers = [];
+let posts = [
+    { id: 1, authorId: 1, authorName: 'Timi Boss', content: 'Welcome to the new digital HQ. Please update your portals.', type: 'org', debate: false, acks: [] },
+    { id: 2, authorId: 1, authorName: 'Timi Boss', content: 'We are launching a new product next week! Let us discuss the strategy.', type: 'org', debate: true, chats: [] }
+];
+let currentUser = null;
+let currentRole = 'CEO'; // For signup form toggle
 
-function toggleAnnouncementForm() {
-  const form = document.getElementById('announcementForm');
-  form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-function selectVisibility(type) {
-  selectedVisibility = type;
-  document.querySelectorAll('.visibility-option').forEach(option => {
-    option.classList.remove('selected');
-  });
-  event.currentTarget.classList.add('selected');
-}
-
-function publishAnnouncement() {
-  const content = document.getElementById('announcementContent').value;
-  if (!content.trim()) {
-    alert('Please enter announcement content');
-    return;
-  }
-
-  const newAnnouncement = {
-    id: announcements.length + 1,
-    author: "Alex Johnson",
-    avatar: "https://i.pravatar.cc/100?img=5",
-    content: content,
-    visibility: selectedVisibility,
-    timestamp: "Just now",
-    likes: 0,
-    comments: 0,
-    shares: 0,
-    liked: false
-  };
-
-  announcements.unshift(newAnnouncement);
-  renderAnnouncements();
-  toggleAnnouncementForm();
-  document.getElementById('announcementContent').value = '';
-
-  alert(`Announcement published to ${selectedVisibility === 'organization' ? 'Organization feed only' : selectedVisibility === 'public' ? 'Public MEET feed' : 'Both Organization and Public feeds'}`);
-}
-
-function likeAnnouncement(id) {
-  const announcement = announcements.find(a => a.id === id);
-  if (announcement) {
-    if (announcement.liked) {
-      announcement.likes--;
-    } else {
-      announcement.likes++;
-    }
-    announcement.liked = !announcement.liked;
-    renderAnnouncements();
-  }
-}
-
-function renderAnnouncements() {
-  const feed = document.getElementById('announcementFeed');
-  feed.innerHTML = '';
-
-  announcements.forEach(announcement => {
-    const announcementElement = document.createElement('div');
-    announcementElement.className = 'announcement-card';
+/* --- 2. AUTHENTICATION LOGIC --- */
+function setRole(role) {
+    currentRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
     
-    let mediaHtml = '';
-    if (announcement.media) {
-      if (announcement.mediaType === 'image') {
-        mediaHtml = `<div class="announcement-media"><img src="${announcement.media}" alt="Announcement media"></div>`;
-      } else if (announcement.mediaType === 'video') {
-        mediaHtml = `<div class="announcement-media"><video controls><source src="${announcement.media}" type="video/mp4"></video></div>`;
-      }
-    }
-
-    let badgeClass = '';
-    let badgeText = '';
-    if (announcement.visibility === 'organization') {
-      badgeClass = 'badge-organization';
-      badgeText = 'Organization Only';
-    } else if (announcement.visibility === 'public') {
-      badgeClass = 'badge-public';
-      badgeText = 'Public';
+    if(role === 'CEO') {
+        document.getElementById('form-ceo').classList.remove('hidden');
+        document.getElementById('form-staff').classList.add('hidden');
     } else {
-      badgeClass = 'badge-both';
-      badgeText = 'Organization & Public';
+        document.getElementById('form-ceo').classList.add('hidden');
+        document.getElementById('form-staff').classList.remove('hidden');
+    }
+}
+
+function showSignup() {
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('signup-view').classList.remove('hidden');
+}
+
+function showLogin() {
+    document.getElementById('signup-view').classList.add('hidden');
+    document.getElementById('login-view').classList.remove('hidden');
+}
+
+function submitSignup() {
+    if(currentRole === 'CEO') {
+        const name = document.getElementById('ceo-surname').value + ' ' + document.getElementById('ceo-firstname').value;
+        const org = document.getElementById('org-name').value;
+        // In a real app, this creates the org. Here we simulate success.
+        alert(`Organization "${org}" created! Check your email for login credentials.`);
+        // Creating user silently for demo
+        users.push({ id: Date.now(), name: name, email: name.replace(/\s/g,'').toLowerCase()+'@meet.com', pass: 'ceo123', role: 'CEO', orgName: org, status: 'Active' });
+        showLogin();
+    } else {
+        const name = document.getElementById('staff-name').value;
+        const email = document.getElementById('staff-email').value;
+        const position = document.getElementById('staff-position').value;
+        
+        pendingUsers.push({ id: Date.now(), name, email, role: currentRole, position, status: 'Pending' });
+        
+        // Success Message
+        document.getElementById('signup-view').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <h2 style="color:#10B981">Application Sent!</h2>
+                <p>Kindly wait for approval from the organization.</p>
+                <p>It will be sent to your mail: <strong>${email}</strong></p>
+                <blockquote style="font-style:italic; color:#666; margin:20px 0;">"Patience is not the ability to wait, but the ability to keep a good attitude while waiting."</blockquote>
+                <button class="btn btn-outline" onclick="location.reload()">Return Home</button>
+            </div>
+        `;
+    }
+}
+
+function handleLogin() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+    
+    const user = users.find(u => u.email === email && u.pass === pass);
+    
+    if(user) {
+        if(user.status === 'Sacked' || user.status === 'Suspended') {
+            alert('Access Denied: Your portal has been ' + user.status);
+            return;
+        }
+        currentUser = user;
+        document.getElementById('auth-overlay').classList.add('hidden');
+        document.getElementById('app-container').classList.remove('hidden');
+        initApp();
+    } else {
+        alert('Invalid Credentials or Account not approved yet.');
+    }
+}
+
+function logout() {
+    currentUser = null;
+    location.reload();
+}
+
+/* --- 3. APP LOGIC --- */
+function initApp() {
+    document.getElementById('user-display-name').innerText = currentUser.name;
+    document.getElementById('nav-org-name').innerText = currentUser.orgName || 'Organization';
+    
+    // Setup Profile View
+    document.getElementById('profile-name').innerText = currentUser.name;
+    document.getElementById('profile-role').innerText = currentUser.role;
+    document.getElementById('profile-email').innerText = currentUser.email;
+    document.getElementById('profile-position').innerText = currentUser.position || currentUser.role;
+
+    // Permissions
+    if(currentUser.role === 'CEO') {
+        document.getElementById('admin-link').classList.remove('hidden');
+        document.getElementById('create-post-box').classList.remove('hidden');
+    } else {
+        document.getElementById('create-post-box').classList.add('hidden');
     }
 
-    announcementElement.innerHTML = `
-      <div class="announcement-header">
-        <img src="${announcement.avatar}" alt="${announcement.author}" class="announcement-avatar">
-        <div class="announcement-info">
-          <div class="announcement-author">${announcement.author}</div>
-          <div class="announcement-meta">
-            <span>${announcement.timestamp}</span>
-            <span class="visibility-badge ${badgeClass}">${badgeText}</span>
-          </div>
+    renderFeed();
+    renderAdmin();
+}
+
+function navTo(page) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+    document.getElementById('view-'+page).classList.remove('hidden');
+    
+    document.querySelectorAll('aside button').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    
+    const titles = { 'feed': 'Organization Feed', 'profile': 'My Portal', 'admin': 'Admin Dashboard', 'dashboard': 'Org Overview' };
+    document.getElementById('page-title').innerText = titles[page];
+}
+
+/* --- 4. FEED & DEBATE SYSTEM --- */
+function createPost() {
+    const txt = document.getElementById('post-content').value;
+    const priv = document.getElementById('post-privacy').value;
+    const debate = document.getElementById('post-debate').checked;
+    
+    if(!txt) return alert('Write something first!');
+    
+    posts.unshift({
+        id: Date.now(),
+        authorId: currentUser.id,
+        authorName: currentUser.name,
+        content: txt,
+        type: priv,
+        debate: debate,
+        acks: [],
+        chats: []
+    });
+    
+    document.getElementById('post-content').value = '';
+    renderFeed();
+}
+
+function renderFeed() {
+    const container = document.getElementById('feed-stream');
+    container.innerHTML = '';
+    
+    posts.forEach(post => {
+        // Logic: Show post?
+        // If post is Org only, public can't see (not implemented public view here, but logical check)
+        
+        let actions = '';
+        if(post.type === 'org' || post.type === 'both') {
+            const hasAck = post.acks.includes(currentUser.id);
+            actions += `<button class="btn btn-outline" onclick="acknowledge(${post.id})" ${hasAck?'disabled':''}>
+                ${hasAck ? '✅ Acknowledged' : '👍 Acknowledge'}
+            </button>`;
+        }
+        
+        if(post.type === 'public' || post.type === 'both') {
+            actions += `<button class="btn btn-outline">⭐ Star</button> <button class="btn btn-outline">♻️ Recycle</button>`;
+        }
+        
+        let debateHTML = '';
+        if(post.debate) {
+            debateHTML = `
+                <button class="btn btn-primary" style="margin-left:auto" onclick="toggleDebate(${post.id})">💬 Open Debate Room</button>
+                <div id="debate-${post.id}" class="debate-room hidden">
+                    <div id="chat-stream-${post.id}">
+                        ${post.chats.map(c => `<div class="chat-msg ${c.uid===currentUser.id?'me':''}"><strong>${c.name}:</strong> ${c.msg}</div>`).join('')}
+                    </div>
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <input type="text" id="chat-in-${post.id}" placeholder="Debate this..." style="margin:0">
+                        <button class="btn btn-primary" onclick="sendChat(${post.id})">Send</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        const badge = post.type === 'org' ? '<span class="badge" style="background:blue;color:white">Org Only</span>' : 
+                      post.type === 'public' ? '<span class="badge" style="background:green;color:white">Public</span>' :
+                      '<span class="badge" style="background:purple;color:white">Global</span>';
+
+        const card = `
+            <div class="post-card">
+                <div class="post-header">
+                    <img src="https://ui-avatars.com/api/?name=${post.authorName}" class="avatar">
+                    <div>
+                        <strong>${post.authorName}</strong> ${badge}
+                        <small>Just now</small>
+                    </div>
+                </div>
+                <div style="font-size:15px; line-height:1.5">${post.content}</div>
+                <div class="post-actions">
+                    ${actions}
+                    ${debateHTML}
+                </div>
+                <div style="margin-top:10px; font-size:12px; color:#888">
+                    ${post.acks.length} people acknowledged this.
+                </div>
+            </div>
+        `;
+        container.innerHTML += card;
+    });
+}
+
+function acknowledge(pid) {
+    const p = posts.find(x => x.id === pid);
+    if(!p.acks.includes(currentUser.id)) {
+        p.acks.push(currentUser.id);
+        renderFeed();
+    }
+}
+
+function toggleDebate(pid) {
+    document.getElementById(`debate-${pid}`).classList.toggle('hidden');
+}
+
+function sendChat(pid) {
+    const input = document.getElementById(`chat-in-${pid}`);
+    const msg = input.value;
+    if(!msg) return;
+    
+    const p = posts.find(x => x.id === pid);
+    p.chats.push({ uid: currentUser.id, name: currentUser.name, msg: msg });
+    input.value = '';
+    renderFeed();
+    // Re-open the chat
+    document.getElementById(`debate-${pid}`).classList.remove('hidden');
+}
+
+/* --- 5. ADMIN / CEO FUNCTIONS --- */
+function renderAdmin() {
+    // Render Pending
+    const pendingDiv = document.getElementById('pending-list');
+    if(pendingUsers.length === 0) {
+        pendingDiv.innerHTML = '<p class="text-muted">No pending applications.</p>';
+    } else {
+        pendingDiv.innerHTML = pendingUsers.map(u => `
+            <div class="admin-row">
+                <div>
+                    <strong>${u.name}</strong> (${u.role})<br>
+                    <small>${u.position} • ${u.email}</small>
+                </div>
+                <div>
+                    <button class="btn btn-primary" style="padding:5px 10px" onclick="approveUser(${u.id})">Approve</button>
+                    <button class="btn btn-danger" style="padding:5px 10px" onclick="declineUser(${u.id})">Decline</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Render Active Staff
+    const staffDiv = document.getElementById('staff-list');
+    const staff = users.filter(u => u.role !== 'CEO'); // Don't show CEO to himself
+    staffDiv.innerHTML = staff.map(u => `
+        <div class="admin-row">
+            <div>
+                <strong>${u.name}</strong> (${u.role})<br>
+                <small>${u.position} • Status: <span class="${u.status==='Active'?'status-active':'status-sacked'}">${u.status}</span></small>
+            </div>
+            <div>
+                <button class="btn btn-outline" onclick="changeStatus(${u.id}, 'Active')">Activate</button>
+                <button class="btn btn-outline" style="color:orange; border-color:orange" onclick="changeStatus(${u.id}, 'Suspended')">Suspend</button>
+                <button class="btn btn-outline" style="color:red; border-color:red" onclick="changeStatus(${u.id}, 'Sacked')">Sack</button>
+            </div>
         </div>
-      </div>
-      <div class="announcement-content">${announcement.content}</div>
-      ${mediaHtml}
-      <div class="announcement-actions">
-        <button class="action-btn ${announcement.liked ? 'active' : ''}" onclick="likeAnnouncement(${announcement.id})">
-          👍 Like (${announcement.likes})
-        </button>
-        <button class="action-btn">
-          💬 Comment (${announcement.comments})
-        </button>
-        <button class="action-btn">
-          🔄 Share (${announcement.shares})
-        </button>
-      </div>
-    `;
-    
-    feed.appendChild(announcementElement);
-  });
+    `).join('');
 }
 
-// Initialize announcements
-renderAnnouncements();
+function approveUser(uid) {
+    const idx = pendingUsers.findIndex(u => u.id === uid);
+    if(idx === -1) return;
+    
+    const user = pendingUsers[idx];
+    
+    // CEO generates password logic
+    const customPass = prompt(`Approve ${user.name}? \nEnter a custom password for them (This will be emailed to them):`, "OrgPass123");
+    
+    if(customPass) {
+        // Move to active users
+        user.pass = customPass;
+        user.status = 'Active';
+        user.orgName = currentUser.orgName;
+        users.push(user);
+        pendingUsers.splice(idx, 1);
+        
+        alert(`User Approved! \n\nWe have simulated sending an email to ${user.email} with Password: ${customPass}`);
+        renderAdmin();
+    }
+}
+
+function declineUser(uid) {
+    if(confirm('Are you sure you want to decline this application?')) {
+        pendingUsers = pendingUsers.filter(u => u.id !== uid);
+        renderAdmin();
+    }
+}
+
+function changeStatus(uid, status) {
+    const u = users.find(x => x.id === uid);
+    if(u) {
+        u.status = status;
+        alert(`${u.name} is now ${status}`);
+        renderAdmin();
+    }
+}
+
 </script>
 </body>
 </html>
