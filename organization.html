@@ -3,69 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEET - Organization Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>MEET | Executive Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
     
     <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
 
     <style>
+        /* --- Executive Color Palette (Dark Mode First) --- */
         :root {
-            --primary: #0061FF;
-            --accent: #5AE4A8;
-            --bg: #f7f9fb;
-            --card: #fff;
-            --text: #111827;
-            --muted: #6b7280;
-            --error: #EF4444;
-            --success: #10B981;
-            --radius: 12px;
-            --shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+            --primary-bg: #0A1128; /* Deep Navy Blue */
+            --secondary-bg: #1B263B; /* Darker Slate */
+            --accent: #FFD700; /* Gold/Amber */
+            --text-light: #E0E1E6;
+            --text-muted: #9BB8D0;
+            --error: #E53935;
+            --success: #66BB6A;
+            --border-color: #34495E;
+            --radius: 8px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-        body.dark {
-            --bg: #081226;
-            --card: #0b1726;
-            --text: #e6eef8;
-            --muted: #93a3bd;
-            --shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-        }
+        
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: 'Inter', system-ui, 'Segoe UI', Arial;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            transition: background .35s, color .35s;
         }
+
+        /* --- Container and Header --- */
         .container {
             width: 100%;
-            max-width: 480px;
-            background: var(--card);
+            max-width: 520px;
+            background: var(--secondary-bg);
             border-radius: var(--radius);
-            padding: 35px;
+            padding: 40px;
             box-shadow: var(--shadow);
             text-align: center;
+            border: 1px solid var(--border-color);
         }
         .logo {
-            font-weight: 700;
-            font-size: 24px;
-            color: var(--primary);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 5px;
+            letter-spacing: 2px;
         }
-        .logo-icon {
-            width: 32px; height: 32px; border-radius: 6px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+        .logo-tagline {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            display: block;
         }
         h2 {
             font-size: 24px;
@@ -73,36 +70,54 @@
             margin-bottom: 10px;
         }
         p.subtitle {
-            color: var(--muted);
+            color: var(--text-muted);
             margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        /* --- Buttons and Navigation --- */
+        .btn-group {
+            margin-bottom: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 14px 25px;
+            border-radius: var(--radius);
+            font-weight: 500;
             cursor: pointer;
             border: none;
             font-family: inherit;
             font-size: 16px;
             width: 100%;
-            margin-bottom: 15px;
-            transition: background 0.2s;
+            transition: all 0.2s;
             position: relative;
+            text-align: center;
         }
         .btn-primary {
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            color: white;
+            background: var(--accent);
+            color: var(--primary-bg);
+            font-weight: 700;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
         .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--border-color);
+            color: var(--text-light);
         }
-        body.dark .btn-secondary {
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .btn-secondary:hover {
+            background: #4A6572;
+        }
+        .login-separator {
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+            margin-top: 20px;
         }
 
-        /* Form Styles */
+        /* --- Forms --- */
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -110,26 +125,24 @@
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 14px;
+            color: var(--text-light);
         }
         .form-input, .form-select {
             width: 100%;
             padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: var(--bg);
-            color: var(--text);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background: var(--primary-bg);
+            color: var(--text-light);
             font-family: inherit;
-            font-size: 14px;
-            transition: border 0.3s;
-        }
-        body.dark .form-input, body.dark .form-select {
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 15px;
+            transition: border-color 0.3s;
         }
         .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--accent);
         }
         .name-fields {
             display: flex;
@@ -138,104 +151,47 @@
         .name-fields > div {
             flex: 1;
         }
+        
+        /* --- Toggle Switch --- */
         .toggle-switch {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 0;
             cursor: pointer;
-        }
-        .toggle-switch input {
-            display: none;
+            color: var(--text-muted);
+            font-size: 14px;
         }
         .slider {
-            width: 40px;
-            height: 20px;
-            background-color: var(--muted);
-            border-radius: 10px;
-            position: relative;
-            transition: background-color 0.4s;
-        }
-        .slider:before {
-            content: "";
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: white;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.4s;
+            background-color: var(--border-color);
         }
         .toggle-switch input:checked + .slider {
             background-color: var(--accent);
         }
-        .toggle-switch input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-        
-        /* Modal/Approval Screen */
-        .approval-wait-card {
-            padding: 30px;
-            text-align: center;
-        }
-        .wait-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: var(--primary);
-        }
-        .wait-quote {
-            margin-top: 25px;
-            padding: 15px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            color: var(--muted);
-            font-style: italic;
-            font-size: 14px;
-        }
-        .dark-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--card);
-            border: 1px solid rgba(0,0,0,0.1);
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-        body.dark .dark-mode-toggle {
-            border: 1px solid rgba(255,255,255,0.1);
-        }
 
-        /* Message Styles */
+        /* --- Messages --- */
         #messageContainer {
-            margin-bottom: 15px;
+            min-height: 40px; /* Reserve space */
         }
         .message {
             padding: 12px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 14px;
             text-align: left;
-            margin-top: -10px; /* Adjust spacing */
+            margin-bottom: 15px;
         }
         .message.error {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(229, 57, 53, 0.2);
             color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--error);
         }
         .message.success {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(102, 187, 106, 0.2);
             color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--success);
         }
 
-        /* Spinner for Buttons */
+        /* --- Spinner --- */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -249,40 +205,68 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* --- Approval Wait Screen --- */
+        .approval-wait-card {
+            padding: 20px;
+            text-align: center;
+        }
+        .wait-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        .wait-quote {
+            padding: 15px;
+            background: var(--primary-bg);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .wait-note {
+            font-size: 12px; 
+            color: var(--error); 
+            margin-top: 20px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-    <button class="dark-mode-toggle" id="darkToggle">🌙</button>
 
     <div class="container" id="mainContainer">
-        <div class="logo"><div class="logo-icon"></div> MEET</div>
-        <div id="messageContainer"></div> <div id="loginSection">
-            <h2>Welcome Back!</h2>
-            <p class="subtitle">Access your organization portal.</p>
+        <div class="logo">MEET</div>
+        <span class="logo-tagline">Secure Executive Access Portal</span>
+        
+        <div id="messageContainer"></div>
+        
+        <div id="loginSection">
+            <h2>Organization Login</h2>
+            <p class="subtitle">Access your organization portal using your custom credentials.</p>
 
-            <div style="margin-bottom: 30px;">
-                <button class="btn btn-primary" onclick="showSignup('CEO')">🚀 Sign up as CEO (New Org)</button>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="showSignup('CEO')">🚀 Sign up as CEO (New Organization)</button>
                 <button class="btn btn-secondary" onclick="showSignup('BOD')">👥 Sign up as Board Member</button>
-                <button class="btn btn-secondary" onclick="showSignup('Employee')">🧑‍💻 Sign up as Employee</button>
+                <button class="btn btn-secondary" onclick="showSignup('Employee')">🧑‍💻 Sign up as Employee/Staff</button>
             </div>
 
-            <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
-                <h3 style="margin-top: 0; font-size: 18px;">Existing Users Login</h3>
+            <div class="login-separator">
+                <h3 style="margin-top: 0; font-size: 18px; color: var(--text-light);">Existing User Sign In</h3>
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail" class="form-label">Email Address</label>
-                        <input type="email" id="loginEmail" class="form-input" required placeholder="your.name@company.com">
+                        <input type="email" id="loginEmail" class="form-input" required placeholder="name@company.com">
                     </div>
                     <div class="form-group">
                         <label for="loginPassword" class="form-label">Custom Password</label>
                         <input type="password" id="loginPassword" class="form-input" required placeholder="********">
                     </div>
                     <button type="submit" id="loginBtn" class="btn btn-primary">
-                        <span id="loginText">Login to Portal</span>
+                        <span id="loginText">Secure Login</span>
                         <span id="loginSpinner" class="spinner" style="display: none;"></span>
                     </button>
                 </form>
@@ -290,8 +274,8 @@
         </div>
 
         <div id="ceoSignupSection" style="display: none;">
-            <h2>CEO Sign Up</h2>
-            <p class="subtitle">Establish your organization on MEET. You set your own password.</p>
+            <h2>CEO/Founder Registration</h2>
+            <p class="subtitle">Establish your organization and set your immediate access credentials.</p>
             <form id="ceoSignupForm" onsubmit="handleCeoSignup(event)">
                 <div class="form-group">
                     <label class="form-label">CEO Name</label>
@@ -312,19 +296,17 @@
                     <label for="orgType" class="form-label">Type of Organization</label>
                     <select id="orgType" class="form-select" required>
                         <option value="">Select Type</option>
-                        <option value="Sole Proprietorship">Sole Proprietorship</option>
-                        <option value="Partnership">Partnership (Co-Owned)</option>
                         <option value="Commercial">Commercial (LLC/Ltd)</option>
                         <option value="Non-Profit">Non-Profit Organization (NGO)</option>
-                        <option value="Educational">Educational Institution</option>
                         <option value="Government">Government/Public Sector</option>
+                        <option value="Educational">Educational Institution</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="govID" class="form-label">Government Issued ID Upload</label>
+                    <label for="govID" class="form-label">Government Issued ID Upload (for verification)</label>
                     <div class="name-fields">
                         <select id="govIDType" class="form-select" style="flex: 0.5;" required>
-                            <option value="">Select ID Type</option>
+                            <option value="">ID Type</option>
                             <option value="Passport">Passport</option>
                             <option value="Driver's License">Driver's License</option>
                             <option value="National ID">National ID Card</option>
@@ -338,70 +320,70 @@
                     <input type="email" id="ceoEmail" class="form-input" required placeholder="ceo@acmecorp.com">
                 </div>
                 <div class="form-group">
-                    <label for="ceoPassword" class="form-label">Create CEO Password</label>
+                    <label for="ceoPassword" class="form-label">Create Password (Immediate Access)</label>
                     <input type="password" id="ceoPassword" class="form-input" required placeholder="Minimum 6 characters">
                 </div>
                 <div class="form-group">
-                    <label for="orgTaxID" class="form-label">Tax ID / Business Registration Number</label>
+                    <label for="orgTaxID" class="form-label">Tax ID / Registration Number</label>
                     <input type="text" id="orgTaxID" class="form-input" required placeholder="e.g., 123456789">
                 </div>
                 
                 <label class="toggle-switch">
-                    <span>Does your organization have a Board of Directors/Executives?</span>
+                    <span>Includes a Board of Directors/Executives?</span>
                     <input type="checkbox" id="hasBoardToggle">
                     <span class="slider"></span>
                 </label>
                 
                 <button type="submit" id="ceoSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
-                    <span id="ceoSignupText">Create Organization Account</span>
+                    <span id="ceoSignupText">Establish Organization & Log In</span>
                     <span id="ceoSignupSpinner" class="spinner" style="display: none;"></span>
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Login</button>
+                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Main Access</button>
             </form>
         </div>
 
         <div id="memberSignupSection" style="display: none;">
-            <h2 id="memberSignupTitle">Sign Up</h2>
-            <p class="subtitle">Join your organization's network. Your access is subject to CEO approval.</p>
+            <h2 id="memberSignupTitle">Member Sign Up</h2>
+            <p class="subtitle">Join your organization. Your access and password are subject to CEO approval.</p>
             <form id="memberSignupForm" onsubmit="handleMemberSignup(event)">
                 <input type="hidden" id="memberRole">
                 <div class="form-group">
                     <label class="form-label">Organization Name</label>
                     <input type="text" id="memberOrgName" class="form-input" required placeholder="Acme Corp LLC">
-                    <small style="color:var(--muted)">Ensure the organization name is exact.</small>
+                    <small style="color:var(--text-muted)">Please enter the exact name of your organization.</small>
                 </div>
                 <div class="form-group">
                     <label for="memberName" class="form-label">Full Name</label>
                     <input type="text" id="memberName" class="form-input" required placeholder="Timi Jones">
                 </div>
                 <div class="form-group">
+                    <label for="memberEmail" class="form-label">Official Email Address (Mandatory for Password)</label>
+                    <input type="email" id="memberEmail" class="form-input" required placeholder="timi.jones@acmecorp.com">
+                </div>
+                <div class="form-group">
                     <label for="memberPhone" class="form-label">Phone Number (+Country Code)</label>
                     <input type="tel" id="memberPhone" class="form-input" required placeholder="+2348012345678">
                 </div>
-                <div class="form-group">
-                    <label for="memberEmail" class="form-label">Official Email Address (where password will be sent)</label>
-                    <input type="email" id="memberEmail" class="form-input" required placeholder="timi.jones@acmecorp.com">
-                </div>
                 <div class="form-group" id="memberPositionGroup">
-                    <label for="memberPosition" class="form-label">Current Position</label>
-                    <input type="text" id="memberPosition" class="form-input" required placeholder="e.g., HR Director, Software Engineer">
+                    <label for="memberPosition" class="form-label">Current Position/Title</label>
+                    <input type="text" id="memberPosition" class="form-input" required placeholder="e.g., HR Director, Senior Analyst">
                 </div>
 
                 <button type="submit" id="memberSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
-                    <span id="memberSignupText">Submit for Approval</span>
+                    <span id="memberSignupText">Submit Request for Approval</span>
                     <span id="memberSignupSpinner" class="spinner" style="display: none;"></span>
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Login</button>
+                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Main Access</button>
             </form>
         </div>
 
         <div id="approvalWaitSection" class="approval-wait-card" style="display: none;">
-            <div class="wait-icon">⏳</div>
-            <h2>Waiting for Approval</h2>
-            <p>Your sign-up request has been successfully submitted to the organization's CEO/Admin.</p>
-            <p>A **custom password** will be securely sent to your mail (<span id="waitEmail" style="font-weight: 600;"></span>) upon approval.</p>
-            <p class="wait-quote">"Kindness in words creates confidence. Kindness in thinking creates profoundness. Kindness in giving creates love." - Lao Tzu</p>
-            <p style="font-size: 12px; color: var(--error); margin-top: 20px;">**Do not attempt to log in until you receive your custom password.**</p>
+            <div class="wait-icon">👑</div>
+            <h2>Approval Pending</h2>
+            <p class="subtitle">Your request has been securely submitted to your CEO/Admin.</p>
+            <p>A **custom, secure password** will be sent to your official email (<span id="waitEmail" style="font-weight: 700; color: var(--accent);"></span>) once your membership is approved.</p>
+            <p class="wait-quote">"Trust is the glue of life. It’s the most essential ingredient in effective communication. It’s the foundational principle that holds all relationships." - Stephen Covey</p>
+            <p class="wait-note">**Do not attempt to log in until you receive your custom password.**</p>
             <button type="button" class="btn btn-primary" onclick="showSection('login')">Return to Login Screen</button>
         </div>
     </div>
@@ -428,7 +410,6 @@
 
         // =======================================================
         // 🛑 IMPORTANT: REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL CONFIGURATION
-        // (Copied directly from the provided code)
         // =======================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
@@ -441,7 +422,7 @@
             databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com/"
         };
         const CLOUDINARY_UPLOAD_PRESET = "meet_org_id_preset"; 
-        const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // You must replace this.
+        const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // REPLACE
         // =======================================================
 
         // Initialize Firebase
@@ -452,9 +433,10 @@
         // DOM elements
         const messageContainer = document.getElementById('messageContainer');
 
-        // --- Utility Functions (Adopted from provided code) ---
+        // --- Utility Functions (Adopted and refined) ---
 
         function sanitizeInput(input) {
+            // Simple sanitization for display/storage
             const div = document.createElement('div');
             div.textContent = input;
             return div.innerHTML;
@@ -481,267 +463,3 @@
                 spinner.style.display = 'inline-block';
             } else { 
                 button.disabled = false;
-                text.style.display = 'inline-block';
-                spinner.style.display = 'none';
-            }
-        }
-
-        // --- Dark mode toggle ---
-        const darkToggle = document.getElementById('darkToggle');
-        (function initTheme() {
-            const t = localStorage.getItem('meet_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-            if (t === 'dark') document.body.classList.add('dark');
-            darkToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-        })();
-        darkToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            const now = document.body.classList.contains('dark') ? 'dark' : 'light';
-            localStorage.setItem('meet_theme', now);
-            darkToggle.textContent = now === 'dark' ? '☀️' : '🌙';
-        });
-
-        // --- Section Navigation ---
-        function showSection(sectionId) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('ceoSignupSection').style.display = 'none';
-            document.getElementById('memberSignupSection').style.display = 'none';
-            document.getElementById('approvalWaitSection').style.display = 'none';
-            
-            document.getElementById(sectionId + 'Section').style.display = 'block';
-            clearMessage();
-
-            if (sectionId === 'memberSignup') {
-                const role = document.getElementById('memberRole').value;
-                document.getElementById('memberSignupTitle').textContent = role === 'BOD' ? 'Board Member Sign Up' : 'Employee Sign Up';
-            }
-        }
-
-        function showSignup(role) {
-            if (role === 'CEO') {
-                showSection('ceoSignup');
-            } else if (role === 'BOD' || role === 'Employee') {
-                document.getElementById('memberRole').value = role;
-                showSection('memberSignup');
-            }
-        }
-
-        // --- Utility Function: Cloudinary Upload ---
-        async function uploadFileToCloudinary(file) {
-            if (!file) return null;
-            
-            const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    return {
-                        url: data.secure_url,
-                        public_id: data.public_id
-                    };
-                } else {
-                    console.error("Cloudinary Upload failed:", await response.text());
-                    return null;
-                }
-            } catch (error) {
-                console.error("Cloudinary Network Error:", error);
-                return null;
-            }
-        }
-
-        // --- CEO Sign Up (Sets Password, Creates Organization and User) ---
-        async function handleCeoSignup(event) {
-            event.preventDefault();
-            
-            setLoading('ceoSignupBtn', true);
-            clearMessage();
-            
-            // Sanitize and collect data
-            const ceoEmail = sanitizeInput(document.getElementById('ceoEmail').value);
-            const orgName = sanitizeInput(document.getElementById('orgName').value);
-            const ceoFirstName = sanitizeInput(document.getElementById('ceoFirstName').value);
-            const ceoSurname = sanitizeInput(document.getElementById('ceoSurname').value);
-            const orgTaxID = sanitizeInput(document.getElementById('orgTaxID').value);
-            const govIDFile = document.getElementById('govID').files[0];
-            const ceoPassword = document.getElementById('ceoPassword').value;
-
-            if (ceoPassword.length < 6) {
-                showMessage('Password must be at least 6 characters.', 'error');
-                setLoading('ceoSignupBtn', false);
-                return;
-            }
-
-            try {
-                showMessage('Uploading ID card and creating organization...', 'success');
-                const idUpload = await uploadFileToCloudinary(govIDFile);
-                if (!idUpload) {
-                    throw new Error("Failed to upload government ID. Check Cloudinary preset or file.");
-                }
-                
-                // 1. Create User in Firebase Authentication
-                const userCredential = await createUserWithEmailAndPassword(auth, ceoEmail, ceoPassword);
-                const user = userCredential.user;
-                const fullName = `${ceoFirstName} ${ceoSurname}`;
-
-                // 2. Create Organization Document in Firestore
-                const orgRef = doc(collection(db, 'organizations'));
-                const orgData = {
-                    orgId: orgRef.id,
-                    name: orgName,
-                    type: document.getElementById('orgType').value,
-                    taxId: orgTaxID,
-                    ceoUid: user.uid,
-                    idProofUrl: idUpload.url,
-                    hasBoard: document.getElementById('hasBoardToggle').checked,
-                    createdAt: serverTimestamp()
-                };
-                await setDoc(orgRef, orgData);
-
-                // 3. Create CEO User Profile in Firestore
-                const userData = {
-                    uid: user.uid,
-                    orgId: orgRef.id,
-                    name: fullName,
-                    email: ceoEmail,
-                    role: 'CEO',
-                    status: 'Active',
-                    isDelegate: true,
-                    joinedAt: serverTimestamp()
-                };
-                await setDoc(doc(db, 'users', user.uid), userData);
-
-                showMessage(`Organization "${orgName}" created successfully! Redirecting...`, 'success');
-                setTimeout(() => {
-                    window.location.href = `organization-dashboard-simulated.html?role=CEO&orgId=${orgRef.id}`;
-                }, 1500);
-
-            } catch (error) {
-                console.error("CEO Sign Up Error:", error.message);
-                let errorMessage = 'Sign Up Failed.';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'An account with this email already exists.';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                showMessage(`❌ ${errorMessage}`, 'error');
-            } finally {
-                setLoading('ceoSignupBtn', false);
-            }
-        }
-
-        // --- BOD/Employee Sign Up (Submits for Approval) ---
-        async function handleMemberSignup(event) {
-            event.preventDefault();
-            
-            setLoading('memberSignupBtn', true);
-            clearMessage();
-            
-            // Sanitize and collect data
-            const role = document.getElementById('memberRole').value;
-            const email = sanitizeInput(document.getElementById('memberEmail').value);
-            const orgName = sanitizeInput(document.getElementById('memberOrgName').value);
-            const memberName = sanitizeInput(document.getElementById('memberName').value);
-            const memberPhone = sanitizeInput(document.getElementById('memberPhone').value);
-            const memberPosition = sanitizeInput(document.getElementById('memberPosition').value);
-
-            try {
-                // 1. Find the target organization
-                const q = query(collection(db, 'organizations'), where('name', '==', orgName));
-                const orgQuery = await getDocs(q);
-                
-                if (orgQuery.empty) {
-                    throw new Error(`Organization "${orgName}" not found. Check the name.`);
-                }
-                const organization = orgQuery.docs[0].data();
-                
-                // 2. Create a Pending Approval document
-                await addDoc(collection(db, 'pending_approvals'), {
-                    orgId: organization.orgId,
-                    orgName: organization.name,
-                    name: memberName,
-                    email: email,
-                    phone: memberPhone,
-                    position: memberPosition,
-                    requestedRole: role,
-                    status: 'Pending',
-                    requestedAt: serverTimestamp()
-                });
-
-                // 3. Show the Waiting screen
-                document.getElementById('waitEmail').textContent = email;
-                showSection('approvalWait');
-                
-            } catch (error) {
-                console.error("Member Sign Up Error:", error.message);
-                showMessage(`❌ Sign Up Failed: ${error.message}`, 'error');
-            } finally {
-                setLoading('memberSignupBtn', false);
-            }
-        }
-
-        // --- User Login (Checks Role and Status) ---
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            setLoading('loginBtn', true);
-            clearMessage();
-            
-            // Sanitize and collect data
-            const email = sanitizeInput(document.getElementById('loginEmail').value);
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                // 1. Sign In using Firebase Authentication
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // 2. Fetch User Role and Status from Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                
-                if (!userDoc.exists()) {
-                    await auth.signOut();
-                    throw new Error("User profile not found. If you just signed up, please wait for CEO approval.");
-                }
-                
-                const userData = userDoc.data();
-                const { role, status, orgId } = userData;
-                
-                // 3. Check Status
-                if (status !== 'Active') {
-                    await auth.signOut();
-                    throw new Error(`Your account status is ${status}. Access denied.`);
-                }
-
-                // 4. Redirect based on Role
-                showMessage(`🔑 Login Successful as ${role}! Redirecting...`, 'success');
-                setTimeout(() => {
-                    window.location.href = `organization-dashboard-simulated.html?role=${role}&orgId=${orgId}`;
-                }, 1000);
-
-            } catch (error) {
-                console.error("Login Error:", error.code, error.message);
-                let errorMessage = 'Login failed. Please check your credentials.';
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                     errorMessage = 'Invalid email or custom password.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Too many failed login attempts. Please try again later.';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                showMessage(`❌ ${errorMessage}`, 'error');
-            } finally {
-                setLoading('loginBtn', false);
-            }
-        }
-        
-        // Initial state
-        showSection('login');
-    </script>
-</body>
-</html>
