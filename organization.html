@@ -3,463 +3,999 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEET | Executive Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
-    
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
-
+    <title>MEET - Organization Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Executive Color Palette (Dark Mode First) --- */
         :root {
-            --primary-bg: #0A1128; /* Deep Navy Blue */
-            --secondary-bg: #1B263B; /* Darker Slate */
-            --accent: #FFD700; /* Gold/Amber */
-            --text-light: #E0E1E6;
-            --text-muted: #9BB8D0;
-            --error: #E53935;
-            --success: #66BB6A;
-            --border-color: #34495E;
-            --radius: 8px;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            --primary: #0061FF;
+            --accent: #5AE4A8;
+            --bg: #f7f9fb;
+            --card: #fff;
+            --text: #111827;
+            --muted: #6b7280;
+            --radius: 12px;
+            --shadow: 0 6px 18px rgba(16,24,40,0.06);
         }
         
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background: var(--primary-bg);
-            color: var(--text-light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+        body.dark {
+            --bg: #081226;
+            --card: #0b1726;
+            --text: #e6eef8;
+            --muted: #93a3bd;
+            --shadow: 0 6px 18px rgba(0,0,0,0.6);
         }
-
-        /* --- Container and Header --- */
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background .35s, color .35s;
+        }
+        
         .container {
             width: 100%;
-            max-width: 520px;
-            background: var(--secondary-bg);
+            max-width: 480px;
+        }
+        
+        .logo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--muted);
+            font-size: 16px;
+        }
+        
+        .auth-card {
+            background: var(--card);
             border-radius: var(--radius);
             padding: 40px;
             box-shadow: var(--shadow);
-            text-align: center;
-            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
-        .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
-        .logo-tagline {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            display: block;
-        }
-        h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        p.subtitle {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-
-        /* --- Buttons and Navigation --- */
-        .btn-group {
-            margin-bottom: 35px;
+        
+        .auth-tabs {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
         }
-        .btn {
-            padding: 14px 25px;
-            border-radius: var(--radius);
-            font-weight: 500;
-            cursor: pointer;
+        
+        body.dark .auth-tabs {
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
             border: none;
             font-family: inherit;
             font-size: 16px;
-            width: 100%;
-            transition: all 0.2s;
-            position: relative;
-            text-align: center;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
         }
-        .btn-primary {
-            background: var(--accent);
-            color: var(--primary-bg);
-            font-weight: 700;
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background: var(--border-color);
-            color: var(--text-light);
-        }
-        .btn-secondary:hover {
-            background: #4A6572;
-        }
-        .login-separator {
-            border-top: 1px solid var(--border-color);
-            padding-top: 25px;
-            margin-top: 20px;
-        }
-
-        /* --- Forms --- */
+        
         .form-group {
             margin-bottom: 20px;
-            text-align: left;
         }
+        
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
-            color: var(--text-light);
-        }
-        .form-input, .form-select {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            background: var(--primary-bg);
-            color: var(--text-light);
-            font-family: inherit;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        .name-fields {
-            display: flex;
-            gap: 10px;
-        }
-        .name-fields > div {
-            flex: 1;
+            color: var(--text);
         }
         
-        /* --- Toggle Switch --- */
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        body.dark .form-input {
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,97,255,0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,97,255,0.2);
+        }
+        
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        body.dark .btn-secondary {
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: var(--muted);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        body.dark .divider::before,
+        body.dark .divider::after {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+        }
+        
+        .role-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .role-option {
+            padding: 20px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        body.dark .role-option {
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .role-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        
+        .role-option.selected {
+            border-color: var(--primary);
+            background: rgba(0,97,255,0.05);
+        }
+        
+        .role-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .role-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .role-desc {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-info {
+            background: rgba(0,97,255,0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0,97,255,0.2);
+        }
+        
+        .alert-warning {
+            background: rgba(245,158,11,0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.2);
+        }
+        
         .toggle-switch {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-        .slider {
-            background-color: var(--border-color);
-        }
-        .toggle-switch input:checked + .slider {
-            background-color: var(--accent);
-        }
-
-        /* --- Messages --- */
-        #messageContainer {
-            min-height: 40px; /* Reserve space */
-        }
-        .message {
-            padding: 12px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-        .message.error {
-            background: rgba(229, 57, 53, 0.2);
-            color: var(--error);
-            border: 1px solid var(--error);
-        }
-        .message.success {
-            background: rgba(102, 187, 106, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-
-        /* --- Spinner --- */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            gap: 10px;
+            margin: 20px 0;
         }
         
-        /* --- Approval Wait Screen --- */
-        .approval-wait-card {
-            padding: 20px;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .full-width {
+            grid-column: span 2;
+        }
+        
+        .file-upload {
+            border: 2px dashed rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 30px;
             text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
         }
-        .wait-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: var(--accent);
+        
+        body.dark .file-upload {
+            border: 2px dashed rgba(255,255,255,0.1);
         }
-        .wait-quote {
-            padding: 15px;
-            background: var(--primary-bg);
-            border-radius: var(--radius);
-            color: var(--text-muted);
-            font-style: italic;
-            font-size: 14px;
-            margin-top: 20px;
+        
+        .file-upload:hover {
+            border-color: var(--primary);
         }
-        .wait-note {
-            font-size: 12px; 
-            color: var(--error); 
-            margin-top: 20px;
-            font-weight: 500;
+        
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 25px;
+            }
+            
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .full-width {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="container" id="mainContainer">
-        <div class="logo">MEET</div>
-        <span class="logo-tagline">Secure Executive Access Portal</span>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+    
+    <div class="container">
+        <div class="logo-header">
+            <div class="logo">MEET</div>
+            <p class="subtitle">Organization Portal</p>
+        </div>
         
-        <div id="messageContainer"></div>
-        
-        <div id="loginSection">
-            <h2>Organization Login</h2>
-            <p class="subtitle">Access your organization portal using your custom credentials.</p>
-
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="showSignup('CEO')">🚀 Sign up as CEO (New Organization)</button>
-                <button class="btn btn-secondary" onclick="showSignup('BOD')">👥 Sign up as Board Member</button>
-                <button class="btn btn-secondary" onclick="showSignup('Employee')">🧑‍💻 Sign up as Employee/Staff</button>
+        <!-- Login Form -->
+        <div class="auth-card" id="loginCard">
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="showLogin()">Login</button>
+                <button class="tab-btn" onclick="showSignup()">Sign Up</button>
             </div>
-
-            <div class="login-separator">
-                <h3 style="margin-top: 0; font-size: 18px; color: var(--text-light);">Existing User Sign In</h3>
-                <form id="loginForm" onsubmit="handleLogin(event)">
+            
+            <div id="loginForm" class="form-container active">
+                <form id="loginFormContent">
                     <div class="form-group">
-                        <label for="loginEmail" class="form-label">Email Address</label>
-                        <input type="email" id="loginEmail" class="form-input" required placeholder="name@company.com">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="ceo@company.com" required>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="loginPassword" class="form-label">Custom Password</label>
-                        <input type="password" id="loginPassword" class="form-input" required placeholder="********">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
                     </div>
-                    <button type="submit" id="loginBtn" class="btn btn-primary">
-                        <span id="loginText">Secure Login</span>
-                        <span id="loginSpinner" class="spinner" style="display: none;"></span>
-                    </button>
+                    
+                    <button type="submit" class="btn btn-primary">Login to Organization</button>
                 </form>
             </div>
-        </div>
-
-        <div id="ceoSignupSection" style="display: none;">
-            <h2>CEO/Founder Registration</h2>
-            <p class="subtitle">Establish your organization and set your immediate access credentials.</p>
-            <form id="ceoSignupForm" onsubmit="handleCeoSignup(event)">
-                <div class="form-group">
-                    <label class="form-label">CEO Name</label>
-                    <div class="name-fields">
-                        <div>
-                            <input type="text" id="ceoFirstName" class="form-input" required placeholder="First Name">
-                        </div>
-                        <div>
-                            <input type="text" id="ceoSurname" class="form-input" required placeholder="Surname">
-                        </div>
+            
+            <div id="signupForm" class="form-container">
+                <button class="back-btn" onclick="showLogin()">← Back to Login</button>
+                
+                <h2 style="margin-bottom: 20px; text-align: center;">Join an Organization</h2>
+                <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">Select your role to begin</p>
+                
+                <div class="role-options">
+                    <div class="role-option" onclick="selectRole('ceo')">
+                        <div class="role-icon">👑</div>
+                        <div class="role-title">CEO</div>
+                        <div class="role-desc">Founder or Administrator</div>
+                    </div>
+                    
+                    <div class="role-option" onclick="selectRole('board')">
+                        <div class="role-icon">👥</div>
+                        <div class="role-title">Board Member</div>
+                        <div class="role-desc">Director, HR, Finance</div>
+                    </div>
+                    
+                    <div class="role-option" onclick="selectRole('employee')">
+                        <div class="role-icon">💼</div>
+                        <div class="role-title">Employee</div>
+                        <div class="role-desc">Team Member</div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="orgName" class="form-label">Official Organization Name</label>
-                    <input type="text" id="orgName" class="form-input" required placeholder="Acme Corp LLC">
+                
+                <div class="alert alert-info">
+                    💡 Board Members and Employees require CEO approval before accessing the organization.
                 </div>
+            </div>
+        </div>
+        
+        <!-- CEO Signup Form -->
+        <div class="auth-card" id="ceoFormCard" style="display: none;">
+            <button class="back-btn" onclick="backToRoleSelect()">← Back to Role Selection</button>
+            
+            <h2 style="margin-bottom: 20px; text-align: center;">CEO Registration</h2>
+            <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">Create your organization account</p>
+            
+            <form id="ceoForm">
+                <div class="alert alert-warning">
+                    ⚠️ As CEO, you have full control. You'll approve all membership requests.
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="ceoFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="ceoLastName" required>
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label for="orgType" class="form-label">Type of Organization</label>
-                    <select id="orgType" class="form-select" required>
-                        <option value="">Select Type</option>
-                        <option value="Commercial">Commercial (LLC/Ltd)</option>
-                        <option value="Non-Profit">Non-Profit Organization (NGO)</option>
-                        <option value="Government">Government/Public Sector</option>
-                        <option value="Educational">Educational Institution</option>
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="ceoEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="ceoPhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Official Organization Name</label>
+                    <input type="text" class="form-input" id="orgName" required>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Type of Organization</label>
+                        <select class="form-input" id="orgType" required>
+                            <option value="">Select Type</option>
+                            <option value="sole">Sole Proprietorship</option>
+                            <option value="partnership">Partnership</option>
+                            <option value="private">Private Limited Company</option>
+                            <option value="public">Public Limited Company</option>
+                            <option value="nonprofit">Non-Profit Organization</option>
+                            <option value="religious">Religious Organization</option>
+                            <option value="government">Government / NGO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-input" id="orgCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="educational">Educational</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="technology">Technology</option>
+                            <option value="finance">Finance</option>
+                            <option value="media">Media</option>
+                            <option value="religious">Religious</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="toggle-switch">
+                    <div class="switch">
+                        <input type="checkbox" id="hasBoardToggle">
+                        <span class="slider"></span>
+                    </div>
+                    <label for="hasBoardToggle">This organization has a Board of Directors</label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Government Issued ID Type</label>
+                    <select class="form-input" id="idType" required>
+                        <option value="">Select ID Type</option>
+                        <option value="national">National ID</option>
+                        <option value="passport">International Passport</option>
+                        <option value="drivers">Driver's License</option>
+                        <option value="voter">Voter's Card</option>
                     </select>
                 </div>
+                
                 <div class="form-group">
-                    <label for="govID" class="form-label">Government Issued ID Upload (for verification)</label>
-                    <div class="name-fields">
-                        <select id="govIDType" class="form-select" style="flex: 0.5;" required>
-                            <option value="">ID Type</option>
-                            <option value="Passport">Passport</option>
-                            <option value="Driver's License">Driver's License</option>
-                            <option value="National ID">National ID Card</option>
-                            <option value="Business Registration">Business Registration Doc</option>
-                        </select>
-                        <input type="file" id="govID" class="form-input" style="flex: 1.5; padding: 10px;" required>
+                    <label class="form-label">Upload Government ID</label>
+                    <div class="file-upload" onclick="document.getElementById('ceoIdUpload').click()">
+                        📄 Click to upload ID document
+                        <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
+                            PNG, JPG, PDF up to 5MB
+                        </div>
+                    </div>
+                    <input type="file" id="ceoIdUpload" style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                    <div id="ceoIdPreview" style="margin-top: 10px; font-size: 14px; color: var(--muted);"></div>
+                </div>
+                
+                <div class="form-group">
+                    <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="ceoTerms" required>
+                            <span>I accept all terms and declare that all information provided is accurate and authentic</span>
+                        </label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="ceoEmail" class="form-label">Official CEO Email</label>
-                    <input type="email" id="ceoEmail" class="form-input" required placeholder="ceo@acmecorp.com">
-                </div>
-                <div class="form-group">
-                    <label for="ceoPassword" class="form-label">Create Password (Immediate Access)</label>
-                    <input type="password" id="ceoPassword" class="form-input" required placeholder="Minimum 6 characters">
-                </div>
-                <div class="form-group">
-                    <label for="orgTaxID" class="form-label">Tax ID / Registration Number</label>
-                    <input type="text" id="orgTaxID" class="form-input" required placeholder="e.g., 123456789">
-                </div>
                 
-                <label class="toggle-switch">
-                    <span>Includes a Board of Directors/Executives?</span>
-                    <input type="checkbox" id="hasBoardToggle">
-                    <span class="slider"></span>
-                </label>
-                
-                <button type="submit" id="ceoSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
-                    <span id="ceoSignupText">Establish Organization & Log In</span>
-                    <span id="ceoSignupSpinner" class="spinner" style="display: none;"></span>
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Main Access</button>
+                <button type="submit" class="btn btn-primary">Create Organization & Become CEO</button>
             </form>
         </div>
-
-        <div id="memberSignupSection" style="display: none;">
-            <h2 id="memberSignupTitle">Member Sign Up</h2>
-            <p class="subtitle">Join your organization. Your access and password are subject to CEO approval.</p>
-            <form id="memberSignupForm" onsubmit="handleMemberSignup(event)">
-                <input type="hidden" id="memberRole">
+        
+        <!-- Board Member Signup Form -->
+        <div class="auth-card" id="boardFormCard" style="display: none;">
+            <button class="back-btn" onclick="backToRoleSelect()">← Back to Role Selection</button>
+            
+            <h2 style="margin-bottom: 20px; text-align: center;">Board Member Registration</h2>
+            <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">Request access to organization</p>
+            
+            <form id="boardForm">
+                <div class="alert alert-warning">
+                    ⚠️ No password required. You'll receive a secure password via email after CEO approval.
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="boardFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="boardLastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="boardEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="boardPhone" required>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Organization Name</label>
-                    <input type="text" id="memberOrgName" class="form-input" required placeholder="Acme Corp LLC">
-                    <small style="color:var(--text-muted)">Please enter the exact name of your organization.</small>
+                    <input type="text" class="form-input" id="boardOrgSearch" placeholder="Search organization..." required>
+                    <div id="orgResults" style="margin-top: 10px;"></div>
                 </div>
-                <div class="form-group">
-                    <label for="memberName" class="form-label">Full Name</label>
-                    <input type="text" id="memberName" class="form-input" required placeholder="Timi Jones">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Position</label>
+                        <input type="text" class="form-input" id="boardPosition" placeholder="e.g., HR Director" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <select class="form-input" id="boardDepartment" required>
+                            <option value="">Select Department</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="finance">Finance</option>
+                            <option value="operations">Operations</option>
+                            <option value="it">IT/Technology</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="legal">Legal</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="memberEmail" class="form-label">Official Email Address (Mandatory for Password)</label>
-                    <input type="email" id="memberEmail" class="form-input" required placeholder="timi.jones@acmecorp.com">
-                </div>
-                <div class="form-group">
-                    <label for="memberPhone" class="form-label">Phone Number (+Country Code)</label>
-                    <input type="tel" id="memberPhone" class="form-input" required placeholder="+2348012345678">
-                </div>
-                <div class="form-group" id="memberPositionGroup">
-                    <label for="memberPosition" class="form-label">Current Position/Title</label>
-                    <input type="text" id="memberPosition" class="form-input" required placeholder="e.g., HR Director, Senior Analyst">
-                </div>
-
-                <button type="submit" id="memberSignupBtn" class="btn btn-primary" style="margin-top: 20px;">
-                    <span id="memberSignupText">Submit Request for Approval</span>
-                    <span id="memberSignupSpinner" class="spinner" style="display: none;"></span>
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="showSection('login')">← Back to Main Access</button>
+                
+                <button type="submit" class="btn btn-primary">Submit for CEO Approval</button>
             </form>
         </div>
-
-        <div id="approvalWaitSection" class="approval-wait-card" style="display: none;">
-            <div class="wait-icon">👑</div>
-            <h2>Approval Pending</h2>
-            <p class="subtitle">Your request has been securely submitted to your CEO/Admin.</p>
-            <p>A **custom, secure password** will be sent to your official email (<span id="waitEmail" style="font-weight: 700; color: var(--accent);"></span>) once your membership is approved.</p>
-            <p class="wait-quote">"Trust is the glue of life. It’s the most essential ingredient in effective communication. It’s the foundational principle that holds all relationships." - Stephen Covey</p>
-            <p class="wait-note">**Do not attempt to log in until you receive your custom password.**</p>
-            <button type="button" class="btn btn-primary" onclick="showSection('login')">Return to Login Screen</button>
+        
+        <!-- Employee Signup Form -->
+        <div class="auth-card" id="employeeFormCard" style="display: none;">
+            <button class="back-btn" onclick="backToRoleSelect()">← Back to Role Selection</button>
+            
+            <h2 style="margin-bottom: 20px; text-align: center;">Employee Registration</h2>
+            <p style="text-align: center; color: var(--muted); margin-bottom: 30px;">Request access to organization</p>
+            
+            <form id="employeeForm">
+                <div class="alert alert-warning">
+                    ⚠️ No password required. You'll receive a secure password via email after approval.
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="employeeFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="employeeLastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="employeeEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="employeePhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Organization Name</label>
+                    <input type="text" class="form-input" id="employeeOrgSearch" placeholder="Search organization..." required>
+                    <div id="employeeOrgResults" style="margin-top: 10px;"></div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" class="form-input" id="employeePosition" placeholder="e.g., Software Developer" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <select class="form-input" id="employeeDepartment" required>
+                            <option value="">Select Department</option>
+                            <option value="engineering">Engineering</option>
+                            <option value="sales">Sales</option>
+                            <option value="support">Customer Support</option>
+                            <option value="design">Design</option>
+                            <option value="product">Product</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit for Approval</button>
+            </form>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: var(--muted); font-size: 14px;">
+            <p>© 2024 MEET Platform. Enterprise Organization System.</p>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword
-        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            setDoc, 
-            getDoc, 
-            query, 
-            where, 
-            getDocs, 
-            addDoc,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-        // =======================================================
-        // 🛑 IMPORTANT: REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL CONFIGURATION
-        // =======================================================
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        function initTheme() {
+            const theme = localStorage.getItem('meet_theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') document.body.classList.add('dark');
+            themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const now = document.body.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('meet_theme', now);
+            themeToggle.textContent = now === 'dark' ? '☀️' : '🌙';
+        });
+        
+        initTheme();
+        
+        // Form Navigation
+        let selectedRole = '';
+        
+        function showLogin() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('signupForm').classList.remove('active');
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+        }
+        
+        function showSignup() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('signupForm').classList.add('active');
+            document.querySelectorAll('.tab-btn')[0].classList.remove('active');
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            resetRoleSelection();
+        }
+        
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('loginCard').style.display = 'none';
+            
+            // Reset all role selections
+            document.querySelectorAll('.role-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Highlight selected role
+            event.currentTarget.classList.add('selected');
+            
+            // Show appropriate form
+            if (role === 'ceo') {
+                document.getElementById('ceoFormCard').style.display = 'block';
+                document.getElementById('boardFormCard').style.display = 'none';
+                document.getElementById('employeeFormCard').style.display = 'none';
+            } else if (role === 'board') {
+                document.getElementById('ceoFormCard').style.display = 'none';
+                document.getElementById('boardFormCard').style.display = 'block';
+                document.getElementById('employeeFormCard').style.display = 'none';
+            } else if (role === 'employee') {
+                document.getElementById('ceoFormCard').style.display = 'none';
+                document.getElementById('boardFormCard').style.display = 'none';
+                document.getElementById('employeeFormCard').style.display = 'block';
+            }
+        }
+        
+        function backToRoleSelect() {
+            document.getElementById('loginCard').style.display = 'block';
+            document.getElementById('ceoFormCard').style.display = 'none';
+            document.getElementById('boardFormCard').style.display = 'none';
+            document.getElementById('employeeFormCard').style.display = 'none';
+            resetRoleSelection();
+        }
+        
+        function resetRoleSelection() {
+            selectedRole = '';
+            document.querySelectorAll('.role-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+        }
+        
+        // File Upload Preview
+        document.getElementById('ceoIdUpload').addEventListener('change', function(e) {
+            const preview = document.getElementById('ceoIdPreview');
+            if (this.files.length > 0) {
+                preview.innerHTML = `📄 Selected: ${this.files[0].name} (${(this.files[0].size / 1024 / 1024).toFixed(2)} MB)`;
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+        
+        // Organization Search Simulation
+        const organizations = [
+            "Tech Innovations Ltd",
+            "Global Finance Corp",
+            "HealthCare Solutions",
+            "EduTech Partners",
+            "Green Energy Inc",
+            "Creative Media Group",
+            "Logistics Express",
+            "Food & Beverage Co"
+        ];
+        
+        document.getElementById('boardOrgSearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('orgResults');
+            
+            if (query.length < 2) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const filtered = organizations.filter(org => 
+                org.toLowerCase().includes(query)
+            );
+            
+            results.innerHTML = filtered.map(org => `
+                <div style="padding: 10px; background: var(--bg); border-radius: 5px; margin-bottom: 5px; cursor: pointer;"
+                     onclick="selectOrganization('${org}', 'board')">
+                    🏢 ${org}
+                </div>
+            `).join('');
+        });
+        
+        document.getElementById('employeeOrgSearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('employeeOrgResults');
+            
+            if (query.length < 2) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const filtered = organizations.filter(org => 
+                org.toLowerCase().includes(query)
+            );
+            
+            results.innerHTML = filtered.map(org => `
+                <div style="padding: 10px; background: var(--bg); border-radius: 5px; margin-bottom: 5px; cursor: pointer;"
+                     onclick="selectOrganization('${org}', 'employee')">
+                    🏢 ${org}
+                </div>
+            `).join('');
+        });
+        
+        function selectOrganization(orgName, type) {
+            if (type === 'board') {
+                document.getElementById('boardOrgSearch').value = orgName;
+                document.getElementById('orgResults').innerHTML = '';
+            } else {
+                document.getElementById('employeeOrgSearch').value = orgName;
+                document.getElementById('employeeOrgResults').innerHTML = '';
+            }
+        }
+        
+        // Form Submissions
+        document.getElementById('loginFormContent').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // In production, use Firebase Auth
+            // const auth = firebase.auth();
+            // await auth.signInWithEmailAndPassword(email, password);
+            
+            // Simulate login
+            showLoading();
+            setTimeout(() => {
+                alert('Login successful! Redirecting to organization dashboard...');
+                window.location.href = 'organization-dashboard.html';
+            }, 1500);
+        });
+        
+        document.getElementById('ceoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!document.getElementById('ceoTerms').checked) {
+                alert('Please accept the terms and conditions');
+                return;
+            }
+            
+            // CEO signup logic
+            const ceoData = {
+                firstName: document.getElementById('ceoFirstName').value,
+                lastName: document.getElementById('ceoLastName').value,
+                email: document.getElementById('ceoEmail').value,
+                phone: document.getElementById('ceoPhone').value,
+                orgName: document.getElementById('orgName').value,
+                orgType: document.getElementById('orgType').value,
+                orgCategory: document.getElementById('orgCategory').value,
+                hasBoard: document.getElementById('hasBoardToggle').checked,
+                idType: document.getElementById('idType').value
+            };
+            
+            showLoading();
+            
+            // In production:
+            // 1. Create Firebase Auth user
+            // 2. Create organization document in Firestore
+            // 3. Create member document with CEO role
+            
+            setTimeout(() => {
+                alert('Organization created successfully! You are now the CEO.\nRedirecting to CEO dashboard...');
+                window.location.href = 'organization-dashboard.html?role=ceo';
+            }, 2000);
+        });
+        
+        document.getElementById('boardForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const boardData = {
+                firstName: document.getElementById('boardFirstName').value,
+                lastName: document.getElementById('boardLastName').value,
+                email: document.getElementById('boardEmail').value,
+                phone: document.getElementById('boardPhone').value,
+                orgName: document.getElementById('boardOrgSearch').value,
+                position: document.getElementById('boardPosition').value,
+                department: document.getElementById('boardDepartment').value
+            };
+            
+            showLoading();
+            
+            // In production:
+            // 1. Create pending request in Firestore
+            // 2. Send notification to CEO
+            
+            setTimeout(() => {
+                alert('Application submitted! Waiting for CEO approval.\nYou will receive an email with login credentials once approved.');
+                window.location.href = 'awaiting-approval.html?role=board&org=' + encodeURIComponent(boardData.orgName);
+            }, 2000);
+        });
+        
+        document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const employeeData = {
+                firstName: document.getElementById('employeeFirstName').value,
+                lastName: document.getElementById('employeeLastName').value,
+                email: document.getElementById('employeeEmail').value,
+                phone: document.getElementById('employeePhone').value,
+                orgName: document.getElementById('employeeOrgSearch').value,
+                position: document.getElementById('employeePosition').value,
+                department: document.getElementById('employeeDepartment').value
+            };
+            
+            showLoading();
+            
+            // In production:
+            // 1. Create pending request in Firestore
+            // 2. Send notification to CEO/Manager
+            
+            setTimeout(() => {
+                alert('Application submitted! Waiting for approval.\nYou will receive an email with login credentials once approved.');
+                window.location.href = 'awaiting-approval.html?role=employee&org=' + encodeURIComponent(employeeData.orgName);
+            }, 2000);
+        });
+        
+        function showLoading() {
+            const btn = event.target.querySelector('button[type="submit"]') || event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Processing...';
+            btn.disabled = true;
+            
+            // Reset after 3 seconds if still on page
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 3000);
+        }
+        
+        // Initialize
+        showLogin();
+    </script>
+    
+    <!-- Firebase SDK (uncomment in production) -->
+    <!--
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-            authDomain: "meet-6e159.firebaseapp.com",
-            projectId: "meet-6e159",
-            storageBucket: "meet-6e159.firebasestorage.app",
-            messagingSenderId: "252353608421",
-            appId: "1:252353608421:web:6706056048e9a8f12db20c",
-            measurementId: "G-9BFPPVMMRF",
-            databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com/"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-        const CLOUDINARY_UPLOAD_PRESET = "meet_org_id_preset"; 
-        const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // REPLACE
-        // =======================================================
-
+        
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // DOM elements
-        const messageContainer = document.getElementById('messageContainer');
-
-        // --- Utility Functions (Adopted and refined) ---
-
-        function sanitizeInput(input) {
-            // Simple sanitization for display/storage
-            const div = document.createElement('div');
-            div.textContent = input;
-            return div.innerHTML;
-        }
-
-        function showMessage(message, type = 'error') {
-            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
-        }
-
-        function clearMessage() { 
-            messageContainer.innerHTML = ''; 
-        }
-
-        function setLoading(buttonId, isLoading) {
-            const button = document.getElementById(buttonId);
-            const text = button.querySelector('span:first-child');
-            const spinner = button.querySelector('.spinner');
-            
-            if (!button || !text || !spinner) return;
-            
-            if (isLoading) { 
-                button.disabled = true;
-                text.style.display = 'none';
-                spinner.style.display = 'inline-block';
-            } else { 
-                button.disabled = false;
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+    -->
+</body>
+                    </html>
