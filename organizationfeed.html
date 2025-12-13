@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEET - Organization Feed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0061FF;
+            --accent: #5AE4A8;
+            --bg: #F3F4F6;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #6b7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 50px;}
+
+        /* --- SIMULATION CONTROLS (For Testing) --- */
+        .sim-bar {
+            background: #111827; color: white; padding: 10px; text-align: center;
+            position: sticky; top: 0; z-index: 100; display: flex; justify-content: center; gap: 20px; align-items: center;
+        }
+        .sim-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 12px;
+        }
+        .sim-btn.active { background: var(--accent); color: #000; font-weight: bold; }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+
+        /* --- CREATE POST WIDGET (CEO ONLY) --- */
+        .create-post {
+            background: var(--card); border-radius: 12px; padding: 20px;
+            box-shadow: var(--shadow); margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+        .cp-header { font-weight: 600; margin-bottom: 10px; color: var(--primary); display: flex; align-items: center; gap: 8px;}
+        
+        textarea {
+            width: 100%; border: 1px solid var(--border); border-radius: 8px;
+            padding: 12px; font-family: inherit; resize: vertical; min-height: 80px;
+            background: #f9fafb; margin-bottom: 15px;
+        }
+        textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
+
+        .cp-tools { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .cp-options { display: flex; gap: 10px; align-items: center; }
+        
+        select { padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+        
+        .toggle-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none;}
+        
+        .btn-post {
+            background: var(--primary); color: white; border: none; padding: 8px 20px;
+            border-radius: 6px; font-weight: 600; cursor: pointer;
+        }
+
+        /* --- POST CARD --- */
+        .post-card {
+            background: var(--card); border-radius: 12px; padding: 0;
+            box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .post-padding { padding: 20px; }
+
+        .post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .author-info { display: flex; gap: 12px; align-items: center; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #ddd; }
+        .author-name { font-weight: 700; font-size: 15px; display: block; }
+        .post-meta { font-size: 12px; color: var(--muted); }
+
+        /* Badges */
+        .badge { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-org { background: #E0F2FE; color: #0369A1; } /* Blue */
+        .badge-public { background: #DCFCE7; color: #15803D; } /* Green */
+        .badge-both { background: #F3E8FF; color: #7E22CE; } /* Purple */
+
+        .post-content { line-height: 1.6; font-size: 15px; color: #374151; margin-bottom: 15px; }
+
+        /* Action Bar */
+        .action-bar {
+            border-top: 1px solid var(--border);
+            padding: 10px 20px; background: #fafafa;
+            display: flex; gap: 15px; align-items: center;
+        }
+
+        .action-btn {
+            background: transparent; border: 1px solid transparent; color: var(--muted);
+            padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+        
+        .btn-ack.active { background: #E0F2FE; color: #0061FF; border-color: #0061FF; }
+        .btn-star:hover { color: #F59E0B; }
+        
+        .btn-debate { margin-left: auto; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-debate:hover { background: var(--primary); color: white; }
+
+        /* --- DEBATE ROOM (Chat) --- */
+        .debate-room {
+            background: #efe7dd; /* WhatsApp-ish bg */
+            border-top: 1px solid var(--border);
+            display: none; /* Hidden by default */
+        }
+        .debate-room.open { display: block; }
+
+        .chat-container {
+            height: 300px; overflow-y: auto; padding: 15px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 80%; padding: 8px 12px; border-radius: 8px;
+            font-size: 13px; line-height: 1.4; position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .chat-bubble strong { display: block; font-size: 11px; margin-bottom: 2px; opacity: 0.8; }
+        
+        .chat-left { align-self: flex-start; background: white; border-top-left-radius: 0; }
+        .chat-right { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 0; }
+
+        .chat-input-area {
+            padding: 10px; background: #f0f2f5; border-top: 1px solid #ddd;
+            display: flex; gap: 10px;
+        }
+        .chat-input {
+            flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none;
+        }
+        .btn-send {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--primary);
+            color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sim-bar">
+        <span>Current View:</span>
+        <button class="sim-btn active" onclick="switchRole('CEO')" id="btn-ceo">CEO (Can Post)</button>
+        <button class="sim-btn" onclick="switchRole('Employee')" id="btn-emp">Employee (Read Only)</button>
+    </div>
+
+    <div class="container">
+        
+        <div class="create-post" id="admin-panel">
+            <div class="cp-header">
+                <span>📢 Make Announcement</span>
+            </div>
+            <textarea id="postInput" placeholder="What's happening in the organization?"></textarea>
+            
+            <div class="cp-tools">
+                <div class="cp-options">
+                    <select id="visibilitySelect">
+                        <option value="org">🔒 Org Only</option>
+                        <option value="public">🌍 MEET Feed (Public)</option>
+                        <option value="both">📢 Both</option>
+                    </select>
+
+                    <label class="toggle-label">
+                        <input type="checkbox" id="debateToggle"> Allow Debate
+                    </label>
+                </div>
+                <button class="btn-post" onclick="createPost()">Publish</button>
+            </div>
+        </div>
+
+        <div id="feedStream">
+            </div>
+
+    </div>
+
+    <script>
+        // --- MOCK DATA ---
+        let currentUser = { name: "Mr. Timi (CEO)", role: "CEO", id: 1 };
+        
+        // Initial posts to populate the feed
+        let posts = [
+            {
+                id: 101,
+                author: "Mr. Timi (CEO)",
+                avatar: "https://ui-avatars.com/api/?name=Timi+Boss&background=0D8ABC&color=fff",
+                content: "We are considering a shift to a 4-day work week. I want to hear everyone's honest opinion on this matter. The debate floor is open.",
+                type: "org", // org, public, both
+                allowDebate: true,
+                timestamp: "2 hours ago",
+                acks: [2, 3], // User IDs who acknowledged
+                chats: [
+                    { name: "Sarah (HR)", text: "This is a bold move. I worry about coverage on Fridays.", uid: 2 },
+                    { name: "Mike (Dev)", text: "Productivity usually goes up with this model. I support it!", uid: 3 }
+                ]
+            },
+            {
+                id: 102,
+                author: "Mr. Timi (CEO)",
+                avatar: "https://ui-avatars.com/api/?name=Timi+Boss&background=0D8ABC&color=fff",
+                content: "Thrilled to announce that our Q3 profits have exceeded expectations by 15%! Huge thanks to the sales team.",
+                type: "public",
+                allowDebate: false,
+                timestamp: "5 hours ago",
+                stars: 45,
+                recycles: 12
+            }
+        ];
+
+        // --- FUNCTIONS ---
+
+        // 1. Role Switching (For Demo)
+        function switchRole(role) {
+            if(role === 'CEO') {
+                currentUser = { name: "Mr. Timi (CEO)", role: "CEO", id: 1 };
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('btn-ceo').classList.add('active');
+                document.getElementById('btn-emp').classList.remove('active');
+            } else {
+                currentUser = { name: "John Employee", role: "Employee", id: 2 };
+                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('btn-ceo').classList.remove('active');
+                document.getElementById('btn-emp').classList.add('active');
+            }
+            renderFeed(); // Re-render to update button states
+        }
+
+        // 2. Create Post
+        function createPost() {
+            const content = document.getElementById('postInput').value;
+            const visibility = document.getElementById('visibilitySelect').value;
+            const debate = document.getElementById('debateToggle').checked;
+
+            if(!content.trim()) return alert("Please write something!");
+
+            const newPost = {
+                id: Date.now(),
+                author: currentUser.name,
+                avatar: "https://ui-avatars.com/api/?name=Timi+Boss&background=0D8ABC&color=fff",
+                content: content,
+                type: visibility,
+                allowDebate: debate,
+                timestamp: "Just now",
+                acks: [],
+                stars: 0,
+                recycles: 0,
+                chats: []
+            };
+
+            posts.unshift(newPost); // Add to top
+            document.getElementById('postInput').value = ''; // Clear input
+            renderFeed();
+        }
+
+        // 3. Render Logic
+        function renderFeed() {
+            const stream = document.getElementById('feedStream');
+            stream.innerHTML = '';
+
+            posts.forEach(post => {
+                // Determine Badge
+                let badgeHTML = '';
+                if(post.type === 'org') badgeHTML = `<span class="badge badge-org">🔒 Org Only</span>`;
+                else if(post.type === 'public') badgeHTML = `<span class="badge badge-public">🌍 Public</span>`;
+                else badgeHTML = `<span class="badge badge-both">📢 Org & Public</span>`;
+
+                // Determine Actions Buttons
+                let actionsHTML = '';
+                
+                // If Org or Both -> Show Acknowledge
+                if(post.type === 'org' || post.type === 'both') {
+                    const isAck = post.acks && post.acks.includes(currentUser.id);
+                    actionsHTML += `
+                        <button class="action-btn btn-ack ${isAck ? 'active' : ''}" onclick="acknowledge(${post.id})">
+                            ${isAck ? '✓ Acknowledged' : '👍 Acknowledge'} <span style="opacity:0.6">(${post.acks ? post.acks.length : 0})</span>
+                        </button>
+                    `;
+                }
+
+                // If Public or Both -> Show Star/Recycle
+                if(post.type === 'public' || post.type === 'both') {
+                    actionsHTML += `
+                        <button class="action-btn btn-star">⭐ Star <small>${post.stars || 0}</small></button>
+                        <button class="action-btn">♻️ Recycle <small>${post.recycles || 0}</small></button>
+                    `;
+                }
+
+                // If Debate Allowed -> Show Debate Button
+                if(post.allowDebate) {
+                    actionsHTML += `
+                        <button class="action-btn btn-debate" onclick="toggleDebate(${post.id})">
+                            💬 Debate Room
+                        </button>
+                    `;
+                } else {
+                    actionsHTML += `<button class="action-btn">💬 Comment</button>`; // Standard comment if no debate
+                }
+
+                // Chat Logic (If Debate Open)
+                let chatHTML = '';
+                if(post.allowDebate) {
+                    const messages = post.chats.map(msg => `
+                        <div class="chat-bubble ${msg.uid === currentUser.id ? 'chat-right' : 'chat-left'}">
+                            <strong>${msg.name}</strong>
+                            ${msg.text}
+                        </div>
+                    `).join('');
+
+                    chatHTML = `
+                        <div id="debate-${post.id}" class="debate-room">
+                            <div class="chat-container" id="chat-box-${post.id}">
+                                ${messages.length > 0 ? messages : '<div style="text-align:center;color:#999;font-size:12px">No messages yet. Start the debate!</div>'}
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" class="chat-input" id="input-${post.id}" placeholder="Type a message...">
+                                <button class="btn-send" onclick="sendMessage(${post.id})">➤</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Final HTML Assembly
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <div class="post-padding">
+                        <div class="post-header">
+                            <div class="author-info">
+                                <img src="${post.avatar}" class="avatar">
+                                <div>
+                                    <span class="author-name">${post.author}</span>
+                                    <span class="post-meta">${post.timestamp}</span>
+                                </div>
+                            </div>
+                            ${badgeHTML}
+                        </div>
+                        <div class="post-content">${post.content}</div>
+                    </div>
+                    <div class="action-bar">
+                        ${actionsHTML}
+                    </div>
+                    ${chatHTML}
+                `;
+                stream.appendChild(card);
+            });
+        }
+
+        // 4. Interaction Functions
+        function acknowledge(id) {
+            const p = posts.find(x => x.id === id);
+            if(!p.acks) p.acks = [];
+            
+            if(!p.acks.includes(currentUser.id)) {
+                p.acks.push(currentUser.id);
+                renderFeed();
+            }
+        }
+
+        function toggleDebate(id) {
+            const el = document.getElementById(`debate-${id}`);
+            if(el) {
+                el.classList.toggle('open');
+                // Scroll to bottom if opening
+                if(el.classList.contains('open')) {
+                    const box = document.getElementById(`chat-box-${id}`);
+                    box.scrollTop = box.scrollHeight;
+                }
+            }
+        }
+
+        function sendMessage(id) {
+            const input = document.getElementById(`input-${id}`);
+            const text = input.value;
+            if(!text) return;
+
+            const p = posts.find(x => x.id === id);
+            p.chats.push({
+                name: currentUser.name,
+                text: text,
+                uid: currentUser.id
+            });
+            
+            input.value = '';
+            renderFeed();
+            
+            // Re-open and scroll
+            const room = document.getElementById(`debate-${id}`);
+            room.classList.add('open');
+            const box = document.getElementById(`chat-box-${id}`);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Initial Render
+        renderFeed();
+
+    </script>
+</body>
+</html>
