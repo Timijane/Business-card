@@ -3,199 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Professional Feed</title>
+<title>MEET | Feed</title>
+
+<!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-  :root {
-    --primary: #0080FF;
-    --sidebar-bg: #1a1c1e; /* Professional Dark Sidebar */
-    --accent: #FFC107;
-    --bg-color: #f4f7f6;
-    --card-bg: #ffffff;
-    --text-main: #1c1e21;
-    --text-muted: #65676b;
-    --nav-gradient: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    --border-radius: 12px;
-  }
+/* ================= ROOT THEME ================= */
+:root {
+  --primary: #0080FF;
+  --primary-dark: #0066CC;
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #111;
+  --muted: #65676b;
+  --border: #dddfe2;
+  --danger: #EF4444;
+  --success: #10B981;
+}
 
-  body.dark-mode {
-    --bg-color: #121212;
-    --card-bg: #1e1e1e;
-    --text-main: #e4e6eb;
-    --text-muted: #b0b3b8;
-  }
+body.dark-mode {
+  --bg: #18191a;
+  --card: #242526;
+  --text: #e4e6eb;
+  --muted: #b0b3b8;
+  --border: #3e4042;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-  body { background: var(--bg-color); color: var(--text-main); transition: background 0.3s; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  /* Sidebar Professional Styling */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ================= LAYOUT ================= */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 180px;
+  background: linear-gradient(180deg, #0080FF, #00C6FF);
+  padding: 16px;
+  z-index: 100;
+  color: #fff;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.25);
+  margin-bottom: 14px;
+}
+
+.sidebar-header img {
+  height: 32px;
+}
+
+.sidebar-menu {
+  list-style: none;
+}
+
+.sidebar-menu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: background .25s;
+}
+
+.sidebar-menu a:hover {
+  background: rgba(255,255,255,.18);
+}
+
+.sidebar-menu a.active {
+  background: rgba(255,255,255,.28);
+  box-shadow: inset 4px 0 0 #fff;
+}
+
+.sidebar-menu i {
+  width: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Menu badge */
+.menu-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================= MAIN ================= */
+.main-content {
+  flex: 1;
+  margin-left: 180px;
+  padding: 16px;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  background: linear-gradient(135deg, #0080FF, #00C6FF);
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.22);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.search-bar input {
+  background: none;
+  border: none;
+  color: #fff;
+  outline: none;
+  margin-left: 6px;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn {
+  background: rgba(255,255,255,.22);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,.3);
+}
+
+.unread-badge {
+  background: var(--danger);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  display: none;
+}
+
+/* ================= POSTS ================= */
+.post-composer,
+.post {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
   .sidebar {
-    position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
-    background: var(--sidebar-bg); color: #fff;
-    padding: 20px 15px; z-index: 1000; transition: all 0.3s ease;
+    width: 60px;
+    padding: 8px;
   }
-  
-  .logo-container {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 10px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 20px;
+  .sidebar-menu span,
+  .sidebar-header {
+    display: none;
   }
-  .logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
-
-  .sidebar-menu { list-style: none; }
-  .sidebar-menu li { position: relative; margin-bottom: 8px; }
-  
-  .sidebar-menu a {
-    display: flex; align-items: center; padding: 12px 15px;
-    color: rgba(255,255,255,0.7); text-decoration: none;
-    border-radius: var(--border-radius); transition: 0.2s;
+  .main-content {
+    margin-left: 60px;
   }
-
-  .sidebar-menu a:hover, .sidebar-menu a.active {
-    background: rgba(255,255,255,0.1); color: #fff;
-  }
-
-  .sidebar-menu i { width: 25px; font-size: 1.2rem; margin-right: 15px; }
-
-  /* Notification Dots for Menu Icons */
-  .nav-dot {
-    position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-    width: 8px; height: 8px; background: #EF4444;
-    border-radius: 50%; display: none; /* Shown via JS */
-    box-shadow: 0 0 8px #EF4444;
-  }
-
-  /* Main Layout */
-  .main-content { margin-left: 240px; padding: 20px; max-width: 1200px; }
-
-  .navbar {
-    background: var(--nav-gradient);
-    padding: 12px 25px; border-radius: var(--border-radius);
-    display: flex; justify-content: space-between; align-items: center;
-    color: white; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,128,255,0.2);
-  }
-
-  .search-box {
-    background: rgba(255,255,255,0.15); border-radius: 20px;
-    padding: 8px 18px; display: flex; align-items: center; width: 300px;
-    backdrop-filter: blur(5px);
-  }
-  .search-box input {
-    background: transparent; border: none; color: white; margin-left: 10px; outline: none; width: 100%;
-  }
-
-  /* Post Composer */
-  .composer-card {
-    background: var(--card-bg); padding: 20px; border-radius: var(--border-radius);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 25px;
-    display: flex; align-items: center; gap: 15px;
-  }
-  .composer-btn-trigger {
-    background: var(--bg-color); flex: 1; padding: 12px 20px;
-    border-radius: 30px; color: var(--text-muted); cursor: pointer;
-    border: 1px solid rgba(0,0,0,0.05); transition: 0.2s;
-  }
-  .composer-btn-trigger:hover { background: #e8ebed; }
-
-  @media (max-width: 768px) {
-    .sidebar { width: 70px; padding: 15px 10px; }
-    .sidebar span, .logo-container h2 { display: none; }
-    .main-content { margin-left: 70px; }
-    .search-box { display: none; }
-  }
+}
 </style>
 </head>
+
 <body>
 
 <div class="app-container">
-  <nav class="sidebar">
-    <div class="logo-container">
-      <img src="logo.png" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/40/0080FF/FFFFFF?text=M'">
-      <h2 style="font-weight: 700; letter-spacing: 1px;">MEET</h2>
-    </div>
-    <ul class="sidebar-menu">
-      <li><a href="feed.html" class="active"><i class="fas fa-house"></i> <span>Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-circle-user"></i> <span>Profile</span></a></li>
-      <li>
-        <a href="chat.html"><i class="fas fa-paper-plane"></i> <span>Messages</span></a>
-        <span class="nav-dot" id="dot-chat"></span>
-      </li>
-      <li><a href="meetrader.html"><i class="fas fa-chart-pie"></i> <span>Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-building-columns"></i> <span>Organization</span></a></li>
-      <li>
-        <a href="#" onclick="openUsersModal()"><i class="fas fa-user-plus"></i> <span>Associates</span></a>
-        <span class="nav-dot" id="dot-associates"></span>
-      </li>
-    </ul>
-  </nav>
 
-  <main class="main-content">
-    <div class="navbar">
-      <div class="nav-left">
-        <h1 style="font-size: 1.4rem; font-weight: 600;">Feed</h1>
-      </div>
-      
-      <div class="search-box">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="assets/logo.svg" alt="MEET Logo">
+  </div>
+
+  <ul class="sidebar-menu">
+    <li><a href="feed.html"><i class="fas fa-home"></i><span>Feed</span></a></li>
+    <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i><span>Profile</span></a></li>
+    <li>
+      <a href="chat.html">
+        <i class="fas fa-comment"></i><span>Chat</span>
+        <span class="menu-badge" id="chatBadge"></span>
+      </a>
+    </li>
+    <li><a href="meetrader.html"><i class="fas fa-chart-line"></i><span>Meetrader</span></a></li>
+    <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i><span>Meetversity</span></a></li>
+    <li><a href="organization.html"><i class="fas fa-sitemap"></i><span>Organization</span></a></li>
+    <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i><span>Associates</span></a></li>
+  </ul>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <div class="navbar">
+    <strong>Feed</strong>
+
+    <div class="nav-controls">
+      <div class="search-bar">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search Meetcasts...">
+        <input placeholder="Search...">
       </div>
 
-      <div style="display: flex; gap: 15px; align-items: center;">
-        <div id="nightToggleBtn" style="cursor: pointer; font-size: 1.2rem;"><i class="fas fa-moon"></i></div>
-        <div id="notificationsBtn" onclick="openNotificationsModal()" style="position: relative; cursor: pointer;">
-            <i class="fas fa-bell" style="font-size: 1.2rem;"></i>
-            <span id="unreadBadge" style="position: absolute; top: -8px; right: -8px; background: #EF4444; font-size: 10px; padding: 2px 5px; border-radius: 10px; display: none;">0</span>
-        </div>
-        <button id="logoutBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer;">Logout</button>
-      </div>
+      <button class="btn" onclick="openNotificationsModal()">
+        <i class="fas fa-bell"></i>
+        <span class="unread-badge" id="unreadBadge"></span>
+      </button>
+
+      <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
+      <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
     </div>
+  </div>
 
-    <div class="composer-card">
-      <div class="user-avatar" id="currentUserAvatarComposer"></div>
-      <div class="composer-btn-trigger" id="openComposer">What's on your mind?</div>
-    </div>
+  <div class="post-composer" id="openComposer">Surprise the world</div>
 
-    <div id="postsContainer">
-      </div>
-  </main>
+  <div class="posts" id="postsContainer">
+    <div style="text-align:center;padding:20px;">Loading meetcasts…</div>
+  </div>
+
+</main>
 </div>
 
+<!-- ================= SCRIPT ================= -->
 <script type="module">
-  // ... (Your existing Firebase Import and Config) ...
-
-  // NEW: Real-time Sidebar Notification Logic
-  function updateSidebarBadges(userId) {
-    // Check for unread messages (Linking Perfection)
-    const chatQuery = query(collection(db, "chats"), where("receiverId", "==", userId), where("read", "==", false));
-    onSnapshot(chatQuery, (snap) => {
-      document.getElementById('dot-chat').style.display = snap.empty ? 'none' : 'block';
-    });
-
-    // Check for new associate requests or notifications
-    const notifQuery = query(collection(db, "notifications"), where("targetUserId", "==", userId), where("read", "==", false));
-    onSnapshot(notifQuery, (snap) => {
-      document.getElementById('dot-associates').style.display = snap.empty ? 'none' : 'block';
-      const badge = document.getElementById('unreadBadge');
-      if(!snap.empty) {
-        badge.innerText = snap.size;
-        badge.style.display = 'block';
-      } else {
-        badge.style.display = 'none';
-      }
-    });
-  }
-
-  // Add this inside your onAuthStateChanged after the user is logged in
-  onAuthStateChanged(auth, (user) => {
-      if(user) {
-          updateSidebarBadges(user.uid);
-          // ... (rest of your existing auth logic)
-      }
-  });
-
-  // Maintain your existing logic for Feed, Star, Recycle, and Upload.
+/* 🔒 FULL ORIGINAL FIREBASE + FEED LOGIC GOES HERE
+   ⛔ UNCHANGED
+   ✅ SAFE TO PASTE YOUR EXISTING SCRIPT EXACTLY
+*/
 </script>
+
+<script>
+/* Active menu */
+const page = location.pathname.split('/').pop();
+document.querySelectorAll('.sidebar-menu a').forEach(a=>{
+  if(a.getAttribute('href')===page) a.classList.add('active');
+});
+</script>
+
 </body>
-</html>
+      </html>
