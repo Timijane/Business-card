@@ -3,293 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MEET | Feed</title>
-
-<!-- Fonts & Icons -->
+<title>MEET | Professional Feed</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <style>
-/* ================= ROOT THEME ================= */
-:root {
-  --primary: #0080FF;
-  --primary-dark: #0066CC;
-  --bg: #f0f2f5;
-  --card: #ffffff;
-  --text: #111;
-  --muted: #65676b;
-  --border: #dddfe2;
-  --danger: #EF4444;
-  --success: #10B981;
-}
+  :root {
+    --primary: #0080FF;
+    --primary-dark: #0066CC;
+    --error: #EF4444;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --bg-color: #f0f2f5;
+    --card-bg: #fff;
+    --text-color: #111;
+    --secondary-text: #65676b;
+    --border-color: #dddfe2;
+    --sidebar-width: 220px;
+    --sidebar-collapsed-width: 70px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-body.dark-mode {
-  --bg: #18191a;
-  --card: #242526;
-  --text: #e4e6eb;
-  --muted: #b0b3b8;
-  --border: #3e4042;
-}
+  body.dark-mode {
+    --bg-color: #18191a;
+    --card-bg: #242526;
+    --text-color: #e4e6eb;
+    --secondary-text: #b0b3b8;
+    --border-color: #3e4042;
+  }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* ================= LAYOUT ================= */
-.app-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ================= SIDEBAR ================= */
-.sidebar {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 180px;
-  background: linear-gradient(180deg, #0080FF, #00C6FF);
-  padding: 16px;
-  z-index: 100;
-  color: #fff;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255,255,255,.25);
-  margin-bottom: 14px;
-}
-
-.sidebar-header img {
-  height: 32px;
-}
-
-.sidebar-menu {
-  list-style: none;
-}
-
-.sidebar-menu a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #fff;
-  font-weight: 500;
-  transition: background .25s;
-}
-
-.sidebar-menu a:hover {
-  background: rgba(255,255,255,.18);
-}
-
-.sidebar-menu a.active {
-  background: rgba(255,255,255,.28);
-  box-shadow: inset 4px 0 0 #fff;
-}
-
-.sidebar-menu i {
-  width: 22px;
-  text-align: center;
-  font-size: 18px;
-}
-
-/* Menu badge */
-.menu-badge {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  background: var(--danger);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ================= MAIN ================= */
-.main-content {
-  flex: 1;
-  margin-left: 180px;
-  padding: 16px;
-}
-
-/* ================= NAVBAR ================= */
-.navbar {
-  background: linear-gradient(135deg, #0080FF, #00C6FF);
-  padding: 12px 16px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  margin-bottom: 16px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,.22);
-  padding: 6px 12px;
-  border-radius: 20px;
-}
-
-.search-bar input {
-  background: none;
-  border: none;
-  color: #fff;
-  outline: none;
-  margin-left: 6px;
-}
-
-.nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn {
-  background: rgba(255,255,255,.22);
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: rgba(255,255,255,.3);
-}
-
-.unread-badge {
-  background: var(--danger);
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 999px;
-  display: none;
-}
-
-/* ================= POSTS ================= */
-.post-composer,
-.post {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-}
-
-.posts {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
+  /* --- PROFESSIONAL SIDEBAR --- */
   .sidebar {
-    width: 60px;
-    padding: 8px;
+    position: fixed; left: 0; top: 0; height: 100vh; width: var(--sidebar-width);
+    background: linear-gradient(180deg, #0052D4 0%, #4364F7 50%, #6FB1FC 100%);
+    z-index: 1000; padding: 20px 15px; color: white;
+    transition: var(--transition);
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   }
-  .sidebar-menu span,
-  .sidebar-header {
-    display: none;
+
+  .logo-container {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 5px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
   }
-  .main-content {
-    margin-left: 60px;
+  
+  /* Logo styling as requested */
+  .app-logo {
+    width: 40px; height: 40px; border-radius: 10px;
+    object-fit: contain; background: white; padding: 5px;
   }
-}
+
+  .sidebar-menu { list-style: none; }
+  .sidebar-menu li { margin-bottom: 8px; position: relative; }
+  
+  .sidebar-menu a {
+    display: flex; align-items: center; padding: 12px 15px;
+    text-decoration: none; color: rgba(255,255,255,0.8); border-radius: 12px;
+    transition: var(--transition); font-weight: 500; font-size: 15px;
+  }
+
+  .sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.15); color: white;
+    transform: translateX(5px);
+  }
+
+  .sidebar-menu a.active {
+    background: white; color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .sidebar-menu i {
+    width: 24px; font-size: 20px; margin-right: 15px;
+    transition: var(--transition);
+  }
+
+  /* --- LINKING & NOTIFICATION SYSTEM --- */
+  .nav-badge {
+    position: absolute; right: 15px; top: 12px;
+    background: var(--error); color: white;
+    font-size: 10px; font-weight: bold;
+    padding: 2px 6px; border-radius: 10px;
+    border: 2px solid transparent; display: none; /* Hidden by default */
+  }
+
+  /* Notification dot variant */
+  .nav-dot {
+    position: absolute; left: 32px; top: 10px;
+    width: 10px; height: 10px; background: #FF3B30;
+    border-radius: 50%; border: 2px solid white;
+    display: none; z-index: 2;
+  }
+
+  /* --- MAIN CONTENT AREA --- */
+  .main-content { 
+    margin-left: var(--sidebar-width); 
+    padding: 20px; 
+    transition: var(--transition); 
+  }
+
+  .navbar {
+    background: var(--card-bg);
+    padding: 12px 20px; border-radius: 16px; margin-bottom: 25px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05); color: var(--text-color);
+  }
+
+  .search-bar { 
+    display: flex; align-items: center; 
+    background: var(--bg-color); border-radius: 12px; 
+    padding: 8px 16px; border: 1px solid var(--border-color);
+  }
+  .search-bar input { 
+    background: transparent; border: none; color: var(--text-color); 
+    outline: none; width: 200px; padding-left: 10px;
+  }
+
+  .nav-controls { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    background: var(--bg-color); color: var(--text-color); border: none;
+    padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; transition: var(--transition);
+  }
+  .btn:hover { background: var(--border-color); transform: translateY(-2px); }
+
+  /* Post Styles (Keep existing but polish) */
+  .post-composer { 
+    background: var(--card-bg); border-radius: 16px; padding: 20px; 
+    margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+  .composer-input { 
+    flex: 1; background: var(--bg-color); border: 1px solid var(--border-color);
+    padding: 12px 20px; border-radius: 25px; color: var(--secondary-text);
+  }
+
+  /* Mobile Responsive Updates */
+  @media (max-width: 768px) {
+    .sidebar { width: var(--sidebar-collapsed-width); padding: 15px 10px; }
+    .sidebar span, .logo-container h2, .nav-badge { display: none; }
+    .sidebar-menu a { justify-content: center; padding: 15px 0; }
+    .sidebar-menu i { margin-right: 0; font-size: 22px; }
+    .main-content { margin-left: var(--sidebar-collapsed-width); padding: 15px; }
+    .search-bar { display: none; }
+    .nav-dot { left: 40px; }
+  }
+
+  /* Icons dynamic colors on Sidebar */
+  .sidebar-menu i.fa-home { color: #87CEEB; }
+  .sidebar-menu i.fa-user { color: #FFD700; }
+  .sidebar-menu i.fa-comment { color: #00FF7F; }
+  .sidebar-menu i.fa-chart-line { color: #FF4500; }
+  .sidebar-menu i.fa-graduation-cap { color: #EE82EE; }
+
 </style>
 </head>
-
-<body>
+<body class="">
 
 <div class="app-container">
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <img src="assets/logo.svg" alt="MEET Logo">
+  <div class="sidebar">
+    <div class="logo-container">
+      <img src="logo.png" alt="MEET" class="app-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2583/2583130.png'">
+      <h2 style="font-weight: 700; letter-spacing: 1px;">MEET</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li>
+        <a href="feed.html" class="active"><i class="fas fa-home"></i> <span>Feed</span></a>
+      </li>
+      <li>
+        <a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a>
+      </li>
+      <li>
+        <a href="chat.html">
+            <i class="fas fa-comment"></i> <span>Chat</span>
+            <div class="nav-dot" id="chatDot"></div> </a>
+      </li>
+      <li>
+        <a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a>
+      </li>
+      <li>
+        <a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a>
+      </li>
+      <li>
+        <a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a>
+      </li>
+      <li>
+        <a href="#" onclick="openUsersModal()">
+            <i class="fas fa-users"></i> <span>Associates</span>
+            <span class="nav-badge" id="assocBadge">3</span> </a>
+      </li>
+    </ul>
   </div>
 
-  <ul class="sidebar-menu">
-    <li><a href="feed.html"><i class="fas fa-home"></i><span>Feed</span></a></li>
-    <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i><span>Profile</span></a></li>
-    <li>
-      <a href="chat.html">
-        <i class="fas fa-comment"></i><span>Chat</span>
-        <span class="menu-badge" id="chatBadge"></span>
-      </a>
-    </li>
-    <li><a href="meetrader.html"><i class="fas fa-chart-line"></i><span>Meetrader</span></a></li>
-    <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i><span>Meetversity</span></a></li>
-    <li><a href="organization.html"><i class="fas fa-sitemap"></i><span>Organization</span></a></li>
-    <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i><span>Associates</span></a></li>
-  </ul>
-</aside>
+  <div class="main-content">
+    <div class="navbar">
+      <h2 style="font-weight: 700;">Feed</h2>
+      <div class="nav-controls">
+        <div class="search-bar">
+          <i class="fas fa-search" style="color: var(--secondary-text);"></i>
+          <input type="text" placeholder="Search meetcasts...">
+        </div>
+        
+        <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()" style="position: relative;">
+          <i class="fas fa-bell" style="color: var(--warning);"></i>
+          <span class="unread-badge" id="unreadBadge" style="position:absolute; top:-5px; right:-5px;"></span>
+        </button>
 
-<!-- MAIN -->
-<main class="main-content">
+        <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+          <div class="user-avatar small" id="currentUserAvatar">U</div>
+        </div>
 
-  <div class="navbar">
-    <strong>Feed</strong>
-
-    <div class="nav-controls">
-      <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input placeholder="Search...">
+        <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
+        <button class="btn" id="logoutBtn" style="color: var(--error);"><i class="fas fa-sign-out-alt"></i></button>
       </div>
+    </div>
 
-      <button class="btn" onclick="openNotificationsModal()">
-        <i class="fas fa-bell"></i>
-        <span class="unread-badge" id="unreadBadge"></span>
-      </button>
+    <div class="post-composer">
+      <div class="composer-header" style="display:flex; align-items:center; gap:15px;">
+        <div class="user-avatar" id="currentUserAvatarComposer">U</div>
+        <div class="composer-input" id="openComposer" style="cursor:pointer;">What's happening in your world?</div>
+      </div>
+    </div>
 
-      <button class="btn" id="nightToggleBtn"><i class="fas fa-moon"></i></button>
-      <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+    <div id="messageContainer"></div>
+    <div class="posts" id="postsContainer">
+      <div class="loading" style="text-align:center; padding:50px; color: var(--secondary-text);">
+          <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+          <p style="margin-top:10px;">Curating your feed...</p>
+      </div>
     </div>
   </div>
-
-  <div class="post-composer" id="openComposer">Surprise the world</div>
-
-  <div class="posts" id="postsContainer">
-    <div style="text-align:center;padding:20px;">Loading meetcasts…</div>
-  </div>
-
-</main>
 </div>
 
-<!-- ================= SCRIPT ================= -->
 <script type="module">
-/* 🔒 FULL ORIGINAL FIREBASE + FEED LOGIC GOES HERE
-   ⛔ UNCHANGED
-   ✅ SAFE TO PASTE YOUR EXISTING SCRIPT EXACTLY
-*/
-</script>
+  // ... (Your existing Firebase initialization and Logic here)
+  
+  // ADDED: Logic to handle Notification Badges on Menu
+  function updateMenuBadges(chatCount, assocCount) {
+      const chatDot = document.getElementById('chatDot');
+      const assocBadge = document.getElementById('assocBadge');
+      
+      if(chatCount > 0) chatDot.style.display = 'block';
+      if(assocCount > 0) {
+          assocBadge.style.display = 'block';
+          assocBadge.innerText = assocCount;
+      }
+  }
 
-<script>
-/* Active menu */
-const page = location.pathname.split('/').pop();
-document.querySelectorAll('.sidebar-menu a').forEach(a=>{
-  if(a.getAttribute('href')===page) a.classList.add('active');
-});
+  // Example: You can call this inside your existing onSnapshot listeners
+  // updateMenuBadges(1, 5); 
 </script>
 
 </body>
-      </html>
+</html>
