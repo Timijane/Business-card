@@ -4,33 +4,44 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Feed</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
     --primary: #0080FF;
     --primary-dark: #0066CC;
-    --primary-light: rgba(0, 128, 255, 0.1);
+    --primary-light: #E6F2FF;
     --error: #EF4444;
     --success: #10B981;
     --warning: #F59E0B;
-    --bg-color: #f0f2f5;
-    --card-bg: #fff;
-    --text-color: #111;
-    --secondary-text: #65676b;
-    --border-color: #dddfe2;
+    --info: #3B82F6;
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-color: #1f2937;
+    --secondary-text: #6b7280;
+    --border-color: #e5e7eb;
     --recycle-color: #10B981;
-    --sidebar-width: 220px;
-    --sidebar-collapsed: 70px;
+    --sidebar-bg: linear-gradient(180deg, #0080FF 0%, #0066CC 100%);
+    --hover-overlay: rgba(255, 255, 255, 0.15);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
   }
 
   body.dark-mode {
-    --bg-color: #18191a;
-    --card-bg: #242526;
-    --text-color: #e4e6eb;
-    --secondary-text: #b0b3b8;
-    --border-color: #3e4042;
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-color: #f1f5f9;
+    --secondary-text: #94a3b8;
+    --border-color: #334155;
     --primary-light: rgba(0, 128, 255, 0.15);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.35);
   }
 
   * {
@@ -46,138 +57,126 @@
     color: var(--text-color);
     min-height: 100vh;
     font-size: 16px;
-    transition: background 0.3s ease;
+    line-height: 1.5;
+    overflow-x: hidden;
   }
 
   .app-container { 
     display: flex; 
-    min-height: 100vh; 
-    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    position: relative;
   }
 
-  /* ==================== ENHANCED SIDEBAR ==================== */
+  /* Enhanced Sidebar */
   .sidebar {
     position: fixed; 
     left: 0; 
     top: 0; 
     height: 100vh; 
-    width: var(--sidebar-width);
-    background: linear-gradient(180deg, #0080FF 0%, #0066CC 100%);
-    border-right: none;
+    width: 220px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     overflow-y: auto; 
     overflow-x: hidden;
     z-index: 1000; 
     padding: 20px 0;
     color: white;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition);
+    box-shadow: var(--shadow-lg);
   }
 
-  .sidebar.collapsed {
-    width: var(--sidebar-collapsed);
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
   }
 
-  .sidebar-header { 
-    padding: 0 20px 25px; 
-    margin-bottom: 20px;
+  .sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  .sidebar-header {
+    padding: 0 20px 25px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 25px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-height: 60px;
+    gap: 12px;
   }
 
   .logo-container {
     display: flex;
     align-items: center;
     gap: 12px;
-    overflow: hidden;
+    text-decoration: none;
+    color: white;
+    padding: 8px 0;
   }
 
-  .logo {
-    height: 40px;
+  .logo-icon {
     width: 40px;
+    height: 40px;
     background: white;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 20px;
     color: var(--primary);
-    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .logo-text {
-    color: white;
     font-size: 24px;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-  }
-
-  .sidebar.collapsed .logo-text {
-    opacity: 0;
-    width: 0;
-  }
-
-  .toggle-sidebar {
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .toggle-sidebar:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: rotate(10deg);
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 0%, #e6f2ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .sidebar-menu { 
     list-style: none; 
-    padding: 0 10px;
+    padding: 0 15px;
   }
 
   .sidebar-menu li { 
-    margin-bottom: 4px; 
+    margin-bottom: 4px;
     position: relative;
   }
 
   .sidebar-menu a {
-    display: flex; 
-    align-items: center; 
-    padding: 14px 16px;
-    text-decoration: none; 
-    color: rgba(255, 255, 255, 0.9); 
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    min-height: 48px;
-    font-size: 15px;
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
     position: relative;
-    overflow: hidden;
+    font-weight: 500;
+    font-size: 15px;
+    gap: 12px;
+    border: 1px solid transparent;
   }
 
   .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--hover-overlay);
+    color: white;
     transform: translateX(4px);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .sidebar-menu a.active {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .sidebar-menu a.active::before {
@@ -189,186 +188,195 @@
     width: 4px;
     height: 60%;
     background: white;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 2px 2px 0;
   }
 
-  .sidebar-menu i { 
-    margin-right: 14px; 
-    font-size: 20px; 
-    width: 24px; 
+  .menu-icon {
+    width: 24px;
     text-align: center;
-    transition: transform 0.2s ease;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .sidebar-menu a:hover i {
-    transform: scale(1.1);
-  }
-
-  .sidebar-menu a.active i {
-    transform: scale(1.1);
-  }
-
-  .sidebar-menu span {
-    white-space: nowrap;
-    transition: opacity 0.3s ease;
-  }
-
-  .sidebar.collapsed .sidebar-menu span {
-    opacity: 0;
-    width: 0;
-  }
-
-  /* Icon Colors - Enhanced */
-  .sidebar-menu a[href="feed.html"] i { color: #ffffff; }
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #FFD700; }
-  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
-  .sidebar-menu a[href="meetrader.html"] i { color: #FF7043; }
-  .sidebar-menu a[href="meetversity.html"] i { color: #AB47BC; }
-  .sidebar-menu a[href="organization.html"] i { color: #26C6DA; }
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #FF4081; }
-
-  /* Notification Badges for Sidebar */
-  .menu-notification-badge {
+  .menu-badge {
     position: absolute;
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--error);
     color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 11px;
-    font-weight: 600;
-    min-width: 20px;
-    height: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: opacity 0.3s ease;
   }
 
-  .sidebar.collapsed .menu-notification-badge {
-    right: 8px;
-    top: 10px;
-    transform: none;
-  }
-
-  .menu-notification-dot {
-    position: absolute;
-    right: 18px;
-    top: 18px;
-    width: 8px;
-    height: 8px;
-    background: var(--error);
-    border-radius: 50%;
-    border: 2px solid var(--primary);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-  }
-
-  .sidebar.collapsed .menu-notification-dot {
-    right: 10px;
-    top: 12px;
+  .menu-label {
+    flex: 1;
   }
 
   /* Main Content */
   .main-content { 
     flex: 1; 
-    margin-left: var(--sidebar-width);
+    margin-left: 220px; 
     padding: 20px;
     min-height: 100vh;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .sidebar.collapsed ~ .main-content {
-    margin-left: var(--sidebar-collapsed);
+    transition: var(--transition);
   }
 
   /* Enhanced Navbar */
   .navbar {
-    background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 12px 20px; 
-    border-radius: 16px; 
-    margin-bottom: 25px;
-    display: flex; 
-    justify-content: space-between; 
+    background: var(--card-bg);
+    padding: 12px 24px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 20px rgba(0, 128, 255, 0.15); 
-    color: white; 
-    flex-wrap: wrap; 
-    gap: 12px;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
   }
 
-  .nav-controls { 
-    display: flex; 
-    gap: 12px; 
-    align-items: center; 
-    flex-wrap: wrap;
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  
+
+  .page-title i {
+    color: var(--primary);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* Enhanced Search Bar */
+  .search-container {
+    position: relative;
+  }
+
   .search-bar { 
     display: flex; 
     align-items: center; 
-    background: rgba(255, 255, 255, 0.15); 
-    border-radius: 24px; 
-    padding: 8px 16px; 
-    margin-right: 15px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-color);
+    border-radius: 50px;
+    padding: 10px 20px;
+    width: 320px;
+    border: 2px solid var(--border-color);
+    transition: var(--transition);
   }
 
   .search-bar:focus-within {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
   }
 
   .search-bar input { 
     background: transparent; 
     border: none; 
-    color: white; 
+    color: var(--text-color); 
     outline: none; 
-    width: 200px; 
+    flex: 1; 
     font-size: 15px;
-    margin-left: 8px;
+    padding: 0 12px;
   }
 
   .search-bar input::placeholder { 
-    color: rgba(255, 255, 255, 0.7); 
+    color: var(--secondary-text); 
   }
 
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    margin-top: 8px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 200;
+  }
+
+  .search-results.active {
+    display: block;
+  }
+
+  .search-result-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .search-result-item:hover {
+    background: var(--primary-light);
+  }
+
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .result-type {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* User Profile Nav */
   .user-profile-nav { 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
-    padding: 6px 12px; 
-    border-radius: 24px; 
-    background: rgba(255, 255, 255, 0.15); 
+    gap: 12px; 
+    padding: 6px 12px 6px 6px; 
+    border-radius: 50px; 
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
     cursor: pointer; 
-    min-height: 40px;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition);
   }
 
   .user-profile-nav:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
+    background: var(--primary-light);
+    border-color: var(--primary);
   }
-  
+
   .user-avatar { 
     width: 40px; 
     height: 40px; 
     border-radius: 50%; 
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: var(--primary); 
     color: white; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    font-weight: bold; 
+    font-weight: 700; 
     overflow: hidden; 
-    font-size: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 16px;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
   }
 
   .user-avatar img { 
@@ -378,91 +386,97 @@
   }
 
   .user-avatar.small { 
-    width: 32px; 
-    height: 32px; 
-    font-size: 14px;
+    width: 36px; 
+    height: 36px; 
+    font-size: 14px; 
   }
 
+  /* Enhanced Buttons */
   .btn {
-    background: rgba(255, 255, 255, 0.15); 
-    color: white; 
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 8px 16px; 
-    border-radius: 10px; 
-    cursor: pointer; 
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
     font-weight: 600;
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-size: 15px; 
-    min-height: 40px;
-    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: var(--transition);
+    position: relative;
   }
 
-  .btn:hover { 
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  .btn:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
-  #notificationsBtn i { color: #FFD700; }
-  #nightToggleBtn i { color: #9C27B0; }
-  #logoutBtn i { color: #FF6B6B; }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
 
   .unread-badge { 
     background: var(--error); 
     color: white; 
-    border-radius: 10px; 
-    padding: 4px 8px; 
-    font-size: 11px; 
+    border-radius: 50%; 
+    padding: 3px 7px; 
+    font-size: 11px;
     font-weight: 700;
-    display: none; 
-    min-width: 20px; 
-    justify-content: center; 
+    min-width: 20px;
+    height: 20px;
+    display: none;
+    justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
-  /* Enhanced Composer */
+  /* Composer */
   .post-composer { 
     background: var(--card-bg); 
-    border-radius: 16px; 
-    padding: 20px; 
-    margin-bottom: 25px; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-lg); 
+    padding: 24px; 
+    margin-bottom: 24px; 
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
-    transition: transform 0.2s ease;
-  }
-
-  .post-composer:hover {
-    transform: translateY(-2px);
   }
 
   .composer-header { 
     display: flex; 
     align-items: center; 
-    gap: 15px; 
+    gap: 16px; 
   }
 
   .composer-input { 
     flex: 1; 
     background: var(--bg-color); 
-    border: none; 
+    border: 2px solid var(--border-color); 
     padding: 14px 20px; 
-    border-radius: 30px; 
+    border-radius: 50px; 
     color: var(--text-color); 
     font-size: 16px; 
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
+    cursor: pointer; 
+    transition: var(--transition);
   }
 
   .composer-input:hover {
-    background: var(--primary-light);
     border-color: var(--primary);
+    background: var(--primary-light);
   }
 
-  /* Enhanced Posts */
+  /* Posts */
   .posts { 
     display: flex; 
     flex-direction: column; 
@@ -471,32 +485,32 @@
 
   .post { 
     background: var(--card-bg); 
-    border-radius: 16px; 
+    border-radius: var(--radius-lg); 
     padding: 20px; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    position: relative;
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    transition: var(--transition);
   }
 
   .post:hover {
+    box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
-  
+
   .post-header { 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
-    margin-bottom: 15px; 
+    margin-bottom: 16px; 
   }
 
   .post-user { 
     display: flex; 
     align-items: center; 
     gap: 12px; 
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+    cursor: pointer; 
+    transition: var(--transition);
   }
 
   .post-user:hover {
@@ -504,23 +518,34 @@
   }
 
   .post-meta { 
-    font-size: 14px; 
-    color: var(--secondary-text); 
+    font-size: 13px; 
+    color: var(--secondary-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 2px;
   }
 
+  .privacy-badge {
+    background: var(--bg-color);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
   .post-content { 
-    margin-bottom: 15px; 
+    margin-bottom: 16px; 
     font-size: 16px; 
     line-height: 1.6; 
   }
-  
+
   .post-media { 
-    margin-top: 15px; 
-    border-radius: 12px; 
+    margin-top: 16px; 
+    border-radius: var(--radius-md); 
     overflow: hidden; 
-    cursor: pointer;
-    border: 1px solid var(--border-color);
+    cursor: pointer; 
+    background: var(--bg-color);
   }
 
   .post-media img, .post-media video { 
@@ -530,79 +555,101 @@
     display: block;
   }
 
-  /* Enhanced Recycle / Repost Styling */
+  /* Recycle / Repost Styling */
   .recycled-container {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 15px;
-    margin-top: 15px;
-    background: var(--primary-light);
-    border-left: 4px solid var(--recycle-color);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 16px;
+    background: var(--bg-color);
+    transition: var(--transition);
+  }
+
+  .recycled-container:hover {
+    border-color: var(--recycle-color);
   }
 
   .recycled-header { 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
+    gap: 8px; 
     margin-bottom: 10px; 
     font-size: 14px; 
     font-weight: 600; 
-    color: var(--secondary-text); 
-    cursor: pointer;
+    color: var(--recycle-color);
   }
 
   /* Enhanced Interactions */
   .post-interactions { 
     display: flex; 
     justify-content: space-between; 
-    padding: 10px 0; 
-    border-top: 1px solid var(--border-color); 
-    margin-top: 15px; 
-    flex-wrap: wrap; 
-    gap: 5px;
+    padding: 12px 0; 
+    border-top: 2px solid var(--border-color); 
+    margin-top: 16px; 
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .interaction-btn { 
     display: flex; 
     align-items: center; 
     gap: 8px; 
-    padding: 8px 16px; 
-    border-radius: 10px; 
+    padding: 10px 16px; 
+    border-radius: var(--radius-md); 
     cursor: pointer; 
     color: var(--secondary-text); 
     font-weight: 600; 
     font-size: 14px; 
     flex: 1; 
-    justify-content: center;
-    transition: all 0.2s ease;
-    min-width: 0;
+    justify-content: center; 
+    transition: var(--transition);
+    min-width: 120px;
+    background: var(--bg-color);
+    border: 1px solid transparent;
   }
 
   .interaction-btn:hover { 
-    background: var(--primary-light); 
-    transform: translateY(-1px);
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
   }
 
   .interaction-btn.active { 
     color: var(--warning); 
-    background: var(--primary-light);
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
   }
-  
-  /* Specific Interaction Colors */
+
   .interaction-btn.recycle-btn:hover { 
     color: var(--recycle-color); 
     background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
   }
-  
+
   .interaction-btn .count { 
     margin-left: 4px; 
     font-weight: 700; 
     font-size: 14px; 
   }
 
-  /* Enhanced Post Options */
+  /* Post Options */
   .post-options { 
     position: relative; 
+  }
+
+  .post-options-btn {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .post-options-btn:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
   }
 
   .post-options-menu { 
@@ -611,22 +658,16 @@
     top: 100%; 
     right: 0; 
     background: var(--card-bg); 
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); 
-    border-radius: 12px; 
-    z-index: 20; 
+    box-shadow: var(--shadow-lg); 
+    border-radius: var(--radius-md); 
+    z-index: 10; 
     width: 180px; 
     border: 1px solid var(--border-color);
-    overflow: hidden;
+    margin-top: 8px;
   }
 
   .post-options-menu.show { 
     display: block; 
-    animation: fadeIn 0.2s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .post-option-item { 
@@ -635,33 +676,35 @@
     display: flex; 
     align-items: center; 
     gap: 10px; 
-    font-size: 14px;
-    transition: background 0.2s ease;
+    font-size: 14px; 
+    transition: var(--transition);
   }
 
   .post-option-item:hover { 
-    background: var(--bg-color); 
+    background: var(--primary-light); 
+    color: var(--primary);
   }
 
   /* Enhanced Comments */
   .comments-section { 
-    margin-top: 15px; 
-    border-top: 1px solid var(--border-color); 
-    padding-top: 15px; 
+    margin-top: 16px; 
+    border-top: 2px solid var(--border-color); 
+    padding-top: 16px; 
   }
 
   .comment { 
     display: flex; 
     gap: 12px; 
     margin-bottom: 12px; 
+    align-items: flex-start;
   }
 
   .comment-content { 
     flex: 1; 
     background: var(--bg-color); 
     padding: 12px 16px; 
-    border-radius: 18px; 
-    font-size: 14px;
+    border-radius: var(--radius-lg); 
+    font-size: 14px; 
     border: 1px solid var(--border-color);
   }
 
@@ -670,38 +713,39 @@
     cursor: pointer; 
     font-weight: 600; 
     font-size: 14px; 
-    margin-bottom: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: opacity 0.2s ease;
+    margin-bottom: 8px; 
+    display: inline-block;
+    transition: var(--transition);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
   }
 
   .view-more-comments:hover {
-    opacity: 0.8;
+    background: var(--primary-light);
   }
-  
+
   .comment-input { 
     display: flex; 
     gap: 12px; 
-    margin-top: 15px; 
+    margin-top: 16px; 
     align-items: center; 
   }
 
   .comment-input input { 
     flex: 1; 
     background: var(--bg-color); 
-    border: 1px solid var(--border-color); 
-    padding: 12px 18px; 
-    border-radius: 24px; 
+    border: 2px solid var(--border-color); 
+    padding: 12px 16px; 
+    border-radius: 50px; 
     color: var(--text-color); 
     font-size: 14px; 
-    transition: border-color 0.2s ease;
+    transition: var(--transition);
   }
 
   .comment-input input:focus {
     border-color: var(--primary);
     outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
   }
 
   .send-comment-btn { 
@@ -709,18 +753,19 @@
     color: white; 
     border: none; 
     border-radius: 50%; 
-    width: 40px; 
-    height: 40px; 
+    width: 44px; 
+    height: 44px; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    cursor: pointer;
-    transition: all 0.2s ease;
+    cursor: pointer; 
+    transition: var(--transition);
+    flex-shrink: 0;
   }
 
   .send-comment-btn:hover {
     background: var(--primary-dark);
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 
   /* Enhanced Modals */
@@ -732,38 +777,42 @@
     width: 100%; 
     height: 100%; 
     background: rgba(0,0,0,0.5); 
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
     z-index: 2000; 
     align-items: center; 
     justify-content: center; 
-    padding: 20px;
-    animation: fadeIn 0.3s ease;
+    padding: 20px; 
   }
 
   .modal-content { 
     background: var(--card-bg); 
-    border-radius: 20px; 
+    border-radius: var(--radius-lg); 
     width: 500px; 
     max-width: 90%; 
     max-height: 85vh; 
     overflow-y: auto; 
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: modalSlideIn 0.3s ease;
   }
 
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .modal-header { 
     padding: 20px; 
-    border-bottom: 1px solid var(--border-color); 
+    border-bottom: 2px solid var(--border-color); 
     display: flex; 
     justify-content: space-between; 
-    align-items: center;
-    background: linear-gradient(to right, var(--primary-light), transparent);
+    align-items: center; 
   }
 
   .modal-body { 
@@ -771,29 +820,28 @@
   }
 
   .close-modal { 
-    background: var(--bg-color); 
+    background: none; 
     border: none; 
-    width: 36px; 
-    height: 36px; 
-    border-radius: 50%; 
-    font-size: 20px; 
+    font-size: 24px; 
     cursor: pointer; 
-    color: var(--secondary-text);
+    color: var(--secondary-text); 
+    transition: var(--transition);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
   }
 
   .close-modal:hover {
-    background: var(--error);
-    color: white;
-    transform: rotate(90deg);
+    background: var(--bg-color);
+    color: var(--error);
   }
-  
+
   .post-textarea { 
     width: 100%; 
-    min-height: 150px; 
+    min-height: 140px; 
     border: 2px solid var(--primary); 
     background: transparent; 
     color: var(--text-color); 
@@ -801,30 +849,28 @@
     resize: none; 
     outline: none; 
     padding: 16px; 
-    border-radius: 12px;
-    transition: border-color 0.2s ease;
+    border-radius: var(--radius-md); 
+    margin-bottom: 16px;
+    transition: var(--transition);
   }
 
   .post-textarea:focus {
-    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px var(--primary-light);
   }
 
-  /* Enhanced Notifications */
+  /* Notifications */
   .notif-item { 
     padding: 16px; 
     border-bottom: 1px solid var(--border-color); 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    font-size: 14px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
+    font-size: 14px; 
+    transition: var(--transition);
   }
 
   .notif-item:hover {
     background: var(--primary-light);
-    transform: translateX(4px);
   }
 
   .notif-unread { 
@@ -834,47 +880,49 @@
 
   .notif-actions { 
     display: flex; 
-    gap: 12px; 
+    gap: 8px; 
   }
 
   .notif-btn { 
     cursor: pointer; 
-    color: var(--secondary-text);
-    transition: all 0.2s ease;
+    color: var(--secondary-text); 
+    transition: var(--transition);
+    padding: 6px;
+    border-radius: var(--radius-sm);
   }
 
   .notif-btn:hover {
+    background: var(--bg-color);
     color: var(--error);
-    transform: scale(1.1);
   }
-  
-  /* Enhanced Users List */
+
+  /* Users List */
   .user-item { 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
     padding: 16px; 
     background: var(--card-bg); 
-    border-radius: 12px; 
+    border-radius: var(--radius-md); 
     border: 1px solid var(--border-color); 
-    margin-bottom: 12px;
-    transition: all 0.2s ease;
+    margin-bottom: 12px; 
+    transition: var(--transition);
   }
 
   .user-item:hover {
-    background: var(--primary-light);
-    transform: translateX(4px);
     border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
   .association-btn { 
     padding: 8px 16px; 
-    border-radius: 8px; 
+    border-radius: var(--radius-md); 
     border: none; 
     cursor: pointer; 
-    font-size: 14px; 
-    font-weight: 600;
-    transition: all 0.2s ease;
+    font-size: 13px; 
+    font-weight: 600; 
+    transition: var(--transition);
   }
 
   .associate-btn { 
@@ -884,7 +932,7 @@
 
   .associate-btn:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: scale(1.05);
   }
 
   .disassociate-btn { 
@@ -894,255 +942,279 @@
 
   .disassociate-btn:hover {
     background: #dc2626;
-    transform: translateY(-1px);
+    transform: scale(1.05);
   }
 
-  /* Mobile Responsiveness */
-  @media (max-width: 768px) {
-    .sidebar { 
-      width: var(--sidebar-collapsed);
-      padding: 15px 8px;
-    }
+  /* Mobile Sidebar Toggle */
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: var(--shadow-lg);
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: var(--transition);
+  }
 
-    .sidebar:not(.collapsed) {
-      width: 220px;
-    }
+  .sidebar-toggle:hover {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+  }
 
-    .sidebar-header { 
-      padding: 0 10px 15px;
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .search-bar {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 280px;
+    }
+    
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    
+    .main-content {
+      margin-left: 0;
+      padding: 16px;
+    }
+    
+    .sidebar-toggle {
+      display: flex;
+    }
+    
+    .navbar {
       flex-direction: column;
-      gap: 10px;
-    }
-
-    .logo-container {
-      justify-content: center;
-    }
-
-    .logo-text { 
-      display: none; 
-    }
-
-    .sidebar:not(.collapsed) .logo-text {
-      display: block;
-    }
-
-    .toggle-sidebar {
-      width: 40px;
-      height: 40px;
-    }
-
-    .main-content { 
-      margin-left: var(--sidebar-collapsed);
-      padding: 15px;
-    }
-
-    .sidebar:not(.collapsed) ~ .main-content {
-      margin-left: 220px;
-    }
-
-    .navbar { 
-      flex-direction: column; 
+      gap: 16px;
       align-items: stretch;
-      padding: 15px;
     }
-
-    .search-bar { 
-      margin-right: 0;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    .search-bar input { 
-      width: 100%;
-    }
-
-    .user-profile-nav span, 
-    .btn span { 
-      display: none; 
-    }
-
-    .nav-controls { 
-      width: 100%; 
+    
+    .nav-right {
+      flex-wrap: wrap;
       justify-content: space-between;
-      gap: 8px;
     }
-
-    .btn { 
-      padding: 10px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .sidebar-menu i { 
-      margin-right: 0; 
-      font-size: 22px; 
-    }
-
-    .sidebar-menu a { 
-      justify-content: center;
-      padding: 16px 10px;
-    }
-
-    .sidebar:not(.collapsed) .sidebar-menu a {
-      justify-content: flex-start;
-    }
-
-    .menu-notification-badge,
-    .menu-notification-dot {
-      right: 5px;
-      top: 5px;
-    }
-
-    .sidebar:not(.collapsed) .menu-notification-badge {
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
+    
+    .search-bar {
+      width: 100%;
+      order: 3;
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     .post-interactions {
       flex-direction: column;
-      align-items: stretch;
     }
-
+    
     .interaction-btn {
-      justify-content: flex-start;
+      min-width: 100%;
     }
-
+    
     .modal-content {
-      max-width: 95%;
-      border-radius: 16px;
+      width: 95%;
+      max-height: 90vh;
     }
+    
+    .user-profile-nav span {
+      display: none;
+    }
+    
+    .btn span {
+      display: none;
+    }
+    
+    .btn {
+      padding: 10px;
+    }
+    
+    .unread-badge {
+      top: -4px;
+      right: -4px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .sidebar {
+      width: 100%;
+    }
+    
+    .main-content {
+      padding: 12px;
+    }
+    
+    .post {
+      padding: 16px;
+    }
+    
+    .post-composer {
+      padding: 20px;
+    }
+    
+    .modal-body {
+      padding: 16px;
+    }
+  }
+
+  /* Loading Animation */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--secondary-text);
+    animation: pulse 2s infinite;
   }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Enhanced Sidebar -->
+  <!-- Enhanced Sidebar with Professional Logo -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="logo-container">
-        <div class="logo">M</div>
+      <a href="feed.html" class="logo-container">
+        <div class="logo-icon">M</div>
         <div class="logo-text">MEET</div>
-      </div>
-      <button class="toggle-sidebar" id="toggleSidebar">
-        <i class="fas fa-bars"></i>
-      </button>
+      </a>
     </div>
     <ul class="sidebar-menu">
       <li>
         <a href="feed.html" class="active">
-          <i class="fas fa-home"></i>
-          <span>Feed</span>
+          <i class="menu-icon fas fa-home"></i>
+          <span class="menu-label">Feed</span>
+          <span class="menu-badge" id="feed-badge" style="display: none;">3</span>
         </a>
       </li>
       <li>
         <a href="#" onclick="viewProfile(auth.currentUser.uid)">
-          <i class="fas fa-user"></i>
-          <span>Profile</span>
-          <span class="menu-notification-dot" id="profileNotificationDot" style="display:none"></span>
+          <i class="menu-icon fas fa-user"></i>
+          <span class="menu-label">Profile</span>
         </a>
       </li>
       <li>
         <a href="chat.html">
-          <i class="fas fa-comment"></i>
-          <span>Chat</span>
-          <span class="menu-notification-badge" id="chatNotificationBadge" style="display:none">0</span>
+          <i class="menu-icon fas fa-comment"></i>
+          <span class="menu-label">Chat</span>
+          <span class="menu-badge" id="chat-badge" style="display: none;">5</span>
         </a>
       </li>
       <li>
         <a href="meetrader.html">
-          <i class="fas fa-chart-line"></i>
-          <span>Meetrader</span>
-          <span class="menu-notification-badge" id="traderNotificationBadge" style="display:none">0</span>
+          <i class="menu-icon fas fa-chart-line"></i>
+          <span class="menu-label">Meetrader</span>
         </a>
       </li>
       <li>
         <a href="meetversity.html">
-          <i class="fas fa-graduation-cap"></i>
-          <span>Meetversity</span>
-          <span class="menu-notification-dot" id="meetversityNotificationDot" style="display:none"></span>
+          <i class="menu-icon fas fa-graduation-cap"></i>
+          <span class="menu-label">Meetversity</span>
         </a>
       </li>
       <li>
         <a href="organization.html">
-          <i class="fas fa-sitemap"></i>
-          <span>Organization</span>
+          <i class="menu-icon fas fa-sitemap"></i>
+          <span class="menu-label">Organization</span>
         </a>
       </li>
       <li>
         <a href="#" onclick="openUsersModal()">
-          <i class="fas fa-users"></i>
-          <span>Find Associates</span>
-          <span class="menu-notification-badge" id="associatesNotificationBadge" style="display:none">0</span>
+          <i class="menu-icon fas fa-users"></i>
+          <span class="menu-label">Find Associates</span>
+          <span class="menu-badge" id="associates-badge" style="display: none;">2</span>
         </a>
       </li>
     </ul>
   </div>
 
-  <!-- Main Content -->
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
   <div class="main-content">
+    <!-- Enhanced Navbar -->
     <div class="navbar">
-      <h2 style="color: white; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Feed</h2>
-      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px;">
-        <div class="search-bar">
-          <i class="fas fa-search" style="color: rgba(255, 255, 255, 0.8);"></i>
-          <input type="text" placeholder="Search meetcasts, people, topics...">
-        </div>
-        <div class="nav-controls">
-          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-            <div class="user-avatar small" id="currentUserAvatar">U</div>
-            <span id="userName" style="font-size: 15px; font-weight: 600;">User</span>
+      <div class="page-title">
+        <i class="fas fa-rss"></i>
+        <span>Feed</span>
+      </div>
+      <div class="nav-right">
+        <div class="search-container">
+          <div class="search-bar">
+            <i class="fas fa-search" style="color: var(--secondary-text);"></i>
+            <input type="text" id="searchInput" placeholder="Search users, posts, topics...">
+            <div class="search-results" id="searchResults"></div>
           </div>
-          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-            <i class="fas fa-bell"></i>
-            <span style="font-size: 15px;">Notifications</span>
-            <span class="unread-badge" id="unreadBadge"></span>
-          </button>
-          <button class="btn" id="nightToggleBtn">
-            <i class="fas fa-moon"></i>
-            <span style="font-size: 15px;">Night Mode</span>
-          </button>
-          <button class="btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span style="font-size: 15px;">Logout</span>
-          </button>
         </div>
+        
+        <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
+          <div class="user-avatar small" id="currentUserAvatar">U</div>
+          <span id="userName" style="font-weight: 600;">User</span>
+        </div>
+        
+        <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="unread-badge" id="unreadBadge">3</span>
+        </button>
+        
+        <button class="btn" id="nightToggleBtn">
+          <i class="fas fa-moon"></i>
+          <span>Night Mode</span>
+        </button>
+        
+        <button class="btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
       </div>
     </div>
 
+    <!-- Post Composer -->
     <div class="post-composer">
       <div class="composer-header">
         <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-        <div class="composer-input" id="openComposer">What's on your mind?</div>
+        <div class="composer-input" id="openComposer">What's on your mind? Share with the world...</div>
       </div>
     </div>
 
+    <!-- Messages and Posts -->
     <div id="messageContainer"></div>
     <div class="posts" id="postsContainer">
-      <div class="loading" style="text-align:center; padding:30px; color: var(--secondary-text);">
-        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-        Loading meetcasts...
-      </div>
+      <div class="loading">Loading meetcasts...</div>
     </div>
   </div>
 </div>
 
-<!-- Modals (Same as before but with enhanced styling) -->
+<!-- Modals (unchanged structure, enhanced styling) -->
 <div class="modal" id="postModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modalTitle" style="font-size: 20px; color: var(--primary);">Create Meetcast</h3>
+      <h3 id="modalTitle">Create Meetcast</h3>
       <button class="close-modal" id="closeModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex; gap:15px; margin-bottom:20px; align-items: center;">
+      <div style="display:flex; gap:16px; margin-bottom:20px;">
         <div class="user-avatar" id="modalUserAvatar">U</div>
-        <div style="flex:1;">
-          <div id="modalUserName" style="font-weight:700; font-size: 17px; color: var(--primary);">User Name</div>
-          <select id="privacy" style="border:none; background:var(--bg-color); padding:8px 12px; font-size: 14px; border-radius:8px; color: var(--text-color); border:1px solid var(--border-color); width:100%; margin-top:8px;">
+        <div>
+          <div id="modalUserName" style="font-weight:600; margin-bottom:8px;">User Name</div>
+          <select id="privacy" style="border:1px solid var(--border-color); background:var(--bg-color); padding:8px 12px; border-radius:var(--radius-sm); font-size:14px; color:var(--text-color);">
             <option value="public">🌍 Public</option>
             <option value="friends">👥 Associates</option>
             <option value="private">🔒 Only Me</option>
@@ -1150,48 +1222,43 @@
         </div>
       </div>
       
-      <textarea class="post-textarea" id="postText" placeholder="Share your thoughts with the world..."></textarea>
+      <textarea class="post-textarea" id="postText" placeholder="Share your thoughts..."></textarea>
       
       <div id="recyclePreviewContainer" style="display:none;"></div>
 
       <div class="media-preview" id="mediaPreview"></div>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:25px;">
-        <div style="display:flex; gap:15px;" id="mediaControls">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+        <div style="display:flex; gap:12px;" id="mediaControls">
           <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
-          <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size: 24px; cursor: pointer; transition: transform 0.2s ease;" title="Add Media"></i>
-          <i class="fas fa-smile" style="color:#FFD700; font-size: 24px; cursor: pointer; transition: transform 0.2s ease;" title="Add Emoji"></i>
-          <i class="fas fa-map-marker-alt" style="color:#EF4444; font-size: 24px; cursor: pointer; transition: transform 0.2s ease;" title="Add Location"></i>
+          <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:var(--success); font-size: 24px; cursor: pointer;" title="Add media"></i>
+          <i class="fas fa-smile" style="color:var(--warning); font-size: 24px; cursor: pointer;" title="Add emoji"></i>
+          <i class="fas fa-map-marker-alt" style="color:var(--error); font-size: 24px; cursor: pointer;" title="Add location"></i>
         </div>
-        <button class="btn" id="postBtn" style="background:linear-gradient(135deg, var(--primary), var(--primary-dark)); font-size: 16px; font-weight:700; padding:12px 30px; border-radius:12px; min-height:44px;">
-          Post
-        </button>
+        <button class="btn btn-primary" id="postBtn">Post</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Users Modal -->
 <div class="modal" id="usersModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size: 20px; color: var(--primary);">Find Associates</h3>
+      <h3>Find Associates</h3>
       <button class="close-modal" id="closeUsersModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="usersList">
-        <div style="text-align:center; padding:30px; color: var(--secondary-text);">
-          <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 15px; display: block;"></i>
-          Loading users...
-        </div>
-      </div>
+      <div id="usersList"><div class="loading">Loading users...</div></div>
     </div>
   </div>
 </div>
 
+<!-- Notifications Modal -->
 <div class="modal" id="notificationsModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size: 20px; color: var(--primary);">Notifications</h3>
+      <h3>Notifications</h3>
       <button class="close-modal" id="closeNotificationsModal">&times;</button>
     </div>
     <div class="modal-body">
@@ -1200,10 +1267,11 @@
   </div>
 </div>
 
-<div class="modal" id="commentsModal" style="z-index: 2050;">
+<!-- Comments Modal -->
+<div class="modal" id="commentsModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size: 20px; color: var(--primary);">All Responses</h3>
+      <h3>All Responses</h3>
       <button class="close-modal" id="closeCommentsModal">&times;</button>
     </div>
     <div class="modal-body" id="commentsModalBody"></div>
@@ -1211,7 +1279,6 @@
 </div>
 
 <script type="module">
-  // Import Firebase modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { 
     getFirestore, collection, addDoc, deleteDoc, doc, getDoc, getDocs, 
@@ -1219,7 +1286,10 @@
   } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-  // Firebase Configuration (UNCHANGED)
+  // Cloudinary
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
+  const CLOUDINARY_PRESET = 'Meet_video';
+
   const firebaseConfig = {
     apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
     authDomain: "meet-6e159.firebaseapp.com",
@@ -1230,203 +1300,71 @@
     appId: "1:252353608421:web:6706056048e9a8f12db20c"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // Global variables
   let currentUser = null;
-  let editingPostId = null;
+  let editingPostId = null; 
   let recyclingPostData = null;
   const userCache = {};
   const postsContainer = document.getElementById('postsContainer');
+  let allPostsData = [];
 
-  // ==================== NEW: SIDEBAR NOTIFICATIONS ====================
-  function setupMenuNotifications() {
-    if (!currentUser) return;
-
-    // Chat notifications
-    const chatQuery = query(
-      collection(db, "notifications"),
-      where("targetUserId", "==", currentUser.uid),
-      where("type", "==", "chat"),
-      where("read", "==", false)
-    );
-
-    onSnapshot(chatQuery, (snapshot) => {
-      const badge = document.getElementById('chatNotificationBadge');
-      if (!snapshot.empty && badge) {
-        badge.style.display = 'flex';
-        badge.textContent = snapshot.size > 99 ? '99+' : snapshot.size;
-      } else if (badge) {
-        badge.style.display = 'none';
+  // UI Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set active menu item
+    const currentPage = window.location.pathname.split('/').pop() || 'feed.html';
+    document.querySelectorAll('.sidebar-menu a').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href === currentPage || (currentPage === 'feed.html' && href === 'feed.html')) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
       }
     });
 
-    // Associate request notifications
-    const associateQuery = query(
-      collection(db, "notifications"),
-      where("targetUserId", "==", currentUser.uid),
-      where("type", "in", ["associate_request", "associate"]),
-      where("read", "==", false)
-    );
-
-    onSnapshot(associateQuery, (snapshot) => {
-      const badge = document.getElementById('associatesNotificationBadge');
-      if (!snapshot.empty && badge) {
-        badge.style.display = 'flex';
-        badge.textContent = snapshot.size > 99 ? '99+' : snapshot.size;
-      } else if (badge) {
-        badge.style.display = 'none';
-      }
+    // Sidebar toggle for mobile
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('active');
     });
 
-    // Profile notification dot (for new followers, etc)
-    const profileQuery = query(
-      collection(db, "notifications"),
-      where("targetUserId", "==", currentUser.uid),
-      where("type", "in", ["follow", "profile_visit"]),
-      where("read", "==", false)
-    );
-
-    onSnapshot(profileQuery, (snapshot) => {
-      const dot = document.getElementById('profileNotificationDot');
-      if (dot) {
-        dot.style.display = snapshot.empty ? 'none' : 'block';
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('sidebarToggle');
+      if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+        sidebar.classList.remove('active');
       }
     });
+  });
 
-    // Meetversity notification dot
-    const meetversityQuery = query(
-      collection(db, "notifications"),
-      where("targetUserId", "==", currentUser.uid),
-      where("type", "in", ["course_update", "meetversity"]),
-      where("read", "==", false)
-    );
-
-    onSnapshot(meetversityQuery, (snapshot) => {
-      const dot = document.getElementById('meetversityNotificationDot');
-      if (dot) {
-        dot.style.display = snapshot.empty ? 'none' : 'block';
-      }
-    });
-  }
-
-  // ==================== ENHANCED UI FUNCTIONS ====================
   function showMessage(msg, type = 'success') {
     const el = document.getElementById('messageContainer');
-    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    const bgColor = type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-    const textColor = type === 'success' ? '#10B981' : '#EF4444';
-    const borderColor = type === 'success' ? '#10B981' : '#EF4444';
-    
+    const bgColor = type === 'success' ? 'var(--success)' : 'var(--error)';
     el.innerHTML = `
-      <div style="
-        background: ${bgColor};
-        color: ${textColor};
-        padding: 16px;
-        margin: 10px 0 20px 0;
-        border-radius: 12px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        border: 1px solid ${borderColor};
-        font-weight: 600;
-        animation: fadeIn 0.3s ease;
-      ">
-        <i class="fas ${icon}"></i>
+      <div style="background:${bgColor}; color:white; padding:16px; margin-bottom:20px; border-radius:var(--radius-md); 
+                  text-align:center; font-weight:600; box-shadow:var(--shadow-md); animation: slideDown 0.3s ease;">
         ${msg}
       </div>
     `;
-    setTimeout(() => {
-      el.style.opacity = '0';
-      setTimeout(() => el.innerHTML = '', 300);
-    }, 3000);
+    setTimeout(() => el.innerHTML = '', 4000);
   }
 
-  // ==================== ENHANCED GET AVATAR HTML ====================
-  function getAvatarHTML(photoURL, name, size = 'medium') {
-    const initial = name ? name.charAt(0).toUpperCase() : 'U';
-    const sizeClass = size === 'small' ? 'small' : '';
-    const style = size === 'small' 
-      ? 'style="width:32px;height:32px;font-size:14px;"'
-      : 'style="width:40px;height:40px;font-size:18px;"';
-    
-    if (photoURL) {
-      return `<div class="user-avatar ${sizeClass}"><img src="${photoURL}" alt="${name}"></div>`;
+  async function uploadMedia(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_PRESET);
+    try {
+      const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+      const data = await res.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error;
     }
-    return `<div class="user-avatar ${sizeClass}">${initial}</div>`;
   }
 
-  // ==================== SIDEBAR TOGGLE FUNCTIONALITY ====================
-  document.getElementById('toggleSidebar').addEventListener('click', function() {
-    const sidebar = document.getElementById('sidebar');
-    const isCollapsed = sidebar.classList.contains('collapsed');
-    
-    if (isCollapsed) {
-      sidebar.classList.remove('collapsed');
-      this.innerHTML = '<i class="fas fa-chevron-left"></i>';
-    } else {
-      sidebar.classList.add('collapsed');
-      this.innerHTML = '<i class="fas fa-bars"></i>';
-    }
-  });
-
-  // ==================== SET ACTIVE MENU ITEM ====================
-  function setActiveMenuItem() {
-    const currentPage = window.location.pathname.split('/').pop();
-    const menuItems = document.querySelectorAll('.sidebar-menu a');
-    
-    menuItems.forEach(item => {
-      item.classList.remove('active');
-      const href = item.getAttribute('href');
-      if (href === currentPage) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  // ==================== ENHANCED AUTH STATE ====================
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'login.html';
-    } else {
-      currentUser = user;
-      const userData = await getUserDataWithCache(user.uid);
-      const photo = userData?.photoURL || user.photoURL;
-      const name = userData?.displayName || user.displayName || 'User';
-      
-      // Update all avatar displays
-      document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
-      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
-      document.getElementById('userName').textContent = name;
-      document.getElementById('modalUserName').textContent = name;
-      
-      // Set active menu item
-      setActiveMenuItem();
-      
-      // Setup listeners
-      setupFeedListener();
-      setupNotificationsCount();
-      setupMenuNotifications(); // NEW: Setup menu notifications
-    }
-  });
-
-  // ==================== REST OF YOUR EXISTING FIREBASE CODE ====================
-  // [ALL YOUR EXISTING FIREBASE CODE REMAINS EXACTLY THE SAME]
-  // Including: getUserDataWithCache, setupFeedListener, renderPost, setupPostInteractionListeners,
-  // toggleStar, sharePost, recyclePost, sendNotification, notifyAssociates, loadComments,
-  // sendResponse, togglePostMenu, deletePost, editPost, closeComposer, openNotificationsModal,
-  // setupNotificationsCount, openUsersModal, toggleAssociate, and all event listeners
-  
-  // IMPORTANT: Paste all your existing Firebase JavaScript code here exactly as it was.
-  // I'm preserving the exact same functionality while only enhancing the UI/UX.
-  
-  // Your existing code starts here...
   async function getUserDataWithCache(userId) {
     if (userCache[userId] && (Date.now() - userCache[userId].timestamp < 60000)) {
         return userCache[userId].data;
@@ -1442,75 +1380,222 @@
     return null;
   }
 
+  function getAvatarHTML(photoURL, name, size = 'medium') {
+    const initial = name ? name.charAt(0).toUpperCase() : 'U';
+    const style = size === 'small' ? 'width:36px;height:36px;font-size:14px;' : 'width:40px;height:40px;font-size:16px;';
+    if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
+    return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+  }
+
+  window.viewProfile = (targetId) => window.location.href = `profile.html?uid=${targetId}`;
+
+  // Search Functionality
+  document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    const resultsContainer = document.getElementById('searchResults');
+    
+    if (searchTerm.length < 2) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+
+    const filteredPosts = allPostsData.filter(post => {
+      const textMatch = post.text?.toLowerCase().includes(searchTerm);
+      const userNameMatch = post.userName?.toLowerCase().includes(searchTerm);
+      return textMatch || userNameMatch;
+    });
+
+    let html = '';
+    if (filteredPosts.length > 0) {
+      filteredPosts.slice(0, 10).forEach(post => {
+        html += `
+          <div class="search-result-item" onclick="scrollToPost('${post.id}')">
+            <div class="result-type">POST</div>
+            <div style="font-weight:600;">${post.userName}</div>
+            <div style="font-size:13px; color:var(--secondary-text); margin-top:4px;">${post.text.substring(0, 60)}${post.text.length > 60 ? '...' : ''}</div>
+          </div>
+        `;
+      });
+      if (filteredPosts.length > 10) {
+        html += `<div class="search-result-item" style="text-align:center; color:var(--primary); font-weight:600;">
+          And ${filteredPosts.length - 10} more results...
+        </div>`;
+      }
+    } else {
+      html = `<div class="search-result-item" style="text-align:center; color:var(--secondary-text);">
+        No results found for "${searchTerm}"
+      </div>`;
+    }
+
+    resultsContainer.innerHTML = html;
+    resultsContainer.classList.add('active');
+  });
+
+  window.scrollToPost = (postId) => {
+    const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+    if (postEl) {
+      postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      postEl.style.animation = 'pulse 2s';
+      setTimeout(() => postEl.style.animation = '', 2000);
+    }
+    document.getElementById('searchResults').classList.remove('active');
+    document.getElementById('searchInput').value = '';
+  };
+
+  // Close search results when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+      document.getElementById('searchResults').classList.remove('active');
+    }
+  });
+
+  // AUTH STATE
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+    } else {
+      currentUser = user;
+      const userData = await getUserDataWithCache(user.uid);
+      const photo = userData?.photoURL || user.photoURL;
+      const name = userData?.displayName || user.displayName || 'User';
+      
+      document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
+      document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
+      document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
+      document.getElementById('userName').textContent = name;
+      document.getElementById('modalUserName').textContent = name;
+      
+      setupFeedListener();
+      setupNotificationsCount();
+      updateMenuBadges();
+    }
+  });
+
+  // Update menu notification badges
+  async function updateMenuBadges() {
+    // Chat notifications
+    const chatQuery = query(collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid),
+      where("type", "==", "message"),
+      where("read", "==", false));
+    
+    onSnapshot(chatQuery, (snap) => {
+      const chatBadge = document.getElementById('chat-badge');
+      if (snap.size > 0) {
+        chatBadge.textContent = snap.size > 9 ? '9+' : snap.size;
+        chatBadge.style.display = 'flex';
+      } else {
+        chatBadge.style.display = 'none';
+      }
+    });
+
+    // Associates notifications
+    const associatesQuery = query(collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid),
+      where("type", "in", ["associate", "follow"]),
+      where("read", "==", false));
+    
+    onSnapshot(associatesQuery, (snap) => {
+      const associatesBadge = document.getElementById('associates-badge');
+      if (snap.size > 0) {
+        associatesBadge.textContent = snap.size > 9 ? '9+' : snap.size;
+        associatesBadge.style.display = 'flex';
+      } else {
+        associatesBadge.style.display = 'none';
+      }
+    });
+  }
+
+  // =================== FEED LOGIC ===================
   function setupFeedListener() {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     onSnapshot(q, async (snapshot) => {
       postsContainer.innerHTML = "";
+      allPostsData = [];
+      
       if (snapshot.empty) {
-        postsContainer.innerHTML = '<div class="loading">No meetcasts yet. Be the first to post!</div>';
+        postsContainer.innerHTML = '<div class="loading" style="text-align:center; padding:40px; color:var(--secondary-text);">No meetcasts yet. Be the first to post!</div>';
         return;
       }
 
+      const postPromises = [];
+      
       for (const docSnap of snapshot.docs) {
         const post = docSnap.data();
         const postId = docSnap.id;
+        post.id = postId;
+        allPostsData.push(post);
         
-        const authorData = await getUserDataWithCache(post.userId);
-        const authorName = authorData?.displayName || post.userName || 'Anonymous';
-        const authorPhoto = authorData?.photoURL || post.photoURL;
+        postPromises.push((async () => {
+          const authorData = await getUserDataWithCache(post.userId);
+          const authorName = authorData?.displayName || post.userName || 'Anonymous';
+          const authorPhoto = authorData?.photoURL || post.photoURL;
 
-        const postEl = document.createElement('div');
-        postEl.className = 'post';
-        postEl.dataset.postId = postId;
-        
-        postsContainer.appendChild(postEl);
-        renderPost(postEl, post, postId, authorName, authorPhoto);
-        loadComments(postId); 
-        setupPostInteractionListeners(postId);
+          const postEl = document.createElement('div');
+          postEl.className = 'post';
+          postEl.dataset.postId = postId;
+          
+          postsContainer.appendChild(postEl);
+          await renderPost(postEl, post, postId, authorName, authorPhoto);
+          loadComments(postId);
+          setupPostInteractionListeners(postId);
+        })());
       }
+
+      await Promise.all(postPromises);
     });
   }
 
   async function renderPost(postEl, post, postId, authorName, authorPhoto) {
       const currentUserId = currentUser.uid;
-
       const starSnap = await getDoc(doc(db, `posts/${postId}/stars/${currentUserId}`));
       const isStarred = starSnap.exists();
       
-      let contentHtml = `<div class="post-content" id="content-${postId}">${post.text}</div>`;
+      let contentHtml = `<div class="post-content" id="content-${postId}">${post.text || ''}</div>`;
       
       if (post.type === 'recycle' && post.originalPost) {
           const og = post.originalPost;
           contentHtml += `
             <div class="recycled-container">
                <div class="recycled-header" onclick="viewProfile('${og.userId}')" style="cursor:pointer">
-                  <i class="fas fa-recycle" style="color:var(--recycle-color)"></i> Recycled from ${og.userName}
+                  <i class="fas fa-recycle"></i> Recycled from ${og.userName}
                </div>
-               <div style="font-size:15px; margin-bottom:6px;">${og.text}</div>
+               <div style="font-size:15px; margin-bottom:8px;">${og.text}</div>
                ${og.media ? `<div class="post-media" style="margin-top:0"><img src="${og.media}" style="max-height:300px"></div>` : ''}
             </div>
           `;
       } else if (post.media) {
           contentHtml += `<div class="post-media" onclick="openMediaModal('${post.media}')">
-             ${post.mediaType === 'video' ? `<video src="${post.media}" controls></video>` : `<img src="${post.media}">`}
+             ${post.mediaType === 'video' ? `<video src="${post.media}" controls playsinline></video>` : `<img src="${post.media}" loading="lazy">`}
           </div>`;
       }
 
+      const privacyIcon = post.privacy === 'public' ? '🌍' : post.privacy === 'friends' ? '👥' : '🔒';
+      
       postEl.innerHTML = `
         <div class="post-header">
           <div class="post-user" onclick="viewProfile('${post.userId}')">
             <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
             <div>
-              <div style="font-weight:600; color:var(--primary); font-size: 16px;">${authorName}</div>
-              <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
+              <div style="font-weight:600; color:var(--primary);">${authorName}</div>
+              <div class="post-meta">
+                ${post.createdAt?.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) || 'Just now'}
+                <span class="privacy-badge">${privacyIcon} ${post.privacy}</span>
+              </div>
             </div>
           </div>
           ${post.userId === currentUserId ? `
             <div class="post-options">
-              <i class="fas fa-ellipsis-h" onclick="togglePostMenu('${postId}')" style="cursor:pointer; color:var(--secondary-text);"></i>
+              <button class="post-options-btn" onclick="togglePostMenu('${postId}')">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
               <div class="post-options-menu" id="menu-${postId}">
-                <div class="post-option-item" onclick="editPost('${postId}', '${post.text?.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit Post</div>
-                <div class="post-option-item" onclick="deletePost('${postId}')" style="color:var(--error);"><i class="fas fa-trash"></i> Delete Post</div>
+                <div class="post-option-item" onclick="editPost('${postId}', '${(post.text || '').replace(/'/g, "\\'")}')">
+                  <i class="fas fa-edit"></i> Edit Post
+                </div>
+                <div class="post-option-item" onclick="deletePost('${postId}')" style="color:var(--error);">
+                  <i class="fas fa-trash"></i> Delete Post
+                </div>
               </div>
             </div>
           ` : ''}
@@ -1524,15 +1609,15 @@
               <span class="count" id="star-count-${postId}">0</span>
            </div>
            <div class="interaction-btn" onclick="focusComment('${postId}')">
-              <i class="fas fa-comment" style="color: #4CAF50;"></i> Respond
+              <i class="fas fa-comment"></i> Respond
               <span class="count" id="response-count-${postId}">0</span>
            </div>
-           <div class="interaction-btn recycle-btn" onclick='recyclePost("${postId}", ${JSON.stringify({id: postId, userName: authorName, text: post.text, media: post.media}).replace(/'/g, "&#39;")})'>
-              <i class="fas fa-recycle" style="color: #10B981;"></i> Recycle
+           <div class="interaction-btn recycle-btn" onclick='recyclePost("${postId}", ${JSON.stringify({id: postId, userId: post.userId, userName: authorName, text: post.text, media: post.media}).replace(/'/g, "&#39;")})'>
+              <i class="fas fa-recycle"></i> Recycle
               <span class="count" id="recycle-count-${postId}">0</span> 
            </div>
            <div class="interaction-btn" onclick="sharePost('${postId}')">
-              <i class="fas fa-share" style="color: #00BCD4;"></i> Share
+              <i class="fas fa-share"></i> Share
               <span class="count" id="share-count-${postId}">0</span>
            </div>
         </div>
@@ -1540,8 +1625,8 @@
         <div class="comments-section" id="comments-${postId}"></div>
         
         <div class="comment-input">
-          ${getAvatarHTML(document.getElementById('currentUserAvatar').querySelector('img')?.src, 'Me', 'small')}
-          <input type="text" id="input-${postId}" placeholder="Write a response...">
+          ${getAvatarHTML('', 'Me', 'small')}
+          <input type="text" id="input-${postId}" placeholder="Write a response..." onkeypress="if(event.key === 'Enter') sendResponse('${postId}')">
           <button class="send-comment-btn" onclick="sendResponse('${postId}')"><i class="fas fa-paper-plane"></i></button>
         </div>
       `;
@@ -1574,6 +1659,7 @@
     });
   }
 
+  // =================== INTERACTION ACTIONS ===================
   window.toggleStar = async (postId) => {
     try {
       const starRef = doc(db, `posts/${postId}/stars/${currentUser.uid}`);
@@ -1644,31 +1730,18 @@
       });
   }
 
-  async function notifyAssociates(type) {
-      const q = query(collection(db, `users/${currentUser.uid}/associatedWith`));
-      const snap = await getDocs(q);
-      const userData = await getUserDataWithCache(currentUser.uid);
-      
-      snap.forEach(async (docSnap) => {
-          const followerId = docSnap.id;
-          await addDoc(collection(db, "notifications"), {
-              targetUserId: followerId,
-              type: 'feed_activity',
-              text: `${userData?.displayName} made a new post on Meet.`,
-              read: false,
-              createdAt: serverTimestamp()
-          });
-      });
-  }
-
+  // =================== POST CREATION ===================
   document.getElementById('postBtn').addEventListener('click', async () => {
-    const text = document.getElementById('postText').value;
+    const text = document.getElementById('postText').value.trim();
     const privacy = document.getElementById('privacy').value;
     const userData = await getUserDataWithCache(currentUser.uid);
     const userName = userData?.displayName || currentUser.displayName;
     const photoURL = userData?.photoURL || currentUser.photoURL;
 
-    if (!text && !editingPostId && !recyclingPostData) return;
+    if (!text && !editingPostId && !recyclingPostData) {
+      showMessage('Please enter some text', 'error');
+      return;
+    }
 
     try {
         if (recyclingPostData) {
@@ -1681,9 +1754,8 @@
                 privacy,
                 createdAt: serverTimestamp()
             });
-            await sendNotification(recyclingPostData.id, 'recycle', 'recycled your meetcast');
-            await notifyAssociates('post');
-            showMessage('Meetcast recycled!');
+            await sendNotification(recyclingPostData.userId, 'recycle', 'recycled your meetcast');
+            showMessage('Meetcast recycled successfully!');
         } 
         else if(editingPostId) {
             await updateDoc(doc(db, "posts", editingPostId), { text, privacy });
@@ -1703,13 +1775,13 @@
                 text, media: mediaUrl, mediaType, privacy,
                 createdAt: serverTimestamp()
             });
-            await notifyAssociates('post');
-            showMessage('Meetcast posted!');
+            showMessage('Meetcast posted successfully!');
         }
         closeComposer();
-    } catch (e) { console.error(e); showMessage('Error', 'error'); }
+    } catch (e) { console.error(e); showMessage('Error posting meetcast', 'error'); }
   });
 
+  // =================== COMMENTS ===================
   function loadComments(postId) {
     const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
     onSnapshot(q, async (snapshot) => {
@@ -1724,6 +1796,7 @@
       const displayCount = 2;
       allComments.slice(0, displayCount).forEach(c => {
          html += `<div class="comment">
+             <div class="user-avatar small">${getAvatarHTML(c.photoURL, c.userName, 'small')}</div>
              <div class="comment-content"><strong>${c.userName}</strong>: ${c.text}</div>
          </div>`;
       });
@@ -1755,6 +1828,7 @@
     } catch(e) { console.error(e); }
   };
 
+  // =================== GENERAL UTILS ===================
   window.togglePostMenu = (id) => {
     const menu = document.getElementById(`menu-${id}`);
     document.querySelectorAll('.post-options-menu').forEach(el => { if(el.id !== `menu-${id}`) el.classList.remove('show'); });
@@ -1766,7 +1840,14 @@
   });
 
   window.deletePost = async (postId) => {
-    if(confirm("Delete this meetcast?")) await deleteDoc(doc(db, "posts", postId));
+    if(confirm("Delete this meetcast? This action cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, "posts", postId));
+        showMessage('Meetcast deleted');
+      } catch (e) {
+        showMessage('Error deleting meetcast', 'error');
+      }
+    }
   };
 
   window.editPost = (postId, currentText) => {
@@ -1792,19 +1873,30 @@
       document.getElementById('postMedia').parentElement.style.display = 'flex';
   }
 
+  // Notifications Modal
   window.openNotificationsModal = () => {
     document.getElementById('notificationsModal').style.display = 'flex';
     const list = document.getElementById('notificationsList');
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid), 
+      orderBy("createdAt", "desc"),
+      limit(50));
     
     onSnapshot(q, (snap) => {
-        list.innerHTML = snap.empty ? '<div style="text-align:center; padding:30px; color: var(--secondary-text);">No notifications yet.</div>' : '';
+        list.innerHTML = snap.empty ? '<div style="text-align:center; padding:40px; color:var(--secondary-text);">No notifications yet.</div>' : '';
         snap.forEach(d => {
             const n = d.data();
             list.innerHTML += `
                 <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
-                    <div style="flex:1;">${n.text} <div style="font-size:12px; color:var(--secondary-text); margin-top:4px;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div></div>
-                    <div class="notif-actions"><i class="fas fa-trash notif-btn" onclick="deleteDoc(doc(db,'notifications','${d.id}'))"></i></div>
+                    <div style="flex:1;">
+                      <div>${n.text}</div>
+                      <div style="font-size:12px; color:var(--secondary-text); margin-top:4px;">
+                        ${n.createdAt?.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || ''}
+                      </div>
+                    </div>
+                    <div class="notif-actions">
+                      <i class="fas fa-trash notif-btn" onclick="deleteNotification('${d.id}')"></i>
+                    </div>
                 </div>
             `;
             if(!n.read) updateDoc(doc(db, "notifications", d.id), { read: true });
@@ -1812,128 +1904,138 @@
     });
   };
 
+  window.deleteNotification = async (notificationId) => {
+    await deleteDoc(doc(db, "notifications", notificationId));
+  };
+
   function setupNotificationsCount() {
-    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
+    const q = query(collection(db, "notifications"), 
+      where("targetUserId", "==", currentUser.uid), 
+      where("read", "==", false));
     onSnapshot(q, (snap) => {
         const badge = document.getElementById('unreadBadge');
-        if(!snap.empty) { 
-            badge.style.display = 'flex'; 
-            badge.innerText = snap.size > 99 ? '99+' : snap.size; 
+        if(snap.size > 0) { 
+          badge.style.display = 'flex'; 
+          badge.textContent = snap.size > 9 ? '9+' : snap.size; 
         } else { 
-            badge.style.display = 'none'; 
+          badge.style.display = 'none'; 
         }
     });
   }
   
+  // Associates
   window.openUsersModal = async () => {
       document.getElementById('usersModal').style.display = 'flex';
       const list = document.getElementById('usersList');
       const snap = await getDocs(collection(db, "users"));
       let html = '';
+      let count = 0;
       for (const userDoc of snap.docs) {
           if (userDoc.id === currentUser.uid) continue;
           const user = userDoc.data();
           const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
           const isAssoc = assocSnap.exists();
           html += `<div class="user-item">
-             <div style="display:flex; align-items:center; gap:12px;">${getAvatarHTML(user.photoURL, user.displayName, 'small')} <b style="color:var(--text-color);">${user.displayName}</b></div>
-             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">${isAssoc ? 'Disassociate' : 'Associate'}</button>
+             <div style="display:flex; align-items:center; gap:12px;">
+               ${getAvatarHTML(user.photoURL, user.displayName, 'small')} 
+               <div>
+                 <b>${user.displayName}</b>
+                 <div style="font-size:12px; color:var(--secondary-text);">${user.bio || 'No bio yet'}</div>
+               </div>
+             </div>
+             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" 
+                     onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">
+               ${isAssoc ? 'Disassociate' : 'Associate'}
+             </button>
           </div>`;
+          count++;
       }
-      list.innerHTML = html || '<div style="text-align:center; padding:30px; color: var(--secondary-text);">No other users found.</div>';
+      if (count === 0) {
+        html = '<div style="text-align:center; padding:40px; color:var(--secondary-text);">No other users found.</div>';
+      }
+      list.innerHTML = html;
   };
 
   window.toggleAssociate = async (targetId, isAssoc) => {
       if (isAssoc) {
           await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
           await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
+          showMessage('Disassociated successfully');
       } else {
           await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), { timestamp: serverTimestamp() });
           await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
-          await sendNotification(targetId, 'associate', 'associated with you.');
+          await sendNotification(targetId, 'associate', 'wants to associate with you.');
+          showMessage('Association request sent');
       }
       openUsersModal();
   };
 
   // UI Bindings
-  document.getElementById('openComposer').onclick = () => { closeComposer(); document.getElementById('postModal').style.display = 'flex'; };
+  document.getElementById('openComposer').onclick = () => { 
+    closeComposer(); 
+    document.getElementById('postModal').style.display = 'flex'; 
+    document.getElementById('postText').focus();
+  };
+  
   document.getElementById('closeModal').onclick = closeComposer;
   document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
   document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
   document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
-  document.getElementById('logoutBtn').onclick = () => signOut(auth);
-  document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
-  window.openFullComments = (postId) => { document.getElementById('commentsModal').style.display = 'flex'; loadComments(postId); };
-  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
-  window.auth = auth;
-  window.viewProfile = (targetId) => window.location.href = `profile.html?uid=${targetId}`;
+  
+  document.getElementById('logoutBtn').onclick = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
+  document.getElementById('nightToggleBtn').onclick = () => {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('nightToggleBtn').querySelector('i');
+    if (document.body.classList.contains('dark-mode')) {
+      icon.className = 'fas fa-sun';
+      document.getElementById('nightToggleBtn').querySelector('span').textContent = 'Day Mode';
+    } else {
+      icon.className = 'fas fa-moon';
+      document.getElementById('nightToggleBtn').querySelector('span').textContent = 'Night Mode';
+    }
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  };
 
-  // Cloudinary Upload Function
-  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dcwof2ngn/upload`;
-  const CLOUDINARY_PRESET = 'Meet_video';
-
-  async function uploadMedia(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_PRESET);
-    const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-    const data = await res.json();
-    return data.secure_url;
+  // Load dark mode preference
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    const icon = document.getElementById('nightToggleBtn').querySelector('i');
+    icon.className = 'fas fa-sun';
+    document.getElementById('nightToggleBtn').querySelector('span').textContent = 'Day Mode';
   }
 
-  // Media Preview
-  document.getElementById('postMedia').addEventListener('change', function(e) {
-    const preview = document.getElementById('mediaPreview');
-    preview.innerHTML = '';
-    
-    if (this.files && this.files[0]) {
-      const file = this.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        if (file.type.startsWith('image/')) {
-          preview.innerHTML = `
-            <div style="margin-top: 15px; position: relative;">
-              <img src="${e.target.result}" style="max-width: 100%; border-radius: 12px; border: 1px solid var(--border-color);">
-              <button onclick="document.getElementById('mediaPreview').innerHTML=''; document.getElementById('postMedia').value='';" 
-                style="position: absolute; top: 10px; right: 10px; background: var(--error); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          `;
-        } else if (file.type.startsWith('video/')) {
-          preview.innerHTML = `
-            <div style="margin-top: 15px; position: relative;">
-              <video controls style="max-width: 100%; border-radius: 12px; border: 1px solid var(--border-color);">
-                <source src="${e.target.result}" type="${file.type}">
-              </video>
-              <button onclick="document.getElementById('mediaPreview').innerHTML=''; document.getElementById('postMedia').value='';" 
-                style="position: absolute; top: 10px; right: 10px; background: var(--error); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          `;
-        }
-      }
-      
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // Auto-resize textarea
-  document.getElementById('postText').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-  });
-
-  // Initialize on load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Set initial sidebar state based on screen size
-    if (window.innerWidth <= 768) {
-      document.getElementById('sidebar').classList.add('collapsed');
-      document.getElementById('toggleSidebar').innerHTML = '<i class="fas fa-bars"></i>';
-    }
-  });
+  window.openFullComments = (postId) => { 
+    document.getElementById('commentsModal').style.display = 'flex'; 
+    // Load all comments for this post
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    onSnapshot(q, (snap) => {
+      let html = '';
+      snap.forEach(d => {
+        const c = d.data();
+        html += `<div class="comment">
+          <div class="user-avatar small">${getAvatarHTML(c.photoURL, c.userName, 'small')}</div>
+          <div class="comment-content"><strong>${c.userName}</strong>: ${c.text}</div>
+        </div>`;
+      });
+      document.getElementById('commentsModalBody').innerHTML = html || '<div style="text-align:center; padding:40px; color:var(--secondary-text);">No responses yet.</div>';
+    });
+  };
+  
+  window.focusComment = (id) => {
+    const input = document.getElementById(`input-${id}`);
+    input.focus();
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  
+  window.auth = auth;
 </script>
 </body>
-            </html>
+                                             </html>
