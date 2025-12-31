@@ -27,6 +27,15 @@
     --shadow-light: 0 2px 10px rgba(0,0,0,0.05);
     --shadow-medium: 0 4px 15px rgba(0,128,255,0.2);
     --shadow-heavy: 0 10px 40px rgba(0,0,0,0.2);
+    /* NEW: Added for 70% width */
+    --chat-container-width: 100%;
+  }
+
+  /* NEW: Large screens get 70% width */
+  @media (min-width: 1200px) {
+    :root {
+      --chat-container-width: 70%;
+    }
   }
 
   body.dark-mode {
@@ -65,6 +74,17 @@
     overflow: hidden; 
   }
 
+  /* NEW: Center the chat container on large screens */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 12px;
+    align-items: center; /* Center horizontally */
+  }
+
   /* Enhanced Sidebar */
   .sidebar {
     position: fixed; 
@@ -101,7 +121,25 @@
   }
   
   .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 12px; }
+  .sidebar-menu li { margin-bottom: 12px; position: relative; } /* Added position relative */
+  
+  /* NEW: Notification badge for feed */
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    background: var(--error);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
   .sidebar-menu a { 
     display: flex; 
     align-items: center; 
@@ -159,17 +197,6 @@
   }
   .sidebar-overlay.active { display: block; }
 
-  /* Enhanced Main Content */
-  .main-content { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    height: 100%; 
-    overflow: hidden; 
-    padding: 12px; 
-    width: 100%; 
-  }
-
   /* Enhanced Navbar */
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
@@ -184,6 +211,8 @@
     box-shadow: var(--shadow-medium);
     position: relative;
     overflow: hidden;
+    width: var(--chat-container-width); /* NEW: Use variable width */
+    max-width: 1200px; /* NEW: Limit max width */
   }
   
   .navbar::before {
@@ -256,7 +285,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
 
-  /* Enhanced Chat Container */
+  /* Enhanced Chat Container - UPDATED for 70% width */
   .chat-container { 
     flex: 1; 
     background: var(--card-bg); 
@@ -267,6 +296,8 @@
     position: relative; 
     box-shadow: var(--shadow-light); 
     border: 1px solid var(--border-color);
+    width: var(--chat-container-width); /* NEW: Use variable width */
+    max-width: 1200px; /* NEW: Limit max width */
   }
   
   .conversations-sidebar { 
@@ -414,6 +445,25 @@
     line-height: 1.4;
   }
 
+  /* NEW: Unread message count for conversation */
+  .unread-count {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+  }
+
   /* Enhanced Chat Area */
   .chat-area { 
     flex: 1; 
@@ -526,7 +576,7 @@
     background-position: center; 
     transition: background 0.3s; 
     scroll-behavior: smooth;
-    font-family: var(--chat-font); /* ADDED: Ensure font applies to chat messages */
+    font-family: var(--chat-font);
   }
 
   /* Enhanced Date Divider */
@@ -817,7 +867,7 @@
     40% { opacity: 1; } 
   }
 
-  /* Enhanced Message Input */
+  /* Enhanced Message Input - UPDATED for WhatsApp-like expansion */
   .message-input-container { 
     padding: 18px 20px; 
     border-top: 1px solid var(--border-color); 
@@ -900,6 +950,7 @@
     background: rgba(118, 75, 162, 0.1);
   }
 
+  /* UPDATED: WhatsApp-like message input */
   .message-input { 
     flex: 1; 
     padding: 14px 20px; 
@@ -908,14 +959,16 @@
     background: var(--bg-color); 
     color: var(--text-color); 
     resize: none; 
-    font-family: var(--chat-font); /* ADDED: Ensure font applies to input */
+    font-family: var(--chat-font);
     font-size: 15px; 
-    max-height: 120px; 
+    max-height: 200px; /* Increased max height */
     min-height: 50px; 
+    height: 50px; /* Initial height */
     outline: none; 
     overflow-y: auto; 
     line-height: 1.5; 
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;
+    box-sizing: border-box;
   }
   
   .message-input:focus { 
@@ -1183,7 +1236,7 @@
     box-shadow: 0 0 0 3px rgba(0,128,255,0.1);
   }
 
-  /* Wallpaper Modals */
+  /* Wallpaper Modals - UPDATED for gallery upload */
   .wallpaper-preview-overlay { 
     display: none; 
     position: fixed; 
@@ -1325,6 +1378,39 @@
     overflow-y: auto; 
     padding: 8px; 
     flex: 1; 
+  }
+  
+  /* NEW: Upload from gallery option */
+  .wallpaper-upload-option {
+    aspect-ratio: 9/16;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px dashed var(--border-color);
+    transition: all 0.3s ease;
+    background: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+  }
+  
+  .wallpaper-upload-option:hover {
+    border-color: var(--primary);
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(0,128,255,0.3);
+    color: var(--primary);
+  }
+  
+  .wallpaper-upload-option i {
+    font-size: 40px;
+    margin-bottom: 15px;
+  }
+  
+  .wallpaper-upload-option span {
+    font-size: 14px;
+    font-weight: 600;
   }
   
   .wallpaper-thumb { 
@@ -1616,6 +1702,19 @@
       border-radius: 0; 
       height: 100%; 
       margin: 0;
+      width: 100% !important; /* Override 70% on mobile */
+      max-width: 100% !important;
+    }
+    
+    .navbar {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+    
+    .main-content {
+      padding: 0;
     }
     
     .conversations-sidebar { 
@@ -1643,15 +1742,14 @@
       height: 350px;
     }
     
-    /* UPDATED: Better mobile wallpaper grid */
     .wallpaper-grid { 
-      grid-template-columns: repeat(3, 1fr); /* Changed from 2 to 3 for better icon display */
-      gap: 12px; /* Reduced gap */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
     
     .wallpaper-grid-category { 
-      grid-template-columns: repeat(3, 1fr); /* Changed from 2 to 3 */
-      gap: 12px; /* Reduced gap */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
     
     .wallpaper-preview-card {
@@ -1673,11 +1771,11 @@
     
     .wallpaper-thumb {
       aspect-ratio: 3/4;
-      border-width: 2px; /* Reduced border for more space */
+      border-width: 2px;
     }
     
     .wallpaper-content {
-      padding: 15px; /* Reduced padding */
+      padding: 15px;
       height: 85vh;
     }
     
@@ -1710,14 +1808,12 @@
       font-size: 15px;
     }
     
-    /* ADDED: Reduce category title size on mobile */
     .category-title {
       font-size: 14px;
       margin: 20px 0 10px 0;
       padding-bottom: 6px;
     }
     
-    /* ADDED: Adjust chat actions for mobile */
     .chat-actions {
       gap: 4px;
     }
@@ -1727,6 +1823,14 @@
       height: 36px;
       padding: 8px;
       font-size: 16px;
+    }
+    
+    /* Hide unread count on mobile for cleaner look */
+    .unread-count {
+      font-size: 10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
     }
   }
 
@@ -1766,14 +1870,12 @@
       font-size: 14px;
     }
     
-    /* UPDATED: Even smaller screens get 2 columns */
     .wallpaper-grid,
     .wallpaper-grid-category {
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
     
-    /* ADDED: Further reduce wallpaper modal padding */
     .wallpaper-content {
       padding: 12px;
     }
@@ -1809,6 +1911,11 @@
   body.dark-mode .sent .message-bubble {
     box-shadow: 0 2px 8px rgba(0,128,255,0.4);
   }
+  
+  body.dark-mode .wallpaper-upload-option {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+  }
 </style>
 </head>
 <body>
@@ -1820,7 +1927,12 @@
       <button onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:24px; padding:8px; border-radius:50%; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'"><i class="fas fa-times"></i></button>
     </div>
     <ul class="sidebar-menu">
-      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
+      <li>
+        <a href="feed.html" id="feedLink">
+          <i class="fas fa-home"></i> <span>Feed</span>
+          <span class="notification-badge" id="feedNotificationBadge">0</span>
+        </a>
+      </li>
       <li><a href="profile.html"><i class="fas fa-user"></i> <span>Profile</span></a></li>
       <li><a href="chat.html" class="active"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
       <li><a href="conference.html"><i class="fas fa-video"></i> <span>Conference</span></a></li>
@@ -1922,6 +2034,9 @@
   </div>
 </div>
 
+<!-- Hidden file input for wallpaper upload -->
+<input type="file" id="wallpaperUploadInput" accept="image/*,video/*" style="display:none">
+
 <!-- Conversation Context Menu -->
 <div class="conversation-options-menu" id="conversationOptionsMenu">
   <div class="msg-option-item" onclick="deleteConversation()" style="color:var(--error);"><i class="fas fa-trash-alt"></i> Delete Conversation</div>
@@ -1981,7 +2096,9 @@
       <h3>Choose Wallpaper</h3>
       <button onclick="closeWallpaperModal()" style="background:none; border:none; font-size:24px; cursor:pointer; padding:8px; border-radius:50%; color:var(--secondary-text); transition:all 0.2s ease;" onmouseover="this.style.background='rgba(239,68,68,0.1)';this.style.color='var(--error)'" onmouseout="this.style.background='none';this.style.color='var(--secondary-text)'"><i class="fas fa-times"></i></button>
     </div>
-    <div class="wallpaper-grid" id="wallpaperGrid"></div>
+    <div class="wallpaper-grid" id="wallpaperGrid">
+      <!-- Upload option will be added here -->
+    </div>
   </div>
 </div>
 
@@ -1998,7 +2115,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -2022,6 +2139,8 @@
   let currentChatUserAvatar = '';
   let unsubscribeMessages = null;
   let unsubscribeConversations = null;
+  let unsubscribeUserProfiles = null; // NEW: For user profile updates
+  let unsubscribeFeedNotifications = null; // NEW: For feed notifications
   
   // Message state
   let replyToMsg = null;
@@ -2036,6 +2155,10 @@
   const wallpaperCategories = ['Nature', 'Abstract', 'Tech', 'Minimal', 'City', 'Space', 'Dark'];
   let tempWallpaper = null;
 
+  // Notification state - NEW
+  let unreadMessagesCount = 0;
+  let unreadConversations = new Set();
+
   // DOM elements
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('messageInput');
@@ -2044,6 +2167,7 @@
   const sidebarOverlay = document.getElementById('sidebarOverlay');
   const navUserImg = document.getElementById('navUserImg');
   const navUserName = document.getElementById('navUserName');
+  const feedNotificationBadge = document.getElementById('feedNotificationBadge');
 
   // === UTILITY FUNCTIONS ===
 
@@ -2056,11 +2180,9 @@
       <span>${message}</span>
     `;
     
-    // Insert at the top of messages container or show as toast
     if (messagesContainer && messagesContainer.style.display !== 'none') {
       messagesContainer.insertBefore(errorDiv, messagesContainer.firstChild);
     } else {
-      // Show as toast notification
       errorDiv.style.position = 'fixed';
       errorDiv.style.top = '20px';
       errorDiv.style.right = '20px';
@@ -2069,7 +2191,6 @@
       document.body.appendChild(errorDiv);
     }
     
-    // Auto remove after duration
     setTimeout(() => {
       if (errorDiv.parentNode) {
         errorDiv.remove();
@@ -2115,12 +2236,11 @@
     });
   }
 
-  // Enhanced user name retrieval
+  // Enhanced user name retrieval with caching
   async function getUserDisplayName(userId) {
     if (!userId) return 'Unknown User';
     
     try {
-      // Try to get from cache first
       const cachedName = window.userNameCache?.[userId];
       if (cachedName) return cachedName;
       
@@ -2129,7 +2249,6 @@
         const userData = userDoc.data();
         const displayName = userData.name || userData.displayName || userData.firstName || 'User';
         
-        // Cache the result
         if (!window.userNameCache) window.userNameCache = {};
         window.userNameCache[userId] = displayName;
         
@@ -2142,13 +2261,60 @@
     }
   }
 
+  // NEW: Function to get user profile picture
+  async function getUserProfilePicture(userId) {
+    if (!userId) return `https://ui-avatars.com/api/?name=User&background=0080FF&color=fff`;
+    
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        return userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=0080FF&color=fff`;
+      }
+    } catch (error) {
+      console.error("Error fetching user profile picture:", error);
+    }
+    
+    return `https://ui-avatars.com/api/?name=User&background=0080FF&color=fff`;
+  }
+
+  // NEW: Function to update conversation avatars when profile picture changes
+  async function updateConversationAvatars(userId, newAvatarUrl) {
+    try {
+      const conversationsQuery = query(
+        collection(db, "conversations"), 
+        where("participants", "array-contains", userId)
+      );
+      
+      const conversationsSnapshot = await getDocs(conversationsQuery);
+      const batch = writeBatch(db);
+      
+      conversationsSnapshot.docs.forEach(convDoc => {
+        const convData = convDoc.data();
+        const participantAvatars = convData.participantAvatars || {};
+        
+        if (participantAvatars[userId] !== newAvatarUrl) {
+          participantAvatars[userId] = newAvatarUrl;
+          batch.update(doc(db, "conversations", convDoc.id), {
+            participantAvatars: participantAvatars,
+            updatedAt: serverTimestamp()
+          });
+        }
+      });
+      
+      await batch.commit();
+      console.log(`Updated avatars for user ${userId} in all conversations`);
+    } catch (error) {
+      console.error("Error updating conversation avatars:", error);
+    }
+  }
+
   // === MESSAGE RENDERING ===
 
   function renderMessageHTML(msg, isMe, id) {
     const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
     let content = "";
     
-    // Reply context with enhanced styling
     if (msg.replyTo) {
       content += `
         <div style="background:rgba(0,128,255,0.1); padding:8px 12px; border-left:3px solid var(--primary); border-radius:8px; font-size:12px; margin-bottom:8px; opacity:0.9;">
@@ -2158,7 +2324,6 @@
       `;
     }
 
-    // Media content with loading states
     if (msg.mediaType === 'image') {
       content += `
         <div style="position:relative;">
@@ -2175,7 +2340,6 @@
       `;
     }
     
-    // Text content with enhanced formatting
     if (msg.text) {
       const formattedText = msg.text
         .replace(/\n/g, '<br>')
@@ -2187,11 +2351,9 @@
     div.className = `message-wrapper ${isMe ? 'sent' : 'received'} ${msg.isOptimistic ? 'optimistic-msg' : ''}`;
     div.id = id;
     
-    // Handle timestamp
     const ts = msg.timestamp ? msg.timestamp.seconds : Date.now() / 1000;
     div.setAttribute('data-timestamp', ts);
 
-    // Enhanced options menu
     const optionsHtml = `
       <button class="msg-options-btn" onclick="toggleMsgOptions('${id}')" title="Message options">
         <i class="fas fa-chevron-down"></i>
@@ -2216,7 +2378,6 @@
       </div>
     `;
 
-    // Enhanced timestamp formatting
     let timeString = '';
     if (msg.timestamp) {
       const msgTime = new Date(msg.timestamp.seconds * 1000);
@@ -2244,7 +2405,6 @@
   // === MESSAGE OPTIONS HANDLERS ===
 
   window.toggleMsgOptions = (id) => {
-    // Close all other menus
     document.querySelectorAll('.msg-options-menu').forEach(m => {
       if (m.id !== `options-${id}`) m.classList.remove('active');
     });
@@ -2257,7 +2417,6 @@
     try {
       if (text) {
         await navigator.clipboard.writeText(text);
-        // Show success feedback
         const btn = event.target.closest('.msg-option-item');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -2293,7 +2452,6 @@
       } catch (error) {
         console.error("Delete error:", error);
         
-        // Restore visual state on error
         const messageEl = document.getElementById(id);
         if (messageEl) {
           messageEl.classList.remove('deleting');
@@ -2311,7 +2469,6 @@
     document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
     messageInput.focus();
     
-    // Auto-resize textarea
     messageInput.style.height = 'auto';
     messageInput.style.height = messageInput.scrollHeight + 'px';
   };
@@ -2341,17 +2498,14 @@
     
     if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
       try {
-        // Show loading state
         const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
         if (convItem) {
           convItem.style.opacity = '0.5';
           convItem.style.pointerEvents = 'none';
         }
         
-        // Delete conversation document
         await deleteDoc(doc(db, "conversations", currentConversationContext));
         
-        // Delete all messages in the subcollection
         const messagesQuery = query(collection(db, "conversations", currentConversationContext, "messages"));
         const messagesSnapshot = await getDocs(messagesQuery);
         
@@ -2361,19 +2515,16 @@
         
         await Promise.all(deletePromises);
         
-        // Close chat if it's the current one
         if (currentChatId === currentConversationContext) {
           resetChatView();
         }
         
-        // Hide the menu
         document.getElementById('conversationOptionsMenu').style.display = 'none';
         currentConversationContext = null;
         
       } catch (error) {
         console.error("Error deleting conversation:", error);
         
-        // Restore visual state on error
         const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
         if (convItem) {
           convItem.style.opacity = '1';
@@ -2402,11 +2553,9 @@
       unsubscribeMessages = null;
     }
     
-    // Clear any active states
     cancelReply();
     localStorage.removeItem('last_active_chat');
     
-    // Clear active conversation styling
     document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
   }
 
@@ -2416,13 +2565,11 @@
     const conversationItems = document.querySelectorAll('.conversation-item');
     
     conversationItems.forEach(item => {
-      // Remove existing listeners to prevent duplicates
       item.removeEventListener('touchstart', handleTouchStart);
       item.removeEventListener('touchend', handleTouchEnd);
       item.removeEventListener('touchmove', handleTouchMove);
       item.removeEventListener('contextmenu', handleContextMenu);
       
-      // Add new listeners
       item.addEventListener('touchstart', handleTouchStart);
       item.addEventListener('touchend', handleTouchEnd);
       item.addEventListener('touchmove', handleTouchMove);
@@ -2453,13 +2600,11 @@
     currentConversationContext = chatId;
     const menu = document.getElementById('conversationOptionsMenu');
     
-    // Position menu near the click/touch
     const rect = event.target.closest('.conversation-item').getBoundingClientRect();
     menu.style.top = `${rect.bottom + 5}px`;
     menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
     menu.style.display = 'block';
     
-    // Close other menus
     document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
   }
 
@@ -2486,8 +2631,7 @@
     "Satisfy", "Great Vibes", "Sacramento", "Cookie", "Parisienne"
   ];
   
-  // Store loaded fonts to prevent duplicate loading
-  const loadedFonts = new Set(['Poppins']); // Poppins is loaded by default
+  const loadedFonts = new Set(['Poppins']);
     
   function initializeFontSelector() {
     const fontSelect = document.getElementById('fontSelect');
@@ -2507,14 +2651,11 @@
     document.documentElement.style.setProperty('--chat-font', font);
     localStorage.setItem('meet_font', font);
     
-    // Extract font name from the CSS value (removes quotes and fallback)
     const fontName = font.split(',')[0].replace(/'/g, '').trim();
     
-    // Dynamically load the font if not already loaded
     if (!loadedFonts.has(fontName)) {
       loadedFonts.add(fontName);
       
-      // Create a link element to load the Google Font
       const link = document.createElement('link');
       link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700&display=swap`;
       link.rel = 'stylesheet';
@@ -2567,14 +2708,12 @@
 
   // Load saved settings
   function loadSettings() {
-    // Load font
     const savedFont = localStorage.getItem('meet_font');
     if (savedFont) {
       document.documentElement.style.setProperty('--chat-font', savedFont);
       const fontSelect = document.getElementById('fontSelect');
       if (fontSelect) fontSelect.value = savedFont;
       
-      // Also load the font dynamically if needed
       const fontName = savedFont.split(',')[0].replace(/'/g, '').trim();
       if (!loadedFonts.has(fontName) && fontName !== 'Poppins') {
         loadedFonts.add(fontName);
@@ -2585,20 +2724,17 @@
       }
     }
     
-    // Load colors
     const savedBg = localStorage.getItem('meet_color_bg');
     const savedText = localStorage.getItem('meet_color_text');
     if (savedBg && savedText) {
       document.documentElement.style.setProperty('--sent-bubble-bg', savedBg);
       document.documentElement.style.setProperty('--sent-text-color', savedText);
       
-      // Mark selected color
       const colorOption = Array.from(document.querySelectorAll('.color-option'))
         .find(el => el.style.backgroundColor === savedBg);
       if (colorOption) colorOption.classList.add('selected');
     }
     
-    // Load theme
     const isDarkMode = localStorage.getItem('meet_dark_mode') === 'true';
     if (isDarkMode) {
       document.body.classList.add('dark-mode');
@@ -2617,7 +2753,6 @@
     
     switch (type) {
       case 'fix':
-        // Basic grammar fixes
         text = text.charAt(0).toUpperCase() + text.slice(1);
         text = text.replace(/\bi\b/g, "I")
                    .replace(/\bim\b/gi, "I'm")
@@ -2627,7 +2762,6 @@
         break;
         
       case 'formal':
-        // Make more formal
         text = text.replace(/\bhey\b/gi, "Hello")
                    .replace(/\bthx\b/gi, "thank you")
                    .replace(/\bthanks\b/gi, "thank you")
@@ -2636,7 +2770,6 @@
         break;
         
       case 'expand':
-        // Add polite expansion
         if (!text.includes('please') && !text.includes('thank')) {
           text += " Please let me know if you need more details.";
         }
@@ -2648,7 +2781,7 @@
     messageInput.style.height = messageInput.scrollHeight + 'px';
   };
 
-  // === WALLPAPER MANAGEMENT ===
+  // === WALLPAPER MANAGEMENT - UPDATED for gallery upload ===
 
   window.openWallpaperModal = () => {
     const modal = document.getElementById('wallpaperModal');
@@ -2656,6 +2789,18 @@
     
     const grid = document.getElementById('wallpaperGrid');
     grid.innerHTML = '';
+    
+    // NEW: Add upload option
+    const uploadOption = document.createElement('div');
+    uploadOption.className = 'wallpaper-upload-option';
+    uploadOption.innerHTML = `
+      <i class="fas fa-upload"></i>
+      <span>Upload from Gallery</span>
+    `;
+    uploadOption.onclick = () => {
+      document.getElementById('wallpaperUploadInput').click();
+    };
+    grid.appendChild(uploadOption);
     
     // Reset pagination state
     currentWallpaperPage = {};
@@ -2670,7 +2815,6 @@
     const startIndex = page * wallpapersPerPage;
     const endIndex = startIndex + wallpapersPerPage;
     
-    // Create category section if it doesn't exist
     let categorySection = document.getElementById(`wallpaper-cat-${category}`);
     if (!categorySection) {
       categorySection = document.createElement('div');
@@ -2692,12 +2836,10 @@
     
     const categoryGrid = document.getElementById(`wallpaper-grid-${category}`);
     
-    // Clear existing content if it's the first page
     if (page === 0) {
       categoryGrid.innerHTML = '';
     }
     
-    // Generate wallpapers for this page
     for (let i = startIndex; i < endIndex; i++) {
       const div = document.createElement('div');
       div.className = 'wallpaper-thumb';
@@ -2707,11 +2849,9 @@
       categoryGrid.appendChild(div);
     }
     
-    // Add "View More" button if there are more wallpapers
-    const totalWallpapers = 50; // Total available per category
+    const totalWallpapers = 50;
     const hasMore = endIndex < totalWallpapers;
     
-    // Remove existing load more button
     const existingButton = document.getElementById(`load-more-${category}`);
     if (existingButton) {
       existingButton.remove();
@@ -2784,13 +2924,62 @@
     }
   }
 
+  // NEW: Function to handle wallpaper upload from gallery
+  function handleWallpaperUpload(file) {
+    if (!file) return;
+    
+    const maxSize = 50 * 1024 * 1024; // 50MB limit
+    if (file.size > maxSize) {
+      showError('File size too large. Maximum size is 50MB.');
+      return;
+    }
+    
+    const tempId = 'temp-wallpaper-' + Date.now();
+    const optimisticWallpaper = {
+      src: URL.createObjectURL(file),
+      type: file.type.startsWith('video') ? 'video' : 'image'
+    };
+    
+    showWpPreview(optimisticWallpaper);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'Meet_video');
+    formData.append('resource_type', file.type.startsWith('video') ? 'video' : 'image');
+
+    fetch(`https://api.cloudinary.com/v1_1/dcwof2ngn/upload`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.secure_url) {
+        tempWallpaper = {
+          type: file.type.startsWith('video') ? 'video' : 'image',
+          src: data.secure_url
+        };
+        
+        const previewVisual = document.getElementById('wpPreviewVisual');
+        previewVisual.innerHTML = '';
+        if (tempWallpaper.type === 'image') {
+          previewVisual.innerHTML = `<img src="${tempWallpaper.src}" alt="Wallpaper preview">`;
+        } else {
+          previewVisual.innerHTML = `<video src="${tempWallpaper.src}" autoplay loop muted></video>`;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Wallpaper upload error:', error);
+      showError('Failed to upload wallpaper. Please try again.');
+    });
+  }
+
   // === FILE UPLOAD MANAGEMENT ===
 
   window.uploadToCloudinary = async (file, type) => {
     if (!file || !currentChatId) return;
     
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       showError('File size too large. Maximum size is 10MB.');
       return;
@@ -2829,7 +3018,6 @@
       const data = await response.json();
       
       if (data.secure_url) {
-        // Add the real message to Firestore
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url,
           mediaType: type,
@@ -2838,11 +3026,9 @@
           timestamp: serverTimestamp()
         });
         
-        // Remove the optimistic message
         const tempElement = document.getElementById(tempId);
         if (tempElement) tempElement.remove();
         
-        // Update conversation last message
         await updateDoc(doc(db, "conversations", currentChatId), {
           lastMessage: type === 'image' ? 'Photo' : 'Video',
           updatedAt: serverTimestamp()
@@ -2851,7 +3037,6 @@
     } catch (error) {
       console.error('Upload error:', error);
       
-      // Remove the failed optimistic message
       const tempElement = document.getElementById(tempId);
       if (tempElement) tempElement.remove();
       
@@ -2880,14 +3065,12 @@
     
     Object.keys(emojis).forEach((category, index) => {
       const btn = document.createElement('button');
-      btn.innerText = emojis[category][0]; // Use first emoji as button icon
+      btn.innerText = emojis[category][0];
       btn.title = category;
       btn.onclick = () => {
-        // Remove active class from all buttons
         Array.from(nav.children).forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
         
-        // Clear and populate content
         content.innerHTML = '';
         emojis[category].forEach(emoji => {
           const emojiDiv = document.createElement('div');
@@ -2898,7 +3081,6 @@
             messageInput.value += emoji;
             messageInput.focus();
             
-            // Auto-resize textarea
             messageInput.style.height = 'auto';
             messageInput.style.height = messageInput.scrollHeight + 'px';
           };
@@ -2930,20 +3112,17 @@
     } else {
       currentUser = user;
       
-      // Set up logout button
       document.getElementById('logoutBtn').addEventListener('click', () => {
         if (confirm('Are you sure you want to log out?')) {
           signOut(auth);
         }
       });
       
-      // Set up night mode toggle
       document.getElementById('nightToggleBtn').addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('meet_dark_mode', document.body.classList.contains('dark-mode'));
       });
       
-      // Get user data from Firestore
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         let photoURL = user.photoURL;
@@ -2958,9 +3137,14 @@
         navUserImg.src = photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=0080FF&color=fff`;
         navUserName.textContent = displayName || 'User';
         
-        // Initialize user name cache
         if (!window.userNameCache) window.userNameCache = {};
         window.userNameCache[user.uid] = displayName || 'User';
+        
+        // NEW: Start listening for user profile updates
+        setupUserProfileListener();
+        
+        // NEW: Setup feed notifications
+        setupFeedNotifications();
         
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -2968,14 +3152,12 @@
         navUserName.textContent = 'User';
       }
       
-      // Load conversations and initialize UI
       loadConversations();
       loadSettings();
       initEmojiPicker();
       initializeFontSelector();
       initializeColorSelector();
       
-      // Restore last active chat on page load
       const savedChatId = localStorage.getItem('last_active_chat');
       if (savedChatId) {
         setTimeout(() => {
@@ -2987,6 +3169,82 @@
       }
     }
   });
+
+  // NEW: Function to listen for user profile updates
+  function setupUserProfileListener() {
+    if (!currentUser) return;
+    
+    unsubscribeUserProfiles = onSnapshot(doc(db, "users", currentUser.uid), async (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        const newPhotoURL = userData.photoURL;
+        const newName = userData.name || userData.displayName;
+        
+        if (newPhotoURL && navUserImg.src !== newPhotoURL) {
+          navUserImg.src = newPhotoURL;
+          
+          await updateConversationAvatars(currentUser.uid, newPhotoURL);
+        }
+        
+        if (newName && navUserName.textContent !== newName) {
+          navUserName.textContent = newName;
+          window.userNameCache[currentUser.uid] = newName;
+        }
+      }
+    });
+  }
+
+  // NEW: Function to setup feed notifications
+  function setupFeedNotifications() {
+    if (!currentUser) return;
+    
+    // This would typically listen for new messages in conversations
+    // For now, we'll set up a listener for unread messages
+    const q = query(
+      collection(db, "conversations"), 
+      where("participants", "array-contains", currentUser.uid)
+    );
+    
+    unsubscribeFeedNotifications = onSnapshot(q, (snapshot) => {
+      let totalUnread = 0;
+      unreadConversations.clear();
+      
+      snapshot.docs.forEach(convDoc => {
+        const convData = convDoc.data();
+        
+        // Check if this conversation has unread messages
+        // In a real app, you'd track read status per user
+        // For now, we'll show notification for all active conversations
+        if (convData.lastMessage && convData.updatedAt) {
+          const lastUpdate = convData.updatedAt.seconds * 1000;
+          const now = Date.now();
+          const isRecent = (now - lastUpdate) < 24 * 60 * 60 * 1000; // Within 24 hours
+          
+          if (isRecent && convData.participants.length > 1) {
+            totalUnread++;
+            unreadConversations.add(convDoc.id);
+          }
+        }
+      });
+      
+      updateFeedNotificationBadge(totalUnread);
+    });
+  }
+
+  // NEW: Function to update feed notification badge
+  function updateFeedNotificationBadge(count) {
+    const badge = document.getElementById('feedNotificationBadge');
+    if (!badge) return;
+    
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count.toString();
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+    
+    unreadMessagesCount = count;
+  }
 
   // Enhanced conversation loading with real names
   function loadConversations() {
@@ -3001,23 +3259,19 @@
       
       const convs = [];
       
-      // Process each conversation
       for (const doc of snapshot.docs) {
         const conv = { id: doc.id, ...doc.data() };
         const otherId = conv.participants.find(p => p !== currentUser.uid);
         
         if (otherId) {
-          // Get real name for the other user
           const realName = await getUserDisplayName(otherId);
           conv.realName = realName;
           convs.push(conv);
         }
       }
       
-      // Sort by update time
       convs.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
-      // Render conversations
       convs.forEach(conv => {
         const otherId = conv.participants.find(p => p !== currentUser.uid);
         const name = conv.realName || conv.participantNames?.[otherId] || 'User';
@@ -3026,23 +3280,33 @@
         const div = document.createElement('div');
         div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
         div.setAttribute('data-chat-id', conv.id);
+        
+        // NEW: Add unread count if applicable
+        const unreadCount = unreadConversations.has(conv.id) ? 1 : 0;
+        
         div.innerHTML = `
           <img src="${avatar}" class="conversation-avatar" alt="${name}">
           <div class="conversation-info">
             <div class="conversation-name">${name}</div>
             <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
           </div>
+          ${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}
         `;
         
         div.onclick = () => {
           localStorage.setItem('last_active_chat', conv.id);
           openChat(conv.id, otherId, name, avatar);
+          
+          // NEW: Remove from unread set when opened
+          if (unreadConversations.has(conv.id)) {
+            unreadConversations.delete(conv.id);
+            updateFeedNotificationBadge(unreadConversations.size);
+          }
         };
         
         list.appendChild(div);
       });
       
-      // Setup long press after conversations are loaded
       setTimeout(setupConversationLongPress, 100);
       
     }, (error) => {
@@ -3054,17 +3318,14 @@
   // Enhanced chat opening with better error handling
   async function openChat(chatId, otherUserId, name, avatar) {
     try {
-      // Clear any existing listeners first
       if (unsubscribeMessages) {
         unsubscribeMessages();
         unsubscribeMessages = null;
       }
       
-      // Reset chat state
       currentChatId = null;
       messagesContainer.innerHTML = '';
       
-      // Verify conversation exists and is accessible
       const convDoc = await getDoc(doc(db, "conversations", chatId));
       if (!convDoc.exists()) {
         throw new Error("Conversation not found or has been deleted");
@@ -3075,13 +3336,11 @@
         throw new Error("You don't have access to this conversation");
       }
 
-      // Only set current chat if everything is valid
       currentChatId = chatId;
       currentChatUser = otherUserId;
       currentChatUserName = name;
       currentChatUserAvatar = avatar;
       
-      // Update UI
       document.getElementById('emptyChat').style.display = 'none';
       document.getElementById('chatHeader').style.display = 'flex';
       document.getElementById('messagesContainer').style.display = 'flex';
@@ -3089,21 +3348,17 @@
       document.getElementById('chatUserName').innerText = name;
       document.getElementById('currentChatAvatar').src = avatar;
       
-      // Update typing indicator with real name
       document.getElementById('typingUserName').textContent = name;
       
-      // Update active class
       document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
       const activeItem = document.querySelector(`[data-chat-id="${chatId}"]`);
       if (activeItem) activeItem.classList.add('active');
 
-      // Mobile view handling
       if (window.innerWidth <= 768) {
         document.getElementById('conversationsSidebar').style.zIndex = '10';
         document.getElementById('chatArea').classList.add('active');
       }
       
-      // Load saved wallpaper
       const savedWallpaper = localStorage.getItem('meet_wallpaper_' + chatId);
       if (savedWallpaper) {
         applyWallpaper(JSON.parse(savedWallpaper));
@@ -3111,16 +3366,13 @@
         messagesContainer.style.backgroundImage = 'none';
       }
       
-      // Load messages with error handling
       await loadMessages(chatId);
       
     } catch (error) {
       console.error("Error opening chat:", error);
       
-      // Reset UI to empty state
       resetChatView();
       
-      // Remove problematic conversation from list
       const problematicItem = document.querySelector(`[data-chat-id="${chatId}"]`);
       if (problematicItem) {
         problematicItem.remove();
@@ -3135,7 +3387,6 @@
     if (unsubscribeMessages) unsubscribeMessages();
     messagesContainer.innerHTML = '';
     
-    // Show loading indicator
     const loadingDiv = showLoading(messagesContainer, 'Loading messages...');
     
     const q = query(
@@ -3144,7 +3395,6 @@
     );
     
     unsubscribeMessages = onSnapshot(q, (snapshot) => {
-      // Remove loading indicator
       if (loadingDiv.parentNode) {
         loadingDiv.remove();
       }
@@ -3159,13 +3409,11 @@
         if (change.type === "added") {
           hasMessages = true;
           
-          // Replace optimistic messages with real ones
           const existingMsg = document.getElementById(change.doc.id);
           if (existingMsg && existingMsg.classList.contains('optimistic-msg')) {
             existingMsg.remove();
           }
 
-          // Date header logic
           const currentHeader = formatDateHeader(msg.timestamp);
           if (currentHeader && currentHeader !== lastHeader) {
             const div = document.createElement('div');
@@ -3186,7 +3434,6 @@
         }
       });
       
-      // Scroll to bottom after all messages are loaded
       if (hasMessages) {
         setTimeout(() => {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -3196,7 +3443,6 @@
     }, (error) => {
       console.error("Error loading messages:", error);
       
-      // Remove loading indicator
       if (loadingDiv.parentNode) {
         loadingDiv.remove();
       }
@@ -3218,7 +3464,6 @@
     const text = messageInput.value.trim();
     if (!text || !currentChatId) return;
     
-    // EDIT existing message
     if (editingMsgId) {
       try {
         await updateDoc(doc(db, "conversations", currentChatId, "messages", editingMsgId), {
@@ -3234,7 +3479,6 @@
       return;
     }
 
-    // Clear UI immediately
     const originalText = text;
     messageInput.value = '';
     messageInput.style.height = '50px';
@@ -3250,14 +3494,11 @@
       } : null
     };
 
-    // Close reply bar immediately
     cancelReply();
     
     try {
-      // Add message to Firestore
       await addDoc(collection(db, "conversations", currentChatId, "messages"), msgPayload);
       
-      // Update conversation last message
       await updateDoc(doc(db, "conversations", currentChatId), {
         lastMessage: originalText.length > 50 ? originalText.substring(0, 50) + '...' : originalText,
         updatedAt: serverTimestamp()
@@ -3266,7 +3507,6 @@
     } catch (error) {
       console.error("Send error:", error);
       
-      // Restore message in input on error
       messageInput.value = originalText;
       messageInput.style.height = 'auto';
       messageInput.style.height = messageInput.scrollHeight + 'px';
@@ -3275,7 +3515,7 @@
     }
   }
 
-  // Enhanced input handling
+  // UPDATED: WhatsApp-like textarea expansion
   messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -3285,7 +3525,17 @@
 
   messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    const newHeight = Math.min(this.scrollHeight, 200);
+    this.style.height = newHeight + 'px';
+    
+    // Optional: Adjust message container padding based on textarea height
+    if (newHeight > 100) {
+      this.style.paddingTop = '10px';
+      this.style.paddingBottom = '10px';
+    } else {
+      this.style.paddingTop = '14px';
+      this.style.paddingBottom = '14px';
+    }
   });
 
   // Back button for mobile
@@ -3318,7 +3568,6 @@
     }
     
     try {
-      // Search users by name or email
       const usersQuery = query(
         collection(db, "users"),
         where("email", ">=", term),
@@ -3340,7 +3589,6 @@
         const userName = userData.name || userData.displayName || 'User';
         const userEmail = userData.email || '';
         
-        // Check if it matches the search term
         if (userName.toLowerCase().includes(term) || userEmail.toLowerCase().includes(term)) {
           hasResults = true;
           const div = document.createElement('div');
@@ -3374,11 +3622,9 @@
     const chatId = participants.join('_');
     
     try {
-      // Check if conversation already exists
       const existingConv = await getDoc(doc(db, "conversations", chatId));
       
       if (existingConv.exists()) {
-        // Conversation exists, just open it
         const convData = existingConv.data();
         const otherUserId = convData.participants.find(p => p !== currentUser.uid);
         const realName = await getUserDisplayName(otherUserId);
@@ -3386,7 +3632,6 @@
         
         openChat(chatId, otherId, realName, avatar);
       } else {
-        // Create a new conversation with real names
         const currentUserName = await getUserDisplayName(currentUser.uid);
         const otherUserName = await getUserDisplayName(otherId);
         
@@ -3470,18 +3715,37 @@
     alert("Video call feature will be implemented in a future update!");
   };
 
+  // NEW: Handle wallpaper upload from gallery
+  document.getElementById('wallpaperUploadInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleWallpaperUpload(file);
+    }
+    e.target.value = ''; // Reset input
+  });
+
   // === INITIALIZATION ===
 
-  // Initialize the application when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
-    // Any additional initialization code can go here
-    console.log("MEET Chat Application initialized");
+    console.log("MEET Chat Application initialized with enhanced features");
+    
+    // Ensure the chat container adjusts on resize
+    window.addEventListener('resize', () => {
+      const chatContainer = document.querySelector('.chat-container');
+      if (window.innerWidth >= 1200) {
+        chatContainer.style.width = '70%';
+        chatContainer.style.maxWidth = '1200px';
+        chatContainer.style.margin = '0 auto';
+      } else {
+        chatContainer.style.width = '100%';
+        chatContainer.style.maxWidth = '100%';
+      }
+    });
   });
 
   // Handle page visibility changes
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && currentChatId) {
-      // Refresh messages when page becomes visible again
       loadMessages(currentChatId);
     }
   });
@@ -3494,8 +3758,14 @@
     if (unsubscribeConversations) {
       unsubscribeConversations();
     }
+    if (unsubscribeUserProfiles) {
+      unsubscribeUserProfiles();
+    }
+    if (unsubscribeFeedNotifications) {
+      unsubscribeFeedNotifications();
+    }
   });
 
 </script>
 </body>
-</html>
+  </html>
