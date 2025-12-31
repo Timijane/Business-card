@@ -5,34 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WhatsApp Call Clone</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-
 <style>
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #fff; display: flex; flex-direction: column; height: 100vh; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
   .hidden { display: none !important; }
   
   /* LOGIN SCREEN */
   #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-  input { padding: 15px; border-radius: 8px; border: 1px solid #333; background: #1f2a48; color: white; width: 250px; margin-bottom: 10px; font-size: 16px; }
+  input { padding: 15px; border-radius: 8px; border: 1px solid #333; background: #1f2a48; color: white; width: 250px; margin-bottom: 10px; font-size: 16px; outline: none; }
   
   /* CALL UI */
-  #call-screen { position: relative; flex: 1; display: flex; flex-direction: column; }
-  #video-container { position: relative; flex: 1; background: #000; display: flex; justify-content: center; align-items: center; }
+  #call-screen { position: relative; flex: 1; display: flex; flex-direction: column; background: #000; }
+  #video-container { position: relative; flex: 1; display: flex; justify-content: center; align-items: center; }
   video { object-fit: cover; }
-  #remoteVideo { width: 100%; height: 100%; }
+  #remoteVideo { width: 100%; height: 100%; background: #111; }
   #localVideo { position: absolute; bottom: 20px; right: 20px; width: 120px; height: 160px; border-radius: 10px; border: 2px solid #fff; background: #333; z-index: 10; }
   
   /* CONTROLS */
   #controls { padding: 20px; background: #11162a; display: flex; justify-content: center; gap: 20px; }
-  .btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
+  .btn:active { transform: scale(0.9); }
   .btn-green { background: #25D366; color: white; }
   .btn-red { background: #FF3B30; color: white; }
   .btn-gray { background: #3a3a3a; color: white; }
 
   /* INCOMING CALL POPUP */
-  #incoming-call { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: #1f2a48; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; text-align: center; width: 80%; max-width: 300px; }
-  #status-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; color: #aaa; }
+  #incoming-call { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: #1f2a48; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; text-align: center; width: 80%; max-width: 300px; border: 1px solid #25D366; }
+  #status-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; color: #aaa; z-index: 5; }
 </style>
 </head>
 <body>
@@ -48,7 +46,7 @@
   <div style="margin-top: 50px;">
     <input type="text" id="callee-input" placeholder="Enter ID to Call (e.g. user2)">
     <br>
-    <button class="btn btn-green" style="width: 60px; display:inline-flex" onclick="startCall()">📞</button>
+    <button class="btn btn-green" style="width: 60px; display:inline-flex; margin-top: 10px;" onclick="startCall()">📞</button>
   </div>
   <p style="color: #666; margin-top: 20px;">Waiting for incoming calls...</p>
 </div>
@@ -75,253 +73,223 @@
   </div>
 </div>
 
-<script>
-// ================= CONFIGURATION =================
-const firebaseConfig = {
-  apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-  authDomain: "meet-6e159.firebaseapp.com",
-  databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
-  projectId: "meet-6e159",
-  storageBucket: "meet-6e159.firebasestorage.app",
-  messagingSenderId: "252353608421",
-  appId: "1:252353608421:web:6706056048e9a8f12db20c",
-  measurementId: "G-9BFPPVMMRF"
-};
+<script type="module">
+  // Import Firebase Modular SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, doc, setDoc, addDoc, updateDoc, onSnapshot, 
+    collection, query, where, getDoc 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  // --- CONFIGURATION ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+    authDomain: "meet-6e159.firebaseapp.com",
+    databaseURL: "https://meet-6e159-default-rtdb.firebaseio.com",
+    projectId: "meet-6e159",
+    storageBucket: "meet-6e159.firebasestorage.app",
+    messagingSenderId: "252353608421",
+    appId: "1:252353608421:web:6706056048e9a8f12db20c"
+  };
 
-// Using Public STUN servers
-const rtcConfig = {
-  iceServers: [
-    { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
-  ]
-};
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// ================= STATE =================
-let pc = null;
-let localStream = null;
-let remoteStream = null;
-let currentCallDocId = null;
-let myUserId = null;
-let unsubscribeCallListener = null;
+  const rtcConfig = {
+    iceServers: [
+      { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
+    ]
+  };
 
-// ================= 1. LOGIN & LISTEN =================
-function login() {
-  const input = document.getElementById('username-input').value.trim();
-  if (!input) return alert("Please enter a username");
-  
-  myUserId = input;
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('dashboard').classList.remove('hidden');
-  document.getElementById('welcome-msg').innerText = `Logged in as: ${myUserId}`;
+  // --- GLOBAL STATE ---
+  let pc = null;
+  let localStream = null;
+  let currentCallDocId = null;
+  let myUserId = null;
 
-  // START LISTENING FOR CALLS IMMEDIATELY
-  listenForIncomingCalls();
-}
+  // ================= 1. LOGIN =================
+  window.login = function() {
+    const input = document.getElementById('username-input').value.trim();
+    if (!input) return alert("Please enter a username");
+    
+    myUserId = input;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('welcome-msg').innerText = `Logged in as: ${myUserId}`;
 
-function listenForIncomingCalls() {
-  // Query Firestore: "Find documents in 'calls' where calleeId matches My ID"
-  db.collection('calls')
-    .where('calleeId', '==', myUserId)
-    .onSnapshot(snapshot => {
+    listenForIncomingCalls();
+  };
+
+  function listenForIncomingCalls() {
+    const q = query(collection(db, 'calls'), where('calleeId', '==', myUserId), where('type', '==', 'offer'));
+    onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach(change => {
         if (change.type === 'added') {
           const data = change.doc.data();
-          // Only react if the call is in 'offering' stage (ringing)
-          if (data.type === 'offer' && !currentCallDocId) {
+          if (!currentCallDocId && !data.status) {
             currentCallDocId = change.doc.id;
             showIncomingCall(data.callerId);
           }
         }
       });
     });
-}
+  }
 
-function showIncomingCall(callerId) {
-  document.getElementById('caller-name').innerText = callerId;
-  document.getElementById('incoming-call').classList.remove('hidden');
-}
+  function showIncomingCall(callerId) {
+    document.getElementById('caller-name').innerText = callerId;
+    document.getElementById('incoming-call').classList.remove('hidden');
+  }
 
-// ================= 2. MAKE A CALL (Caller) =================
-async function startCall() {
-  const calleeId = document.getElementById('callee-input').value.trim();
-  if (!calleeId) return alert("Enter a user ID to call");
+  // ================= 2. START CALL (Caller) =================
+  window.startCall = async function() {
+    const calleeId = document.getElementById('callee-input').value.trim();
+    if (!calleeId) return alert("Enter a user ID to call");
+    if (calleeId === myUserId) return alert("You cannot call yourself");
 
-  document.getElementById('dashboard').classList.add('hidden');
-  document.getElementById('call-screen').classList.remove('hidden');
-  
-  await setupMedia();
-  
-  // Create a new Call Document
-  const callDoc = db.collection('calls').doc();
-  currentCallDocId = callDoc.id;
-  const offerCandidates = callDoc.collection('offerCandidates');
-  const answerCandidates = callDoc.collection('answerCandidates');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('call-screen').classList.remove('hidden');
+    
+    await setupMedia();
+    
+    const callDocRef = doc(collection(db, 'calls'));
+    currentCallDocId = callDocRef.id;
 
-  pc = new RTCPeerConnection(rtcConfig);
+    pc = new RTCPeerConnection(rtcConfig);
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
-  // Push local tracks
-  localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    pc.onicecandidate = event => {
+      if (event.candidate) {
+        addDoc(collection(callDocRef, 'offerCandidates'), event.candidate.toJSON());
+      }
+    };
 
-  // Handle ICE Candidates
-  pc.onicecandidate = event => {
-    event.candidate && offerCandidates.add(event.candidate.toJSON());
+    pc.ontrack = event => {
+      document.getElementById('status-text').innerText = "";
+      document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+
+    const offerDescription = await pc.createOffer();
+    await pc.setLocalDescription(offerDescription);
+
+    await setDoc(callDocRef, {
+      callerId: myUserId,
+      calleeId: calleeId,
+      type: 'offer',
+      offer: { sdp: offerDescription.sdp, type: offerDescription.type }
+    });
+
+    onSnapshot(callDocRef, (snapshot) => {
+      const data = snapshot.data();
+      if (!pc.currentRemoteDescription && data?.answer) {
+        pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+      }
+      if (data?.status === 'ended') endCall(false);
+    });
+
+    onSnapshot(collection(callDocRef, 'answerCandidates'), snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+        }
+      });
+    });
   };
 
-  // Handle Remote Stream
-  pc.ontrack = event => {
-    document.getElementById('status-text').innerText = "";
-    document.getElementById('remoteVideo').srcObject = event.streams[0];
+  // ================= 3. ANSWER CALL (Callee) =================
+  window.answerCall = async function() {
+    document.getElementById('incoming-call').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('call-screen').classList.remove('hidden');
+
+    await setupMedia();
+
+    const callDocRef = doc(db, 'calls', currentCallDocId);
+    pc = new RTCPeerConnection(rtcConfig);
+
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+    pc.onicecandidate = event => {
+      if (event.candidate) {
+        addDoc(collection(callDocRef, 'answerCandidates'), event.candidate.toJSON());
+      }
+    };
+
+    pc.ontrack = event => {
+      document.getElementById('status-text').innerText = "";
+      document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+
+    const callData = (await getDoc(callDocRef)).data();
+    await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
+
+    const answerDescription = await pc.createAnswer();
+    await pc.setLocalDescription(answerDescription);
+
+    await updateDoc(callDocRef, { 
+      answer: { type: answerDescription.type, sdp: answerDescription.sdp } 
+    });
+
+    onSnapshot(collection(callDocRef, 'offerCandidates'), snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+        }
+      });
+    });
+
+    onSnapshot(callDocRef, snap => {
+      if (snap.data()?.status === 'ended') endCall(false);
+    });
   };
 
-  // Create Offer
-  const offerDescription = await pc.createOffer();
-  await pc.setLocalDescription(offerDescription);
-
-  const offer = {
-    sdp: offerDescription.sdp,
-    type: offerDescription.type,
-  };
-
-  // Write to Firestore
-  await callDoc.set({
-    callerId: myUserId,
-    calleeId: calleeId,
-    type: 'offer',
-    offer: offer
-  });
-
-  // Listen for Answer
-  callDoc.onSnapshot((snapshot) => {
-    const data = snapshot.data();
-    if (!pc.currentRemoteDescription && data?.answer) {
-      const answerDescription = new RTCSessionDescription(data.answer);
-      pc.setRemoteDescription(answerDescription);
+  // ================= HELPERS =================
+  async function setupMedia() {
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      document.getElementById('localVideo').srcObject = localStream;
+    } catch (e) {
+      console.error(e);
+      alert("Camera access denied or not available. Check your HTTPS/Localhost settings.");
     }
-    // If call ended remotely
-    if(data?.status === 'ended') endCall(false); 
-  });
-
-  // Listen for Remote ICE Candidates
-  answerCandidates.onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === 'added') {
-        const candidate = new RTCIceCandidate(change.doc.data());
-        pc.addIceCandidate(candidate);
-      }
-    });
-  });
-}
-
-// ================= 3. ANSWER CALL (Callee) =================
-async function answerCall() {
-  document.getElementById('incoming-call').classList.add('hidden');
-  document.getElementById('dashboard').classList.add('hidden');
-  document.getElementById('call-screen').classList.remove('hidden');
-
-  await setupMedia();
-
-  const callDoc = db.collection('calls').doc(currentCallDocId);
-  const offerCandidates = callDoc.collection('offerCandidates');
-  const answerCandidates = callDoc.collection('answerCandidates');
-
-  pc = new RTCPeerConnection(rtcConfig);
-
-  // Push local tracks
-  localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-  // Handle ICE Candidates
-  pc.onicecandidate = event => {
-    event.candidate && answerCandidates.add(event.candidate.toJSON());
-  };
-
-  // Handle Remote Stream
-  pc.ontrack = event => {
-    document.getElementById('status-text').innerText = "";
-    document.getElementById('remoteVideo').srcObject = event.streams[0];
-  };
-
-  // Fetch Offer Data
-  const callData = (await callDoc.get()).data();
-  const offerDescription = callData.offer;
-
-  await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
-
-  // Create Answer
-  const answerDescription = await pc.createAnswer();
-  await pc.setLocalDescription(answerDescription);
-
-  const answer = {
-    type: answerDescription.type,
-    sdp: answerDescription.sdp,
-  };
-
-  await callDoc.update({ answer });
-
-  // Listen for Remote ICE Candidates
-  offerCandidates.onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === 'added') {
-        const candidate = new RTCIceCandidate(change.doc.data());
-        pc.addIceCandidate(candidate);
-      }
-    });
-  });
-  
-  // Listener for end
-  callDoc.onSnapshot(snap => {
-      if(snap.data()?.status === 'ended') endCall(false);
-  })
-}
-
-// ================= HELPERS =================
-
-async function setupMedia() {
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  document.getElementById('localVideo').srcObject = localStream;
-}
-
-async function endCall(notifyRemote = true) {
-  // Cleanup media
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-  }
-  if (pc) {
-    pc.close();
-  }
-  
-  // Notify Firestore (so the other person disconnects)
-  if (currentCallDocId && notifyRemote) {
-      await db.collection('calls').doc(currentCallDocId).update({ status: 'ended' });
   }
 
-  // Reset UI
-  document.getElementById('call-screen').classList.add('hidden');
-  document.getElementById('dashboard').classList.remove('hidden');
-  document.getElementById('incoming-call').classList.add('hidden');
-  document.getElementById('remoteVideo').srcObject = null;
-  currentCallDocId = null;
-  
-  // Reload window to ensure clean slate (simple approach)
-  setTimeout(() => window.location.reload(), 1000); 
-}
+  window.endCall = async function(notifyRemote = true) {
+    if (localStream) localStream.getTracks().forEach(track => track.stop());
+    if (pc) pc.close();
+    
+    if (currentCallDocId && notifyRemote) {
+      try {
+        await updateDoc(doc(db, 'calls', currentCallDocId), { status: 'ended' });
+      } catch (e) {}
+    }
 
-function rejectCall() {
-  document.getElementById('incoming-call').classList.add('hidden');
-  // Optional: Update doc to say "rejected"
-  currentCallDocId = null;
-}
+    // Reset UI
+    document.getElementById('call-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('remoteVideo').srcObject = null;
+    currentCallDocId = null;
+    
+    setTimeout(() => window.location.reload(), 500); 
+  };
 
-function toggleMic() {
-  const audioTrack = localStream.getAudioTracks()[0];
-  audioTrack.enabled = !audioTrack.enabled;
-}
+  window.rejectCall = () => {
+    document.getElementById('incoming-call').classList.add('hidden');
+    currentCallDocId = null;
+  };
 
-function toggleCam() {
-  const videoTrack = localStream.getVideoTracks()[0];
-  videoTrack.enabled = !videoTrack.enabled;
-}
+  window.toggleMic = () => {
+    if(localStream) {
+      const audioTrack = localStream.getAudioTracks()[0];
+      audioTrack.enabled = !audioTrack.enabled;
+    }
+  };
+
+  window.toggleCam = () => {
+    if(localStream) {
+      const videoTrack = localStream.getVideoTracks()[0];
+      videoTrack.enabled = !videoTrack.enabled;
+    }
+  };
 </script>
 </body>
 </html>
