@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=0.79, maximum-scale=0.79, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Professional Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,7 +18,7 @@
     --error: #EF4444;
     --success: #10B981;
     --warning: #F59E0B;
-    --app-height: 100dvh;
+    --app-height: 100vh;
     --chat-font: 'Poppins', sans-serif;
     --sent-bubble-bg: #0080FF;
     --sent-text-color: #fff;
@@ -30,66 +30,7 @@
     --chat-container-width: 100%;
   }
 
-  /* Force 79% zoom for all browsers */
-  html {
-    zoom: 0.79;
-    -moz-transform: scale(0.79);
-    -moz-transform-origin: 0 0;
-    transform: scale(0.79);
-    transform-origin: 0 0;
-  }
-
-  body {
-    width: 126.58%; /* 100 / 0.79 */
-    height: 126.58%;
-  }
-
-  /* NEW: Force zoom for WebKit browsers */
-  @media screen and (-webkit-min-device-pixel-ratio:0) {
-    html {
-      zoom: 0.79;
-    }
-  }
-
-  /* Large screens get 70% width */
-  @media (min-width: 1200px) {
-    :root {
-      --chat-container-width: 70%;
-    }
-    html {
-      zoom: 1;
-      -moz-transform: scale(1);
-      transform: scale(1);
-    }
-    body {
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    html {
-      zoom: 1;
-      -moz-transform: scale(1);
-      transform: scale(1);
-    }
-    body {
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-  body.dark-mode {
-    --bg-color: #0f0f10;
-    --card-bg: #1e1e1e;
-    --text-color: #e4e6eb;
-    --secondary-text: #b0b3b8;
-    --border-color: #2f3031;
-    --received-bubble-bg: #2a2b2c;
-    --received-text-color: #e4e6eb;
-  }
-
+  /* Remove zoom scaling - use responsive design instead */
   * { 
     margin: 0; 
     padding: 0; 
@@ -99,6 +40,7 @@
 
   html, body { 
     height: 100%; 
+    width: 100%;
     overflow: hidden; 
     font-size: 14px; 
     font-family: var(--chat-font); 
@@ -111,8 +53,13 @@
 
   .app-container { 
     display: flex; 
-    height: var(--app-height); 
-    position: relative; 
+    height: 100vh; 
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     overflow: hidden; 
   }
 
@@ -121,7 +68,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;
+    width: 100%;
     overflow: hidden;
     padding: 12px;
     align-items: center;
@@ -132,7 +80,7 @@
     position: fixed; 
     top: 0; 
     left: 0; 
-    height: 100%; 
+    height: 100vh; 
     width: 280px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
     z-index: 200; 
@@ -239,7 +187,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100%; 
+    height: 100vh; 
     background: rgba(0,0,0,0.6); 
     z-index: 190; 
     backdrop-filter: blur(4px); 
@@ -263,6 +211,8 @@
     overflow: hidden;
     width: var(--chat-container-width);
     max-width: 1200px;
+    height: 70px;
+    min-height: 70px;
   }
   
   .navbar::before {
@@ -338,16 +288,17 @@
   /* Enhanced Chat Container */
   .chat-container { 
     flex: 1; 
+    min-height: 0;
     background: var(--card-bg); 
     border-radius: 16px; 
     overflow: hidden; 
     display: flex; 
-    min-height: 0; 
     position: relative; 
     box-shadow: var(--shadow-light); 
     border: 1px solid var(--border-color);
     width: var(--chat-container-width);
     max-width: 1200px;
+    height: calc(100vh - 110px); /* Adjust based on navbar and margins */
   }
   
   .conversations-sidebar { 
@@ -357,6 +308,7 @@
     flex-direction: column; 
     height: 100%; 
     background: var(--card-bg); 
+    overflow: hidden;
   }
   
   .chat-header { 
@@ -366,6 +318,7 @@
     justify-content: space-between; 
     align-items: center;
     background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-color) 100%);
+    flex-shrink: 0;
   }
   
   .chat-header h3 {
@@ -398,6 +351,7 @@
     padding: 15px; 
     border-bottom: 1px solid var(--border-color); 
     background: var(--bg-color);
+    flex-shrink: 0;
   }
   .chat-search input { 
     width: 100%; 
@@ -420,6 +374,7 @@
     flex: 1; 
     overflow-y: auto; 
     scroll-behavior: smooth;
+    min-height: 0;
   }
   
   /* Enhanced Conversation Items */
@@ -522,6 +477,7 @@
     height: 100%; 
     background: var(--bg-color); 
     position: relative; 
+    overflow: hidden;
   }
   
   .chat-area-header { 
@@ -534,6 +490,9 @@
     z-index: 10; 
     backdrop-filter: blur(10px); 
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    height: 70px;
+    min-height: 70px;
   }
   
   .chat-user-info {
@@ -627,6 +586,7 @@
     transition: background 0.3s; 
     scroll-behavior: smooth;
     font-family: var(--chat-font);
+    min-height: 0;
   }
 
   /* Enhanced Date Divider */
@@ -924,6 +884,7 @@
     background: var(--card-bg); 
     position: relative;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    flex-shrink: 0;
   }
 
   .writing-assist-bar { 
@@ -1149,7 +1110,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100%; 
+    height: 100vh; 
     background: rgba(0,0,0,0.6); 
     backdrop-filter: blur(8px); 
     z-index: 2100; 
@@ -1293,7 +1254,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100%; 
+    height: 100vh; 
     background: rgba(0,0,0,0.9); 
     z-index: 2200; 
     align-items: center; 
@@ -1385,7 +1346,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100%; 
+    height: 100vh; 
     background: rgba(0,0,0,0.8); 
     z-index: 2000; 
     padding: 20px; 
@@ -1552,7 +1513,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100%; 
+    height: 100vh; 
     background: rgba(0,0,0,0.7); 
     z-index: 1000; 
     display: none; 
@@ -1745,14 +1706,21 @@
     transform: translateY(-1px);
   }
 
+  body.dark-mode {
+    --bg-color: #0f0f10;
+    --card-bg: #1e1e1e;
+    --text-color: #e4e6eb;
+    --secondary-text: #b0b3b8;
+    --border-color: #2f3031;
+    --received-bubble-bg: #2a2b2c;
+    --received-text-color: #e4e6eb;
+  }
+
   /* Responsive Design - Enhanced for all devices */
   @media (max-width: 768px) {
-    .chat-container { 
-      border-radius: 0; 
-      height: 100%; 
-      margin: 0;
-      width: 100% !important;
-      max-width: 100% !important;
+    .main-content {
+      padding: 0;
+      height: 100vh;
     }
     
     .navbar {
@@ -1761,16 +1729,23 @@
       border-radius: 0;
       margin-bottom: 0;
       padding: 12px 15px;
+      height: 60px;
+      min-height: 60px;
     }
     
-    .main-content {
-      padding: 0;
+    .chat-container { 
+      border-radius: 0; 
+      height: calc(100vh - 60px);
+      margin: 0;
+      width: 100% !important;
+      max-width: 100% !important;
     }
     
     .conversations-sidebar { 
       width: 100%; 
       position: absolute; 
       z-index: 50; 
+      height: 100%;
     }
     
     .chat-area { 
@@ -1779,10 +1754,17 @@
       z-index: 60; 
       transform: translateX(100%); 
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      height: 100%;
     }
     
     .chat-area.active { 
       transform: translateX(0); 
+    }
+    
+    .chat-area-header {
+      height: 60px;
+      min-height: 60px;
+      padding: 10px 15px;
     }
     
     .emoji-picker { 
@@ -1886,6 +1868,8 @@
   @media (max-width: 480px) {
     .navbar {
       padding: 10px 12px;
+      height: 55px;
+      min-height: 55px;
     }
     
     .nav-user-img {
@@ -1949,11 +1933,25 @@
     .chat-container {
       width: 85% !important;
       max-width: 1000px;
+      height: calc(100vh - 110px);
     }
     
     .navbar {
       width: 85% !important;
       max-width: 1000px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .chat-container {
+      width: 70% !important;
+      max-width: 1200px;
+      height: calc(100vh - 110px);
+    }
+    
+    .navbar {
+      width: 70% !important;
+      max-width: 1200px;
     }
   }
 
@@ -3925,9 +3923,6 @@
         chatContainer.style.maxWidth = '100%';
       }
     });
-    
-    // Force 79% zoom on page load
-    document.documentElement.style.zoom = "0.79";
   });
 
   // Handle page visibility changes
