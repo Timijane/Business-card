@@ -43,6 +43,23 @@
     min-height: 100vh;
     font-size: 15px;
     overflow-x: hidden;
+    
+    /* --- FORCE 67% ZOOM --- */
+    zoom: 67%; 
+  }
+
+  /* Firefox Fallback for Zoom (since Firefox doesn't support 'zoom') */
+  @supports (-moz-appearance:none) {
+    body {
+      zoom: 1;
+      transform: scale(0.67);
+      transform-origin: top center;
+      width: 149.2%; /* Compensate width (100 / 0.67) */
+      height: 149.2%;
+    }
+    .sidebar {
+        height: 149.2vh; /* Adjust fixed sidebar height for Firefox transform */
+    }
   }
 
   .app-container { display: flex; min-height: 100vh; }
@@ -67,10 +84,9 @@
     gap: 12px;
   }
   
-  /* UPDATED: Bigger Logo */
   .logo-img {
-    width: 60px; /* Increased from 45px */
-    height: 60px; /* Increased from 45px */
+    width: 60px; 
+    height: 60px; 
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -152,10 +168,9 @@
   /* Main Layout */
   .main-content { flex: 1; margin-left: 220px; padding: 20px; min-height: 100vh; transition: margin 0.3s ease; }
   
-  /* UPDATED: Centering Wrapper */
   .feed-wrapper {
-      max-width: 750px; /* Constraints width */
-      margin: 0 auto;   /* Centers the content */
+      max-width: 800px; /* Slightly wider to accommodate zoom */
+      margin: 0 auto;   
       width: 100%;
   }
 
@@ -191,14 +206,20 @@
   }
   .user-profile-nav:hover { background: rgba(255, 255, 255, 0.3); }
   
+  /* --- UPDATED: LARGER AVATAR --- */
   .user-avatar { 
-    width: 38px; height: 38px; border-radius: 50%; 
+    width: 48px; /* Increased Base Size */
+    height: 48px; /* Increased Base Size */
+    border-radius: 50%; 
     background: var(--card-bg); color: var(--primary); 
     display: flex; align-items: center; justify-content: center; 
-    font-weight: bold; overflow: hidden; font-size: 16px; border: 2px solid white;
+    font-weight: bold; overflow: hidden; font-size: 18px; border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .user-avatar.small { width: 32px; height: 32px; font-size: 14px; }
+  
+  /* Small version for navbar */
+  .user-avatar.small { width: 36px; height: 36px; font-size: 14px; }
 
   .btn {
     background: rgba(255, 255, 255, 0.2); color: white; border: none;
@@ -274,11 +295,20 @@
   }
   
   .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  
+  /* --- POSTER PICTURE SPECIFIC SIZE --- */
   .post-user { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .post-user .user-avatar-container .user-avatar, 
+  .post-user .user-avatar-container img {
+      width: 60px !important; /* Forces larger size */
+      height: 60px !important;
+      min-width: 60px;
+  }
+
   .post-meta { font-size: 13px; color: var(--secondary-text); margin-top: 2px;}
   .post-content { margin-bottom: 15px; font-size: 16px; line-height: 1.6; word-wrap: break-word; }
   
-  /* UPDATED: Media Grid for Posts */
+  /* --- UPDATED: Media Grid with FRAME --- */
   .post-media-grid {
     margin-top: 15px;
     border-radius: 12px;
@@ -287,7 +317,16 @@
     gap: 2px;
     cursor: pointer;
     background: #f0f2f5;
+    
+    /* THE FRAME */
+    border: 6px solid #fff;
+    box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.1);
   }
+  .dark-mode .post-media-grid {
+    border-color: #3e4042; /* Dark frame for dark mode */
+    box-shadow: none;
+  }
+
   /* 1 Image */
   .grid-1 { grid-template-columns: 1fr; }
   .grid-1 img, .grid-1 video { max-height: 500px; object-fit: contain; background: #000; }
@@ -732,11 +771,17 @@
     return null;
   }
 
+  // Updated to support larger size requests properly
   function getAvatarHTML(photoURL, name, size = 'medium') {
     const initial = name ? name.charAt(0).toUpperCase() : 'U';
-    const style = size === 'small' ? 'width:32px;height:32px;font-size:14px; min-width: 32px;' : 'width:38px;height:38px;font-size:16px; min-width: 38px;';
-    if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
-    return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+    // Style override happens in CSS mostly now, but we keep inline for backup
+    let style = '';
+    if(size === 'small') {
+        style = 'width:36px;height:36px;font-size:14px; min-width: 36px;';
+    }
+    
+    if (photoURL) return `<img src="${photoURL}" alt="${name}" class="user-avatar ${size}" style="${style} border-radius:50%; object-fit:cover;">`;
+    return `<div class="user-avatar ${size}" style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
   }
 
   window.viewProfile = (targetId) => window.location.href = `profile.html?uid=${targetId}`;
