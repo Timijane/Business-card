@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Secure Call</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style>
+body { margin:0; font-family:Arial; background:#0b0f19; color:white }
+.hidden { display:none }
+
+#ringing, #callUI {
+  height:100vh; display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+}
+
+button {
+  padding:15px 20px; border:none; border-radius:8px;
+  margin:10px; font-size:16px; cursor:pointer;
+}
+
+.accept { background:#00c853 }
+.reject { background:#d50000 }
+.control { background:#1f2a48; color:white }
+
+#videos { flex:1; display:flex; background:black }
+video { width:50%; object-fit:cover }
+
+#chat {
+  height:150px; background:#11162a;
+  display:flex; flex-direction:column;
+}
+
+#messages {
+  flex:1; overflow:auto; padding:10px;
+}
+
+#chat input {
+  padding:10px; border:none; width:100%;
+}
+</style>
+</head>
+
+<body>
+
+<!-- RINGING SCREEN -->
+<div id="ringing">
+  <h2>Incoming Call</h2>
+
+  <select id="ringtone">
+    <option value="ring1.mp3">Classic</option>
+    <option value="ring2.mp3">Soft</option>
+    <option value="ring3.mp3">Digital</option>
+  </select>
+
+  <button class="accept" onclick="acceptCall()">Accept</button>
+  <button class="reject" onclick="rejectCall()">Reject</button>
+</div>
+
+<!-- CALL UI -->
+<div id="callUI" class="hidden">
+
+  <div id="videos">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="localVideo" autoplay muted playsinline></video>
+  </div>
+
+  <div>
+    <button class="control" onclick="toggleMic()">Mic</button>
+    <button class="control" onclick="toggleCam()">Camera</button>
+    <button class="reject" onclick="endCall()">End</button>
+  </div>
+
+  <!-- IN-CALL CHAT -->
+  <div id="chat">
+    <div id="messages"></div>
+    <input id="msgInput" placeholder="Type message..." onkeydown="sendMsg(event)">
+  </div>
+
+</div>
+
+<script>
+const socket = io("http://localhost:3000");
+const params = new URLSearchParams(location.search);
+
+const room = params.get("room");
+const type = params.get("type") || "video";
+
+const ringing = document.getElementById("ringing");
+const callUI = document.getElementById("callUI");
+
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+
+let pc, stream, ringtoneAudio;
+
+const config = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
+  ]
+};
+
+socket.emit("join-room", room);
+
+socket.on("incoming-call", () => {
+  playRingtone();
+});
+
+socket.on("call-accepted", async () => {
+  stopRingtone();
+  ringing.classList.add("hidden");
+  callUI.classList.remove("hidden");
+  await startCall(true);
+});
+
+socket.on("call-rejected", () => {
+  stopRingtone();
+  alert("Call rejected");
+  location.href = "chat.html";
+});
+
+socket.on("offer", async offer => {
+  await startCall(false);
+  await pc.setRemoteDescription(offer);
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  socket.emit("answer", { room, answer });
+});
+
+socket.on("answer", async answer => {
+  await pc.setRemoteDescription(answer);
+});
+
+socket.on("ice", async candidate => {
+  await pc.addIceCandidate(candidate);
+});
+
+socket.on("chat-message", msg => {
+  addMsg("Peer", msg);
+});
+
+socket.on("end-call", cleanup);
+
+async function startCall(isCaller) {
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio:true, video:type==="video"
+  });
+
+  localVideo.srcObject = stream;
+
+  pc = new RTCPeerConnection(config);
+  stream.getTracks().forEach(t => pc.addTrack(t, stream));
+
+  pc.ontrack = e => remoteVideo.srcObject = e.streams[0];
+  pc.onicecandidate = e => e.candidate && socket.emit("ice",{room,candidate:e.candidate});
+
+  if (isCaller) {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socket.emit("offer",{room,offer});
+  }
+}
+
+function acceptCall() {
+  socket.emit("call-accepted", room);
+}
+
+function rejectCall() {
+  socket.emit("call-rejected", room);
+  stopRingtone();
+  location.href="chat.html";
+}
+
+function playRingtone() {
+  const tone = document.getElementById("ringtone").value;
+  ringtoneAudio = new Audio(tone);
+  ringtoneAudio.loop = true;
+  ringtoneAudio.play();
+}
+
+function stopRingtone() {
+  ringtoneAudio && ringtoneAudio.pause();
+}
+
+function toggleMic() {
+  stream.getAudioTracks()[0].enabled ^= true;
+}
+
+function toggleCam() {
+  stream.getVideoTracks()?.[0] && (stream.getVideoTracks()[0].enabled ^= true);
+}
+
+function sendMsg(e) {
+  if (e.key === "Enter") {
+    socket.emit("chat-message",{room,message:e.target.value});
+    addMsg("Me", e.target.value);
+    e.target.value="";
+  }
+}
+
+function addMsg(sender,msg) {
+  document.getElementById("messages").innerHTML += `<p><b>${sender}:</b> ${msg}</p>`;
+}
+
+function endCall() {
+  socket.emit("end-call",room);
+  cleanup();
+}
+
+function cleanup() {
+  pc?.close();
+  stream?.getTracks().forEach(t=>t.stop());
+  location.href="chat.html";
+}
+</script>
+
+</body>
+</html>
