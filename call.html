@@ -3,218 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Call Clone - Secure</title>
-
+<title>WhatsApp Clone - Secure Call</title>
 <style>
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-  .hidden { display: none !important; }
-  
-  /* UI Layout */
-  #login-screen, #dashboard { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-  input { padding: 15px; border-radius: 8px; border: 1px solid #333; background: #1f2a48; color: white; width: 280px; margin-bottom: 10px; font-size: 16px; outline: none; }
-  
-  /* Video Call UI */
-  #call-screen { position: relative; flex: 1; display: flex; flex-direction: column; background: #000; }
-  #video-container { position: relative; flex: 1; display: flex; justify-content: center; align-items: center; }
-  #remoteVideo { width: 100%; height: 100%; background: #111; object-fit: cover; }
-  #localVideo { position: absolute; bottom: 20px; right: 20px; width: 100px; height: 140px; border-radius: 8px; border: 2px solid #fff; background: #333; z-index: 10; object-fit: cover; }
-  
-  /* Control Buttons */
-  #controls { padding: 25px; background: #11162a; display: flex; justify-content: center; gap: 20px; }
-  .btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-  .btn-green { background: #25D366; color: white; }
-  .btn-red { background: #FF3B30; color: white; }
-  .btn-gray { background: #3a3a3a; color: white; }
-  .btn:active { transform: scale(0.9); }
+    body { margin: 0; font-family: sans-serif; background: #0b141a; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .hidden { display: none !important; }
+    
+    /* Simplified Chat Interface for Demo */
+    #chat-header { background: #202c33; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .call-btns { display: flex; gap: 20px; }
+    .icon-btn { cursor: pointer; font-size: 20px; background: none; border: none; color: #aebac1; }
 
-  /* Incoming Popup */
-  #incoming-call { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #1f2a48; padding: 20px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 100; width: 85%; max-width: 320px; border: 1px solid #25D366; }
+    /* Call Overlay */
+    #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: flex; flex-direction: column; }
+    #video-grid { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; }
+    #remoteVideo { width: 100%; height: 100%; object-fit: cover; }
+    #localVideo { position: absolute; bottom: 100px; right: 20px; width: 120px; height: 180px; border-radius: 10px; border: 2px solid #fff; background: #2a2f32; object-fit: cover; }
+    
+    /* Call Controls */
+    #call-controls { height: 80px; background: #202c33; display: flex; justify-content: center; align-items: center; gap: 30px; border-radius: 20px 20px 0 0; }
+    .control-btn { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+    .end-btn { background: #ea0038; }
+    .mute-btn { background: #3b4a54; }
+
+    /* Incoming Call Popup */
+    #incoming-overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: #233138; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 2000; border: 1px solid #00a884; }
+    .incoming-btns { display: flex; justify-content: space-around; margin-top: 15px; }
+    .accept { background: #00a884; color: white; padding: 10px 20px; border-radius: 20px; border: none; }
+    .decline { background: #ea0038; color: white; padding: 10px 20px; border-radius: 20px; border: none; }
 </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <h2>Secure Call Clone</h2>
-  <p style="color: #aaa; margin-bottom: 20px;">Authenticated Session Required</p>
-  <button class="btn btn-green" style="width: 250px; border-radius: 8px;" onclick="login()">Enter App Securely</button>
+<div id="chat-header">
+    <div id="chat-info">
+        <strong id="active-chat-name">Select a Chat</strong>
+        <p id="active-chat-status" style="font-size: 12px; color: #00a884; margin: 0;"></p>
+    </div>
+    <div class="call-btns">
+        <button class="icon-btn" onclick="initiateCall('voice')">📞</button>
+        <button class="icon-btn" onclick="initiateCall('video')">📹</button>
+    </div>
 </div>
 
-<div id="dashboard" class="hidden">
-  <h2 id="welcome-msg"></h2>
-  <p id="my-id-display" style="font-size: 12px; color: #25D366;"></p>
-  <div style="margin-top: 30px;">
-    <input type="text" id="callee-input" placeholder="Paste Recipient UID here">
-    <br>
-    <button class="btn btn-green" style="width: 250px; border-radius: 8px; margin-top:10px" onclick="startCall()">Start Secure Video Call</button>
-  </div>
-</div>
-
-<div id="incoming-call" class="hidden">
-  <h3 id="caller-name">Incoming Call</h3>
-  <p>Encrypted Video Connection...</p>
-  <div style="display: flex; justify-content: center; gap: 20px;">
-    <button class="btn btn-green" onclick="answerCall()">📞</button>
-    <button class="btn btn-red" onclick="rejectCall()">❌</button>
-  </div>
+<div id="incoming-overlay" class="hidden">
+    <div style="text-align: center;">
+        <h3 id="incoming-caller-name">Incoming Call...</h3>
+        <p id="incoming-call-type">Video Call</p>
+    </div>
+    <div class="incoming-btns">
+        <button class="accept" onclick="acceptIncomingCall()">Accept</button>
+        <button class="decline" onclick="declineIncomingCall()">Decline</button>
+    </div>
 </div>
 
 <div id="call-screen" class="hidden">
-  <div id="video-container">
-    <div id="status-text" style="position: absolute; color: #fff; z-index: 5;">Connecting to Peer...</div>
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay muted playsinline></video>
-  </div>
-  <div id="controls">
-    <button class="btn btn-gray" onclick="toggleMic()">🎤</button>
-    <button class="btn btn-gray" onclick="toggleCam()">📷</button>
-    <button class="btn btn-red" onclick="endCall()">❌</button>
-  </div>
+    <div id="video-grid">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <video id="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div id="call-controls">
+        <button class="control-btn mute-btn" onclick="toggleMute()">🎤</button>
+        <button class="control-btn end-btn" onclick="hangUp()">❌</button>
+    </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, addDoc, updateDoc, onSnapshot, collection, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, addDoc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
-    authDomain: "meet-6e159.firebaseapp.com",
-    projectId: "meet-6e159",
-    storageBucket: "meet-6e159.firebasestorage.app",
-    messagingSenderId: "252353608421",
-    appId: "1:252353608421:web:6706056048e9a8f12db20c"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDtqM_pMGIYkUgy0OWGsQbfS9MtYQhrgZM",
+        authDomain: "meet-6e159.firebaseapp.com",
+        projectId: "meet-6e159",
+        storageBucket: "meet-6e159.firebasestorage.app",
+        messagingSenderId: "252353608421",
+        appId: "1:252353608421:web:6706056048e9a8f12db20c"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-  const rtcConfig = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+    const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
 
-  let pc = null, localStream = null, currentCallDocId = null, myUid = null;
+    let pc = null;
+    let localStream = null;
+    let currentChatId = null;
+    let recipientId = null;
+    let myUid = null;
 
-  // 1. AUTHENTICATED LOGIN
-  window.login = async function() {
-    try {
-      await signInAnonymously(auth);
-    } catch (e) {
-      alert("Auth Error: Ensure Anonymous Auth is enabled in Firebase Console.");
-    }
-  };
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      myUid = user.uid;
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-      document.getElementById('welcome-msg').innerText = "Secure Dashboard";
-      document.getElementById('my-id-display').innerText = `Your Public ID: ${myUid}`;
-      listenForIncomingCalls();
-    }
-  });
-
-  // 2. LISTENING (SECURE)
-  function listenForIncomingCalls() {
-    const q = query(collection(db, 'calls'), where('calleeId', '==', myUid), where('type', '==', 'offer'));
-    onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === 'added') {
-          const data = change.doc.data();
-          if (!currentCallDocId && !data.status) {
-            currentCallDocId = change.doc.id;
-            document.getElementById('incoming-call').classList.remove('hidden');
-          }
+    // --- 1. SESSION MANAGEMENT ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            myUid = user.uid;
+            console.log("Authenticated as:", myUid);
+            startGlobalCallListener();
+            
+            // DEMO: Manually triggering a chat context
+            // In your real app, call this when a user clicks a chat list item
+            setupChatContext("demo_chat_123", "RECIPIENT_USER_ID_HERE", "John Doe");
         }
-      });
     });
-  }
 
-  // 3. START CALL
-  window.startCall = async function() {
-    const calleeId = document.getElementById('callee-input').value.trim();
-    if (!calleeId) return alert("Enter a valid User UID");
-
-    await setupMedia();
-    document.getElementById('dashboard').classList.add('hidden');
-    document.getElementById('call-screen').classList.remove('hidden');
-
-    const callDocRef = doc(collection(db, 'calls'));
-    currentCallDocId = callDocRef.id;
-
-    pc = new RTCPeerConnection(rtcConfig);
-    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-    pc.onicecandidate = e => e.candidate && addDoc(collection(callDocRef, 'offerCandidates'), e.candidate.toJSON());
-    pc.ontrack = e => {
-      document.getElementById('remoteVideo').srcObject = e.streams[0];
-      document.getElementById('status-text').innerText = "";
+    window.setupChatContext = function(chatId, otherUserId, otherUserName) {
+        currentChatId = chatId;
+        recipientId = otherUserId;
+        document.getElementById('active-chat-name').innerText = otherUserName;
+        document.getElementById('active-chat-status').innerText = "online";
     };
 
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+    // --- 2. THE LISTENER (WhatsApp Style - Background) ---
+    function startGlobalCallListener() {
+        const q = query(collection(db, 'calls'), where('calleeId', '==', myUid), where('status', '==', 'ringing'));
+        onSnapshot(q, (snapshot) => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type === 'added') {
+                    const data = change.doc.data();
+                    currentChatId = change.doc.id; // Use the document ID (chatId)
+                    showIncomingUI(data.callerName, data.callType);
+                }
+            });
+        });
+    }
 
-    await setDoc(callDocRef, { callerId: myUid, calleeId, type: 'offer', offer: { sdp: offer.sdp, type: offer.type } });
+    function showIncomingUI(name, type) {
+        document.getElementById('incoming-caller-name').innerText = name;
+        document.getElementById('incoming-call-type').innerText = type === 'video' ? 'Video Call' : 'Voice Call';
+        document.getElementById('incoming-overlay').classList.remove('hidden');
+    }
 
-    onSnapshot(callDocRef, snap => {
-      const data = snap.data();
-      if (!pc.currentRemoteDescription && data?.answer) pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-      if (data?.status === 'ended') endCall(false);
-    });
+    // --- 3. INITIATE CALL (User A clicks button) ---
+    window.initiateCall = async function(type) {
+        if (!recipientId) return alert("Select a contact first");
 
-    onSnapshot(collection(callDocRef, 'answerCandidates'), snap => {
-      snap.docChanges().forEach(change => {
-        if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-      });
-    });
-  };
+        await startMedia();
+        document.getElementById('call-screen').classList.remove('hidden');
 
-  // 4. ANSWER CALL
-  window.answerCall = async function() {
-    document.getElementById('incoming-call').classList.add('hidden');
-    document.getElementById('dashboard').classList.add('hidden');
-    document.getElementById('call-screen').classList.remove('hidden');
+        const callDoc = doc(db, 'calls', currentChatId);
+        pc = new RTCPeerConnection(servers);
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
-    await setupMedia();
-    const callDocRef = doc(db, 'calls', currentCallDocId);
-    pc = new RTCPeerConnection(rtcConfig);
-    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+        pc.onicecandidate = e => e.candidate && addDoc(collection(callDoc, 'offerCandidates'), e.candidate.toJSON());
+        pc.ontrack = e => document.getElementById('remoteVideo').srcObject = e.streams[0];
 
-    pc.onicecandidate = e => e.candidate && addDoc(collection(callDocRef, 'answerCandidates'), e.candidate.toJSON());
-    pc.ontrack = e => {
-      document.getElementById('remoteVideo').srcObject = e.streams[0];
-      document.getElementById('status-text').innerText = "";
+        const offerDescription = await pc.createOffer();
+        await pc.setLocalDescription(offerDescription);
+
+        await setDoc(callDoc, {
+            callerId: myUid,
+            callerName: auth.currentUser.displayName || "Someone",
+            calleeId: recipientId,
+            status: 'ringing',
+            callType: type,
+            offer: { type: offerDescription.type, sdp: offerDescription.sdp }
+        });
+
+        // Listen for remote answer
+        onSnapshot(callDoc, (snapshot) => {
+            const data = snapshot.data();
+            if (data?.answer && !pc.currentRemoteDescription) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+            if (data?.status === 'ended') cleanupCall();
+        });
+
+        // Listen for remote ICE
+        onSnapshot(collection(callDoc, 'answerCandidates'), (snap) => {
+            snap.docChanges().forEach(change => {
+                if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+            });
+        });
     };
 
-    const callData = (await getDoc(callDocRef)).data();
-    await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
+    // --- 4. ACCEPT CALL (User B clicks Accept) ---
+    window.acceptIncomingCall = async function() {
+        document.getElementById('incoming-overlay').classList.add('hidden');
+        document.getElementById('call-screen').classList.remove('hidden');
 
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    await updateDoc(callDocRef, { answer: { type: answer.type, sdp: answer.sdp } });
+        await startMedia();
+        const callDoc = doc(db, 'calls', currentChatId);
+        pc = new RTCPeerConnection(servers);
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
-    onSnapshot(collection(callDocRef, 'offerCandidates'), snap => {
-      snap.docChanges().forEach(c => c.type === 'added' && pc.addIceCandidate(new RTCIceCandidate(c.doc.data())));
-    });
+        pc.onicecandidate = e => e.candidate && addDoc(collection(callDoc, 'answerCandidates'), e.candidate.toJSON());
+        pc.ontrack = e => document.getElementById('remoteVideo').srcObject = e.streams[0];
 
-    onSnapshot(callDocRef, snap => snap.data()?.status === 'ended' && endCall(false));
-  };
+        const callData = (await getDoc(callDoc)).data();
+        await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
 
-  // HELPERS
-  async function setupMedia() {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById('localVideo').srcObject = localStream;
-  }
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
 
-  window.endCall = async function(notify = true) {
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (pc) pc.close();
-    if (currentCallDocId && notify) await updateDoc(doc(db, 'calls', currentCallDocId), { status: 'ended' });
-    window.location.reload();
-  };
+        await updateDoc(callDoc, { 
+            answer: { type: answerDescription.type, sdp: answerDescription.sdp },
+            status: 'ongoing' 
+        });
 
-  window.toggleMic = () => localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
-  window.toggleCam = () => localStream.getVideoTracks()[0].enabled = !localStream.getVideoTracks()[0].enabled;
-  window.rejectCall = () => document.getElementById('incoming-call').classList.add('hidden');
+        onSnapshot(collection(callDoc, 'offerCandidates'), (snap) => {
+            snap.docChanges().forEach(change => {
+                if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+            });
+        });
+
+        onSnapshot(callDoc, (snap) => snap.data()?.status === 'ended' && cleanupCall());
+    };
+
+    // --- UTILITIES ---
+    async function startMedia() {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
+    }
+
+    window.hangUp = async function() {
+        if (currentChatId) {
+            await updateDoc(doc(db, 'calls', currentChatId), { status: 'ended' });
+        }
+        cleanupCall();
+    };
+
+    function cleanupCall() {
+        if (localStream) localStream.getTracks().forEach(t => t.stop());
+        if (pc) pc.close();
+        pc = null;
+        document.getElementById('call-screen').classList.add('hidden');
+        document.getElementById('incoming-overlay').classList.add('hidden');
+        window.location.reload(); 
+    }
+
+    window.declineIncomingCall = async function() {
+        await updateDoc(doc(db, 'calls', currentChatId), { status: 'ended' });
+        document.getElementById('incoming-overlay').classList.add('hidden');
+    };
+
+    window.toggleMute = () => {
+        const enabled = localStream.getAudioTracks()[0].enabled;
+        localStream.getAudioTracks()[0].enabled = !enabled;
+    };
 </script>
 </body>
 </html>
