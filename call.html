@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js"></script>
 
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#0b0f19;color:#fff}
@@ -78,12 +79,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-// =================== AUTH ===================
-async function signIn() {
-  const user = await auth.signInAnonymously();
-  return user.user.uid;
-}
+const messaging = firebase.messaging();
 
 // =================== GLOBALS ===================
 let userId, pc, localStream, callId, role, calleeId = null;
@@ -103,6 +99,29 @@ const ringtone = document.getElementById("ringtone");
 let callRef, offerCandidates, answerCandidates, messagesRef;
 let callStartTime, timerInterval;
 
+// =================== AUTH ===================
+async function signIn() {
+  const user = await auth.signInAnonymously();
+  return user.user.uid;
+}
+
+// =================== NOTIFICATIONS ===================
+const vapidKey = "BHyIOgZogdI-R89wbUd6CyjwQmBg2HIWrTSZdhttuhzxbbU2v_dECviTlW4ge9e2EU0yJ6aoImOeVUEMKYoj-DI";
+
+async function requestNotificationPermission(){
+  try{
+    await Notification.requestPermission();
+    const token = await messaging.getToken({ vapidKey });
+    console.log("FCM Token:", token);
+    await db.collection("users").doc(userId).update({ fcmToken: token });
+  }catch(e){console.error("Notification denied", e);}
+}
+
+messaging.onMessage(payload=>{
+  console.log("Foreground message:", payload);
+  alert(payload.notification.title + "\n" + payload.notification.body);
+});
+
 // =================== UTILITY ===================
 function addToHistory(status) {
   const entry = document.createElement("div");
@@ -121,10 +140,7 @@ function addToHistory(status) {
 
 // =================== MEDIA ===================
 async function startMedia() {
-  localStream = await navigator.mediaDevices.getUserMedia({
-    audio:true,
-    video:true
-  });
+  localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:true });
   localVideo.srcObject = localStream;
 }
 
@@ -140,13 +156,13 @@ function startTimer(){
 }
 function stopTimer(){ clearInterval(timerInterval); }
 
-// =================== CALL LOGIC ===================
+// =================== INIT CALL ===================
 async function initCall() {
-  role = prompt("Are you caller or callee? (caller/callee)","caller");
-  callId = prompt("Enter room ID or leave empty for new call","") || db.collection("calls").doc().id;
-
-  if(role==="caller") calleeId = prompt("Enter callee ID","callee");
+  role = prompt("Caller or Callee?","caller");
+  callId = prompt("Enter room ID or leave empty","") || db.collection("calls").doc().id;
+  if(role==="caller") calleeId = prompt("Enter callee UID","callee");
   userId = await signIn();
+  await requestNotificationPermission();
 
   callRef = db.collection("calls").doc(callId);
   offerCandidates = callRef.collection("offerIce");
@@ -160,7 +176,6 @@ async function initCall() {
 // =================== CALLER ===================
 async function startCaller(){
   await startMedia();
-
   await callRef.set({
     callerId:userId,
     calleeId:calleeId,
@@ -168,10 +183,12 @@ async function startCaller(){
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
+  sendCallNotification(calleeId);
+
   pc = new RTCPeerConnection(rtcConfig);
   localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
   pc.ontrack = e => remoteVideo.srcObject = e.streams[0];
-  pc.onicecandidate = e=>e.candidate && offerCandidates.add(e.candidate.toJSON());
+  pc.onicecandidate = e => e.candidate && offerCandidates.add(e.candidate.toJSON());
 
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
@@ -182,6 +199,7 @@ async function startCaller(){
     if(data?.answer && !pc.currentRemoteDescription){
       pc.setRemoteDescription(new RTCSessionDescription(data.answer));
       showCallUI();
+      startTimer();
     }
     if(data?.status==="ended"){ endCall(); }
   });
@@ -191,6 +209,15 @@ async function startCaller(){
       if(c.type==="added") pc.addIceCandidate(c.doc.data());
     });
   });
+
+  // Auto missed if not answered in 30s
+  setTimeout(async()=>{
+    const snap = await callRef.get();
+    if(snap.data()?.status==="calling"){
+      await callRef.update({status:"missed"});
+      addToHistory("missed");
+    }
+  },30000);
 }
 
 // =================== CALLEE ===================
@@ -204,7 +231,7 @@ function listenForCall(){
   });
 }
 
-// =================== ACCEPT CALL ===================
+// =================== ACCEPT ===================
 async function acceptCall(){
   ringing.classList.add("hidden");
   ringtone.pause();
@@ -230,6 +257,30 @@ async function acceptCall(){
 
   showCallUI();
   startTimer();
+}
+
+// =================== NOTIFICATIONS ===================
+async function sendCallNotification(calleeUid){
+  const userDoc = await db.collection("users").doc(calleeUid).get();
+  const token = userDoc.data()?.fcmToken;
+  if(!token) return;
+
+  fetch('https://fcm.googleapis.com/fcm/send',{
+    method:'POST',
+    headers:{
+      'Authorization':'key=YOUR_SERVER_KEY', // replace with Firebase server key
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify({
+      to: token,
+      notification:{
+        title:"Incoming Call",
+        body:`${userId} is calling you`,
+        click_action: window.location.href
+      },
+      data:{ callId, callerId:userId }
+    })
+  });
 }
 
 // =================== REJECT / END ===================
