@@ -1,16 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MEET | Feed</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
     --primary: #0080FF;
     --primary-dark: #0066CC;
-    --secondary: #00C6FF;
     --error: #EF4444;
     --success: #10B981;
     --warning: #F59E0B;
@@ -20,10 +20,6 @@
     --secondary-text: #65676b;
     --border-color: #dddfe2;
     --recycle-color: #10B981;
-    --notification-dot: #FF4757;
-    --sidebar-width: 220px;
-    --sidebar-collapsed: 70px;
-    --transition-speed: 0.3s;
   }
 
   body.dark-mode {
@@ -47,887 +43,166 @@
     color: var(--text-color);
     min-height: 100vh;
     font-size: 16px;
-    transition: background-color var(--transition-speed);
   }
 
-  .app-container { 
-    display: flex; 
-    min-height: 100vh; 
-    position: relative;
-  }
+  .app-container { display: flex; min-height: 100vh; }
 
-  /* Enhanced Sidebar */
+  /* Sidebar */
   .sidebar {
-    position: fixed; 
-    left: 0; 
-    top: 0; 
-    height: 100vh; 
-    width: var(--sidebar-width);
+    position: fixed; left: 0; top: 0; height: 100vh; width: 180px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    overflow-y: auto; 
-    overflow-x: hidden;
-    z-index: 1000; 
-    padding: 20px 15px;
-    color: white;
-    transition: width var(--transition-speed);
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto; z-index: 100; padding: 15px; color: white;
   }
-
-  .sidebar:hover .sidebar-header .logo-text {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .sidebar-header { 
-    padding: 10px 0 25px; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
-    margin-bottom: 20px; 
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-  }
-
-  .logo-container {
-    width: 40px;
-    height: 40px;
-    background: white;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-  }
-
-  .logo-container img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-  }
-
-  .logo-text {
-    font-size: 22px;
-    font-weight: 700;
-    color: white;
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: all var(--transition-speed);
-    white-space: nowrap;
-  }
-
-  .sidebar-menu { 
-    list-style: none; 
-  }
-
-  .sidebar-menu li { 
-    margin-bottom: 8px; 
-    position: relative;
-  }
-
+  .sidebar-header { padding: 5px 0 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 15px; }
+  .sidebar-menu { list-style: none; }
+  .sidebar-menu li { margin-bottom: 6px; }
   .sidebar-menu a {
-    display: flex; 
-    align-items: center; 
-    padding: 12px 15px;
-    text-decoration: none; 
-    color: rgba(255, 255, 255, 0.9); 
-    border-radius: 10px;
-    transition: all 0.25s ease; 
-    min-height: 48px; 
-    font-size: 15px;
-    font-weight: 500;
-    position: relative;
-    border-left: 3px solid transparent;
+    display: flex; align-items: center; padding: 10px;
+    text-decoration: none; color: white; border-radius: 8px;
+    transition: background 0.3s; min-height: 40px; font-size: 16px;
   }
+  .sidebar-menu a:hover { background: rgba(255, 255, 255, 0.2); }
+  .sidebar-menu i { margin-right: 10px; font-size: 18px; width: 22px; text-align: center; }
+  
+  /* Icon Colors */
+  .sidebar-menu a[href="feed.html"] i { color: #fff; }
+  .sidebar-menu a[onclick*="viewProfile"] i { color: #f4d03f; }
+  .sidebar-menu a[href="chat.html"] i { color: #4CAF50; }
+  .sidebar-menu a[href="meetrader.html"] i { color: #FF5722; }
+  .sidebar-menu a[href="meetversity.html"] i { color: #9C27B0; }
+  .sidebar-menu a[href="organization.html"] i { color: #00BCD4; }
+  .sidebar-menu a[onclick*="openUsersModal"] i { color: #e91e63; }
 
-  .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateX(3px);
-    color: white;
-  }
+  .main-content { flex: 1; margin-left: 180px; padding: 15px; min-height: 100vh; }
 
-  .sidebar-menu a.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-left-color: white;
-    color: white;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar-menu i { 
-    margin-right: 15px; 
-    font-size: 18px; 
-    width: 24px; 
-    text-align: center;
-    transition: transform 0.2s;
-  }
-
-  .sidebar-menu a:hover i {
-    transform: scale(1.1);
-  }
-
-  /* Menu Icon Colors */
-  .sidebar-menu a[href="feed.html"] i { color: #FFD700; }
-  .sidebar-menu a[onclick*="viewProfile"] i { color: #F39C12; }
-  .sidebar-menu a[href="chat.html"] i { color: #2ECC71; }
-  .sidebar-menu a[href="meetrader.html"] i { color: #E74C3C; }
-  .sidebar-menu a[href="meetversity.html"] i { color: #9B59B6; }
-  .sidebar-menu a[href="organization.html"] i { color: #3498DB; }
-  .sidebar-menu a[onclick*="openUsersModal"] i { color: #E84393; }
-
-  /* Enhanced Menu Notification Badges */
-  .menu-badge {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--notification-dot);
-    color: white;
-    border-radius: 50%;
-    width: 8px;
-    height: 8px;
-    display: none;
-    animation: pulse 2s infinite;
-  }
-
-  .menu-badge.count {
-    width: 20px;
-    height: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
-    70% { box-shadow: 0 0 0 6px rgba(255, 71, 87, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
-  }
-
-  .menu-text {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .main-content { 
-    flex: 1; 
-    margin-left: var(--sidebar-width); 
-    padding: 20px; 
-    min-height: 100vh;
-    transition: margin-left var(--transition-speed);
-  }
-
-  /* Enhanced Navbar */
+  /* Navbar */
   .navbar {
     background: linear-gradient(135deg, #0080FF 0%, #00C6FF 100%);
-    padding: 15px 20px; 
-    border-radius: 15px; 
-    margin-bottom: 20px;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-    color: white; 
-    flex-wrap: wrap; 
-    gap: 15px;
+    padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: white; flex-wrap: wrap; gap: 8px;
   }
+  .nav-controls { display: flex; gap: 8px; align-items: center; }
+  
+  .search-bar { display: flex; align-items: center; background: rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 6px 12px; margin-right: 10px; }
+  .search-bar input { background: transparent; border: none; color: white; outline: none; width: 180px; font-size: 16px; }
+  .search-bar input::placeholder { color: rgba(255, 255, 255, 0.7); }
 
-  .nav-title {
-    color: white; 
-    font-size: 22px; 
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .nav-title i {
-    font-size: 20px;
-  }
-
-  .nav-controls { 
-    display: flex; 
-    gap: 12px; 
-    align-items: center; 
-    flex-wrap: wrap;
-  }
-
-  /* Enhanced Search Bar */
-  .search-container {
-    position: relative;
-    margin-right: 15px;
-  }
-
-  .search-bar { 
-    display: flex; 
-    align-items: center; 
-    background: rgba(255, 255, 255, 0.25); 
-    border-radius: 25px; 
-    padding: 8px 18px; 
-    min-width: 280px;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-  }
-
-  .search-bar:focus-within {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .search-bar i { 
-    color: rgba(255, 255, 255, 0.9); 
-    margin-right: 10px;
-    font-size: 16px;
-  }
-
-  .search-bar input { 
-    background: transparent; 
-    border: none; 
-    color: white; 
-    outline: none; 
-    width: 100%; 
-    font-size: 15px; 
-    font-weight: 500;
-  }
-
-  .search-bar input::placeholder { 
-    color: rgba(255, 255, 255, 0.7); 
-    font-weight: 400;
-  }
-
-  .search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--card-bg);
-    border-radius: 12px;
-    margin-top: 8px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    display: none;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .search-results.active {
-    display: block;
-    animation: slideDown 0.3s ease;
-  }
-
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .search-result-item {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .search-result-item:hover {
-    background: var(--bg-color);
-  }
-
-  .search-result-item:last-child {
-    border-bottom: none;
-  }
-
-  .result-type {
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 12px;
-    background: var(--primary);
-    color: white;
-    font-weight: 600;
-  }
-
-  .user-profile-nav { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    padding: 6px 12px; 
-    border-radius: 25px; 
-    background: rgba(255, 255, 255, 0.2); 
-    cursor: pointer; 
-    min-height: 42px; 
-    transition: background 0.3s;
-  }
-
-  .user-profile-nav:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .user-avatar { 
-    width: 38px; 
-    height: 38px; 
-    border-radius: 50%; 
-    background: var(--primary); 
-    color: white; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-weight: bold; 
-    overflow: hidden; 
-    font-size: 16px; 
-    border: 2px solid white;
-  }
-
-  .user-avatar img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-  }
-
-  .user-avatar.small { 
-    width: 32px; 
-    height: 32px; 
-    font-size: 14px; 
-  }
+  .user-profile-nav { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 20px; background: rgba(255, 255, 255, 0.2); cursor: pointer; min-height: 36px; }
+  
+  .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; font-size: 16px; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-avatar.small { width: 28px; height: 28px; font-size: 14px; }
 
   .btn {
-    background: rgba(255, 255, 255, 0.2); 
-    color: white; 
-    border: none;
-    padding: 8px 16px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    font-weight: 600;
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-size: 15px; 
-    min-height: 42px;
-    transition: all 0.3s;
-    position: relative;
+    background: rgba(255, 255, 255, 0.2); color: white; border: none;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    display: flex; align-items: center; gap: 6px; font-size: 16px; min-height: 36px;
   }
-
-  .btn:hover { 
-    background: rgba(255, 255, 255, 0.3); 
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
+  .btn:hover { background: rgba(255, 255, 255, 0.3); }
   #notificationsBtn i { color: #FFC107; }
   #nightToggleBtn i { color: #9C27B0; }
   #logoutBtn i { color: #EF4444; }
 
-  .unread-badge { 
-    background: var(--error); 
-    color: white; 
-    border-radius: 50%; 
-    padding: 2px 6px; 
-    font-size: 11px; 
-    display: none; 
-    min-width: 18px; 
-    height: 18px;
-    justify-content: center; 
-    align-items: center; 
-    font-weight: 700;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-  }
+  .unread-badge { background: var(--error); color: white; border-radius: 50%; padding: 2px 5px; font-size: 10px; display: none; min-width: 16px; justify-content: center; align-items: center; }
 
-  /* Composer & Posts - Keep existing but enhanced */
-  .post-composer { 
-    background: var(--card-bg); 
-    border-radius: 15px; 
-    padding: 20px; 
-    margin-bottom: 25px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-    transition: transform 0.3s;
-  }
+  /* Composer */
+  .post-composer { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .composer-header { display: flex; align-items: center; gap: 12px; }
+  .composer-input { flex: 1; background: var(--bg-color); border: none; padding: 10px 14px; border-radius: 25px; color: var(--text-color); font-size: 16px; cursor: pointer; }
 
-  .post-composer:hover {
-    transform: translateY(-2px);
-  }
+  /* Posts */
+  .posts { display: flex; flex-direction: column; gap: 14px; }
+  .post { background: var(--card-bg); border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative; }
+  
+  .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .post-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .post-meta { font-size: 14px; color: var(--secondary-text); }
+  .post-content { margin-bottom: 10px; font-size: 17px; line-height: 1.5; }
+  
+  .post-media { margin-top: 10px; border-radius: 6px; overflow: hidden; cursor: pointer; }
+  .post-media img, .post-media video { width: 100%; max-height: 500px; object-fit: contain; }
 
-  .composer-header { 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-  }
-
-  .composer-input { 
-    flex: 1; 
-    background: var(--bg-color); 
-    border: none; 
-    padding: 14px 20px; 
-    border-radius: 30px; 
-    color: var(--text-color); 
-    font-size: 16px; 
-    cursor: pointer; 
-    transition: all 0.3s;
-    border: 2px solid transparent;
-  }
-
-  .composer-input:hover {
-    background: rgba(0, 128, 255, 0.05);
-    border-color: rgba(0, 128, 255, 0.2);
-  }
-
-  .posts { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 18px; 
-  }
-
-  .post { 
-    background: var(--card-bg); 
-    border-radius: 15px; 
-    padding: 20px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-    position: relative;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-
-  .post:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-  }
-
-  .post-header { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    margin-bottom: 15px; 
-  }
-
-  .post-user { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    cursor: pointer; 
-  }
-
-  .post-meta { 
-    font-size: 14px; 
-    color: var(--secondary-text); 
-  }
-
-  .post-content { 
-    margin-bottom: 15px; 
-    font-size: 17px; 
-    line-height: 1.6; 
-    word-wrap: break-word;
-  }
-
-  .post-media { 
-    margin-top: 15px; 
-    border-radius: 10px; 
-    overflow: hidden; 
-    cursor: pointer; 
-  }
-
-  .post-media img, .post-media video { 
-    width: 100%; 
-    max-height: 500px; 
-    object-fit: contain; 
-    border-radius: 10px;
-  }
-
-  /* Enhanced Interactions */
-  .post-interactions { 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 10px 0; 
-    border-top: 1px solid var(--border-color); 
-    margin-top: 15px; 
-    flex-wrap: wrap; 
-  }
-
-  .interaction-btn { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    padding: 8px 15px; 
-    border-radius: 20px; 
-    cursor: pointer; 
-    color: var(--secondary-text); 
-    font-weight: 600; 
-    font-size: 15px; 
-    flex: 1; 
-    justify-content: center; 
-    transition: all 0.3s;
-    min-height: 40px;
-  }
-
-  .interaction-btn:hover { 
-    background: var(--bg-color); 
-    color: var(--primary);
-    transform: scale(1.05);
-  }
-
-  .interaction-btn.active { 
-    color: var(--warning); 
-  }
-
-  .interaction-btn .count { 
-    margin-left: 5px; 
-    font-weight: 700; 
-    font-size: 15px; 
-  }
-
-  /* Comments & Modals - Enhanced */
-  .comments-section { 
-    margin-top: 15px; 
-    border-top: 1px solid var(--border-color); 
-    padding-top: 15px; 
-  }
-
-  .comment { 
-    display: flex; 
-    gap: 12px; 
-    margin-bottom: 12px; 
-  }
-
-  .comment-content { 
-    flex: 1; 
-    background: var(--bg-color); 
-    padding: 10px 15px; 
-    border-radius: 18px; 
-    font-size: 15px; 
-  }
-
-  .view-more-comments { 
-    color: var(--primary); 
-    cursor: pointer; 
-    font-weight: 600; 
-    font-size: 15px; 
-    margin-bottom: 8px; 
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: color 0.3s;
-  }
-
-  .view-more-comments:hover {
-    color: var(--primary-dark);
-  }
-
-  .comment-input { 
-    display: flex; 
-    gap: 10px; 
-    margin-top: 15px; 
-    align-items: center; 
-  }
-
-  .comment-input input { 
-    flex: 1; 
-    background: var(--bg-color); 
-    border: none; 
-    padding: 12px 18px; 
-    border-radius: 25px; 
-    color: var(--text-color); 
-    font-size: 15px; 
-    transition: all 0.3s;
-    border: 2px solid transparent;
-  }
-
-  .comment-input input:focus {
-    border-color: var(--primary);
-    background: var(--card-bg);
-  }
-
-  .send-comment-btn { 
-    background: var(--primary); 
-    color: white; 
-    border: none; 
-    border-radius: 50%; 
-    width: 40px; 
-    height: 40px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer; 
-    transition: all 0.3s;
-  }
-
-  .send-comment-btn:hover {
-    background: var(--primary-dark);
-    transform: scale(1.1);
-  }
-
-  /* Enhanced Modals */
-  .modal { 
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background: rgba(0,0,0,0.5); 
-    z-index: 2000; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 20px;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .modal-content { 
-    background: var(--card-bg); 
-    border-radius: 15px; 
-    width: 550px; 
-    max-width: 95%; 
-    max-height: 85vh; 
-    overflow-y: auto;
-    animation: slideUp 0.4s ease;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  .modal-header { 
-    padding: 20px; 
-    border-bottom: 1px solid var(--border-color); 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-  }
-
-  .modal-body { 
-    padding: 20px; 
-  }
-
-  .close-modal { 
-    background: none; 
-    border: none; 
-    font-size: 24px; 
-    cursor: pointer; 
-    color: var(--secondary-text);
-    transition: color 0.3s;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .close-modal:hover {
-    color: var(--error);
+  /* Recycle / Repost Styling */
+  .recycled-container {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
     background: var(--bg-color);
   }
+  .recycled-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--secondary-text); }
 
-  .post-textarea { 
-    width: 100%; 
-    min-height: 120px; 
-    border: 2px solid #0080FF; 
-    background: transparent; 
-    color: var(--text-color); 
-    font-size: 16px; 
-    resize: none; 
-    outline: none; 
-    padding: 15px; 
-    border-radius: 10px; 
-    transition: border-color 0.3s;
+  /* Interactions */
+  .post-interactions { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--border-color); margin-top: 8px; flex-wrap: wrap; }
+  .interaction-btn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 4px; cursor: pointer; color: var(--secondary-text); font-weight: 600; font-size: 15px; flex: 1; justify-content: center; }
+  .interaction-btn:hover { background: var(--bg-color); }
+  .interaction-btn.active { color: var(--warning); }
+  
+  /* Specific Interaction Colors on Hover/Active */
+  .interaction-btn.recycle-btn:hover { color: var(--recycle-color); }
+  
+  .interaction-btn .count { margin-left: 4px; font-weight: bold; font-size: 14px; }
+
+  /* Post Options */
+  .post-options { position: relative; }
+  .post-options-menu { display: none; position: absolute; top: 100%; right: 0; background: var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.2); border-radius: 6px; z-index: 10; width: 140px; }
+  .post-options-menu.show { display: block; }
+  .post-option-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 15px; }
+  .post-option-item:hover { background: var(--bg-color); }
+
+  /* Comments */
+  .comments-section { margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+  .comment { display: flex; gap: 10px; margin-bottom: 10px; }
+  .comment-content { flex: 1; background: var(--bg-color); padding: 8px 12px; border-radius: 16px; font-size: 15px; }
+  .view-more-comments { color: var(--primary); cursor: pointer; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  
+  .comment-input { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .comment-input input { flex: 1; background: var(--bg-color); border: none; padding: 8px 12px; border-radius: 16px; color: var(--text-color); font-size: 15px; }
+  .send-comment-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  /* Modals */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
+  .modal-content { background: var(--card-bg); border-radius: 10px; width: 500px; max-width: 90%; max-height: 85vh; overflow-y: auto; }
+  .modal-header { padding: 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+  .modal-body { padding: 14px; }
+  .close-modal { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--secondary-text); }
+  
+  .post-textarea { width: 100%; min-height: 100px; border: 2px solid #0080FF; background: transparent; color: var(--text-color); font-size: 16px; resize: none; outline: none; padding: 10px; border-radius: 6px; }
+
+  /* Recycled Post Preview in Modal */
+  .recycle-preview {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px dashed var(--primary);
+    border-radius: 8px;
+    background: var(--bg-color);
+    font-size: 14px;
   }
 
-  .post-textarea:focus {
-    border-color: #0066CC;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 1024px) {
-    .sidebar {
-      width: var(--sidebar-collapsed);
-      padding: 15px 10px;
-    }
-    
-    .main-content {
-      margin-left: var(--sidebar-collapsed);
-      padding: 15px;
-    }
-    
-    .sidebar-header .logo-text,
-    .sidebar-menu .menu-text {
-      display: none;
-    }
-    
-    .sidebar-header {
-      justify-content: center;
-      padding: 10px 0 20px;
-    }
-    
-    .logo-container {
-      width: 36px;
-      height: 36px;
-    }
-    
-    .sidebar-menu a {
-      padding: 12px;
-      justify-content: center;
-    }
-    
-    .sidebar-menu i {
-      margin-right: 0;
-      font-size: 20px;
-    }
-    
-    .menu-badge {
-      right: 8px;
-      top: 8px;
-    }
-    
-    .menu-badge.count {
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-    }
-  }
+  /* Notifications */
+  .notif-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+  .notif-unread { background: rgba(0, 128, 255, 0.1); }
+  .notif-actions { display: flex; gap: 8px; }
+  .notif-btn { cursor: pointer; color: var(--secondary-text); }
+  
+  /* Users List */
+  .user-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+  .association-btn { padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .associate-btn { background: var(--primary); color: white; }
+  .disassociate-btn { background: var(--error); color: white; }
 
   @media (max-width: 768px) {
-    .navbar {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 15px;
-      padding: 15px;
-    }
-    
-    .nav-controls {
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .search-container {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: 10px;
-    }
-    
-    .search-bar {
-      min-width: 100%;
-    }
-    
-    .btn span,
-    .user-profile-nav span {
-      display: none;
-    }
-    
-    .btn {
-      padding: 10px;
-      min-width: 44px;
-      justify-content: center;
-    }
-    
-    .user-profile-nav {
-      padding: 8px;
-    }
-    
-    .post-interactions {
-      gap: 5px;
-    }
-    
-    .interaction-btn {
-      flex: 0 0 calc(50% - 10px);
-      margin-bottom: 10px;
-      padding: 10px;
-    }
-    
-    .modal-content {
-      width: 95%;
-      margin: 10px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sidebar {
-      width: 60px;
-      padding: 10px 5px;
-    }
-    
-    .main-content {
-      margin-left: 60px;
-      padding: 10px;
-    }
-    
-    .logo-container {
-      width: 32px;
-      height: 32px;
-    }
-    
-    .logo-container img {
-      width: 22px;
-      height: 22px;
-    }
-    
-    .sidebar-menu a {
-      padding: 10px;
-      min-height: 44px;
-    }
-    
-    .sidebar-menu i {
-      font-size: 18px;
-    }
-    
-    .post-composer,
-    .post {
-      padding: 15px;
-    }
-    
-    .interaction-btn {
-      flex: 0 0 100%;
-    }
-    
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      font-size: 14px;
-    }
-    
-    .user-avatar.small {
-      width: 28px;
-      height: 28px;
-    }
-  }
-
-  /* Loading Animation */
-  .loading-spinner {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(0, 128, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--primary);
-    animation: spin 1s ease-in-out infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* No Results Message */
-  .no-results {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--secondary-text);
-  }
-
-  .no-results i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: var(--border-color);
+    .sidebar { width: 60px; padding: 8px 4px; }
+    .sidebar-header, .sidebar-menu span { display: none; }
+    .main-content { margin-left: 60px; padding: 10px; }
+    .navbar { flex-direction: column; align-items: flex-start; }
+    .search-bar, .user-profile-nav span, .btn span { display: none; }
+    .nav-controls { width: 100%; justify-content: space-between; }
+    .btn { padding: 6px; }
+    .sidebar-menu i { margin-right: 0; font-size: 20px; }
+    .sidebar-menu a { justify-content: center; }
   }
 </style>
 </head>
@@ -936,84 +211,72 @@
 <div class="app-container">
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo-container">
-        <!-- Replace with your actual logo -->
-        <img src="logo.svg" alt="MEET Logo" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👥</text></svg>';">
-      </div>
-      <div class="logo-text">MEET</div>
+      <h2 style="color: white; font-size: 20px;">MEET</h2>
     </div>
     <ul class="sidebar-menu">
-      <li><a href="feed.html" class="active"><i class="fas fa-home"></i> <span class="menu-text">Feed</span></a></li>
-      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span class="menu-text">Profile</span></a></li>
-      <li><a href="chat.html"><i class="fas fa-comment"></i> <span class="menu-text">Chat</span> <span class="menu-badge" id="chatBadge"></span></a></li>
-      <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span class="menu-text">Meetrader</span></a></li>
-      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span class="menu-text">Meetversity</span></a></li>
-      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span class="menu-text">Organization</span></a></li>
-      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span class="menu-text">Find Associates</span> <span class="menu-badge" id="associatesBadge"></span></a></li>
+      <li><a href="feed.html"><i class="fas fa-home"></i> <span>Feed</span></a></li>
+      <li><a href="#" onclick="viewProfile(auth.currentUser.uid)"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+      <li><a href="chat.html"><i class="fas fa-comment"></i> <span>Chat</span></a></li>
+      <li><a href="meetrader.html"><i class="fas fa-chart-line"></i> <span>Meetrader</span></a></li>
+      <li><a href="meetversity.html"><i class="fas fa-graduation-cap"></i> <span>Meetversity</span></a></li>
+      <li><a href="organization.html"><i class="fas fa-sitemap"></i> <span>Organization</span></a></li>
+      <li><a href="#" onclick="openUsersModal()"><i class="fas fa-users"></i> <span>Find Associates</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
     <div class="navbar">
-      <div class="nav-title">
-        <i class="fas fa-rss"></i>
-        <span>Feed</span>
-      </div>
-      <div class="nav-controls">
-        <div class="search-container">
-          <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search posts, users, or topics..." id="searchInput">
+      <h2 style="color: white; font-size: 20px;">Feed</h2>
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search...">
+        </div>
+        <div class="nav-controls">
+          <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
+            <div class="user-avatar small" id="currentUserAvatar">U</div>
+            <span id="userName" style="font-size: 15px;">User</span>
           </div>
-          <div class="search-results" id="searchResults"></div>
+          <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
+            <i class="fas fa-bell"></i> <span style="font-size: 15px;">Notifications</span>
+            <span class="unread-badge" id="unreadBadge"></span>
+          </button>
+          <button class="btn" id="nightToggleBtn">
+            <i class="fas fa-moon"></i> <span style="font-size: 15px;">Night Mode</span>
+          </button>
+          <button class="btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> <span style="font-size: 15px;">Logout</span>
+          </button>
         </div>
-        <div class="user-profile-nav" onclick="viewProfile(auth.currentUser.uid)">
-          <div class="user-avatar small" id="currentUserAvatar">U</div>
-          <span id="userName">User</span>
-        </div>
-        <button class="btn" id="notificationsBtn" onclick="openNotificationsModal()">
-          <i class="fas fa-bell"></i> <span>Notifications</span>
-          <span class="unread-badge" id="unreadBadge"></span>
-        </button>
-        <button class="btn" id="nightToggleBtn">
-          <i class="fas fa-moon"></i> <span>Night Mode</span>
-        </button>
-        <button class="btn" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-        </button>
       </div>
     </div>
 
     <div class="post-composer">
       <div class="composer-header">
         <div class="user-avatar" id="currentUserAvatarComposer">U</div>
-        <div class="composer-input" id="openComposer">Surprise the world...</div>
+        <div class="composer-input" id="openComposer">Surprise the world</div>
       </div>
     </div>
 
     <div id="messageContainer"></div>
     <div class="posts" id="postsContainer">
-      <div class="loading" style="text-align:center; padding:40px;">
-        <div class="loading-spinner"></div>
-        <p style="margin-top:15px; color:var(--secondary-text);">Loading meetcasts...</p>
-      </div>
+      <div class="loading" style="text-align:center; padding:20px;">Loading meetcasts...</div>
     </div>
   </div>
 </div>
 
-<!-- Modals remain the same -->
 <div class="modal" id="postModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modalTitle">Create Meetcast</h3>
+      <h3 id="modalTitle" style="font-size: 18px;">Create Meetcast</h3>
       <button class="close-modal" id="closeModal">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex; gap:15px; margin-bottom:20px;">
+      <div style="display:flex; gap:12px; margin-bottom:16px;">
         <div class="user-avatar" id="modalUserAvatar">U</div>
         <div>
-          <div id="modalUserName" style="font-weight:600; font-size:16px;">User Name</div>
-          <select id="privacy" style="border:none; background:var(--bg-color); padding:6px 10px; font-size:14px; border-radius:6px;">
+          <div id="modalUserName" style="font-weight:600; font-size: 16px;">User Name</div>
+          <select id="privacy" style="border:none; background:var(--bg-color); padding:4px; font-size: 14px;">
             <option value="public">🌍 Public</option>
             <option value="friends">👥 Associates</option>
             <option value="private">🔒 Only Me</option>
@@ -1021,28 +284,27 @@
         </div>
       </div>
       
-      <textarea class="post-textarea" id="postText" placeholder="Share your thoughts..."></textarea>
+      <textarea class="post-textarea" id="postText" placeholder="Surprise the world"></textarea>
       
       <div id="recyclePreviewContainer" style="display:none;"></div>
 
       <div class="media-preview" id="mediaPreview"></div>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-        <div style="display:flex; gap:12px;" id="mediaControls">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <div style="display:flex; gap:10px;" id="mediaControls">
             <input type="file" id="postMedia" accept="image/*,video/*" style="display: none;">
-            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size:24px; cursor:pointer;"></i>
+            <i class="fas fa-images action-btn" onclick="document.getElementById('postMedia').click()" style="color:#45bd62; font-size: 24px; cursor: pointer;"></i>
         </div>
-        <button class="btn" id="postBtn" style="background:var(--primary); font-size:16px;">Post</button>
+        <button class="btn" id="postBtn" style="background:var(--primary); font-size: 16px;">Post</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Existing modals remain unchanged -->
 <div class="modal" id="usersModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Find Associates</h3>
+      <h3 style="font-size: 18px;">Find Associates</h3>
       <button class="close-modal" id="closeUsersModal">&times;</button>
     </div>
     <div class="modal-body">
@@ -1054,7 +316,7 @@
 <div class="modal" id="notificationsModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Notifications</h3>
+      <h3 style="font-size: 18px;">Notifications</h3>
       <button class="close-modal" id="closeNotificationsModal">&times;</button>
     </div>
     <div class="modal-body">
@@ -1063,10 +325,10 @@
   </div>
 </div>
 
-<div class="modal" id="commentsModal">
+<div class="modal" id="commentsModal" style="z-index: 1050;">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>All Responses</h3>
+      <h3 style="font-size: 18px;">All Responses</h3>
       <button class="close-modal" id="closeCommentsModal">&times;</button>
     </div>
     <div class="modal-body" id="commentsModalBody"></div>
@@ -1101,160 +363,15 @@
 
   let currentUser = null;
   let editingPostId = null; 
-  let recyclingPostData = null;
+  let recyclingPostData = null; // Store data for the post being recycled
   const userCache = {};
   const postsContainer = document.getElementById('postsContainer');
-  let allPostsData = [];
 
   function showMessage(msg, type = 'success') {
     const el = document.getElementById('messageContainer');
-    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:12px 20px; margin:10px 0; border-radius:10px; text-align:center; font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.1);">${msg}</div>`;
-    setTimeout(() => el.innerHTML = '', 4000);
+    el.innerHTML = `<div style="background:${type==='success'?'#dcfce7':'#fee2e2'}; color:${type==='success'?'#166534':'#991b1b'}; padding:10px; margin:10px; border-radius:8px; text-align:center;">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 3000);
   }
-
-  // SEARCH FUNCTIONALITY
-  function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    
-    searchInput.addEventListener('input', debounce(async (e) => {
-      const searchTerm = e.target.value.trim().toLowerCase();
-      
-      if (searchTerm.length < 2) {
-        searchResults.classList.remove('active');
-        return;
-      }
-      
-      searchResults.innerHTML = '<div style="padding:20px; text-align:center;"><div class="loading-spinner"></div><p style="margin-top:10px; color:var(--secondary-text);">Searching...</p></div>';
-      searchResults.classList.add('active');
-      
-      try {
-        // Search in loaded posts
-        const results = [];
-        
-        // Search in post content
-        allPostsData.forEach(post => {
-          const text = post.text?.toLowerCase() || '';
-          const userName = post.userName?.toLowerCase() || '';
-          
-          if (text.includes(searchTerm) || userName.includes(searchTerm)) {
-            results.push({
-              type: 'post',
-              content: post.text,
-              userName: post.userName,
-              postId: post.id,
-              userId: post.userId
-            });
-          }
-        });
-        
-        // Search users (you would need to query Firestore for users)
-        const usersQuery = query(collection(db, "users"), 
-          where("displayName", ">=", searchTerm),
-          where("displayName", "<=", searchTerm + '\uf8ff')
-        );
-        
-        const usersSnapshot = await getDocs(usersQuery);
-        usersSnapshot.forEach(doc => {
-          const user = doc.data();
-          results.push({
-            type: 'user',
-            userName: user.displayName,
-            userId: doc.id,
-            photoURL: user.photoURL
-          });
-        });
-        
-        displaySearchResults(results, searchTerm);
-        
-      } catch (error) {
-        console.error("Search error:", error);
-        searchResults.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><p>Search failed. Please try again.</p></div>';
-      }
-    }, 300));
-    
-    // Close search results when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-        searchResults.classList.remove('active');
-      }
-    });
-  }
-  
-  function displaySearchResults(results, searchTerm) {
-    const searchResults = document.getElementById('searchResults');
-    
-    if (results.length === 0) {
-      searchResults.innerHTML = `
-        <div class="no-results">
-          <i class="fas fa-search"></i>
-          <p>No results found for "${searchTerm}"</p>
-        </div>
-      `;
-      return;
-    }
-    
-    let html = '';
-    results.slice(0, 10).forEach(result => {
-      if (result.type === 'post') {
-        html += `
-          <div class="search-result-item" onclick="viewPost('${result.postId}')">
-            <i class="fas fa-newspaper" style="color:var(--primary);"></i>
-            <div style="flex:1;">
-              <div style="font-weight:600;">${result.userName}</div>
-              <div style="font-size:13px; color:var(--secondary-text); margin-top:2px;">
-                ${result.content.length > 60 ? result.content.substring(0, 60) + '...' : result.content}
-              </div>
-            </div>
-            <span class="result-type">Post</span>
-          </div>
-        `;
-      } else if (result.type === 'user') {
-        html += `
-          <div class="search-result-item" onclick="viewProfile('${result.userId}')">
-            <div class="user-avatar small" style="background:var(--primary);">
-              ${result.photoURL ? `<img src="${result.photoURL}" alt="${result.userName}">` : result.userName?.charAt(0) || 'U'}
-            </div>
-            <div style="flex:1; font-weight:600;">${result.userName}</div>
-            <span class="result-type">User</span>
-          </div>
-        `;
-      }
-    });
-    
-    if (results.length > 10) {
-      html += `<div class="search-result-item" style="justify-content:center; color:var(--primary); font-weight:600;">
-        ${results.length - 10} more results...
-      </div>`;
-    }
-    
-    searchResults.innerHTML = html;
-  }
-  
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-  
-  window.viewPost = (postId) => {
-    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-    if (postElement) {
-      postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      postElement.style.animation = 'none';
-      setTimeout(() => {
-        postElement.style.animation = 'pulse 0.5s';
-      }, 10);
-      document.getElementById('searchResults').classList.remove('active');
-      document.getElementById('searchInput').value = '';
-    }
-  };
 
   async function uploadMedia(file) {
     const formData = new FormData();
@@ -1282,54 +399,12 @@
 
   function getAvatarHTML(photoURL, name, size = 'medium') {
     const initial = name ? name.charAt(0).toUpperCase() : 'U';
-    const style = size === 'small' ? 'width:32px;height:32px;font-size:14px;' : 'width:40px;height:40px;font-size:16px;';
+    const style = size === 'small' ? 'width:28px;height:28px;font-size:14px; min-width: 28px;' : 'width:36px;height:36px;font-size:16px; min-width: 36px;';
     if (photoURL) return `<img src="${photoURL}" alt="${name}" style="${style} border-radius:50%; object-fit:cover;">`;
     return `<div style="${style} background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
   }
 
   window.viewProfile = (targetId) => window.location.href = `profile.html?uid=${targetId}`;
-
-  // MENU NOTIFICATION BADGES
-  function setupMenuBadges() {
-    // Chat notifications (placeholder - implement when chat is ready)
-    const chatBadge = document.getElementById('chatBadge');
-    
-    // Listen for unread messages count (you'll need to implement this based on your chat structure)
-    const chatQuery = query(collection(db, "chats"), 
-      where("participants", "array-contains", currentUser.uid),
-      where("lastMessage.read", "==", false)
-    );
-    
-    onSnapshot(chatQuery, (snapshot) => {
-      const unreadCount = snapshot.size;
-      if (unreadCount > 0) {
-        chatBadge.style.display = 'flex';
-        chatBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        chatBadge.className = 'menu-badge count';
-      } else {
-        chatBadge.style.display = 'none';
-      }
-    });
-    
-    // Associates notifications (new association requests)
-    const associatesBadge = document.getElementById('associatesBadge');
-    const associatesQuery = query(collection(db, "notifications"), 
-      where("targetUserId", "==", currentUser.uid),
-      where("type", "==", "associate_request"),
-      where("read", "==", false)
-    );
-    
-    onSnapshot(associatesQuery, (snapshot) => {
-      const unreadCount = snapshot.size;
-      if (unreadCount > 0) {
-        associatesBadge.style.display = 'flex';
-        associatesBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        associatesBadge.className = 'menu-badge count';
-      } else {
-        associatesBadge.style.display = 'none';
-      }
-    });
-  }
 
   // AUTH STATE
   onAuthStateChanged(auth, async (user) => {
@@ -1341,66 +416,30 @@
       const photo = userData?.photoURL || user.photoURL;
       const name = userData?.displayName || user.displayName || 'User';
       
-      // Update all avatar instances
       document.getElementById('currentUserAvatar').innerHTML = getAvatarHTML(photo, name, 'small');
       document.getElementById('currentUserAvatarComposer').innerHTML = getAvatarHTML(photo, name);
       document.getElementById('modalUserAvatar').innerHTML = getAvatarHTML(photo, name);
       document.getElementById('userName').textContent = name;
       document.getElementById('modalUserName').textContent = name;
       
-      // Initialize features
       setupFeedListener();
       setupNotificationsCount();
-      setupMenuBadges();
-      initSearch();
-      
-      // Set active menu item based on current page
-      setActiveMenuItem();
     }
   });
 
-  function setActiveMenuItem() {
-    const currentPage = window.location.pathname.split('/').pop();
-    const menuItems = document.querySelectorAll('.sidebar-menu a');
-    
-    menuItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('href') === currentPage) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  // FEED LISTENER - Enhanced with search indexing
+  // =================== FEED LOGIC ===================
   function setupFeedListener() {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     onSnapshot(q, async (snapshot) => {
       postsContainer.innerHTML = "";
-      allPostsData = [];
-      
       if (snapshot.empty) {
-        postsContainer.innerHTML = `
-          <div class="no-results" style="padding:60px 20px;">
-            <i class="fas fa-feather-alt" style="font-size:48px;"></i>
-            <h3 style="margin:15px 0 10px; color:var(--secondary-text);">No meetcasts yet</h3>
-            <p style="color:var(--secondary-text);">Be the first to share something!</p>
-          </div>
-        `;
+        postsContainer.innerHTML = '<div class="loading">No meetcasts yet.</div>';
         return;
       }
 
       for (const docSnap of snapshot.docs) {
         const post = docSnap.data();
         const postId = docSnap.id;
-        
-        // Store for search indexing
-        allPostsData.push({
-          id: postId,
-          text: post.text,
-          userName: post.userName,
-          userId: post.userId,
-          ...post
-        });
         
         const authorData = await getUserDataWithCache(post.userId);
         const authorName = authorData?.displayName || post.userName || 'Anonymous';
@@ -1409,7 +448,6 @@
         const postEl = document.createElement('div');
         postEl.className = 'post';
         postEl.dataset.postId = postId;
-        postEl.dataset.searchIndex = `${authorName} ${post.text}`.toLowerCase();
         
         postsContainer.appendChild(postEl);
         renderPost(postEl, post, postId, authorName, authorPhoto);
@@ -1419,15 +457,14 @@
     });
   }
 
-  // The rest of your existing Firebase functions remain exactly the same...
-  // [ALL YOUR EXISTING FUNCTIONS FROM THE ORIGINAL CODE GO HERE]
-  // I'm including the function declarations but keeping the implementation as is
-
   async function renderPost(postEl, post, postId, authorName, authorPhoto) {
       const currentUserId = currentUser.uid;
+
+      // Check Star Status (Initial load)
       const starSnap = await getDoc(doc(db, `posts/${postId}/stars/${currentUserId}`));
       const isStarred = starSnap.exists();
       
+      // Check Recycled Content
       let contentHtml = `<div class="post-content" id="content-${postId}">${post.text}</div>`;
       
       if (post.type === 'recycle' && post.originalPost) {
@@ -1452,7 +489,7 @@
           <div class="post-user" onclick="viewProfile('${post.userId}')">
             <div class="user-avatar-container">${getAvatarHTML(authorPhoto, authorName)}</div>
             <div>
-              <div style="font-weight:600; color:var(--primary); font-size:16px;">${authorName}</div>
+              <div style="font-weight:600; color:var(--primary); font-size: 16px;">${authorName}</div>
               <div class="post-meta">${post.createdAt?.toDate().toLocaleDateString() || 'Just now'} • ${post.privacy}</div>
             </div>
           </div>
@@ -1497,67 +534,354 @@
         </div>
       `;
   }
-
-  // [ALL REMAINING ORIGINAL FUNCTIONS GO HERE WITHOUT CHANGES]
-  // setupPostInteractionListeners, toggleStar, sharePost, recyclePost, etc.
-  // ...
-
-  // UI BINDINGS
-  document.getElementById('openComposer').onclick = () => { 
-    closeComposer(); 
-    document.getElementById('postModal').style.display = 'flex'; 
-  };
   
-  // Night mode toggle with icon change
-  document.getElementById('nightToggleBtn').onclick = () => {
-    document.body.classList.toggle('dark-mode');
-    const icon = document.querySelector('#nightToggleBtn i');
-    if (document.body.classList.contains('dark-mode')) {
-      icon.className = 'fas fa-sun';
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      icon.className = 'fas fa-moon';
-      localStorage.setItem('darkMode', 'disabled');
-    }
-  };
+  function setupPostInteractionListeners(postId) {
+    // 1. Star Count
+    onSnapshot(collection(db, `posts/${postId}/stars`), (snap) => {
+        const el = document.getElementById(`star-count-${postId}`);
+        if (el) el.textContent = snap.size;
+        
+        // Update button state (in case updated from another device)
+        const btn = document.getElementById(`star-btn-${postId}`);
+        if(btn) {
+             const isStarred = snap.docs.some(doc => doc.id === currentUser.uid);
+             btn.classList.toggle('active', isStarred);
+             btn.querySelector('i').className = isStarred ? 'fas fa-star' : 'far fa-star';
+        }
+    });
 
-  // Load dark mode preference
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    document.querySelector('#nightToggleBtn i').className = 'fas fa-sun';
+    // 2. Response Count (Real-time fix)
+    onSnapshot(collection(db, `posts/${postId}/responses`), (snap) => {
+        const el = document.getElementById(`response-count-${postId}`);
+        if (el) el.textContent = snap.size;
+    });
+
+    // 3. Share Count (Real-time fix)
+    onSnapshot(collection(db, `posts/${postId}/shares`), (snap) => {
+        const el = document.getElementById(`share-count-${postId}`);
+        if (el) el.textContent = snap.size;
+    });
+
+    // 4. Recycle Count (Simulated via query as Recycles are just posts)
+    // Note: Counting recycles by querying all posts is expensive. 
+    // In production, we'd use a Cloud Function counter. For this demo, we'll skip the real-time count 
+    // or use a subcollection approach similar to stars if we wanted strict counting, 
+    // but typically Recycles are just displayed as posts.
   }
 
-  // Close modals with escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal').forEach(modal => {
-        modal.style.display = 'none';
+  // =================== INTERACTION ACTIONS ===================
+  
+  // Star
+  window.toggleStar = async (postId) => {
+    try {
+      const starRef = doc(db, `posts/${postId}/stars/${currentUser.uid}`);
+      const starSnap = await getDoc(starRef);
+      const postSnap = await getDoc(doc(db, "posts", postId));
+      
+      if (starSnap.exists()) {
+        await deleteDoc(starRef);
+      } else {
+        await setDoc(starRef, { timestamp: serverTimestamp() });
+        // Notify
+        if(postSnap.data().userId !== currentUser.uid) {
+           await sendNotification(postSnap.data().userId, 'star', 'starred your meetcast');
+        }
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  // Share (Real-time Count added)
+  window.sharePost = async (postId) => {
+    try {
+        // Record share in DB for counting
+        await addDoc(collection(db, `posts/${postId}/shares`), {
+            userId: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+
+        // Notify Owner
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
+             await sendNotification(postSnap.data().userId, 'share', 'shared your meetcast');
+        }
+
+        // Native Share
+        const postUrl = window.location.origin + `/post.html?id=${postId}`;
+        const postText = document.getElementById(`content-${postId}`).innerText;
+        
+        if (navigator.share) {
+            navigator.share({ title: 'Meetcast', text: postText, url: postUrl }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(postUrl);
+            showMessage("Link copied to clipboard!");
+        }
+    } catch(e) { console.error(e); }
+  };
+
+  // Recycle / Repost Logic
+  window.recyclePost = (postId, postData) => {
+      recyclingPostData = postData; // Store original post info
+      document.getElementById('modalTitle').innerText = "Recycle Meetcast";
+      document.getElementById('postBtn').innerText = "Recycle";
+      document.getElementById('postMedia').parentElement.style.display = 'none'; // Hide media upload for recycle
+      
+      // Show Preview
+      const preview = document.getElementById('recyclePreviewContainer');
+      preview.style.display = 'block';
+      preview.innerHTML = `
+        <div class="recycle-preview">
+            <strong><i class="fas fa-recycle"></i> Recycled from ${postData.userName}</strong>
+            <p>${postData.text}</p>
+        </div>
+      `;
+      
+      document.getElementById('postModal').style.display = 'flex';
+  };
+
+  // Notifications Helper
+  async function sendNotification(targetId, type, messageSuffix) {
+      const userData = await getUserDataWithCache(currentUser.uid);
+      await addDoc(collection(db, "notifications"), {
+         targetUserId: targetId,
+         type: type,
+         text: `${userData?.displayName || 'Someone'} ${messageSuffix}`,
+         read: false,
+         createdAt: serverTimestamp()
       });
-    }
+  }
+
+  // Helper to notify associates (Used when posting)
+  async function notifyAssociates(type) {
+      // Query who is associated with current user
+      const q = query(collection(db, `users/${currentUser.uid}/associatedWith`));
+      const snap = await getDocs(q);
+      const userData = await getUserDataWithCache(currentUser.uid);
+      
+      const batch = []; // In a real app, use Batch Writes, here we loop for simplicity in demo
+      snap.forEach(async (docSnap) => {
+          const followerId = docSnap.id;
+          // Trigger notification
+          await addDoc(collection(db, "notifications"), {
+              targetUserId: followerId,
+              type: 'feed_activity',
+              text: `${userData?.displayName} made a new post on Meet.`,
+              read: false,
+              createdAt: serverTimestamp()
+          });
+      });
+  }
+
+  // =================== POST CREATION ===================
+  document.getElementById('postBtn').addEventListener('click', async () => {
+    const text = document.getElementById('postText').value;
+    const privacy = document.getElementById('privacy').value;
+    const userData = await getUserDataWithCache(currentUser.uid);
+    const userName = userData?.displayName || currentUser.displayName;
+    const photoURL = userData?.photoURL || currentUser.photoURL;
+
+    if (!text && !editingPostId && !recyclingPostData) return;
+
+    try {
+        // 1. RECYCLE MODE
+        if (recyclingPostData) {
+            await addDoc(collection(db, "posts"), {
+                userId: currentUser.uid,
+                userName, photoURL,
+                text: text, // The new write-up
+                type: 'recycle',
+                originalPost: recyclingPostData, // Nested original data
+                privacy,
+                createdAt: serverTimestamp()
+            });
+            await sendNotification(recyclingPostData.id, 'recycle', 'recycled your meetcast'); // Notify original author (need logic to map ID to user, simplified here)
+            await notifyAssociates('post'); // Notify associates
+            showMessage('Meetcast recycled!');
+        } 
+        // 2. EDIT MODE
+        else if(editingPostId) {
+            await updateDoc(doc(db, "posts", editingPostId), { text, privacy });
+            showMessage('Meetcast updated!');
+        } 
+        // 3. CREATE MODE
+        else {
+            const fileInput = document.getElementById('postMedia');
+            let mediaUrl = null, mediaType = null;
+            if (fileInput.files.length) {
+                showMessage('Uploading media...', 'success');
+                mediaUrl = await uploadMedia(fileInput.files[0]);
+                mediaType = fileInput.files[0].type.startsWith('video') ? 'video' : 'image';
+            }
+            await addDoc(collection(db, "posts"), {
+                userId: currentUser.uid,
+                userName, photoURL,
+                text, media: mediaUrl, mediaType, privacy,
+                createdAt: serverTimestamp()
+            });
+            await notifyAssociates('post'); // Notify associates
+            showMessage('Meetcast posted!');
+        }
+        closeComposer();
+    } catch (e) { console.error(e); showMessage('Error', 'error'); }
   });
 
-  // Export auth for global use
+  // =================== COMMENTS ===================
+  function loadComments(postId) {
+    const q = query(collection(db, `posts/${postId}/responses`), orderBy('createdAt', 'asc'));
+    onSnapshot(q, async (snapshot) => {
+      const container = document.getElementById(`comments-${postId}`);
+      const allComments = [];
+      for (const d of snapshot.docs) {
+        const c = d.data();
+        allComments.push(c);
+      }
+      
+      // Render only last 2
+      let html = '';
+      const displayCount = 2;
+      allComments.slice(0, displayCount).forEach(c => {
+         html += `<div class="comment">
+             <div class="comment-content"><strong>${c.userName}</strong>: ${c.text}</div>
+         </div>`;
+      });
+      if(allComments.length > displayCount) html += `<div class="view-more-comments" onclick="openFullComments('${postId}')">View all ${allComments.length} responses...</div>`;
+      
+      container.innerHTML = html;
+    });
+  }
+
+  window.sendResponse = async (postId) => {
+    const input = document.getElementById(`input-${postId}`);
+    const text = input.value.trim();
+    if(!text) return;
+    try {
+        const userData = await getUserDataWithCache(currentUser.uid);
+        await addDoc(collection(db, `posts/${postId}/responses`), {
+            userId: currentUser.uid,
+            userName: userData?.displayName,
+            photoURL: userData?.photoURL,
+            text: text,
+            createdAt: serverTimestamp()
+        });
+        
+        // Notify Post Owner
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if(postSnap.exists() && postSnap.data().userId !== currentUser.uid) {
+            await sendNotification(postSnap.data().userId, 'response', 'responded to your meetcast');
+        }
+        input.value = '';
+    } catch(e) { console.error(e); }
+  };
+
+  // =================== GENERAL UTILS ===================
+  window.togglePostMenu = (id) => {
+    const menu = document.getElementById(`menu-${id}`);
+    document.querySelectorAll('.post-options-menu').forEach(el => { if(el.id !== `menu-${id}`) el.classList.remove('show'); });
+    menu.classList.toggle('show');
+  };
+  
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.post-options')) document.querySelectorAll('.post-options-menu').forEach(el => el.classList.remove('show'));
+  });
+
+  window.deletePost = async (postId) => {
+    if(confirm("Delete this meetcast?")) await deleteDoc(doc(db, "posts", postId));
+  };
+
+  window.editPost = (postId, currentText) => {
+    editingPostId = postId;
+    document.getElementById('postText').value = currentText;
+    document.getElementById('modalTitle').innerText = "Edit Meetcast";
+    document.getElementById('postBtn').innerText = "Update";
+    document.getElementById('postModal').style.display = 'flex';
+    document.getElementById('postMedia').parentElement.style.display = 'none';
+    document.getElementById('recyclePreviewContainer').style.display = 'none';
+  };
+
+  function closeComposer() {
+      document.getElementById('postModal').style.display = 'none';
+      document.getElementById('postText').value = '';
+      document.getElementById('postMedia').value = '';
+      document.getElementById('mediaPreview').innerHTML = '';
+      document.getElementById('recyclePreviewContainer').style.display = 'none';
+      editingPostId = null;
+      recyclingPostData = null;
+      document.getElementById('modalTitle').innerText = "Create Meetcast";
+      document.getElementById('postBtn').innerText = "Post";
+      document.getElementById('postMedia').parentElement.style.display = 'flex';
+  }
+
+  // Notifications Modal
+  window.openNotificationsModal = () => {
+    document.getElementById('notificationsModal').style.display = 'flex';
+    const list = document.getElementById('notificationsList');
+    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+    
+    onSnapshot(q, (snap) => {
+        list.innerHTML = snap.empty ? '<div style="text-align:center; padding:20px;">No notifications.</div>' : '';
+        snap.forEach(d => {
+            const n = d.data();
+            list.innerHTML += `
+                <div class="notif-item ${!n.read ? 'notif-unread' : ''}">
+                    <div style="flex:1;">${n.text} <div style="font-size:12px; color:#888;">${n.createdAt?.toDate().toLocaleTimeString() || ''}</div></div>
+                    <div class="notif-actions"><i class="fas fa-trash notif-btn" onclick="deleteDoc(doc(db,'notifications','${d.id}'))"></i></div>
+                </div>
+            `;
+            if(!n.read) updateDoc(doc(db, "notifications", d.id), { read: true });
+        });
+    });
+  };
+
+  function setupNotificationsCount() {
+    const q = query(collection(db, "notifications"), where("targetUserId", "==", currentUser.uid), where("read", "==", false));
+    onSnapshot(q, (snap) => {
+        const badge = document.getElementById('unreadBadge');
+        if(!snap.empty) { badge.style.display = 'flex'; badge.innerText = snap.size; } 
+        else { badge.style.display = 'none'; }
+    });
+  }
+  
+  // Associates
+  window.openUsersModal = async () => {
+      document.getElementById('usersModal').style.display = 'flex';
+      const list = document.getElementById('usersList');
+      const snap = await getDocs(collection(db, "users"));
+      let html = '';
+      for (const userDoc of snap.docs) {
+          if (userDoc.id === currentUser.uid) continue;
+          const user = userDoc.data();
+          const assocSnap = await getDoc(doc(db, `users/${currentUser.uid}/associates/${userDoc.id}`));
+          const isAssoc = assocSnap.exists();
+          html += `<div class="user-item">
+             <div style="display:flex; align-items:center; gap:10px;">${getAvatarHTML(user.photoURL, user.displayName, 'small')} <b>${user.displayName}</b></div>
+             <button class="association-btn ${isAssoc ? 'disassociate-btn' : 'associate-btn'}" onclick="toggleAssociate('${userDoc.id}', ${isAssoc})">${isAssoc ? 'Disassociate' : 'Associate'}</button>
+          </div>`;
+      }
+      list.innerHTML = html;
+  };
+
+  window.toggleAssociate = async (targetId, isAssoc) => {
+      if (isAssoc) {
+          await deleteDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`));
+          await deleteDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`));
+      } else {
+          await setDoc(doc(db, `users/${currentUser.uid}/associates/${targetId}`), { timestamp: serverTimestamp() });
+          await setDoc(doc(db, `users/${targetId}/associatedWith/${currentUser.uid}`), { followerId: currentUser.uid, timestamp: serverTimestamp() });
+          await sendNotification(targetId, 'associate', 'associated with you.');
+      }
+      openUsersModal();
+  };
+
+  // UI Bindings
+  document.getElementById('openComposer').onclick = () => { closeComposer(); document.getElementById('postModal').style.display = 'flex'; };
+  document.getElementById('closeModal').onclick = closeComposer;
+  document.getElementById('closeUsersModal').onclick = () => document.getElementById('usersModal').style.display = 'none';
+  document.getElementById('closeNotificationsModal').onclick = () => document.getElementById('notificationsModal').style.display = 'none';
+  document.getElementById('closeCommentsModal').onclick = () => document.getElementById('commentsModal').style.display = 'none';
+  document.getElementById('logoutBtn').onclick = () => signOut(auth);
+  document.getElementById('nightToggleBtn').onclick = () => document.body.classList.toggle('dark-mode');
+  window.openFullComments = (postId) => { document.getElementById('commentsModal').style.display = 'flex'; loadComments(postId); /* Reuse logic or expand for full list */ };
+  window.focusComment = (id) => document.getElementById(`input-${id}`).focus();
   window.auth = auth;
-
-  // Initialize everything when DOM is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    // Your existing initialization code
-  });
-
-</script>
-
-<!-- The rest of your existing JavaScript code remains exactly the same -->
-<script>
-// [YOUR EXISTING JAVASCRIPT CODE CONTINUES HERE WITHOUT CHANGES]
-// All the functions from your original code: toggleStar, sharePost, recyclePost, sendNotification, etc.
-// ...
-
-// Only add this missing function that was referenced:
-window.openMediaModal = (mediaUrl) => {
-  // Implement media modal if needed
-  window.open(mediaUrl, '_blank');
-};
-
 </script>
 </body>
-  </html>
+</html>
