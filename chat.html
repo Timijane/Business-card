@@ -644,7 +644,6 @@
   .message-wrapper.sent { 
     align-self: flex-end; 
     flex-direction: row-reverse; 
-    margin-left: auto;
   }
   
   .message-avatar-small { 
@@ -656,16 +655,6 @@
     margin-bottom: 3px; /* Reduced margin */
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     border: 2px solid var(--card-bg);
-    opacity: 0.8;
-  }
-
-  .sent .message-avatar-small {
-    order: 2;
-    margin-left: 5px;
-  }
-
-  .received .message-avatar-small {
-    margin-right: 5px;
   }
 
   .message-bubble { 
@@ -693,8 +682,7 @@
     border-bottom-left-radius: 6px; 
     color: var(--received-text-color);
     border: 1px solid var(--border-color);
-    margin-left: 0;
-    align-self: flex-start;
+    margin-left: 10px; /* Added left margin for receiver */
   }
   
   .sent .message-bubble { 
@@ -702,9 +690,7 @@
     color: var(--sent-text-color); 
     border-bottom-right-radius: 6px;
     box-shadow: 0 2px 8px rgba(0,128,255,0.3);
-    margin-right: 0;
-    align-self: flex-end;
-    order: 1;
+    margin-right: 10px; /* Added right margin for sender */
   }
 
   .message-content {
@@ -873,17 +859,8 @@
     font-weight: 500;
     white-space: nowrap;
     margin-top: 2px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    justify-content: flex-end;
   }
   
-  .read-receipt {
-    font-size: 10px;
-    color: var(--success);
-  }
-
   .upload-overlay { 
     position: absolute; 
     inset: 0; 
@@ -1144,114 +1121,6 @@
     background: var(--bg-color); 
     transform: scale(1.2); 
   }
-
-  /* Voice Message Player - WhatsApp Style */
-  .voice-message-player {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: rgba(0, 128, 255, 0.1);
-    border-radius: 20px;
-    min-width: 200px;
-    max-width: 300px;
-    position: relative;
-  }
-
-  .voice-play-btn {
-    background: var(--primary);
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .voice-play-btn:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
-  }
-
-  .voice-play-btn.playing {
-    background: var(--success);
-  }
-
-  .voice-progress-container {
-    flex: 1;
-    height: 4px;
-    background: rgba(0, 128, 255, 0.2);
-    border-radius: 2px;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .voice-progress-bar {
-    position: absolute;
-    height: 100%;
-    background: var(--primary);
-    border-radius: 2px;
-    width: 0%;
-    transition: width 0.1s linear;
-  }
-
-  .voice-duration {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--primary);
-    min-width: 45px;
-    text-align: center;
-  }
-
-  .voice-speed-control {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: var(--primary);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .voice-speed-control:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .voice-visualizer {
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    display: flex;
-    justify-content: center;
-    gap: 2px;
-  }
-
-  .voice-visualizer-bar {
-    width: 3px;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 1.5px;
-    animation: visualizerWave 1.5s infinite ease-in-out;
-  }
-
-  @keyframes visualizerWave {
-    0%, 100% { height: 3px; }
-    50% { height: 12px; }
-  }
-
-  .voice-visualizer-bar:nth-child(2) { animation-delay: 0.2s; }
-  .voice-visualizer-bar:nth-child(3) { animation-delay: 0.4s; }
-  .voice-visualizer-bar:nth-child(4) { animation-delay: 0.6s; }
-  .voice-visualizer-bar:nth-child(5) { animation-delay: 0.8s; }
 
   .settings-modal { 
     display: none; 
@@ -2227,8 +2096,6 @@
             <button class="assist-chip" onclick="applyWritingAssist('fix')"><i class="fas fa-spell-check"></i> Fix Grammar</button>
             <button class="assist-chip" onclick="applyWritingAssist('formal')"><i class="fas fa-user-tie"></i> Make Formal</button>
             <button class="assist-chip" onclick="applyWritingAssist('expand')"><i class="fas fa-expand-alt"></i> Expand Text</button>
-            <button class="assist-chip" onclick="applyWritingAssist('shorten')"><i class="fas fa-compress-alt"></i> Shorten Text</button>
-            <button class="assist-chip" onclick="applyWritingAssist('casual')"><i class="fas fa-smile"></i> Make Casual</button>
           </div>
 
           <div class="message-input-wrapper">
@@ -2348,7 +2215,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc, writeBatch, arrayUnion } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, where, setDoc, limit, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -2394,13 +2261,6 @@
   let recordingTimer = null;
   let recordingStartTime = null;
   let isRecording = false;
-
-  // Voice message players
-  const voiceMessagePlayers = new Map();
-
-  // Double tap detection
-  let lastTapTime = 0;
-  let lastTapId = null;
 
   // Scroll to bottom button
   let scrollToBottomBtn = null;
@@ -2554,118 +2414,6 @@
 
   // === MESSAGE RENDERING ===
 
-  function createVoiceMessagePlayer(audioUrl, messageId) {
-    const player = document.createElement('div');
-    player.className = 'voice-message-player';
-    player.setAttribute('data-audio-url', audioUrl);
-    player.setAttribute('data-message-id', messageId);
-    
-    player.innerHTML = `
-      <button class="voice-play-btn"><i class="fas fa-play"></i></button>
-      <div class="voice-progress-container">
-        <div class="voice-progress-bar"></div>
-      </div>
-      <span class="voice-duration">0:00</span>
-      <select class="voice-speed-control">
-        <option value="0.5">0.5x</option>
-        <option value="1" selected>1x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2">2x</option>
-      </select>
-      <div class="voice-visualizer">
-        <div class="voice-visualizer-bar"></div>
-        <div class="voice-visualizer-bar"></div>
-        <div class="voice-visualizer-bar"></div>
-        <div class="voice-visualizer-bar"></div>
-        <div class="voice-visualizer-bar"></div>
-      </div>
-    `;
-    
-    return player;
-  }
-
-  function initializeVoiceMessagePlayer(player) {
-    const audioUrl = player.getAttribute('data-audio-url');
-    const playBtn = player.querySelector('.voice-play-btn');
-    const progressBar = player.querySelector('.voice-progress-bar');
-    const durationSpan = player.querySelector('.voice-duration');
-    const speedControl = player.querySelector('.voice-speed-control');
-    const visualizerBars = player.querySelectorAll('.voice-visualizer-bar');
-    
-    const audio = new Audio(audioUrl);
-    audio.preload = 'metadata';
-    
-    let isPlaying = false;
-    let currentSpeed = 1;
-    
-    // Update duration when metadata loads
-    audio.addEventListener('loadedmetadata', () => {
-      const duration = Math.floor(audio.duration);
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60;
-      durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    });
-    
-    // Update progress bar
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        const progress = (audio.currentTime / audio.duration) * 100;
-        progressBar.style.width = `${progress}%`;
-        
-        // Update current time
-        const currentMinutes = Math.floor(audio.currentTime / 60);
-        const currentSeconds = Math.floor(audio.currentTime % 60);
-        durationSpan.textContent = `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')}`;
-      }
-    });
-    
-    // Handle audio end
-    audio.addEventListener('ended', () => {
-      isPlaying = false;
-      playBtn.innerHTML = '<i class="fas fa-play"></i>';
-      playBtn.classList.remove('playing');
-      progressBar.style.width = '0%';
-      visualizerBars.forEach(bar => bar.style.animationPlayState = 'paused');
-    });
-    
-    // Play/pause button
-    playBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      
-      if (isPlaying) {
-        audio.pause();
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playBtn.classList.remove('playing');
-        visualizerBars.forEach(bar => bar.style.animationPlayState = 'paused');
-      } else {
-        audio.play();
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playBtn.classList.add('playing');
-        visualizerBars.forEach(bar => bar.style.animationPlayState = 'running');
-      }
-      isPlaying = !isPlaying;
-    });
-    
-    // Speed control
-    speedControl.addEventListener('change', () => {
-      currentSpeed = parseFloat(speedControl.value);
-      audio.playbackRate = currentSpeed;
-    });
-    
-    // Progress bar click to seek
-    const progressContainer = player.querySelector('.voice-progress-container');
-    progressContainer.addEventListener('click', (e) => {
-      const rect = progressContainer.getBoundingClientRect();
-      const percent = (e.clientX - rect.left) / rect.width;
-      audio.currentTime = percent * audio.duration;
-    });
-    
-    // Store reference
-    voiceMessagePlayers.set(player, { audio, isPlaying });
-    
-    return audio;
-  }
-
   function renderMessageHTML(msg, isMe, id) {
     const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
     let content = "";
@@ -2695,9 +2443,9 @@
         </div>
       `;
     } else if (msg.mediaType === 'audio') {
-      // Create voice message player
       mediaContent += `
         <div style="position:relative; margin-top:6px;">
+          <audio src="${msg.mediaUrl}" controls style="width:100%;"></audio>
           ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
         </div>
       `;
@@ -2733,15 +2481,6 @@
     
     const ts = msg.timestamp ? msg.timestamp.seconds : Date.now() / 1000;
     div.setAttribute('data-timestamp', ts);
-
-    // Read receipt
-    let readReceipt = '';
-    if (isMe && msg.readBy && Array.isArray(msg.readBy)) {
-      const isReadByOther = msg.readBy.includes(currentChatUser);
-      readReceipt = isReadByOther ? 
-        '<i class="fas fa-check-double read-receipt"></i>' : 
-        '<i class="fas fa-check" style="color:var(--secondary-text);"></i>';
-    }
 
     const optionsHtml = `
       <button class="msg-options-btn" onclick="toggleMsgOptions('${id}')" title="Message options">
@@ -2788,48 +2527,11 @@
           <div class="message-time">
             ${msg.isEdited ? '<i class="fas fa-pencil-alt" style="font-size:8px; margin-right:4px;" title="Edited"></i>' : ''}   
             ${timeString}
-            ${readReceipt}
           </div>
         </div>
       </div>
       ${!isMe ? optionsHtml : ''}
     `;
-    
-    // Add voice message player if it's an audio message
-    if (msg.mediaType === 'audio' && msg.mediaUrl) {
-      const voicePlayer = createVoiceMessagePlayer(msg.mediaUrl, id);
-      const mediaContentDiv = div.querySelector('.message-text');
-      if (mediaContentDiv) {
-        mediaContentDiv.appendChild(voicePlayer);
-        setTimeout(() => initializeVoiceMessagePlayer(voicePlayer), 100);
-      }
-    }
-    
-    // Add double-tap event for reply
-    const messageBubble = div.querySelector('.message-bubble');
-    if (messageBubble) {
-      messageBubble.addEventListener('dblclick', () => {
-        handleReply(id, msg.text || 'Media', isMe ? 'You' : currentChatUserName);
-      });
-      
-      // Touch double-tap for mobile
-      let touchCount = 0;
-      messageBubble.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        touchCount++;
-        if (touchCount === 1) {
-          setTimeout(() => {
-            if (touchCount === 1) {
-              // Single tap
-            } else if (touchCount === 2) {
-              // Double tap
-              handleReply(id, msg.text || 'Media', isMe ? 'You' : currentChatUserName);
-            }
-            touchCount = 0;
-          }, 300);
-        }
-      });
-    }
     
     return div;
   }
@@ -3204,72 +2906,26 @@
     
     switch (type) {
       case 'fix':
-        // Fix grammar and spelling
         text = text.charAt(0).toUpperCase() + text.slice(1);
-        // Common grammar fixes
         text = text.replace(/\bi\b/g, "I")
                    .replace(/\bim\b/gi, "I'm")
                    .replace(/\bur\b/gi, "your")
-                   .replace(/\bu\b/gi, "you")
-                   .replace(/\bwanna\b/gi, "want to")
-                   .replace(/\bgonna\b/gi, "going to")
-                   .replace(/\bdont\b/gi, "don't")
-                   .replace(/\bdoesnt\b/gi, "doesn't")
-                   .replace(/\bwont\b/gi, "won't")
-                   .replace(/\bcant\b/gi, "can't");
-        // Ensure proper punctuation
+                   .replace(/\bu\b/gi, "you");
         if (!/[.!?]$/.test(text.trim())) text += ".";
         break;
         
       case 'formal':
         text = text.replace(/\bhey\b/gi, "Hello")
-                   .replace(/\bhi\b/gi, "Hello")
                    .replace(/\bthx\b/gi, "thank you")
                    .replace(/\bthanks\b/gi, "thank you")
                    .replace(/\bokay\b/gi, "alright")
-                   .replace(/\bok\b/gi, "alright")
-                   .replace(/\byeah\b/gi, "yes")
-                   .replace(/\bnah\b/gi, "no")
-                   .replace(/\bgotcha\b/gi, "I understand")
-                   .replace(/\bsure\b/gi, "certainly");
+                   .replace(/\bok\b/gi, "alright");
         break;
         
       case 'expand':
-        if (text.length < 100) {
-          const expansions = [
-            " I would appreciate it if you could provide more details.",
-            " Please let me know if you need any additional information.",
-            " I look forward to hearing your thoughts on this matter.",
-            " Your input on this would be greatly appreciated.",
-            " Feel free to share any questions or concerns you might have."
-          ];
-          const randomExpansion = expansions[Math.floor(Math.random() * expansions.length)];
-          if (!text.endsWith('.')) text += '.';
-          text += randomExpansion;
+        if (!text.includes('please') && !text.includes('thank')) {
+          text += " Please let me know if you need more details.";
         }
-        break;
-        
-      case 'shorten':
-        // Remove unnecessary words
-        text = text.replace(/\bI would like to\b/gi, "I'd like to")
-                   .replace(/\bI am going to\b/gi, "I'll")
-                   .replace(/\bI have to\b/gi, "I must")
-                   .replace(/\bin order to\b/gi, "to")
-                   .replace(/\bat this moment in time\b/gi, "now")
-                   .replace(/\bdue to the fact that\b/gi, "because");
-        // Remove redundant phrases
-        text = text.replace(/,\s*which is\s+[^.]*\./g, ".");
-        break;
-        
-      case 'casual':
-        text = text.replace(/\bHello\b/gi, "Hey")
-                   .replace(/\bthank you\b/gi, "thanks")
-                   .replace(/\balright\b/gi, "ok")
-                   .replace(/\bcertainly\b/gi, "sure")
-                   .replace(/\bI understand\b/gi, "got it")
-                   .replace(/\bplease\b/gi, "")
-                   .replace(/\bwould you\b/gi, "could you")
-                   .replace(/\bperhaps\b/gi, "maybe");
         break;
     }
     
@@ -3597,8 +3253,7 @@
           mediaType: 'audio',
           text: '',
           senderId: currentUser.uid,
-          timestamp: serverTimestamp(),
-          readBy: [currentUser.uid]
+          timestamp: serverTimestamp()
         });
         
         await updateDoc(doc(db, "conversations", currentChatId), {
@@ -3711,8 +3366,7 @@
             mediaType: mediaType,
             text: mediaType === 'file' ? `File: ${file.name}` : '',
             senderId: currentUser.uid,
-            timestamp: serverTimestamp(),
-            readBy: [currentUser.uid]
+            timestamp: serverTimestamp()
           };
           
           if (mediaType === 'file') {
@@ -4083,9 +3737,6 @@
       
       await loadMessages(chatId);
       
-      // Mark messages as read
-      await markMessagesAsRead(chatId, otherUserId);
-      
     } catch (error) {
       console.error("Error opening chat:", error);
       
@@ -4097,37 +3748,6 @@
       }
       
       showError("This conversation is unavailable. It may have been deleted or you no longer have access.");
-    }
-  }
-
-  async function markMessagesAsRead(chatId, otherUserId) {
-    try {
-      // Get all messages from the other user that aren't read by current user
-      const messagesQuery = query(
-        collection(db, "conversations", chatId, "messages"),
-        where("senderId", "==", otherUserId)
-      );
-      
-      const messagesSnapshot = await getDocs(messagesQuery);
-      
-      const batch = writeBatch(db);
-      let hasUpdates = false;
-      
-      messagesSnapshot.docs.forEach((doc) => {
-        const msg = doc.data();
-        if (!msg.readBy || !msg.readBy.includes(currentUser.uid)) {
-          batch.update(doc.ref, {
-            readBy: arrayUnion(currentUser.uid)
-          });
-          hasUpdates = true;
-        }
-      });
-      
-      if (hasUpdates) {
-        await batch.commit();
-      }
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
     }
   }
 
@@ -4188,7 +3808,7 @@
     });
   }
 
-  // Enhanced message sending - FIXED DUPLICATION ISSUE
+  // Enhanced message sending
   document.getElementById('sendButton').addEventListener('click', sendMessage);
 
   async function sendMessage() {
@@ -4222,34 +3842,14 @@
         id: replyToMsg.id,
         user: replyToMsg.user,
         text: replyToMsg.text
-      } : null,
-      readBy: [currentUser.uid]
+      } : null
     };
 
     cancelReply();
     
     try {
-      // Create optimistic message
-      const tempId = 'temp-msg-' + Date.now();
-      const optimisticMsg = {
-        ...msgPayload,
-        timestamp: null,
-        isOptimistic: true,
-        id: tempId
-      };
+      await addDoc(collection(db, "conversations", currentChatId, "messages"), msgPayload);
       
-      const msgElement = renderMessageHTML(optimisticMsg, true, tempId);
-      messagesContainer.appendChild(msgElement);
-      scrollToBottom();
-      
-      // Send to server
-      const docRef = await addDoc(collection(db, "conversations", currentChatId, "messages"), msgPayload);
-      
-      // Remove optimistic message
-      const tempElement = document.getElementById(tempId);
-      if (tempElement) tempElement.remove();
-      
-      // Update conversation
       await updateDoc(doc(db, "conversations", currentChatId), {
         lastMessage: originalText.length > 50 ? originalText.substring(0, 50) + '...' : originalText,
         lastMessageSender: currentUser.uid,
@@ -4510,4 +4110,4 @@
 
 </script>
 </body>
-  </html>
+</html>
