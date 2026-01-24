@@ -18,7 +18,7 @@
     --error: #EF4444;
     --success: #10B981;
     --warning: #F59E0B;
-    --app-height: 100vh;
+    --app-height: 100dvh;
     --chat-font: 'Poppins', sans-serif;
     --sent-bubble-bg: #0080FF;
     --sent-text-color: #fff;
@@ -27,10 +27,27 @@
     --shadow-light: 0 2px 10px rgba(0,0,0,0.05);
     --shadow-medium: 0 4px 15px rgba(0,128,255,0.2);
     --shadow-heavy: 0 10px 40px rgba(0,0,0,0.2);
+    /* NEW: Added for 70% width */
     --chat-container-width: 100%;
   }
 
-  /* Remove zoom scaling - use responsive design instead */
+  /* NEW: Large screens get 70% width */
+  @media (min-width: 1200px) {
+    :root {
+      --chat-container-width: 70%;
+    }
+  }
+
+  body.dark-mode {
+    --bg-color: #0f0f10;
+    --card-bg: #1e1e1e;
+    --text-color: #e4e6eb;
+    --secondary-text: #b0b3b8;
+    --border-color: #2f3031;
+    --received-bubble-bg: #2a2b2c;
+    --received-text-color: #e4e6eb;
+  }
+
   * { 
     margin: 0; 
     padding: 0; 
@@ -40,7 +57,6 @@
 
   html, body { 
     height: 100%; 
-    width: 100%;
     overflow: hidden; 
     font-size: 14px; 
     font-family: var(--chat-font); 
@@ -53,34 +69,28 @@
 
   .app-container { 
     display: flex; 
-    height: 100vh; 
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    height: var(--app-height); 
+    position: relative; 
     overflow: hidden; 
   }
 
-  /* Center the chat container on large screens */
+  /* NEW: Center the chat container on large screens */
   .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    width: 100%;
+    height: 100%;
     overflow: hidden;
     padding: 12px;
-    align-items: center;
+    align-items: center; /* Center horizontally */
   }
 
-  /* Enhanced Sidebar */
+  /* FIXED: Remove blur from sidebar */
   .sidebar {
     position: fixed; 
     top: 0; 
     left: 0; 
-    height: 100vh; 
+    height: 100%; 
     width: 280px;
     background: linear-gradient(180deg, #0080FF 0%, #00C6FF 100%);
     z-index: 200; 
@@ -89,7 +99,7 @@
     transform: translateX(-100%); 
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 4px 0 20px rgba(0,0,0,0.15);
-    backdrop-filter: blur(10px);
+    /* Removed: backdrop-filter: blur(10px); */
   }
   .sidebar.open { transform: translateX(0); }
   
@@ -111,9 +121,9 @@
   }
   
   .sidebar-menu { list-style: none; }
-  .sidebar-menu li { margin-bottom: 12px; position: relative; }
+  .sidebar-menu li { margin-bottom: 12px; position: relative; } /* Added position relative */
   
-  /* NEW: Enhanced notification badge for feed */
+  /* NEW: Notification badge for feed */
   .notification-badge {
     position: absolute;
     top: -5px;
@@ -128,14 +138,6 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    z-index: 10;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
   }
   
   .sidebar-menu a { 
@@ -187,10 +189,10 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100vh; 
+    height: 100%; 
     background: rgba(0,0,0,0.6); 
     z-index: 190; 
-    backdrop-filter: blur(4px); 
+    /* Removed: backdrop-filter: blur(4px); */
     transition: all 0.3s ease;
   }
   .sidebar-overlay.active { display: block; }
@@ -209,10 +211,8 @@
     box-shadow: var(--shadow-medium);
     position: relative;
     overflow: hidden;
-    width: var(--chat-container-width);
-    max-width: 1200px;
-    height: 70px;
-    min-height: 70px;
+    width: var(--chat-container-width); /* NEW: Use variable width */
+    max-width: 1200px; /* NEW: Limit max width */
   }
   
   .navbar::before {
@@ -277,7 +277,7 @@
     align-items: center; 
     gap: 8px; 
     transition: all 0.2s ease; 
-    backdrop-filter: blur(10px);
+    /* Removed: backdrop-filter: blur(10px); */
   }
   .btn:hover { 
     background: rgba(255, 255, 255, 0.3); 
@@ -285,20 +285,19 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
 
-  /* Enhanced Chat Container */
+  /* Enhanced Chat Container - UPDATED for 70% width */
   .chat-container { 
     flex: 1; 
-    min-height: 0;
     background: var(--card-bg); 
     border-radius: 16px; 
     overflow: hidden; 
     display: flex; 
+    min-height: 0; 
     position: relative; 
     box-shadow: var(--shadow-light); 
     border: 1px solid var(--border-color);
-    width: var(--chat-container-width);
-    max-width: 1200px;
-    height: calc(100vh - 110px); /* Adjust based on navbar and margins */
+    width: var(--chat-container-width); /* NEW: Use variable width */
+    max-width: 1200px; /* NEW: Limit max width */
   }
   
   .conversations-sidebar { 
@@ -308,7 +307,6 @@
     flex-direction: column; 
     height: 100%; 
     background: var(--card-bg); 
-    overflow: hidden;
   }
   
   .chat-header { 
@@ -318,7 +316,6 @@
     justify-content: space-between; 
     align-items: center;
     background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-color) 100%);
-    flex-shrink: 0;
   }
   
   .chat-header h3 {
@@ -351,7 +348,6 @@
     padding: 15px; 
     border-bottom: 1px solid var(--border-color); 
     background: var(--bg-color);
-    flex-shrink: 0;
   }
   .chat-search input { 
     width: 100%; 
@@ -374,7 +370,6 @@
     flex: 1; 
     overflow-y: auto; 
     scroll-behavior: smooth;
-    min-height: 0;
   }
   
   /* Enhanced Conversation Items */
@@ -450,7 +445,7 @@
     line-height: 1.4;
   }
 
-  /* Unread message count for conversation */
+  /* NEW: Unread message count for conversation */
   .unread-count {
     position: absolute;
     right: 20px;
@@ -477,7 +472,6 @@
     height: 100%; 
     background: var(--bg-color); 
     position: relative; 
-    overflow: hidden;
   }
   
   .chat-area-header { 
@@ -488,11 +482,8 @@
     gap: 15px; 
     background: var(--card-bg); 
     z-index: 10; 
-    backdrop-filter: blur(10px); 
+    /* Removed: backdrop-filter: blur(10px); */
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    flex-shrink: 0;
-    height: 70px;
-    min-height: 70px;
   }
   
   .chat-user-info {
@@ -573,7 +564,7 @@
     line-height: 1.5;
   }
 
-  /* Enhanced Messages Container */
+  /* Enhanced Messages Container - FIXED: Moved up */
   .messages-container { 
     flex: 1; 
     padding: 20px; 
@@ -586,7 +577,6 @@
     transition: background 0.3s; 
     scroll-behavior: smooth;
     font-family: var(--chat-font);
-    min-height: 0;
   }
 
   /* Enhanced Date Divider */
@@ -609,7 +599,7 @@
   
   .date-divider span { 
     background: rgba(0,0,0,0.1); 
-    backdrop-filter: blur(8px); 
+    /* Removed: backdrop-filter: blur(8px); */
     color: white; 
     padding: 6px 16px; 
     border-radius: 16px; 
@@ -620,7 +610,7 @@
     z-index: 1;
   }
 
-  /* Enhanced Message Styling */
+  /* Enhanced Message Styling - FIXED: WhatsApp-like straight line messages */
   .message-wrapper { 
     display: flex; 
     gap: 10px; 
@@ -658,8 +648,9 @@
     border: 2px solid var(--card-bg);
   }
 
+  /* FIXED: WhatsApp-like message bubble with straight line layout */
   .message-bubble { 
-    padding: 12px 18px; 
+    padding: 10px 14px; 
     border-radius: 20px; 
     position: relative; 
     word-wrap: break-word; 
@@ -669,6 +660,8 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
     font-family: var(--chat-font);
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
   }
   
   .message-bubble:hover {
@@ -688,6 +681,30 @@
     color: var(--sent-text-color); 
     border-bottom-right-radius: 6px;
     box-shadow: 0 2px 8px rgba(0,128,255,0.3);
+  }
+
+  /* FIXED: WhatsApp-like message content and time alignment */
+  .message-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .message-text {
+    flex: 1;
+    word-break: break-word;
+    line-height: 1.4;
+    font-size: 14.2px;
+    max-width: calc(100% - 50px);
+  }
+
+  .message-text img,
+  .message-text video {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 4px;
   }
 
   /* Enhanced Message Options */
@@ -828,13 +845,15 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.2);
   }
   
+  /* FIXED: WhatsApp-like message time styling */
   .message-time { 
     font-size: 11px; 
     opacity: 0.7; 
-    margin-top: 6px; 
     text-align: right; 
     display: block; 
     font-weight: 500;
+    white-space: nowrap;
+    margin-top: 2px;
   }
   
   .upload-overlay { 
@@ -847,7 +866,7 @@
     border-radius: 8px; 
     color: white; 
     font-size: 24px;
-    backdrop-filter: blur(4px);
+    /* Removed: backdrop-filter: blur(4px); */
   }
 
   /* Enhanced Typing Indicator */
@@ -877,9 +896,9 @@
     40% { opacity: 1; } 
   }
 
-  /* Enhanced Message Input */
+  /* Enhanced Message Input - FIXED: Position moved up */
   .message-input-container { 
-    padding: 18px 20px; 
+    padding: 12px 20px; 
     border-top: 1px solid var(--border-color); 
     background: var(--card-bg); 
     position: relative;
@@ -961,10 +980,10 @@
     background: rgba(118, 75, 162, 0.1);
   }
 
-  /* WhatsApp-like message input */
+  /* UPDATED: WhatsApp-like message input */
   .message-input { 
     flex: 1; 
-    padding: 14px 20px; 
+    padding: 12px 16px; 
     border-radius: 25px; 
     border: 2px solid var(--border-color); 
     background: var(--bg-color); 
@@ -972,9 +991,9 @@
     resize: none; 
     font-family: var(--chat-font);
     font-size: 15px; 
-    max-height: 200px;
-    min-height: 50px; 
-    height: 50px;
+    max-height: 120px; 
+    min-height: 45px; 
+    height: 45px; /* Initial height */
     outline: none; 
     overflow-y: auto; 
     line-height: 1.5; 
@@ -993,8 +1012,8 @@
     background: linear-gradient(135deg, #0080FF 0%, #0066CC 100%); 
     color: white; 
     border: 0; 
-    width: 50px; 
-    height: 50px; 
+    width: 48px; 
+    height: 48px; 
     border-radius: 50%; 
     cursor: pointer; 
     display: flex; 
@@ -1110,9 +1129,9 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100vh; 
+    height: 100%; 
     background: rgba(0,0,0,0.6); 
-    backdrop-filter: blur(8px); 
+    /* Removed: backdrop-filter: blur(8px); */
     z-index: 2100; 
     align-items: center; 
     justify-content: center; 
@@ -1247,19 +1266,19 @@
     box-shadow: 0 0 0 3px rgba(0,128,255,0.1);
   }
 
-  /* Wallpaper Modals */
+  /* Wallpaper Modals - UPDATED for gallery upload */
   .wallpaper-preview-overlay { 
     display: none; 
     position: fixed; 
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100vh; 
+    height: 100%; 
     background: rgba(0,0,0,0.9); 
     z-index: 2200; 
     align-items: center; 
     justify-content: center; 
-    backdrop-filter: blur(12px); 
+    /* Removed: backdrop-filter: blur(12px); */
   }
   
   .wallpaper-preview-card { 
@@ -1346,7 +1365,7 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100vh; 
+    height: 100%; 
     background: rgba(0,0,0,0.8); 
     z-index: 2000; 
     padding: 20px; 
@@ -1391,6 +1410,7 @@
     flex: 1; 
   }
   
+  /* NEW: Upload from gallery option */
   .wallpaper-upload-option {
     aspect-ratio: 9/16;
     border-radius: 12px;
@@ -1513,14 +1533,14 @@
     top: 0; 
     left: 0; 
     width: 100%; 
-    height: 100vh; 
+    height: 100%; 
     background: rgba(0,0,0,0.7); 
     z-index: 1000; 
     display: none; 
     justify-content: center; 
     align-items: flex-start; 
     padding-top: 100px; 
-    backdrop-filter: blur(8px); 
+    /* Removed: backdrop-filter: blur(8px); */
   }
   
   .user-search-modal { 
@@ -1706,21 +1726,14 @@
     transform: translateY(-1px);
   }
 
-  body.dark-mode {
-    --bg-color: #0f0f10;
-    --card-bg: #1e1e1e;
-    --text-color: #e4e6eb;
-    --secondary-text: #b0b3b8;
-    --border-color: #2f3031;
-    --received-bubble-bg: #2a2b2c;
-    --received-text-color: #e4e6eb;
-  }
-
-  /* Responsive Design - Enhanced for all devices */
+  /* Responsive Design - UPDATED for better mobile wallpaper display */
   @media (max-width: 768px) {
-    .main-content {
-      padding: 0;
-      height: 100vh;
+    .chat-container { 
+      border-radius: 0; 
+      height: 100%; 
+      margin: 0;
+      width: 100% !important; /* Override 70% on mobile */
+      max-width: 100% !important;
     }
     
     .navbar {
@@ -1728,24 +1741,16 @@
       max-width: 100% !important;
       border-radius: 0;
       margin-bottom: 0;
-      padding: 12px 15px;
-      height: 60px;
-      min-height: 60px;
     }
     
-    .chat-container { 
-      border-radius: 0; 
-      height: calc(100vh - 60px);
-      margin: 0;
-      width: 100% !important;
-      max-width: 100% !important;
+    .main-content {
+      padding: 0;
     }
     
     .conversations-sidebar { 
       width: 100%; 
       position: absolute; 
       z-index: 50; 
-      height: 100%;
     }
     
     .chat-area { 
@@ -1754,17 +1759,10 @@
       z-index: 60; 
       transform: translateX(100%); 
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-      height: 100%;
     }
     
     .chat-area.active { 
       transform: translateX(0); 
-    }
-    
-    .chat-area-header {
-      height: 60px;
-      min-height: 60px;
-      padding: 10px 15px;
     }
     
     .emoji-picker { 
@@ -1775,12 +1773,12 @@
     }
     
     .wallpaper-grid { 
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
     
     .wallpaper-grid-category { 
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
     
@@ -1857,6 +1855,7 @@
       font-size: 16px;
     }
     
+    /* Hide unread count on mobile for cleaner look */
     .unread-count {
       font-size: 10px;
       min-width: 16px;
@@ -1867,9 +1866,7 @@
 
   @media (max-width: 480px) {
     .navbar {
-      padding: 10px 12px;
-      height: 55px;
-      min-height: 55px;
+      padding: 12px 15px;
     }
     
     .nav-user-img {
@@ -1879,28 +1876,27 @@
     
     .nav-user-name {
       font-size: 14px;
-      display: none; /* Hide on very small screens */
     }
     
     .message-input-container {
-      padding: 15px;
+      padding: 10px;
     }
     
     .settings-content {
-      padding: 20px;
+      padding: 25px;
     }
     
     .conversation-item {
-      padding: 12px 15px;
+      padding: 14px 15px;
     }
     
     .conversation-avatar {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
     }
     
     .message-bubble {
-      padding: 10px 14px;
+      padding: 8px 12px;
       font-size: 14px;
     }
     
@@ -1919,76 +1915,9 @@
     }
     
     .load-more-wallpapers {
-      padding: 10px;
+      padding: 12px;
       font-size: 13px;
     }
-    
-    .btn {
-      padding: 8px 10px;
-      font-size: 12px;
-    }
-  }
-
-  @media (min-width: 769px) and (max-width: 1199px) {
-    .chat-container {
-      width: 85% !important;
-      max-width: 1000px;
-      height: calc(100vh - 110px);
-    }
-    
-    .navbar {
-      width: 85% !important;
-      max-width: 1000px;
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .chat-container {
-      width: 70% !important;
-      max-width: 1200px;
-      height: calc(100vh - 110px);
-    }
-    
-    .navbar {
-      width: 70% !important;
-      max-width: 1200px;
-    }
-  }
-
-  /* Fix for interface parts not showing */
-  .app-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .chat-container {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .messages-container {
-    flex: 1;
-    min-height: 0;
-    position: relative;
-  }
-
-  /* Ensure all elements are visible */
-  * {
-    box-sizing: border-box;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
   }
 
   /* Dark mode enhancements */
@@ -2085,8 +2014,8 @@
           </div>
           <div class="chat-actions">
             <button class="chat-action-btn" onclick="openSettingsModal()" title="Chat Settings"><i class="fas fa-sliders-h"></i></button>
-            <button class="chat-action-btn" onclick="window.location.href='call.html'" title="Voice Call"><i class="fas fa-phone-alt"></i></button>
-            <button class="chat-action-btn" onclick="window.location.href='call.html'" title="Video Call"><i class="fas fa-video"></i></button>
+            <button class="chat-action-btn" onclick="startVoiceCall()" title="Voice Call"><i class="fas fa-phone-alt"></i></button>
+            <button class="chat-action-btn" onclick="startVideoCall()" title="Video Call"><i class="fas fa-video"></i></button>
             <button class="chat-action-btn" onclick="openWallpaperModal()" title="Wallpaper"><i class="fas fa-image"></i></button>
           </div>
         </div>
@@ -2116,7 +2045,6 @@
             <div class="message-input-actions">
               <button class="input-action magic-btn" onclick="toggleAssistBar()" title="Writing Assistant"><i class="fas fa-magic"></i></button>
               <button class="input-action" onclick="toggleEmojiPicker()" title="Emoji"><i class="far fa-smile"></i></button>
-              <button class="input-action" onclick="window.location.href='voice.html'" title="Voice Note"><i class="fas fa-microphone"></i></button>
               <input type="file" id="imageInputHidden" accept="image/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'image')">
               <input type="file" id="videoInputHidden" accept="video/*" style="display:none" onchange="uploadToCloudinary(this.files[0], 'video')">
               <button class="input-action" onclick="document.getElementById('imageInputHidden').click()" title="Send Image"><i class="fas fa-image"></i></button>
@@ -2241,8 +2169,8 @@
   let currentChatUserAvatar = '';
   let unsubscribeMessages = null;
   let unsubscribeConversations = null;
-  let unsubscribeUserProfiles = null;
-  let unsubscribeFeedNotifications = null;
+  let unsubscribeUserProfiles = null; // NEW: For user profile updates
+  let unsubscribeFeedNotifications = null; // NEW: For feed notifications
   
   // Message state
   let replyToMsg = null;
@@ -2257,10 +2185,9 @@
   const wallpaperCategories = ['Nature', 'Abstract', 'Tech', 'Minimal', 'City', 'Space', 'Dark'];
   let tempWallpaper = null;
 
-  // Notification state
+  // Notification state - NEW
   let unreadMessagesCount = 0;
   let unreadConversations = new Set();
-  let userListeners = new Map(); // Track user profile listeners
 
   // DOM elements
   const messagesContainer = document.getElementById('messagesContainer');
@@ -2274,6 +2201,7 @@
 
   // === UTILITY FUNCTIONS ===
 
+  // Enhanced error handling
   function showError(message, duration = 5000) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
@@ -2300,6 +2228,7 @@
     }, duration);
   }
 
+  // Enhanced loading state
   function showLoading(container, message = 'Loading...') {
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'loading-message';
@@ -2312,6 +2241,7 @@
     return loadingDiv;
   }
 
+  // Format date for divider with better logic
   function formatDateHeader(timestamp) {
     if (!timestamp) return null;
     
@@ -2336,7 +2266,7 @@
     });
   }
 
-  // Enhanced user name retrieval with profile picture synchronization
+  // Enhanced user name retrieval with caching
   async function getUserDisplayName(userId) {
     if (!userId) return 'Unknown User';
     
@@ -2361,7 +2291,7 @@
     }
   }
 
-  // Enhanced user profile picture with real-time updates
+  // NEW: Function to get user profile picture
   async function getUserProfilePicture(userId) {
     if (!userId) return `https://ui-avatars.com/api/?name=User&background=0080FF&color=fff`;
     
@@ -2378,69 +2308,7 @@
     return `https://ui-avatars.com/api/?name=User&background=0080FF&color=fff`;
   }
 
-  // NEW: Function to set up user profile picture listeners for all conversation participants
-  function setupUserProfileListeners(participants) {
-    // Clean up old listeners
-    userListeners.forEach((unsubscribe, userId) => {
-      if (!participants.includes(userId) && userId !== currentUser?.uid) {
-        unsubscribe();
-        userListeners.delete(userId);
-      }
-    });
-
-    // Set up new listeners
-    participants.forEach(userId => {
-      if (userId !== currentUser?.uid && !userListeners.has(userId)) {
-        const unsubscribe = onSnapshot(doc(db, "users", userId), (doc) => {
-          if (doc.exists()) {
-            const userData = doc.data();
-            const newPhotoURL = userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=0080FF&color=fff`;
-            
-            // Update in conversations list
-            updateConversationAvatarsInUI(userId, newPhotoURL);
-            
-            // Update in current chat if applicable
-            if (currentChatUser === userId) {
-              currentChatUserAvatar = newPhotoURL;
-              document.getElementById('currentChatAvatar').src = newPhotoURL;
-              
-              // Update message avatars in current chat
-              updateMessageAvatarsInCurrentChat(userId, newPhotoURL);
-            }
-          }
-        });
-        
-        userListeners.set(userId, unsubscribe);
-      }
-    });
-  }
-
-  // NEW: Update conversation avatars in UI
-  function updateConversationAvatarsInUI(userId, newAvatarUrl) {
-    const conversationItems = document.querySelectorAll('.conversation-item');
-    conversationItems.forEach(item => {
-      const chatId = item.getAttribute('data-chat-id');
-      if (chatId && chatId.includes(userId)) {
-        const avatarImg = item.querySelector('.conversation-avatar');
-        if (avatarImg) {
-          avatarImg.src = newAvatarUrl;
-        }
-      }
-    });
-  }
-
-  // NEW: Update message avatars in current chat
-  function updateMessageAvatarsInCurrentChat(userId, newAvatarUrl) {
-    const messageWrappers = document.querySelectorAll('.message-wrapper.received');
-    messageWrappers.forEach(wrapper => {
-      const avatarImg = wrapper.querySelector('.message-avatar-small');
-      if (avatarImg && !avatarImg.src.includes('placeholder')) {
-        avatarImg.src = newAvatarUrl;
-      }
-    });
-  }
-
-  // Enhanced function to update conversation avatars when profile picture changes
+  // NEW: Function to update conversation avatars when profile picture changes
   async function updateConversationAvatars(userId, newAvatarUrl) {
     try {
       const conversationsQuery = query(
@@ -2486,15 +2354,16 @@
       `;
     }
 
+    let mediaContent = '';
     if (msg.mediaType === 'image') {
-      content += `
+      mediaContent += `
         <div style="position:relative;">
           <img src="${msg.mediaUrl}" class="message-img" onerror="this.src='https://via.placeholder.com/200?text=Failed+to+load'" loading="lazy">
           ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
         </div>
       `;
     } else if (msg.mediaType === 'video') {
-      content += `
+      mediaContent += `
         <div style="position:relative;">
           <video src="${msg.mediaUrl}" controls class="message-video" preload="metadata"></video>
           ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
@@ -2502,11 +2371,12 @@
       `;
     }
     
+    let textContent = '';
     if (msg.text) {
       const formattedText = msg.text
         .replace(/\n/g, '<br>')
         .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
-      content += `<div style="word-break: break-word;">${formattedText}</div>`;
+      textContent += `<div style="word-break: break-word;">${formattedText}</div>`;
     }
 
     const div = document.createElement('div');
@@ -2548,14 +2418,21 @@
       timeString = '<i class="far fa-clock" title="Sending..."></i>';
     }
 
+    // FIXED: WhatsApp-like message structure
     div.innerHTML = `
       ${isMe ? optionsHtml : ''}
       <img src="${avatarSrc}" class="message-avatar-small" alt="${isMe ? 'You' : currentChatUserName}">
       <div class="message-bubble">
         ${content}
-        <div class="message-time">
-          ${msg.isEdited ? '<i class="fas fa-pencil-alt" style="font-size:8px; margin-right:4px;" title="Edited"></i>' : ''}   
-          ${timeString}
+        ${mediaContent}
+        <div class="message-content">
+          <div class="message-text">
+            ${textContent}
+          </div>
+          <div class="message-time">
+            ${msg.isEdited ? '<i class="fas fa-pencil-alt" style="font-size:8px; margin-right:4px;" title="Edited"></i>' : ''}   
+            ${timeString}
+          </div>
         </div>
       </div>
       ${!isMe ? optionsHtml : ''}
@@ -2650,7 +2527,7 @@
     document.getElementById('replyPreview').style.display = 'none';
     document.getElementById('sendButton').innerHTML = '<i class="fas fa-paper-plane"></i>';
     messageInput.value = '';
-    messageInput.style.height = '50px';
+    messageInput.style.height = '45px';
   };
 
   // === CONVERSATION MANAGEMENT ===
@@ -2940,10 +2817,10 @@
     
     messageInput.value = text;
     messageInput.style.height = 'auto';
-    messageInput.style.height = messageInput.scrollHeight + 'px';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
   };
 
-  // === WALLPAPER MANAGEMENT ===
+  // === WALLPAPER MANAGEMENT - UPDATED for gallery upload ===
 
   window.openWallpaperModal = () => {
     const modal = document.getElementById('wallpaperModal');
@@ -2952,7 +2829,7 @@
     const grid = document.getElementById('wallpaperGrid');
     grid.innerHTML = '';
     
-    // Add upload option
+    // NEW: Add upload option
     const uploadOption = document.createElement('div');
     uploadOption.className = 'wallpaper-upload-option';
     uploadOption.innerHTML = `
@@ -3086,7 +2963,7 @@
     }
   }
 
-  // Function to handle wallpaper upload from gallery
+  // NEW: Function to handle wallpaper upload from gallery
   function handleWallpaperUpload(file) {
     if (!file) return;
     
@@ -3244,7 +3121,7 @@
             messageInput.focus();
             
             messageInput.style.height = 'auto';
-            messageInput.style.height = messageInput.scrollHeight + 'px';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
           };
           content.appendChild(emojiDiv);
         });
@@ -3302,10 +3179,10 @@
         if (!window.userNameCache) window.userNameCache = {};
         window.userNameCache[user.uid] = displayName || 'User';
         
-        // Start listening for current user profile updates
-        setupCurrentUserProfileListener();
+        // NEW: Start listening for user profile updates
+        setupUserProfileListener();
         
-        // Setup feed notifications
+        // NEW: Setup feed notifications - FIXED: Only show for incoming messages
         setupFeedNotifications();
         
       } catch (error) {
@@ -3332,8 +3209,8 @@
     }
   });
 
-  // Function to listen for current user profile updates
-  function setupCurrentUserProfileListener() {
+  // NEW: Function to listen for user profile updates
+  function setupUserProfileListener() {
     if (!currentUser) return;
     
     unsubscribeUserProfiles = onSnapshot(doc(db, "users", currentUser.uid), async (doc) => {
@@ -3345,7 +3222,6 @@
         if (newPhotoURL && navUserImg.src !== newPhotoURL) {
           navUserImg.src = newPhotoURL;
           
-          // Update conversation avatars for this user
           await updateConversationAvatars(currentUser.uid, newPhotoURL);
         }
         
@@ -3357,42 +3233,54 @@
     });
   }
 
-  // Function to setup feed notifications
+  // NEW: Function to setup feed notifications - FIXED: Only show for incoming messages
   function setupFeedNotifications() {
     if (!currentUser) return;
     
+    // Listen for unread messages across all conversations
     const q = query(
-      collection(db, "conversations"), 
-      where("participants", "array-contains", currentUser.uid)
+      collectionGroup(db, "messages"),
+      where("senderId", "!=", currentUser.uid)
     );
     
     unsubscribeFeedNotifications = onSnapshot(q, (snapshot) => {
-      let totalUnread = 0;
-      unreadConversations.clear();
+      let unreadCount = 0;
+      const unreadConvs = new Set();
       
-      snapshot.docs.forEach(convDoc => {
-        const convData = convDoc.data();
-        
-        // Check if this conversation has unread messages
-        // In a real app, you'd track read status per user
-        // For now, we'll show notification for all active conversations
-        if (convData.lastMessage && convData.updatedAt) {
-          const lastUpdate = convData.updatedAt.seconds * 1000;
-          const now = Date.now();
-          const isRecent = (now - lastUpdate) < 24 * 60 * 60 * 1000; // Within 24 hours
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          const msg = change.doc.data();
+          const conversationId = change.doc.ref.parent.parent?.id;
           
-          if (isRecent && convData.participants.length > 1) {
-            totalUnread++;
-            unreadConversations.add(convDoc.id);
+          if (conversationId && msg.senderId !== currentUser.uid) {
+            unreadConvs.add(conversationId);
           }
         }
       });
       
-      updateFeedNotificationBadge(totalUnread);
+      // Check if conversations have been read
+      unreadConvs.forEach(convId => {
+        const lastRead = localStorage.getItem(`meet_last_read_${convId}`);
+        if (!lastRead) {
+          unreadCount++;
+        } else {
+          // Check if message is newer than last read time
+          const lastReadTime = parseInt(lastRead);
+          const convDoc = snapshot.docs.find(doc => 
+            doc.ref.parent.parent?.id === convId && 
+            doc.data().timestamp?.seconds * 1000 > lastReadTime
+          );
+          if (convDoc) {
+            unreadCount++;
+          }
+        }
+      });
+      
+      updateFeedNotificationBadge(unreadCount);
     });
   }
 
-  // Function to update feed notification badge
+  // NEW: Function to update feed notification badge
   function updateFeedNotificationBadge(count) {
     const badge = document.getElementById('feedNotificationBadge');
     if (!badge) return;
@@ -3407,7 +3295,7 @@
     unreadMessagesCount = count;
   }
 
-  // Enhanced conversation loading with real-time profile picture updates
+  // Enhanced conversation loading with real names
   function loadConversations() {
     const q = query(
       collection(db, "conversations"), 
@@ -3419,7 +3307,6 @@
       list.innerHTML = '';
       
       const convs = [];
-      const participantsToListen = new Set();
       
       for (const doc of snapshot.docs) {
         const conv = { id: doc.id, ...doc.data() };
@@ -3429,14 +3316,8 @@
           const realName = await getUserDisplayName(otherId);
           conv.realName = realName;
           convs.push(conv);
-          
-          // Add to participants to listen for profile updates
-          participantsToListen.add(otherId);
         }
       }
-      
-      // Set up user profile listeners for all conversation participants
-      setupUserProfileListeners([...participantsToListen, currentUser.uid]);
       
       convs.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
       
@@ -3449,22 +3330,34 @@
         div.className = `conversation-item ${currentChatId === conv.id ? 'active' : ''}`;
         div.setAttribute('data-chat-id', conv.id);
         
-        const unreadCount = unreadConversations.has(conv.id) ? 1 : 0;
+        // NEW: Add unread count if applicable
+        const lastRead = localStorage.getItem(`meet_last_read_${conv.id}`);
+        const hasUnread = !lastRead || (conv.updatedAt?.seconds * 1000 > parseInt(lastRead) && conv.lastMessageSender !== currentUser.uid);
         
         div.innerHTML = `
-          <img src="${avatar}" class="conversation-avatar" alt="${name}" data-user-id="${otherId}">
+          <img src="${avatar}" class="conversation-avatar" alt="${name}">
           <div class="conversation-info">
             <div class="conversation-name">${name}</div>
             <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
           </div>
-          ${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}
+          ${hasUnread ? `<span class="unread-count">1</span>` : ''}
         `;
         
         div.onclick = () => {
+          // FIXED: Faster response by using cached data
           localStorage.setItem('last_active_chat', conv.id);
+          // Mark as read immediately
+          localStorage.setItem(`meet_last_read_${conv.id}`, Date.now());
+          
           openChat(conv.id, otherId, name, avatar);
           
-          // Remove from unread set when opened
+          // Remove unread indicator
+          const unreadIndicator = div.querySelector('.unread-count');
+          if (unreadIndicator) {
+            unreadIndicator.remove();
+          }
+          
+          // Update feed notification badge
           if (unreadConversations.has(conv.id)) {
             unreadConversations.delete(conv.id);
             updateFeedNotificationBadge(unreadConversations.size);
@@ -3482,7 +3375,7 @@
     });
   }
 
-  // Enhanced chat opening with profile picture synchronization
+  // FIXED: Enhanced chat opening with better performance
   async function openChat(chatId, otherUserId, name, avatar) {
     try {
       if (unsubscribeMessages) {
@@ -3503,36 +3396,17 @@
         throw new Error("You don't have access to this conversation");
       }
 
-      // Get the latest profile picture for the other user
-      const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
-      let latestAvatar = avatar;
-      
-      if (otherUserDoc.exists()) {
-        const otherUserData = otherUserDoc.data();
-        latestAvatar = otherUserData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUserData.name || name)}&background=0080FF&color=fff`;
-        
-        // Update conversation avatars if outdated
-        const participantAvatars = convData.participantAvatars || {};
-        if (participantAvatars[otherUserId] !== latestAvatar) {
-          participantAvatars[otherUserId] = latestAvatar;
-          await updateDoc(doc(db, "conversations", chatId), {
-            participantAvatars: participantAvatars,
-            updatedAt: serverTimestamp()
-          });
-        }
-      }
-
       currentChatId = chatId;
       currentChatUser = otherUserId;
       currentChatUserName = name;
-      currentChatUserAvatar = latestAvatar;
+      currentChatUserAvatar = avatar;
       
       document.getElementById('emptyChat').style.display = 'none';
       document.getElementById('chatHeader').style.display = 'flex';
       document.getElementById('messagesContainer').style.display = 'flex';
       document.getElementById('messageInputContainer').style.display = 'block';
       document.getElementById('chatUserName').innerText = name;
-      document.getElementById('currentChatAvatar').src = latestAvatar;
+      document.getElementById('currentChatAvatar').src = avatar;
       
       document.getElementById('typingUserName').textContent = name;
       
@@ -3552,9 +3426,6 @@
         messagesContainer.style.backgroundImage = 'none';
       }
       
-      // Set up user profile listeners for participants
-      setupUserProfileListeners(convData.participants);
-      
       await loadMessages(chatId);
       
     } catch (error) {
@@ -3571,7 +3442,7 @@
     }
   }
 
-  // Enhanced message loading
+  // FIXED: Enhanced message loading with better performance
   function loadMessages(chatId) {
     if (unsubscribeMessages) unsubscribeMessages();
     messagesContainer.innerHTML = '';
@@ -3580,7 +3451,8 @@
     
     const q = query(
       collection(db, "conversations", chatId, "messages"),
-      orderBy("timestamp", "asc")
+      orderBy("timestamp", "asc"),
+      limit(50) // Limit initial load for better performance
     );
     
     unsubscribeMessages = onSnapshot(q, (snapshot) => {
@@ -3591,42 +3463,34 @@
       let lastHeader = null;
       let hasMessages = false;
       
-      snapshot.docChanges().forEach((change) => {
-        const msg = change.doc.data();
+      // Process all messages at once instead of per change
+      const messages = [];
+      snapshot.docs.forEach(doc => {
+        messages.push({ id: doc.id, ...doc.data() });
+      });
+      
+      messages.forEach(msg => {
+        hasMessages = true;
+        
         const isMe = msg.senderId === currentUser.uid;
-
-        if (change.type === "added") {
-          hasMessages = true;
-          
-          const existingMsg = document.getElementById(change.doc.id);
-          if (existingMsg && existingMsg.classList.contains('optimistic-msg')) {
-            existingMsg.remove();
-          }
-
-          const currentHeader = formatDateHeader(msg.timestamp);
-          if (currentHeader && currentHeader !== lastHeader) {
-            const div = document.createElement('div');
-            div.className = 'date-divider';
-            div.innerHTML = `<span>${currentHeader}</span>`;
-            messagesContainer.appendChild(div);
-            lastHeader = currentHeader;
-          }
-
-          const div = renderMessageHTML(msg, isMe, change.doc.id);
+        const currentHeader = formatDateHeader(msg.timestamp);
+        
+        if (currentHeader && currentHeader !== lastHeader) {
+          const div = document.createElement('div');
+          div.className = 'date-divider';
+          div.innerHTML = `<span>${currentHeader}</span>`;
           messagesContainer.appendChild(div);
-        } else if (change.type === "modified") {
-          const el = document.getElementById(change.doc.id);
-          if (el) el.replaceWith(renderMessageHTML(msg, isMe, change.doc.id));
-        } else if (change.type === "removed") {
-          const el = document.getElementById(change.doc.id);
-          if (el) el.remove();
+          lastHeader = currentHeader;
         }
+
+        const div = renderMessageHTML(msg, isMe, msg.id);
+        messagesContainer.appendChild(div);
       });
       
       if (hasMessages) {
         setTimeout(() => {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
+        }, 50); // Reduced timeout for faster response
       }
       
     }, (error) => {
@@ -3670,7 +3534,7 @@
 
     const originalText = text;
     messageInput.value = '';
-    messageInput.style.height = '50px';
+    messageInput.style.height = '45px';
 
     const msgPayload = {
       text: originalText,
@@ -3690,6 +3554,7 @@
       
       await updateDoc(doc(db, "conversations", currentChatId), {
         lastMessage: originalText.length > 50 ? originalText.substring(0, 50) + '...' : originalText,
+        lastMessageSender: currentUser.uid,
         updatedAt: serverTimestamp()
       });
       
@@ -3698,13 +3563,13 @@
       
       messageInput.value = originalText;
       messageInput.style.height = 'auto';
-      messageInput.style.height = messageInput.scrollHeight + 'px';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
       
       showError("Failed to send message. Please check your connection and try again.");
     }
   }
 
-  // WhatsApp-like textarea expansion
+  // UPDATED: WhatsApp-like textarea expansion
   messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -3714,16 +3579,8 @@
 
   messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
-    const newHeight = Math.min(this.scrollHeight, 200);
+    const newHeight = Math.min(this.scrollHeight, 120);
     this.style.height = newHeight + 'px';
-    
-    if (newHeight > 100) {
-      this.style.paddingTop = '10px';
-      this.style.paddingBottom = '10px';
-    } else {
-      this.style.paddingTop = '14px';
-      this.style.paddingBottom = '14px';
-    }
   });
 
   // Back button for mobile
@@ -3815,13 +3672,13 @@
       if (existingConv.exists()) {
         const convData = existingConv.data();
         const otherUserId = convData.participants.find(p => p !== currentUser.uid);
-        const realName = await getUserDisplayName(otherUserId);
+        const realName = convData.participantNames?.[otherUserId] || await getUserDisplayName(otherUserId);
         const avatar = convData.participantAvatars?.[otherUserId] || otherData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(realName)}&background=0080FF&color=fff`;
         
         openChat(chatId, otherId, realName, avatar);
       } else {
-        const currentUserName = await getUserDisplayName(currentUser.uid);
-        const otherUserName = await getUserDisplayName(otherId);
+        const currentUserName = navUserName.textContent;
+        const otherUserName = otherData.name || otherData.displayName || 'User';
         
         await setDoc(doc(db, "conversations", chatId), {
           participants,
@@ -3893,13 +3750,23 @@
     }
   });
 
-  // Handle wallpaper upload from gallery
+  // === PLACEHOLDER FUNCTIONS FOR FUTURE FEATURES ===
+
+  window.startVoiceCall = () => {
+    alert("Voice call feature will be implemented in a future update!");
+  };
+
+  window.startVideoCall = () => {
+    alert("Video call feature will be implemented in a future update!");
+  };
+
+  // NEW: Handle wallpaper upload from gallery
   document.getElementById('wallpaperUploadInput').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
       handleWallpaperUpload(file);
     }
-    e.target.value = '';
+    e.target.value = ''; // Reset input
   });
 
   // === INITIALIZATION ===
@@ -3913,10 +3780,6 @@
       if (window.innerWidth >= 1200) {
         chatContainer.style.width = '70%';
         chatContainer.style.maxWidth = '1200px';
-        chatContainer.style.margin = '0 auto';
-      } else if (window.innerWidth >= 769) {
-        chatContainer.style.width = '85%';
-        chatContainer.style.maxWidth = '1000px';
         chatContainer.style.margin = '0 auto';
       } else {
         chatContainer.style.width = '100%';
@@ -3946,10 +3809,6 @@
     if (unsubscribeFeedNotifications) {
       unsubscribeFeedNotifications();
     }
-    
-    // Clean up user profile listeners
-    userListeners.forEach(unsubscribe => unsubscribe());
-    userListeners.clear();
   });
 
 </script>
