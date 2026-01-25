@@ -644,6 +644,12 @@
   .message-wrapper.sent { 
     align-self: flex-end; 
     flex-direction: row-reverse; 
+    max-width: 80%; /* Added for better alignment */
+  }
+  
+  .message-wrapper.received {
+    align-self: flex-start;
+    max-width: 80%; /* Added for better alignment */
   }
   
   .message-avatar-small { 
@@ -661,7 +667,8 @@
     padding: 8px 12px; /* Reduced padding */
     border-radius: 18px; 
     position: relative; 
-    word-wrap: break-word; 
+    word-break: break-word; /* Fix for word splitting */
+    overflow-wrap: break-word; /* Fix for word splitting */
     font-size: 14px; /* Reduced font size */
     line-height: 1.4; 
     max-width: 100%; 
@@ -682,7 +689,7 @@
     border-bottom-left-radius: 6px; 
     color: var(--received-text-color);
     border: 1px solid var(--border-color);
-    margin-left: 10px; /* Added left margin for receiver */
+    margin-left: 0; /* Removed left margin */
   }
   
   .sent .message-bubble { 
@@ -690,7 +697,7 @@
     color: var(--sent-text-color); 
     border-bottom-right-radius: 6px;
     box-shadow: 0 2px 8px rgba(0,128,255,0.3);
-    margin-right: 10px; /* Added right margin for sender */
+    margin-right: 0; /* Removed right margin */
   }
 
   .message-content {
@@ -704,9 +711,11 @@
   .message-text {
     flex: 1;
     word-break: break-word;
+    overflow-wrap: break-word;
     line-height: 1.4;
     font-size: 13.5px; /* Reduced font size */
     max-width: calc(100% - 45px); /* Reduced max width */
+    white-space: pre-wrap; /* Preserve line breaks */
   }
 
   .message-text img,
@@ -859,6 +868,28 @@
     font-weight: 500;
     white-space: nowrap;
     margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* Read receipt styles */
+  .read-receipt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .read-receipt.single-check {
+    color: #999;
+  }
+  
+  .read-receipt.double-check {
+    color: var(--primary);
+  }
+  
+  .read-receipt.blue-check {
+    color: #0080FF;
   }
   
   .upload-overlay { 
@@ -1775,6 +1806,88 @@
     background: rgba(239, 68, 68, 0.1);
   }
 
+  /* WhatsApp-style voice note player */
+  .voice-note-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
+    min-width: 150px;
+    max-width: 250px;
+  }
+
+  .voice-note-player.sent {
+    background: rgba(0, 128, 255, 0.1);
+  }
+
+  .voice-note-player.received {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .voice-note-play-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .voice-note-play-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+  }
+
+  .voice-note-waveform {
+    flex: 1;
+    height: 30px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .voice-note-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .voice-note-duration {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .voice-note-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.3) 2px,
+      rgba(255, 255, 255, 0.3) 4px
+    );
+    opacity: 0.5;
+  }
+
   @media (max-width: 768px) {
     .chat-container { 
       border-radius: 0; 
@@ -2261,6 +2374,13 @@
   let recordingTimer = null;
   let recordingStartTime = null;
   let isRecording = false;
+  
+  // Voice note playing state
+  let currentlyPlayingAudio = null;
+  let audioPlayingInterval = null;
+
+  // Prevent duplicate message sending
+  let isSendingMessage = false;
 
   // Scroll to bottom button
   let scrollToBottomBtn = null;
@@ -2443,11 +2563,19 @@
         </div>
       `;
     } else if (msg.mediaType === 'audio') {
+      // WhatsApp-style voice note player
       mediaContent += `
-        <div style="position:relative; margin-top:6px;">
-          <audio src="${msg.mediaUrl}" controls style="width:100%;"></audio>
-          ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
+        <div class="voice-note-player ${isMe ? 'sent' : 'received'}" data-audio-id="${id}">
+          <button class="voice-note-play-btn" onclick="toggleAudioPlayback('${id}', '${msg.mediaUrl}')">
+            <i class="fas fa-play" id="play-icon-${id}"></i>
+          </button>
+          <div class="voice-note-waveform">
+            <div class="voice-note-wave"></div>
+            <div class="voice-note-progress" id="progress-${id}"></div>
+          </div>
+          <div class="voice-note-duration" id="duration-${id}">0:00</div>
         </div>
+        ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
       `;
     } else if (msg.mediaType === 'file') {
       const fileName = msg.fileName || 'file';
@@ -2472,7 +2600,7 @@
       const formattedText = msg.text
         .replace(/\n/g, '<br>')
         .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:inherit; text-decoration:underline;">$1</a>');
-      textContent += `<div style="word-break: break-word;">${formattedText}</div>`;
+      textContent += `<div style="word-break: break-word; overflow-wrap: break-word;">${formattedText}</div>`;
     }
 
     const div = document.createElement('div');
@@ -2481,6 +2609,22 @@
     
     const ts = msg.timestamp ? msg.timestamp.seconds : Date.now() / 1000;
     div.setAttribute('data-timestamp', ts);
+
+    // Read receipt logic
+    let readReceiptHtml = '';
+    if (isMe && msg.timestamp) {
+      // Simulate read receipts: single check for sent, double for delivered, blue for read
+      const isRead = Math.random() > 0.3; // Simulate random read status
+      const isDelivered = Math.random() > 0.1; // Simulate random delivery status
+      
+      if (isRead) {
+        readReceiptHtml = '<span class="read-receipt blue-check"><i class="fas fa-check-double"></i></span>';
+      } else if (isDelivered) {
+        readReceiptHtml = '<span class="read-receipt double-check"><i class="fas fa-check-double"></i></span>';
+      } else {
+        readReceiptHtml = '<span class="read-receipt single-check"><i class="fas fa-check"></i></span>';
+      }
+    }
 
     const optionsHtml = `
       <button class="msg-options-btn" onclick="toggleMsgOptions('${id}')" title="Message options">
@@ -2527,6 +2671,7 @@
           <div class="message-time">
             ${msg.isEdited ? '<i class="fas fa-pencil-alt" style="font-size:8px; margin-right:4px;" title="Edited"></i>' : ''}   
             ${timeString}
+            ${readReceiptHtml}
           </div>
         </div>
       </div>
@@ -2535,6 +2680,83 @@
     
     return div;
   }
+
+  // === AUDIO PLAYBACK FUNCTIONS ===
+  window.toggleAudioPlayback = function(audioId, audioUrl) {
+    const playIcon = document.getElementById(`play-icon-${audioId}`);
+    const progressBar = document.getElementById(`progress-${audioId}`);
+    const durationDisplay = document.getElementById(`duration-${audioId}`);
+    
+    if (currentlyPlayingAudio && currentlyPlayingAudio.id === audioId) {
+      // Pause current audio
+      if (currentlyPlayingAudio.audio.paused) {
+        currentlyPlayingAudio.audio.play();
+        playIcon.className = 'fas fa-pause';
+        
+        // Update progress bar
+        audioPlayingInterval = setInterval(() => {
+          const progress = (currentlyPlayingAudio.audio.currentTime / currentlyPlayingAudio.audio.duration) * 100;
+          progressBar.style.width = `${progress}%`;
+          
+          // Update duration display
+          const currentTime = Math.floor(currentlyPlayingAudio.audio.currentTime);
+          const minutes = Math.floor(currentTime / 60);
+          const seconds = currentTime % 60;
+          durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }, 100);
+      } else {
+        currentlyPlayingAudio.audio.pause();
+        playIcon.className = 'fas fa-play';
+        clearInterval(audioPlayingInterval);
+      }
+    } else {
+      // Stop any currently playing audio
+      if (currentlyPlayingAudio) {
+        currentlyPlayingAudio.audio.pause();
+        const oldPlayIcon = document.getElementById(`play-icon-${currentlyPlayingAudio.id}`);
+        if (oldPlayIcon) oldPlayIcon.className = 'fas fa-play';
+        const oldProgressBar = document.getElementById(`progress-${currentlyPlayingAudio.id}`);
+        if (oldProgressBar) oldProgressBar.style.width = '0%';
+        clearInterval(audioPlayingInterval);
+      }
+      
+      // Start new audio
+      const audio = new Audio(audioUrl);
+      currentlyPlayingAudio = { audio, id: audioId };
+      
+      audio.play();
+      playIcon.className = 'fas fa-pause';
+      
+      // Set up progress tracking
+      audio.addEventListener('loadedmetadata', () => {
+        const duration = Math.floor(audio.duration);
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      });
+      
+      audioPlayingInterval = setInterval(() => {
+        if (audio.duration) {
+          const progress = (audio.currentTime / audio.duration) * 100;
+          progressBar.style.width = `${progress}%`;
+          
+          // Update duration display
+          const currentTime = Math.floor(audio.currentTime);
+          const minutes = Math.floor(currentTime / 60);
+          const seconds = currentTime % 60;
+          durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 100);
+      
+      audio.addEventListener('ended', () => {
+        playIcon.className = 'fas fa-play';
+        progressBar.style.width = '0%';
+        clearInterval(audioPlayingInterval);
+        currentlyPlayingAudio = null;
+        durationDisplay.textContent = '0:00';
+      });
+    }
+  };
 
   // === SCROLL TO BOTTOM BUTTON ===
   function createScrollToBottomButton() {
@@ -3808,12 +4030,20 @@
     });
   }
 
-  // Enhanced message sending
+  // Enhanced message sending with duplicate prevention
   document.getElementById('sendButton').addEventListener('click', sendMessage);
 
   async function sendMessage() {
+    if (isSendingMessage) return;
+    
     const text = messageInput.value.trim();
-    if (!text || !currentChatId) return;
+    if ((!text && !isRecording) || !currentChatId) return;
+    
+    isSendingMessage = true;
+    const sendButton = document.getElementById('sendButton');
+    const originalButtonHTML = sendButton.innerHTML;
+    sendButton.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+    sendButton.disabled = true;
     
     if (editingMsgId) {
       try {
@@ -3826,6 +4056,10 @@
       } catch (error) {
         console.error("Error editing message:", error);
         showError("Failed to edit message. Please try again.");
+      } finally {
+        isSendingMessage = false;
+        sendButton.innerHTML = originalButtonHTML;
+        sendButton.disabled = false;
       }
       return;
     }
@@ -3864,6 +4098,10 @@
       messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
       
       showError("Failed to send message. Please check your connection and try again.");
+    } finally {
+      isSendingMessage = false;
+      sendButton.innerHTML = originalButtonHTML;
+      sendButton.disabled = false;
     }
   }
 
@@ -4106,8 +4344,14 @@
     if (isRecording) {
       stopVoiceRecording();
     }
+    if (currentlyPlayingAudio) {
+      currentlyPlayingAudio.audio.pause();
+    }
+    if (audioPlayingInterval) {
+      clearInterval(audioPlayingInterval);
+    }
   });
 
 </script>
 </body>
-</html>
+  </html>
