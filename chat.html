@@ -608,23 +608,22 @@
   }
   
   .date-divider span { 
-    background: var(--card-bg); 
-    color: var(--text-color);
+    background: rgba(0,0,0,0.1); 
+    color: white; 
     padding: 5px 12px;
     border-radius: 16px; 
     font-size: 11px;
     font-weight: 600; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     position: relative;
     z-index: 1;
   }
 
-  /* WhatsApp-style message bubbles - Improved horizontal sizing */
+  /* WhatsApp-style message bubbles with proper sizing */
   .message-wrapper { 
     display: flex; 
     gap: 8px;
-    max-width: 100%; 
+    max-width: 85%; 
     align-items: flex-end; 
     position: relative; 
     margin-bottom: 8px;
@@ -645,12 +644,12 @@
   .message-wrapper.sent { 
     align-self: flex-end; 
     flex-direction: row-reverse; 
-    max-width: 85%; /* WhatsApp-like width for sent messages */
+    max-width: 80%;
   }
   
   .message-wrapper.received {
     align-self: flex-start;
-    max-width: 85%; /* WhatsApp-like width for received messages */
+    max-width: 80%;
   }
   
   .message-avatar-small { 
@@ -664,7 +663,7 @@
     border: 2px solid var(--card-bg);
   }
 
-  /* WhatsApp-style bubble sizing - Optimized */
+  /* WhatsApp-style bubble sizing - FIXED TO BE SHORTER HORIZONTALLY */
   .message-bubble { 
     padding: 8px 12px;
     border-radius: 18px; 
@@ -673,68 +672,71 @@
     overflow-wrap: break-word;
     font-size: 14px;
     line-height: 1.4; 
-    max-width: 100%; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+    max-width: 400px; /* Maximum width like WhatsApp */
+    min-width: 50px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
     font-family: var(--chat-font);
     transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    min-width: 50px;
-    width: fit-content;
+    display: inline-block; /* Like WhatsApp bubbles */
+  }
+  
+  /* WhatsApp tail pointers */
+  .message-bubble.sent::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-left: 9px solid var(--sent-bubble-bg);
+    border-top: 9px solid transparent;
+    border-bottom: 0 solid transparent;
+  }
+  
+  .message-bubble.received::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-right: 9px solid var(--received-bubble-bg);
+    border-top: 9px solid transparent;
+    border-bottom: 0 solid transparent;
   }
   
   .message-bubble:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   }
   
-  .received .message-bubble { 
+  .message-bubble.received { 
     background: var(--received-bubble-bg); 
-    border-bottom-left-radius: 6px; 
     color: var(--received-text-color);
     border: 1px solid var(--border-color);
     margin-left: 0;
-    max-width: 100%; /* Allow bubble to expand within wrapper */
+    border-bottom-left-radius: 4px;
   }
   
-  .sent .message-bubble { 
+  .message-bubble.sent { 
     background: var(--sent-bubble-bg); 
     color: var(--sent-text-color); 
-    border-bottom-right-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,128,255,0.3);
     margin-right: 0;
-    max-width: 100%; /* Allow bubble to expand within wrapper */
-  }
-
-  /* Adjust bubble size based on content */
-  .message-bubble.short {
-    padding: 6px 10px;
-  }
-  
-  .message-bubble.medium {
-    padding: 8px 12px;
-  }
-  
-  .message-bubble.long {
-    padding: 10px 14px;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,128,255,0.2);
   }
 
   .message-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 8px;
+    position: relative;
     max-width: 100%;
   }
 
   .message-text {
-    flex: 1;
     word-break: break-word;
     overflow-wrap: break-word;
     line-height: 1.4;
     font-size: 13.5px;
-    max-width: calc(100% - 45px);
     white-space: pre-wrap;
+    padding-right: 40px; /* Space for timestamp */
   }
 
   .message-text img,
@@ -880,13 +882,15 @@
   }
   
   .message-time { 
+    position: absolute;
+    bottom: 4px;
+    right: 12px;
     font-size: 10px;
     opacity: 0.7; 
     text-align: right; 
     display: block; 
     font-weight: 500;
     white-space: nowrap;
-    margin-top: 2px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -901,11 +905,11 @@
   }
   
   .read-receipt.single-check {
-    color: rgba(255, 255, 255, 0.7);
+    color: #999;
   }
   
   .read-receipt.double-check {
-    color: rgba(255, 255, 255, 0.7);
+    color: #999;
   }
   
   .read-receipt.blue-check {
@@ -1303,7 +1307,7 @@
     font-size: 14px;
     outline: none; 
     appearance: none; 
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
     background-repeat: no-repeat; 
     background-position: right 1rem center; 
     background-size: 1em;
@@ -1826,28 +1830,24 @@
     background: rgba(239, 68, 68, 0.1);
   }
 
-  /* WhatsApp-style voice note player - IMPROVED */
+  /* WhatsApp-style voice note player */
   .voice-note-player {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
+    gap: 10px;
+    padding: 8px 12px;
     border-radius: 18px;
-    min-width: 120px;
+    min-width: 150px;
     max-width: 250px;
-    width: fit-content;
-    position: relative;
-    overflow: hidden;
+    margin: 5px 0;
   }
 
   .voice-note-player.sent {
-    background: rgba(0, 128, 255, 0.15);
-    border: 1px solid rgba(0, 128, 255, 0.3);
+    background: rgba(0, 128, 255, 0.1);
   }
 
   .voice-note-player.received {
     background: rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border-color);
   }
 
   body.dark-mode .voice-note-player.received {
@@ -1867,7 +1867,6 @@
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    z-index: 2;
   }
 
   .voice-note-play-btn:hover {
@@ -1877,12 +1876,11 @@
 
   .voice-note-waveform {
     flex: 1;
-    height: 24px;
+    height: 25px;
     position: relative;
     background: rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
+    border-radius: 12.5px;
     overflow: hidden;
-    z-index: 1;
   }
 
   .voice-note-progress {
@@ -1890,20 +1888,19 @@
     top: 0;
     left: 0;
     height: 100%;
-    background: rgba(0, 128, 255, 0.3);
+    background: var(--primary);
     width: 0%;
     transition: width 0.1s linear;
-    z-index: 1;
+    border-radius: 12.5px;
   }
 
   .voice-note-duration {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-color);
-    min-width: 32px;
-    text-align: right;
+    min-width: 35px;
+    text-align: center;
     flex-shrink: 0;
-    z-index: 2;
   }
 
   .voice-note-wave {
@@ -1912,55 +1909,23 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.3) 2px,
-      rgba(255, 255, 255, 0.3) 4px
-    );
-    opacity: 0.5;
-    z-index: 0;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.5) 2px,
+        rgba(255, 255, 255, 0.5) 4px
+      );
+    animation: waveMove 1s linear infinite;
   }
 
-  .voice-note-player.sent .voice-note-wave {
-    background: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.4) 2px,
-      rgba(255, 255, 255, 0.4) 4px
-    );
+  @keyframes waveMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-4px); }
   }
 
-  .voice-note-pulse {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 128, 255, 0.2);
-    border-radius: 18px;
-    animation: pulse 2s infinite;
-    z-index: 0;
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 0.5;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.2;
-      transform: scale(1.02);
-    }
-    100% {
-      opacity: 0.5;
-      transform: scale(1);
-    }
-  }
-
-  /* Call Interface Styles - IMPROVED */
+  /* Call Interface Styles */
   .call-interface {
     position: fixed;
     top: 0;
@@ -2140,49 +2105,6 @@
     color: white;
   }
 
-  /* Audio call specific */
-  .audio-call-interface {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  }
-
-  .audio-call-avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin: 50px auto;
-    object-fit: cover;
-    border: 5px solid rgba(255,255,255,0.1);
-  }
-
-  .audio-call-info {
-    text-align: center;
-    color: white;
-    margin-bottom: 50px;
-  }
-
-  /* Loading overlay */
-  .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 5000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .loading-content {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 16px;
-    text-align: center;
-    max-width: 300px;
-    width: 90%;
-  }
-
   @media (max-width: 768px) {
     .chat-container { 
       border-radius: 0; 
@@ -2345,26 +2267,6 @@
       bottom: 80px;
       right: 15px;
     }
-
-    /* Mobile voice note player */
-    .voice-note-player {
-      max-width: 200px;
-    }
-
-    .voice-note-waveform {
-      height: 20px;
-    }
-
-    .voice-note-play-btn {
-      width: 24px;
-      height: 24px;
-      font-size: 10px;
-    }
-
-    .voice-note-duration {
-      font-size: 10px;
-      min-width: 28px;
-    }
   }
 
   @media (max-width: 480px) {
@@ -2401,6 +2303,7 @@
     .message-bubble {
       padding: 7px 10px;
       font-size: 13px;
+      max-width: 300px;
     }
     
     .wallpaper-grid,
@@ -2421,12 +2324,6 @@
       padding: 10px;
       font-size: 12px;
     }
-
-    /* Mobile voice note player - small screens */
-    .voice-note-player {
-      max-width: 180px;
-      padding: 5px 8px;
-    }
   }
 
   body.dark-mode .sidebar {
@@ -2438,9 +2335,8 @@
   }
   
   body.dark-mode .date-divider span {
-    background: var(--card-bg);
+    background: rgba(255,255,255,0.1);
     color: var(--text-color);
-    border-color: var(--border-color);
   }
   
   body.dark-mode .message-bubble {
@@ -2454,24 +2350,6 @@
   body.dark-mode .wallpaper-upload-option {
     background: var(--card-bg);
     border-color: var(--border-color);
-  }
-
-  /* Hide scrollbar but allow scrolling */
-  .messages-container::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .messages-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .messages-container::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-  }
-
-  .messages-container::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-text);
   }
 </style>
 </head>
@@ -2609,14 +2487,6 @@
   </div>
 </div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-content">
-    <div class="loading-spinner" style="width:40px;height:40px;margin:0 auto 20px;"></div>
-    <h4 id="loadingText">Connecting...</h4>
-  </div>
-</div>
-
 <!-- Ringtone Audio -->
 <audio id="ringtone" loop style="display: none;">
   <source src="https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3" type="audio/mpeg">
@@ -2643,31 +2513,6 @@
       <i class="fas fa-video"></i>
     </button>
     <button class="call-control-btn speaker" id="speakerBtn" onclick="toggleSpeaker()">
-      <i class="fas fa-volume-up"></i>
-    </button>
-    <button class="call-control-btn end-call" onclick="endCall()">
-      <i class="fas fa-phone"></i>
-    </button>
-  </div>
-</div>
-
-<!-- Audio Call Interface -->
-<div class="call-interface audio-call-interface" id="audioCallInterface" style="display:none;">
-  <div class="call-header">
-    <div class="call-user-info">
-      <div class="call-user-name" id="audioCallUserName">John Doe</div>
-      <div class="call-status" id="audioCallStatus">Connecting...</div>
-    </div>
-    <button class="chat-action-btn" onclick="endCall()" style="color:white;"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="audio-call-info">
-    <img src="" id="audioCallAvatar" class="audio-call-avatar">
-  </div>
-  <div class="call-controls">
-    <button class="call-control-btn mute" id="audioMuteBtn" onclick="toggleMute()">
-      <i class="fas fa-microphone"></i>
-    </button>
-    <button class="call-control-btn speaker" id="audioSpeakerBtn" onclick="toggleSpeaker()">
       <i class="fas fa-volume-up"></i>
     </button>
     <button class="call-control-btn end-call" onclick="endCall()">
@@ -2832,9 +2677,11 @@
   let scrollToBottomBtn = null;
   let shouldScrollToBottom = true;
   let isInitialLoad = true;
-  let lastMessageId = null;
+  let lastScrollPosition = 0;
+  let isUserScrolling = false;
+  let newMessagesCount = 0;
 
-  // Call state - IMPROVED
+  // Call state
   let currentCallId = null;
   let localStream = null;
   let remoteStream = null;
@@ -2843,10 +2690,9 @@
   let isVideoOn = true;
   let isSpeakerOn = true;
   let incomingCallListener = null;
-  let isCaller = false;
-  let callType = null;
+  let callDataChannel = null;
   
-  // WebRTC Configuration - UPDATED for better connectivity
+  // WebRTC Configuration
   const rtcConfig = {
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
@@ -2854,10 +2700,7 @@
       { urls: "stun:stun2.l.google.com:19302" },
       { urls: "stun:stun3.l.google.com:19302" },
       { urls: "stun:stun4.l.google.com:19302" }
-    ],
-    iceCandidatePoolSize: 10,
-    bundlePolicy: 'max-bundle',
-    rtcpMuxPolicy: 'require'
+    ]
   };
 
   // DOM elements
@@ -2876,14 +2719,11 @@
   const audioCallBtn = document.getElementById('audioCallBtn');
   const videoCallBtn = document.getElementById('videoCallBtn');
   const callInterface = document.getElementById('callInterface');
-  const audioCallInterface = document.getElementById('audioCallInterface');
   const incomingCallModal = document.getElementById('incomingCallModal');
   const remoteVideo = document.getElementById('remoteVideo');
   const localVideo = document.getElementById('localVideo');
   const ringtone = document.getElementById('ringtone');
   const clearAllChatsBtn = document.getElementById('clearAllChatsBtn');
-  const loadingOverlay = document.getElementById('loadingOverlay');
-  const loadingText = document.getElementById('loadingText');
 
   // === UTILITY FUNCTIONS ===
 
@@ -2913,13 +2753,41 @@
     }, duration);
   }
 
-  function showLoading(message = 'Loading...') {
-    loadingText.textContent = message;
-    loadingOverlay.style.display = 'flex';
+  function showSuccess(message, duration = 3000) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'error-message';
+    successDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+    successDiv.style.borderLeftColor = 'var(--success)';
+    successDiv.style.color = 'var(--success)';
+    successDiv.innerHTML = `
+      <i class="fas fa-check-circle"></i>
+      <span>${message}</span>
+    `;
+    
+    successDiv.style.position = 'fixed';
+    successDiv.style.top = '20px';
+    successDiv.style.right = '20px';
+    successDiv.style.zIndex = '9999';
+    successDiv.style.maxWidth = '400px';
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+      if (successDiv.parentNode) {
+        successDiv.remove();
+      }
+    }, duration);
   }
 
-  function hideLoading() {
-    loadingOverlay.style.display = 'none';
+  function showLoading(container, message = 'Loading...') {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading-message';
+    loadingDiv.innerHTML = `
+      <div class="loading-spinner"></div>
+      <span>${message}</span>
+    `;
+    loadingDiv.style.cssText = 'display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; color:var(--secondary-text);';
+    container.appendChild(loadingDiv);
+    return loadingDiv;
   }
 
   function formatDateHeader(timestamp) {
@@ -3015,7 +2883,7 @@
     }
   }
 
-  // === MESSAGE RENDERING - IMPROVED ===
+  // === MESSAGE RENDERING ===
 
   function renderMessageHTML(msg, isMe, id) {
     const avatarSrc = isMe ? navUserImg.src : currentChatUserAvatar;
@@ -3046,7 +2914,7 @@
         </div>
       `;
     } else if (msg.mediaType === 'audio') {
-      // WhatsApp-style voice note player - IMPROVED
+      // WhatsApp-style voice note player
       mediaContent += `
         <div class="voice-note-player ${isMe ? 'sent' : 'received'}" data-audio-id="${id}">
           <button class="voice-note-play-btn" onclick="toggleAudioPlayback('${id}', '${msg.mediaUrl}')">
@@ -3092,13 +2960,6 @@
     
     const ts = msg.timestamp ? msg.timestamp.seconds : Date.now() / 1000;
     div.setAttribute('data-timestamp', ts);
-
-    // Determine bubble size class based on text length
-    let bubbleSizeClass = 'medium';
-    if (msg.text) {
-      if (msg.text.length < 20) bubbleSizeClass = 'short';
-      else if (msg.text.length > 100) bubbleSizeClass = 'long';
-    }
 
     // WhatsApp-style read receipts
     let readReceiptHtml = '';
@@ -3151,10 +3012,10 @@
     div.innerHTML = `
       ${isMe ? optionsHtml : ''}
       <img src="${avatarSrc}" class="message-avatar-small" alt="${isMe ? 'You' : currentChatUserName}">
-      <div class="message-bubble ${bubbleSizeClass}">
-        ${content}
-        ${mediaContent}
+      <div class="message-bubble ${isMe ? 'sent' : 'received'}">
         <div class="message-content">
+          ${content}
+          ${mediaContent}
           <div class="message-text">
             ${textContent}
           </div>
@@ -3171,19 +3032,17 @@
     return div;
   }
 
-  // === AUDIO PLAYBACK FUNCTIONS - IMPROVED ===
+  // === AUDIO PLAYBACK FUNCTIONS ===
   window.toggleAudioPlayback = function(audioId, audioUrl) {
     const playIcon = document.getElementById(`play-icon-${audioId}`);
     const progressBar = document.getElementById(`progress-${audioId}`);
     const durationDisplay = document.getElementById(`duration-${audioId}`);
-    const voiceNotePlayer = document.querySelector(`[data-audio-id="${audioId}"]`);
     
     if (currentlyPlayingAudio && currentlyPlayingAudio.id === audioId) {
       // Pause current audio
       if (currentlyPlayingAudio.audio.paused) {
         currentlyPlayingAudio.audio.play();
         playIcon.className = 'fas fa-pause';
-        voiceNotePlayer.classList.add('playing');
         
         // Update progress bar
         audioPlayingInterval = setInterval(() => {
@@ -3199,7 +3058,6 @@
       } else {
         currentlyPlayingAudio.audio.pause();
         playIcon.className = 'fas fa-play';
-        voiceNotePlayer.classList.remove('playing');
         clearInterval(audioPlayingInterval);
       }
     } else {
@@ -3210,8 +3068,6 @@
         if (oldPlayIcon) oldPlayIcon.className = 'fas fa-play';
         const oldProgressBar = document.getElementById(`progress-${currentlyPlayingAudio.id}`);
         if (oldProgressBar) oldProgressBar.style.width = '0%';
-        const oldPlayer = document.querySelector(`[data-audio-id="${currentlyPlayingAudio.id}"]`);
-        if (oldPlayer) oldPlayer.classList.remove('playing');
         clearInterval(audioPlayingInterval);
       }
       
@@ -3221,7 +3077,6 @@
       
       audio.play();
       playIcon.className = 'fas fa-pause';
-      voiceNotePlayer.classList.add('playing');
       
       // Set up progress tracking
       audio.addEventListener('loadedmetadata', () => {
@@ -3247,7 +3102,6 @@
       audio.addEventListener('ended', () => {
         playIcon.className = 'fas fa-play';
         progressBar.style.width = '0%';
-        voiceNotePlayer.classList.remove('playing');
         clearInterval(audioPlayingInterval);
         currentlyPlayingAudio = null;
         durationDisplay.textContent = '0:00';
@@ -3267,21 +3121,47 @@
     scrollToBottomBtn.title = 'Scroll to latest messages';
     scrollToBottomBtn.onclick = () => {
       scrollToBottom(true);
+      newMessagesCount = 0;
+      updateScrollButtonText();
     };
     
     messagesContainer.appendChild(scrollToBottomBtn);
     
     // Show/hide button based on scroll position
-    messagesContainer.addEventListener('scroll', () => {
-      const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
-      scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
-    });
+    messagesContainer.addEventListener('scroll', handleScroll);
     
     // Initial hide
     scrollToBottomBtn.style.display = 'none';
   }
 
-  // === SCROLL TO BOTTOM FUNCTION - IMPROVED ===
+  function handleScroll() {
+    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
+    
+    if (isNearBottom) {
+      newMessagesCount = 0;
+      updateScrollButtonText();
+      scrollToBottomBtn.style.display = 'none';
+    } else {
+      scrollToBottomBtn.style.display = 'flex';
+    }
+    
+    isUserScrolling = true;
+    setTimeout(() => {
+      isUserScrolling = false;
+    }, 100);
+  }
+
+  function updateScrollButtonText() {
+    if (!scrollToBottomBtn) return;
+    
+    if (newMessagesCount > 0) {
+      scrollToBottomBtn.innerHTML = `<i class="fas fa-chevron-down"></i> ${newMessagesCount} new`;
+    } else {
+      scrollToBottomBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    }
+  }
+
+  // === SCROLL TO BOTTOM FUNCTION ===
   function scrollToBottom(force = false) {
     if (!messagesContainer) return;
     
@@ -3289,15 +3169,24 @@
       if (messagesContainer.scrollHeight > messagesContainer.clientHeight) {
         const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 200;
         
-        if (force || isNearBottom || isInitialLoad) {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          if (scrollToBottomBtn) {
-            scrollToBottomBtn.style.display = 'none';
-          }
-          shouldScrollToBottom = true;
+        // WhatsApp-style: Only auto-scroll if user is already near bottom
+        if (force || isNearBottom) {
+          messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+          });
+          newMessagesCount = 0;
+          updateScrollButtonText();
         } else {
-          shouldScrollToBottom = false;
+          // User is not near bottom, increment new message count
+          newMessagesCount++;
+          updateScrollButtonText();
         }
+      }
+      
+      if (scrollToBottomBtn) {
+        const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
+        scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
       }
     }, 50);
   }
@@ -3395,7 +3284,14 @@
   window.clearAllMessages = async function() {
     if (!currentChatId) return;
     
-    if (confirm('Are you sure you want to clear all messages in this chat? This action cannot be undone.')) {
+    const confirmation = await showConfirmationModal(
+      'Clear Chat',
+      'Are you sure you want to clear all messages in this chat? This action cannot be undone.',
+      'Clear',
+      'Cancel'
+    );
+    
+    if (confirmation) {
       try {
         const messagesQuery = query(collection(db, "conversations", currentChatId, "messages"));
         const snapshot = await getDocs(messagesQuery);
@@ -3416,7 +3312,7 @@
         // Clear the messages container
         messagesContainer.innerHTML = '';
         
-        showError('Chat cleared successfully', 3000);
+        showSuccess('Chat cleared successfully');
       } catch (error) {
         console.error("Error clearing chat: ", error);
         showError("Failed to clear chat. Please try again.");
@@ -3426,9 +3322,14 @@
 
   // === CLEAR ALL CHATS FUNCTION ===
   async function clearAllChats() {
-    if (!confirm('Are you sure you want to clear all chats? This will delete all your conversations. This action cannot be undone.')) {
-      return;
-    }
+    const confirmation = await showConfirmationModal(
+      'Clear All Chats',
+      'Are you sure you want to clear all chats? This will delete all your conversations. This action cannot be undone.',
+      'Clear All',
+      'Cancel'
+    );
+    
+    if (!confirmation) return;
     
     try {
       const conversationsQuery = query(
@@ -3454,11 +3355,50 @@
         resetChatView();
       }
       
-      showError('All chats cleared successfully', 3000);
+      showSuccess('All chats cleared successfully');
     } catch (error) {
       console.error("Error clearing all chats: ", error);
       showError("Failed to clear all chats. Please try again.");
     }
+  }
+
+  // === CONFIRMATION MODAL ===
+  function showConfirmationModal(title, message, confirmText, cancelText) {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'settings-modal';
+      modal.style.display = 'flex';
+      modal.style.zIndex = '9999';
+      
+      modal.innerHTML = `
+        <div class="settings-content" style="max-width: 400px;">
+          <div class="settings-header">
+            <h3>${title}</h3>
+            <button class="settings-close" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(false)">&times;</button>
+          </div>
+          <div style="padding: 20px 0; color: var(--text-color);">
+            ${message}
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button class="preview-btn btn-cancel" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(false)" style="flex: 1;">${cancelText}</button>
+            <button class="preview-btn btn-confirm" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(true)" style="flex: 1;">${confirmText}</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Close on escape
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          modal.remove();
+          document.removeEventListener('keydown', handleEscape);
+          resolve(false);
+        }
+      };
+      
+      document.addEventListener('keydown', handleEscape);
+    });
   }
 
   // === CONVERSATION MANAGEMENT ===
@@ -3466,43 +3406,52 @@
   window.deleteConversation = async function() {
     if (!currentConversationContext) return;
     
-    if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
-      try {
-        const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
-        if (convItem) {
-          convItem.style.opacity = '0.5';
-          convItem.style.pointerEvents = 'none';
-        }
-        
-        await deleteDoc(doc(db, "conversations", currentConversationContext));
-        
-        const messagesQuery = query(collection(db, "conversations", currentConversationContext, "messages"));
-        const messagesSnapshot = await getDocs(messagesQuery);
-        
-        const deletePromises = messagesSnapshot.docs.map(messageDoc => 
-          deleteDoc(messageDoc.ref)
-        );
-        
-        await Promise.all(deletePromises);
-        
-        if (currentChatId === currentConversationContext) {
-          resetChatView();
-        }
-        
-        document.getElementById('conversationOptionsMenu').style.display = 'none';
-        currentConversationContext = null;
-        
-      } catch (error) {
-        console.error("Error deleting conversation:", error);
-        
-        const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
-        if (convItem) {
-          convItem.style.opacity = '1';
-          convItem.style.pointerEvents = 'auto';
-        }
-        
-        showError("Failed to delete conversation. Please try again.");
+    const confirmation = await showConfirmationModal(
+      'Delete Conversation',
+      'Are you sure you want to delete this conversation? This action cannot be undone.',
+      'Delete',
+      'Cancel'
+    );
+    
+    if (!confirmation) return;
+    
+    try {
+      const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
+      if (convItem) {
+        convItem.style.opacity = '0.5';
+        convItem.style.pointerEvents = 'none';
       }
+      
+      await deleteDoc(doc(db, "conversations", currentConversationContext));
+      
+      const messagesQuery = query(collection(db, "conversations", currentConversationContext, "messages"));
+      const messagesSnapshot = await getDocs(messagesQuery);
+      
+      const deletePromises = messagesSnapshot.docs.map(messageDoc => 
+        deleteDoc(messageDoc.ref)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      if (currentChatId === currentConversationContext) {
+        resetChatView();
+      }
+      
+      document.getElementById('conversationOptionsMenu').style.display = 'none';
+      currentConversationContext = null;
+      
+      showSuccess('Conversation deleted successfully');
+      
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+      
+      const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
+      if (convItem) {
+        convItem.style.opacity = '1';
+        convItem.style.pointerEvents = 'auto';
+      }
+      
+      showError("Failed to delete conversation. Please try again.");
     }
   };
 
@@ -3849,6 +3798,7 @@
       }
       closeWpPreview();
       closeWallpaperModal();
+      showSuccess('Wallpaper set successfully');
     };
   };
 
@@ -3873,8 +3823,7 @@
       messagesContainer.style.backgroundSize = 'cover';
       messagesContainer.style.backgroundPosition = 'center';
       messagesContainer.style.backgroundAttachment = 'fixed';
-      messagesContainer.style.backgroundBlendMode = 'overlay';
-      messagesContainer.style.backgroundColor = 'rgba(255,255,255,0.95)';
+      messagesContainer.style.backgroundColor = 'rgba(0,0,0,0.1)';
     } else {
       const vid = document.createElement('video');
       vid.className = 'bg-video-layer';
@@ -3940,13 +3889,7 @@
 
   async function startVoiceRecording() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       audioChunks = [];
       
@@ -4509,7 +4452,7 @@
       // Reset scroll state
       isInitialLoad = true;
       shouldScrollToBottom = true;
-      lastMessageId = null;
+      newMessagesCount = 0;
       
       // Create scroll to bottom button
       createScrollToBottomButton();
@@ -4603,31 +4546,20 @@
 
         const div = renderMessageHTML(msg, isMe, msg.id);
         fragment.appendChild(div);
-        
-        // Track the last message ID
-        lastMessageId = doc.id;
       });
       
       messagesContainer.appendChild(fragment);
       
       if (hasMessages) {
         setTimeout(() => {
-          // Always scroll to bottom on initial load
+          // On initial load, scroll to bottom
           if (isInitialLoad) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             isInitialLoad = false;
           }
           
-          // Check if we should scroll to bottom
-          const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 200;
-          if (shouldScrollToBottom && isNearBottom) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          }
-          
           // Update scroll button
-          if (scrollToBottomBtn) {
-            scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
-          }
+          updateScrollButton();
         }, 100);
       }
       
@@ -4642,6 +4574,13 @@
         </div>
       `;
     });
+  }
+
+  function updateScrollButton() {
+    if (!scrollToBottomBtn || !messagesContainer) return;
+    
+    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
+    scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
   }
 
   // Enhanced message sending with duplicate prevention
@@ -4706,7 +4645,7 @@
         updatedAt: serverTimestamp()
       });
       
-      // Always scroll to bottom after sending message
+      // Scroll to bottom after sending message
       scrollToBottom(true);
       
     } catch (error) {
@@ -4743,7 +4682,7 @@
     document.getElementById('chatArea').classList.remove('active');
   });
 
-  // === CALL FUNCTIONALITY - COMPLETELY REWRITTEN ===
+  // === CALL FUNCTIONALITY ===
 
   async function startCall(type) {
     if (!currentChatId || !currentChatUser) {
@@ -4752,8 +4691,6 @@
     }
 
     try {
-      showLoading("Starting call...");
-      
       // Create call document in Firestore
       const callRef = await addDoc(collection(db, "calls"), {
         callerId: currentUser.uid,
@@ -4761,173 +4698,190 @@
         type: type,
         status: "ringing",
         createdAt: serverTimestamp(),
-        offer: null,
-        answer: null
+        participants: [currentUser.uid, currentChatUser]
       });
 
       currentCallId = callRef.id;
-      isCaller = true;
-      callType = type;
       
       // Play ringtone
       ringtone.play().catch(e => console.log("Ringtone play failed:", e));
       
-      // Update UI based on call type
-      if (type === "video") {
-        document.getElementById('callUserName').textContent = currentChatUserName;
-        document.getElementById('callStatus').textContent = "Calling...";
-        callInterface.style.display = 'flex';
-        audioCallInterface.style.display = 'none';
-      } else {
-        document.getElementById('audioCallUserName').textContent = currentChatUserName;
-        document.getElementById('audioCallStatus').textContent = "Calling...";
-        document.getElementById('audioCallAvatar').src = currentChatUserAvatar;
-        callInterface.style.display = 'none';
-        audioCallInterface.style.display = 'flex';
-      }
+      // Update UI
+      document.getElementById('callUserName').textContent = currentChatUserName;
+      document.getElementById('callStatus').textContent = "Calling...";
+      callInterface.style.display = 'flex';
       
       // Initialize WebRTC
-      await initializeWebRTC();
+      await initializeCall(true, type);
       
-      // Create and send offer
-      if (peerConnection) {
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        
-        await updateDoc(doc(db, "calls", currentCallId), {
-          offer: {
-            type: offer.type,
-            sdp: offer.sdp
-          }
-        });
-      }
-      
-      // Listen for answer
+      // Listen for call acceptance
       const callDocRef = doc(db, "calls", currentCallId);
-      const unsubscribe = onSnapshot(callDocRef, async (doc) => {
+      const unsubscribe = onSnapshot(callDocRef, (doc) => {
         if (doc.exists()) {
           const callData = doc.data();
-          
-          if (callData.status === "accepted" && callData.answer && !peerConnection.remoteDescription) {
-            // Set remote description from answer
-            const answer = new RTCSessionDescription(callData.answer);
-            await peerConnection.setRemoteDescription(answer);
-            
-            // Update UI
-            if (type === "video") {
-              document.getElementById('callStatus').textContent = "Connected";
-            } else {
-              document.getElementById('audioCallStatus').textContent = "Connected";
-            }
+          if (callData.status === "accepted") {
+            document.getElementById('callStatus').textContent = "Connected";
             ringtone.pause();
             ringtone.currentTime = 0;
-            hideLoading();
-          } else if (callData.status === "ended") {
-            endCall();
             unsubscribe();
-          } else if (callData.status === "rejected") {
-            ringtone.pause();
-            ringtone.currentTime = 0;
-            showError("Call rejected");
+          } else if (callData.status === "ended" || callData.status === "rejected") {
             endCall();
             unsubscribe();
           }
         }
       });
       
-      // Listen for ICE candidates from callee
-      const calleeCandidatesRef = collection(db, "calls", currentCallId, "calleeCandidates");
-      onSnapshot(calleeCandidatesRef, (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-          if (change.type === "added") {
-            const candidate = new RTCIceCandidate(change.doc.data());
-            try {
-              await peerConnection.addIceCandidate(candidate);
-            } catch (error) {
-              console.error("Error adding ICE candidate:", error);
-            }
-          }
-        });
-      });
-      
-      hideLoading();
-      
     } catch (error) {
       console.error("Error starting call:", error);
-      hideLoading();
-      showError("Failed to start call: " + error.message);
-      endCall();
+      showError("Failed to start call");
     }
   }
 
-  async function initializeWebRTC() {
+  // === WEBRTC FUNCTIONS ===
+  async function initializeCall(isCaller, type) {
     try {
-      // Create peer connection
-      peerConnection = new RTCPeerConnection(rtcConfig);
-      
       // Get local media stream
       const constraints = {
         audio: true,
-        video: callType === "video"
+        video: type === "video"
       };
       
       localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      // Add local stream tracks to peer connection
+      // Display local video
+      if (type === "video") {
+        localVideo.srcObject = localStream;
+      }
+      
+      // Create peer connection
+      peerConnection = new RTCPeerConnection(rtcConfig);
+      
+      // Add local stream to connection
       localStream.getTracks().forEach(track => {
         peerConnection.addTrack(track, localStream);
       });
       
-      // Display local video if video call
-      if (callType === "video") {
-        localVideo.srcObject = localStream;
+      // Set up remote stream
+      remoteStream = new MediaStream();
+      if (type === "video") {
+        remoteVideo.srcObject = remoteStream;
       }
       
-      // Handle remote stream
+      // Handle incoming tracks
       peerConnection.ontrack = (event) => {
-        if (!remoteStream) {
-          remoteStream = new MediaStream();
-        }
-        remoteStream.addTrack(event.track);
-        
-        if (callType === "video") {
-          remoteVideo.srcObject = remoteStream;
-        } else {
-          // For audio calls, create an audio element
-          const remoteAudio = new Audio();
-          remoteAudio.srcObject = remoteStream;
-          remoteAudio.play().catch(e => console.log("Audio play failed:", e));
-        }
+        event.streams[0].getTracks().forEach(track => {
+          remoteStream.addTrack(track);
+        });
       };
       
       // Handle ICE candidates
-      peerConnection.onicecandidate = async (event) => {
-        if (event.candidate) {
-          const candidateCollection = isCaller ? 
-            collection(db, "calls", currentCallId, "callerCandidates") :
-            collection(db, "calls", currentCallId, "calleeCandidates");
-          
-          await addDoc(candidateCollection, event.candidate.toJSON());
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate && currentCallId) {
+          const candidateCollection = isCaller ? "callerCandidates" : "calleeCandidates";
+          addDoc(collection(db, "calls", currentCallId, candidateCollection), event.candidate.toJSON());
         }
       };
       
-      // Handle connection state changes
-      peerConnection.onconnectionstatechange = () => {
-        console.log("Connection state:", peerConnection.connectionState);
-        if (peerConnection.connectionState === "connected") {
-          // Update UI
-          if (callType === "video") {
-            document.getElementById('callStatus').textContent = "Connected";
-          } else {
-            document.getElementById('audioCallStatus').textContent = "Connected";
+      if (isCaller) {
+        // Create offer
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        
+        // Save offer to Firestore
+        await updateDoc(doc(db, "calls", currentCallId), {
+          offer: {
+            sdp: offer.sdp,
+            type: offer.type
           }
-          hideLoading();
-        }
-      };
+        });
+        
+        // Listen for answer
+        const callDocRef = doc(db, "calls", currentCallId);
+        onSnapshot(callDocRef, async (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            if (data.answer && !peerConnection.remoteDescription) {
+              await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+          }
+        });
+        
+        // Listen for callee ICE candidates
+        onSnapshot(
+          collection(db, "calls", currentCallId, "calleeCandidates"),
+          snapshot => {
+            snapshot.docChanges().forEach(change => {
+              if (change.type === "added") {
+                const candidate = new RTCIceCandidate(change.doc.data());
+                peerConnection.addIceCandidate(candidate);
+              }
+            });
+          }
+        );
+        
+      } else {
+        // Listen for caller ICE candidates
+        onSnapshot(
+          collection(db, "calls", currentCallId, "callerCandidates"),
+          snapshot => {
+            snapshot.docChanges().forEach(change => {
+              if (change.type === "added") {
+                const candidate = new RTCIceCandidate(change.doc.data());
+                peerConnection.addIceCandidate(candidate);
+              }
+            });
+          }
+        );
+      }
       
     } catch (error) {
-      console.error("Error initializing WebRTC:", error);
-      throw error;
+      console.error("Error initializing call:", error);
+      showError("Failed to initialize call");
+    }
+  }
+
+  async function answerCall() {
+    if (!currentCallId) return;
+    
+    try {
+      // Get call document
+      const callDoc = await getDoc(doc(db, "calls", currentCallId));
+      if (!callDoc.exists()) {
+        showError("Call no longer exists");
+        return;
+      }
+      
+      const callData = callDoc.data();
+      
+      // Initialize as callee
+      await initializeCall(false, callData.type);
+      
+      // Set remote description from offer
+      if (callData.offer) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
+        
+        // Create answer
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        
+        // Save answer to Firestore
+        await updateDoc(doc(db, "calls", currentCallId), {
+          answer: {
+            sdp: answer.sdp,
+            type: answer.type
+          },
+          status: "accepted"
+        });
+      }
+      
+      // Update UI
+      document.getElementById('callStatus').textContent = "Connected";
+      ringtone.pause();
+      ringtone.currentTime = 0;
+      
+    } catch (error) {
+      console.error("Error answering call:", error);
+      showError("Failed to answer call");
     }
   }
 
@@ -4956,15 +4910,13 @@
           document.getElementById('incomingCallName').textContent = callerName;
           document.getElementById('incomingCallAvatar').src = callerAvatar;
           document.getElementById('incomingCallType').textContent = 
-            `Incoming ${callData.type === "video" ? "Video" : "Audio"} Call`;
+            `Incoming ${callData.type === "video" ? "Video" : "Voice"} Call`;
           
           incomingCallModal.style.display = 'flex';
           
           // Store call info for accepting/rejecting
           window.currentIncomingCallId = callId;
           window.currentIncomingCallType = callData.type;
-          window.currentIncomingCallerId = callData.callerId;
-          window.currentIncomingCallData = callData;
         }
       });
     });
@@ -4972,85 +4924,28 @@
 
   window.acceptCall = async function() {
     const callId = window.currentIncomingCallId;
-    const callType = window.currentIncomingCallType;
-    const callData = window.currentIncomingCallData;
     
-    if (!callId || !callData) return;
+    if (!callId) return;
     
     try {
-      showLoading("Connecting...");
-      
       // Stop ringtone
       ringtone.pause();
       ringtone.currentTime = 0;
       
       currentCallId = callId;
-      isCaller = false;
-      callType = callType;
       
-      // Update call status to accepted
-      await updateDoc(doc(db, "calls", callId), {
-        status: "accepted"
-      });
+      // Update UI
+      document.getElementById('callUserName').textContent = document.getElementById('incomingCallName').textContent;
+      document.getElementById('callStatus').textContent = "Connecting...";
+      incomingCallModal.style.display = 'none';
+      callInterface.style.display = 'flex';
       
-      // Initialize WebRTC
-      await initializeWebRTC();
-      
-      // Set remote description from offer
-      if (callData.offer) {
-        const offer = new RTCSessionDescription(callData.offer);
-        await peerConnection.setRemoteDescription(offer);
-        
-        // Create and send answer
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        
-        await updateDoc(doc(db, "calls", callId), {
-          answer: {
-            type: answer.type,
-            sdp: answer.sdp
-          }
-        });
-      }
-      
-      // Update UI based on call type
-      if (callType === "video") {
-        document.getElementById('callUserName').textContent = document.getElementById('incomingCallName').textContent;
-        document.getElementById('callStatus').textContent = "Connecting...";
-        incomingCallModal.style.display = 'none';
-        callInterface.style.display = 'flex';
-        audioCallInterface.style.display = 'none';
-      } else {
-        document.getElementById('audioCallUserName').textContent = document.getElementById('incomingCallName').textContent;
-        document.getElementById('audioCallStatus').textContent = "Connecting...";
-        document.getElementById('audioCallAvatar').src = document.getElementById('incomingCallAvatar').src;
-        incomingCallModal.style.display = 'none';
-        callInterface.style.display = 'none';
-        audioCallInterface.style.display = 'flex';
-      }
-      
-      // Listen for ICE candidates from caller
-      const callerCandidatesRef = collection(db, "calls", callId, "callerCandidates");
-      onSnapshot(callerCandidatesRef, (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-          if (change.type === "added") {
-            const candidate = new RTCIceCandidate(change.doc.data());
-            try {
-              await peerConnection.addIceCandidate(candidate);
-            } catch (error) {
-              console.error("Error adding ICE candidate:", error);
-            }
-          }
-        });
-      });
-      
-      hideLoading();
+      // Answer the call
+      await answerCall();
       
     } catch (error) {
       console.error("Error accepting call:", error);
-      hideLoading();
-      showError("Failed to accept call: " + error.message);
-      endCall();
+      showError("Failed to accept call");
     }
   };
 
@@ -5066,8 +4961,7 @@
       
       await updateDoc(doc(db, "calls", callId), {
         status: "rejected",
-        endedAt: serverTimestamp(),
-        endedBy: currentUser.uid
+        endedAt: serverTimestamp()
       });
       
       incomingCallModal.style.display = 'none';
@@ -5086,8 +4980,7 @@
       try {
         await updateDoc(doc(db, "calls", currentCallId), {
           status: "ended",
-          endedAt: serverTimestamp(),
-          endedBy: currentUser.uid
+          endedAt: serverTimestamp()
         });
       } catch (error) {
         console.error("Error updating call status:", error);
@@ -5113,12 +5006,7 @@
     
     // Reset UI
     callInterface.style.display = 'none';
-    audioCallInterface.style.display = 'none';
-    incomingCallModal.style.display = 'none';
     currentCallId = null;
-    isCaller = false;
-    callType = null;
-    hideLoading();
   };
 
   window.toggleMute = function() {
@@ -5129,14 +5017,10 @@
       });
       
       const muteBtn = document.getElementById('muteBtn');
-      const audioMuteBtn = document.getElementById('audioMuteBtn');
-      
       if (isMuted) {
-        if (muteBtn) muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-        if (audioMuteBtn) audioMuteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
       } else {
-        if (muteBtn) muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-        if (audioMuteBtn) audioMuteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
       }
     }
   };
@@ -5149,30 +5033,25 @@
       });
       
       const videoToggleBtn = document.getElementById('videoToggleBtn');
-      if (videoToggleBtn) {
-        if (isVideoOn) {
-          videoToggleBtn.innerHTML = '<i class="fas fa-video"></i>';
-        } else {
-          videoToggleBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
-        }
+      if (isVideoOn) {
+        videoToggleBtn.innerHTML = '<i class="fas fa-video"></i>';
+      } else {
+        videoToggleBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
       }
     }
   };
 
   window.toggleSpeaker = function() {
     isSpeakerOn = !isSpeakerOn;
+    if (remoteVideo) {
+      remoteVideo.muted = !isSpeakerOn;
+    }
     
     const speakerBtn = document.getElementById('speakerBtn');
-    const audioSpeakerBtn = document.getElementById('audioSpeakerBtn');
-    
     if (isSpeakerOn) {
-      if (speakerBtn) speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-      if (audioSpeakerBtn) audioSpeakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-      // Implement actual speaker control here
+      speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
     } else {
-      if (speakerBtn) speakerBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-      if (audioSpeakerBtn) audioSpeakerBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-      // Implement actual speaker control here
+      speakerBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
     }
   };
 
@@ -5336,7 +5215,7 @@
       if (isRecording) {
         stopVoiceRecording();
       }
-      if (callInterface.style.display === 'flex' || audioCallInterface.style.display === 'flex') {
+      if (callInterface.style.display === 'flex') {
         endCall();
       }
       if (incomingCallModal.style.display === 'flex') {
