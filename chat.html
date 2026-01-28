@@ -28,6 +28,7 @@
     --shadow-medium: 0 4px 15px rgba(0,128,255,0.2);
     --shadow-heavy: 0 10px 40px rgba(0,0,0,0.2);
     --chat-container-width: 100%;
+    --message-max-width: 65%;
   }
 
   @media (min-width: 1200px) {
@@ -563,6 +564,21 @@
     scroll-behavior: smooth;
     font-family: var(--chat-font);
     position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.2) transparent;
+  }
+
+  .messages-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .messages-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .messages-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
   }
 
   .scroll-to-bottom-btn {
@@ -583,11 +599,13 @@
     box-shadow: var(--shadow-medium);
     z-index: 100;
     transition: all 0.3s ease;
+    opacity: 0.9;
   }
   
   .scroll-to-bottom-btn:hover {
     background: var(--primary-dark);
     transform: scale(1.1);
+    opacity: 1;
   }
 
   .date-divider { 
@@ -619,12 +637,12 @@
     z-index: 1;
   }
 
-  /* WhatsApp-style message bubbles with proper sizing */
+  /* WhatsApp/Telegram Style Message Bubbles */
   .message-wrapper { 
     display: flex; 
     gap: 8px;
-    max-width: 85%; 
-    align-items: flex-end; 
+    max-width: var(--message-max-width); 
+    align-items: flex-start; 
     position: relative; 
     margin-bottom: 8px;
     animation: messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -643,13 +661,15 @@
   
   .message-wrapper.sent { 
     align-self: flex-end; 
-    flex-direction: row-reverse; 
-    max-width: 80%;
+    margin-left: auto;
+    margin-right: 0;
+    max-width: var(--message-max-width);
   }
   
   .message-wrapper.received {
     align-self: flex-start;
-    max-width: 80%;
+    margin-right: auto;
+    max-width: var(--message-max-width);
   }
   
   .message-avatar-small { 
@@ -658,12 +678,12 @@
     border-radius: 50%; 
     object-fit: cover; 
     flex-shrink: 0; 
-    margin-bottom: 3px;
+    margin-top: 5px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     border: 2px solid var(--card-bg);
   }
 
-  /* WhatsApp-style bubble sizing - FIXED TO BE SHORTER HORIZONTALLY */
+  /* WhatsApp-style bubble with proper tail */
   .message-bubble { 
     padding: 8px 12px;
     border-radius: 18px; 
@@ -672,71 +692,89 @@
     overflow-wrap: break-word;
     font-size: 14px;
     line-height: 1.4; 
-    max-width: 400px; /* Maximum width like WhatsApp */
-    min-width: 50px;
+    max-width: 100%; 
     box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
     font-family: var(--chat-font);
     transition: all 0.2s ease;
-    display: inline-block; /* Like WhatsApp bubbles */
+    display: flex;
+    flex-direction: column;
+    min-width: 60px; /* Minimum width for short messages */
+    width: fit-content; /* WhatsApp-like fit to content */
   }
   
-  /* WhatsApp tail pointers */
-  .message-bubble.sent::before {
+  /* Sent message bubble with tail */
+  .sent .message-bubble { 
+    background: var(--sent-bubble-bg); 
+    color: var(--sent-text-color); 
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+    position: relative;
+  }
+  
+  .sent .message-bubble::after {
     content: '';
     position: absolute;
     bottom: 0;
     right: -8px;
     width: 0;
     height: 0;
-    border-left: 9px solid var(--sent-bubble-bg);
-    border-top: 9px solid transparent;
-    border-bottom: 0 solid transparent;
+    border-left: 10px solid var(--sent-bubble-bg);
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-top: 10px solid transparent;
   }
   
-  .message-bubble.received::before {
+  /* Received message bubble with tail */
+  .received .message-bubble { 
+    background: var(--received-bubble-bg); 
+    border-bottom-left-radius: 4px; 
+    color: var(--received-text-color);
+    border: 1px solid var(--border-color);
+    position: relative;
+  }
+  
+  .received .message-bubble::before {
     content: '';
     position: absolute;
     bottom: 0;
     left: -8px;
     width: 0;
     height: 0;
-    border-right: 9px solid var(--received-bubble-bg);
-    border-top: 9px solid transparent;
-    border-bottom: 0 solid transparent;
+    border-right: 10px solid var(--received-bubble-bg);
+    border-left: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-top: 10px solid transparent;
   }
   
-  .message-bubble:hover {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  }
-  
-  .message-bubble.received { 
-    background: var(--received-bubble-bg); 
-    color: var(--received-text-color);
-    border: 1px solid var(--border-color);
-    margin-left: 0;
-    border-bottom-left-radius: 4px;
-  }
-  
-  .message-bubble.sent { 
-    background: var(--sent-bubble-bg); 
-    color: var(--sent-text-color); 
-    margin-right: 0;
-    border-bottom-right-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,128,255,0.2);
+  .received .message-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -9px;
+    width: 0;
+    height: 0;
+    border-right: 10px solid var(--border-color);
+    border-left: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-top: 10px solid transparent;
   }
 
   .message-content {
-    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
     max-width: 100%;
   }
 
   .message-text {
+    flex: 1;
     word-break: break-word;
     overflow-wrap: break-word;
     line-height: 1.4;
     font-size: 13.5px;
+    max-width: calc(100% - 45px);
     white-space: pre-wrap;
-    padding-right: 40px; /* Space for timestamp */
   }
 
   .message-text img,
@@ -882,15 +920,13 @@
   }
   
   .message-time { 
-    position: absolute;
-    bottom: 4px;
-    right: 12px;
     font-size: 10px;
     opacity: 0.7; 
     text-align: right; 
     display: block; 
     font-weight: 500;
     white-space: nowrap;
+    margin-top: 2px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -1830,57 +1866,63 @@
     background: rgba(239, 68, 68, 0.1);
   }
 
-  /* WhatsApp-style voice note player */
-  .voice-note-player {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 18px;
+  /* WhatsApp/Telegram Style Voice Note Player */
+  .voice-note-wrapper {
     min-width: 150px;
     max-width: 250px;
     margin: 5px 0;
   }
 
+  .voice-note-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 20px;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
   .voice-note-player.sent {
-    background: rgba(0, 128, 255, 0.1);
+    background: var(--sent-bubble-bg);
+    color: white;
+    margin-left: auto;
   }
 
   .voice-note-player.received {
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  body.dark-mode .voice-note-player.received {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--received-bubble-bg);
+    color: var(--received-text-color);
+    border: 1px solid var(--border-color);
+    margin-right: auto;
   }
 
   .voice-note-play-btn {
-    background: var(--primary);
-    color: white;
+    background: transparent;
+    color: inherit;
     border: none;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    flex-shrink: 0;
+    font-size: 16px;
+    min-width: 36px;
   }
 
   .voice-note-play-btn:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 
   .voice-note-waveform {
     flex: 1;
-    height: 25px;
+    height: 36px;
     position: relative;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 12.5px;
+    border-radius: 18px;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.2);
   }
 
   .voice-note-progress {
@@ -1888,19 +1930,10 @@
     top: 0;
     left: 0;
     height: 100%;
-    background: var(--primary);
+    background: rgba(255, 255, 255, 0.3);
     width: 0%;
     transition: width 0.1s linear;
-    border-radius: 12.5px;
-  }
-
-  .voice-note-duration {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-color);
-    min-width: 35px;
-    text-align: center;
-    flex-shrink: 0;
+    border-radius: 18px;
   }
 
   .voice-note-wave {
@@ -1909,20 +1942,40 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 2px,
-        rgba(255, 255, 255, 0.5) 2px,
-        rgba(255, 255, 255, 0.5) 4px
-      );
-    animation: waveMove 1s linear infinite;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 10px;
   }
 
-  @keyframes waveMove {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-4px); }
+  .voice-note-wave-bar {
+    flex: 1;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    opacity: 0.6;
+    animation: wavePulse 1.5s infinite ease-in-out;
+  }
+
+  @keyframes wavePulse {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1.5); }
+  }
+
+  .voice-note-duration {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .voice-note-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 11px;
+    opacity: 0.8;
   }
 
   /* Call Interface Styles */
@@ -2044,6 +2097,12 @@
     display: none;
     align-items: center;
     justify-content: center;
+    animation: pulseBackground 2s infinite;
+  }
+
+  @keyframes pulseBackground {
+    0%, 100% { background: rgba(0,0,0,0.9); }
+    50% { background: rgba(0,0,0,0.7); }
   }
 
   .incoming-call-content {
@@ -2062,6 +2121,13 @@
     border-radius: 50%;
     margin: 0 auto 20px;
     object-fit: cover;
+    border: 3px solid var(--primary);
+    animation: avatarPulse 2s infinite;
+  }
+
+  @keyframes avatarPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
 
   .incoming-call-name {
@@ -2098,11 +2164,17 @@
   .accept-call {
     background: #00C851;
     color: white;
+    animation: ringPulse 1.5s infinite;
   }
 
   .reject-call {
     background: #FF4444;
     color: white;
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
 
   @media (max-width: 768px) {
@@ -2201,7 +2273,7 @@
     }
     
     .message-wrapper {
-      max-width: 90%;
+      max-width: 85%;
     }
     
     .message-input-actions {
@@ -2303,7 +2375,6 @@
     .message-bubble {
       padding: 7px 10px;
       font-size: 13px;
-      max-width: 300px;
     }
     
     .wallpaper-grid,
@@ -2340,11 +2411,11 @@
   }
   
   body.dark-mode .message-bubble {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
   
   body.dark-mode .sent .message-bubble {
-    box-shadow: 0 2px 8px rgba(0,128,255,0.4);
+    box-shadow: 0 1px 2px rgba(0,128,255,0.4);
   }
   
   body.dark-mode .wallpaper-upload-option {
@@ -2675,11 +2746,9 @@
 
   // Scroll to bottom button
   let scrollToBottomBtn = null;
-  let shouldScrollToBottom = true;
+  let shouldScrollToBottom = false;
   let isInitialLoad = true;
-  let lastScrollPosition = 0;
-  let isUserScrolling = false;
-  let newMessagesCount = 0;
+  let userScrolledUp = false;
 
   // Call state
   let currentCallId = null;
@@ -2690,7 +2759,7 @@
   let isVideoOn = true;
   let isSpeakerOn = true;
   let incomingCallListener = null;
-  let callDataChannel = null;
+  let callRinging = false;
   
   // WebRTC Configuration
   const rtcConfig = {
@@ -2758,10 +2827,9 @@
     successDiv.className = 'error-message';
     successDiv.style.background = 'rgba(16, 185, 129, 0.1)';
     successDiv.style.borderLeftColor = 'var(--success)';
-    successDiv.style.color = 'var(--success)';
     successDiv.innerHTML = `
-      <i class="fas fa-check-circle"></i>
-      <span>${message}</span>
+      <i class="fas fa-check-circle" style="color:var(--success)"></i>
+      <span style="color:var(--success)">${message}</span>
     `;
     
     successDiv.style.position = 'fixed';
@@ -2776,18 +2844,6 @@
         successDiv.remove();
       }
     }, duration);
-  }
-
-  function showLoading(container, message = 'Loading...') {
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loading-message';
-    loadingDiv.innerHTML = `
-      <div class="loading-spinner"></div>
-      <span>${message}</span>
-    `;
-    loadingDiv.style.cssText = 'display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; color:var(--secondary-text);';
-    container.appendChild(loadingDiv);
-    return loadingDiv;
   }
 
   function formatDateHeader(timestamp) {
@@ -2854,35 +2910,6 @@
     return `https://ui-avatars.com/api/?name=User&background=0080FF&color=fff`;
   }
 
-  async function updateConversationAvatars(userId, newAvatarUrl) {
-    try {
-      const conversationsQuery = query(
-        collection(db, "conversations"), 
-        where("participants", "array-contains", userId)
-      );
-      
-      const conversationsSnapshot = await getDocs(conversationsQuery);
-      const batch = writeBatch(db);
-      
-      conversationsSnapshot.docs.forEach(convDoc => {
-        const convData = convDoc.data();
-        const participantAvatars = convData.participantAvatars || {};
-        
-        if (participantAvatars[userId] !== newAvatarUrl) {
-          participantAvatars[userId] = newAvatarUrl;
-          batch.update(doc(db, "conversations", convDoc.id), {
-            participantAvatars: participantAvatars,
-            updatedAt: serverTimestamp()
-          });
-        }
-      });
-      
-      await batch.commit();
-    } catch (error) {
-      console.error("Error updating conversation avatars:", error);
-    }
-  }
-
   // === MESSAGE RENDERING ===
 
   function renderMessageHTML(msg, isMe, id) {
@@ -2914,19 +2941,28 @@
         </div>
       `;
     } else if (msg.mediaType === 'audio') {
-      // WhatsApp-style voice note player
+      // WhatsApp/Telegram-style voice note player
+      const duration = msg.duration || 0;
+      const minutes = Math.floor(duration / 60);
+      const seconds = Math.floor(duration % 60);
+      const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
       mediaContent += `
-        <div class="voice-note-player ${isMe ? 'sent' : 'received'}" data-audio-id="${id}">
-          <button class="voice-note-play-btn" onclick="toggleAudioPlayback('${id}', '${msg.mediaUrl}')">
-            <i class="fas fa-play" id="play-icon-${id}"></i>
-          </button>
-          <div class="voice-note-waveform">
-            <div class="voice-note-wave"></div>
-            <div class="voice-note-progress" id="progress-${id}"></div>
+        <div class="voice-note-wrapper">
+          <div class="voice-note-player ${isMe ? 'sent' : 'received'}" data-audio-id="${id}">
+            <button class="voice-note-play-btn" onclick="toggleAudioPlayback('${id}', '${msg.mediaUrl}', ${duration})">
+              <i class="fas fa-play" id="play-icon-${id}"></i>
+            </button>
+            <div class="voice-note-waveform">
+              <div class="voice-note-progress" id="progress-${id}"></div>
+              <div class="voice-note-wave">
+                ${Array(20).fill(0).map((_, i) => `<div class="voice-note-wave-bar" style="animation-delay: ${i * 0.1}s"></div>`).join('')}
+              </div>
+            </div>
+            <div class="voice-note-duration" id="duration-${id}">${durationText}</div>
           </div>
-          <div class="voice-note-duration" id="duration-${id}">0:00</div>
+          ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
         </div>
-        ${msg.isUploading ? '<div class="upload-overlay"><div class="loading-spinner"></div></div>' : ''}
       `;
     } else if (msg.mediaType === 'file') {
       const fileName = msg.fileName || 'file';
@@ -3011,11 +3047,11 @@
 
     div.innerHTML = `
       ${isMe ? optionsHtml : ''}
-      <img src="${avatarSrc}" class="message-avatar-small" alt="${isMe ? 'You' : currentChatUserName}">
-      <div class="message-bubble ${isMe ? 'sent' : 'received'}">
+      ${!isMe ? `<img src="${avatarSrc}" class="message-avatar-small" alt="${isMe ? 'You' : currentChatUserName}">` : ''}
+      <div class="message-bubble">
+        ${content}
+        ${mediaContent}
         <div class="message-content">
-          ${content}
-          ${mediaContent}
           <div class="message-text">
             ${textContent}
           </div>
@@ -3026,6 +3062,7 @@
           </div>
         </div>
       </div>
+      ${isMe ? `<img src="${avatarSrc}" class="message-avatar-small" alt="${isMe ? 'You' : currentChatUserName}">` : ''}
       ${!isMe ? optionsHtml : ''}
     `;
     
@@ -3033,7 +3070,7 @@
   }
 
   // === AUDIO PLAYBACK FUNCTIONS ===
-  window.toggleAudioPlayback = function(audioId, audioUrl) {
+  window.toggleAudioPlayback = function(audioId, audioUrl, duration) {
     const playIcon = document.getElementById(`play-icon-${audioId}`);
     const progressBar = document.getElementById(`progress-${audioId}`);
     const durationDisplay = document.getElementById(`duration-${audioId}`);
@@ -3046,14 +3083,16 @@
         
         // Update progress bar
         audioPlayingInterval = setInterval(() => {
-          const progress = (currentlyPlayingAudio.audio.currentTime / currentlyPlayingAudio.audio.duration) * 100;
-          progressBar.style.width = `${progress}%`;
-          
-          // Update duration display
-          const currentTime = Math.floor(currentlyPlayingAudio.audio.currentTime);
-          const minutes = Math.floor(currentTime / 60);
-          const seconds = currentTime % 60;
-          durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          if (currentlyPlayingAudio.audio.duration) {
+            const progress = (currentlyPlayingAudio.audio.currentTime / currentlyPlayingAudio.audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Update duration display
+            const currentTime = Math.floor(currentlyPlayingAudio.audio.currentTime);
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = currentTime % 60;
+            durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          }
         }, 100);
       } else {
         currentlyPlayingAudio.audio.pause();
@@ -3080,9 +3119,9 @@
       
       // Set up progress tracking
       audio.addEventListener('loadedmetadata', () => {
-        const duration = Math.floor(audio.duration);
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
+        const actualDuration = Math.floor(audio.duration);
+        const minutes = Math.floor(actualDuration / 60);
+        const seconds = actualDuration % 60;
         durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       });
       
@@ -3104,7 +3143,13 @@
         progressBar.style.width = '0%';
         clearInterval(audioPlayingInterval);
         currentlyPlayingAudio = null;
-        durationDisplay.textContent = '0:00';
+        if (duration) {
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.floor(duration % 60);
+          durationDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+          durationDisplay.textContent = '0:00';
+        }
       });
     }
   };
@@ -3121,44 +3166,25 @@
     scrollToBottomBtn.title = 'Scroll to latest messages';
     scrollToBottomBtn.onclick = () => {
       scrollToBottom(true);
-      newMessagesCount = 0;
-      updateScrollButtonText();
+      scrollToBottomBtn.style.display = 'none';
+      userScrolledUp = false;
     };
     
     messagesContainer.appendChild(scrollToBottomBtn);
     
     // Show/hide button based on scroll position
-    messagesContainer.addEventListener('scroll', handleScroll);
+    messagesContainer.addEventListener('scroll', () => {
+      const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
+      
+      if (!isNearBottom && !userScrolledUp) {
+        userScrolledUp = true;
+      }
+      
+      scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
+    });
     
     // Initial hide
     scrollToBottomBtn.style.display = 'none';
-  }
-
-  function handleScroll() {
-    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
-    
-    if (isNearBottom) {
-      newMessagesCount = 0;
-      updateScrollButtonText();
-      scrollToBottomBtn.style.display = 'none';
-    } else {
-      scrollToBottomBtn.style.display = 'flex';
-    }
-    
-    isUserScrolling = true;
-    setTimeout(() => {
-      isUserScrolling = false;
-    }, 100);
-  }
-
-  function updateScrollButtonText() {
-    if (!scrollToBottomBtn) return;
-    
-    if (newMessagesCount > 0) {
-      scrollToBottomBtn.innerHTML = `<i class="fas fa-chevron-down"></i> ${newMessagesCount} new`;
-    } else {
-      scrollToBottomBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
-    }
   }
 
   // === SCROLL TO BOTTOM FUNCTION ===
@@ -3166,27 +3192,15 @@
     if (!messagesContainer) return;
     
     setTimeout(() => {
-      if (messagesContainer.scrollHeight > messagesContainer.clientHeight) {
-        const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 200;
-        
-        // WhatsApp-style: Only auto-scroll if user is already near bottom
-        if (force || isNearBottom) {
-          messagesContainer.scrollTo({
-            top: messagesContainer.scrollHeight,
-            behavior: 'smooth'
-          });
-          newMessagesCount = 0;
-          updateScrollButtonText();
-        } else {
-          // User is not near bottom, increment new message count
-          newMessagesCount++;
-          updateScrollButtonText();
-        }
-      }
+      const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 200;
       
-      if (scrollToBottomBtn) {
-        const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
-        scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
+      if (force || isNearBottom || !userScrolledUp) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (scrollToBottomBtn) {
+          scrollToBottomBtn.style.display = 'none';
+        }
+      } else if (scrollToBottomBtn) {
+        scrollToBottomBtn.style.display = 'flex';
       }
     }, 50);
   }
@@ -3284,14 +3298,7 @@
   window.clearAllMessages = async function() {
     if (!currentChatId) return;
     
-    const confirmation = await showConfirmationModal(
-      'Clear Chat',
-      'Are you sure you want to clear all messages in this chat? This action cannot be undone.',
-      'Clear',
-      'Cancel'
-    );
-    
-    if (confirmation) {
+    if (confirm('Are you sure you want to clear all messages in this chat? This action cannot be undone.')) {
       try {
         const messagesQuery = query(collection(db, "conversations", currentChatId, "messages"));
         const snapshot = await getDocs(messagesQuery);
@@ -3322,14 +3329,9 @@
 
   // === CLEAR ALL CHATS FUNCTION ===
   async function clearAllChats() {
-    const confirmation = await showConfirmationModal(
-      'Clear All Chats',
-      'Are you sure you want to clear all chats? This will delete all your conversations. This action cannot be undone.',
-      'Clear All',
-      'Cancel'
-    );
-    
-    if (!confirmation) return;
+    if (!confirm('Are you sure you want to clear all chats? This will delete all your conversations. This action cannot be undone.')) {
+      return;
+    }
     
     try {
       const conversationsQuery = query(
@@ -3362,96 +3364,48 @@
     }
   }
 
-  // === CONFIRMATION MODAL ===
-  function showConfirmationModal(title, message, confirmText, cancelText) {
-    return new Promise((resolve) => {
-      const modal = document.createElement('div');
-      modal.className = 'settings-modal';
-      modal.style.display = 'flex';
-      modal.style.zIndex = '9999';
-      
-      modal.innerHTML = `
-        <div class="settings-content" style="max-width: 400px;">
-          <div class="settings-header">
-            <h3>${title}</h3>
-            <button class="settings-close" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(false)">&times;</button>
-          </div>
-          <div style="padding: 20px 0; color: var(--text-color);">
-            ${message}
-          </div>
-          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-            <button class="preview-btn btn-cancel" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(false)" style="flex: 1;">${cancelText}</button>
-            <button class="preview-btn btn-confirm" onclick="this.parentElement.parentElement.parentElement.remove(); resolve(true)" style="flex: 1;">${confirmText}</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
-      // Close on escape
-      const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-          modal.remove();
-          document.removeEventListener('keydown', handleEscape);
-          resolve(false);
-        }
-      };
-      
-      document.addEventListener('keydown', handleEscape);
-    });
-  }
-
   // === CONVERSATION MANAGEMENT ===
 
   window.deleteConversation = async function() {
     if (!currentConversationContext) return;
     
-    const confirmation = await showConfirmationModal(
-      'Delete Conversation',
-      'Are you sure you want to delete this conversation? This action cannot be undone.',
-      'Delete',
-      'Cancel'
-    );
-    
-    if (!confirmation) return;
-    
-    try {
-      const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
-      if (convItem) {
-        convItem.style.opacity = '0.5';
-        convItem.style.pointerEvents = 'none';
+    if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+      try {
+        const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
+        if (convItem) {
+          convItem.style.opacity = '0.5';
+          convItem.style.pointerEvents = 'none';
+        }
+        
+        await deleteDoc(doc(db, "conversations", currentConversationContext));
+        
+        const messagesQuery = query(collection(db, "conversations", currentConversationContext, "messages"));
+        const messagesSnapshot = await getDocs(messagesQuery);
+        
+        const deletePromises = messagesSnapshot.docs.map(messageDoc => 
+          deleteDoc(messageDoc.ref)
+        );
+        
+        await Promise.all(deletePromises);
+        
+        if (currentChatId === currentConversationContext) {
+          resetChatView();
+        }
+        
+        document.getElementById('conversationOptionsMenu').style.display = 'none';
+        currentConversationContext = null;
+        
+      } catch (error) {
+        console.error("Error deleting conversation:", error);
+        
+        const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
+        if (convItem) {
+          convItem.style.opacity = '1';
+          convItem.style.pointerEvents = 'auto';
+        }
+        
+        showError("Failed to delete conversation. Please try again.");
       }
-      
-      await deleteDoc(doc(db, "conversations", currentConversationContext));
-      
-      const messagesQuery = query(collection(db, "conversations", currentConversationContext, "messages"));
-      const messagesSnapshot = await getDocs(messagesQuery);
-      
-      const deletePromises = messagesSnapshot.docs.map(messageDoc => 
-        deleteDoc(messageDoc.ref)
-      );
-      
-      await Promise.all(deletePromises);
-      
-      if (currentChatId === currentConversationContext) {
-        resetChatView();
-      }
-      
-      document.getElementById('conversationOptionsMenu').style.display = 'none';
-      currentConversationContext = null;
-      
-      showSuccess('Conversation deleted successfully');
-      
-    } catch (error) {
-      console.error("Error deleting conversation:", error);
-      
-      const convItem = document.querySelector(`[data-chat-id="${currentConversationContext}"]`);
-      if (convItem) {
-        convItem.style.opacity = '1';
-        convItem.style.pointerEvents = 'auto';
-      }
-      
-      showError("Failed to delete conversation. Please try again.");
     }
   };
 
@@ -3475,54 +3429,6 @@
     localStorage.removeItem('last_active_chat');
     
     document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
-  }
-
-  function setupConversationLongPress() {
-    let pressTimer;
-    const conversationItems = document.querySelectorAll('.conversation-item');
-    
-    conversationItems.forEach(item => {
-      item.removeEventListener('touchstart', handleTouchStart);
-      item.removeEventListener('touchend', handleTouchEnd);
-      item.removeEventListener('touchmove', handleTouchMove);
-      item.removeEventListener('contextmenu', handleContextMenu);
-      
-      item.addEventListener('touchstart', handleTouchStart);
-      item.addEventListener('touchend', handleTouchEnd);
-      item.addEventListener('touchmove', handleTouchMove);
-      item.addEventListener('contextmenu', handleContextMenu);
-      
-      function handleTouchStart(e) {
-        pressTimer = setTimeout(() => {
-          showConversationOptions(e, item.getAttribute('data-chat-id'));
-        }, 500);
-      }
-      
-      function handleTouchEnd() {
-        clearTimeout(pressTimer);
-      }
-      
-      function handleTouchMove() {
-        clearTimeout(pressTimer);
-      }
-      
-      function handleContextMenu(e) {
-        e.preventDefault();
-        showConversationOptions(e, item.getAttribute('data-chat-id'));
-      }
-    });
-  }
-
-  function showConversationOptions(event, chatId) {
-    currentConversationContext = chatId;
-    const menu = document.getElementById('conversationOptionsMenu');
-    
-    const rect = event.target.closest('.conversation-item').getBoundingClientRect();
-    menu.style.top = `${rect.bottom + 5}px`;
-    menu.style.left = `${Math.min(rect.left, window.innerWidth - 220)}px`;
-    menu.style.display = 'block';
-    
-    document.querySelectorAll('.msg-options-menu').forEach(m => m.classList.remove('active'));
   }
 
   // === SETTINGS & CUSTOMIZATION ===
@@ -3798,7 +3704,6 @@
       }
       closeWpPreview();
       closeWallpaperModal();
-      showSuccess('Wallpaper set successfully');
     };
   };
 
@@ -3823,7 +3728,6 @@
       messagesContainer.style.backgroundSize = 'cover';
       messagesContainer.style.backgroundPosition = 'center';
       messagesContainer.style.backgroundAttachment = 'fixed';
-      messagesContainer.style.backgroundColor = 'rgba(0,0,0,0.1)';
     } else {
       const vid = document.createElement('video');
       vid.className = 'bg-video-layer';
@@ -3899,9 +3803,9 @@
         }
       };
       
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        handleAudioRecording(audioBlob);
+        await handleAudioRecording(audioBlob);
         
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
@@ -3983,7 +3887,11 @@
     
     const msgElement = renderMessageHTML(optimisticMsg, true, tempId);
     messagesContainer.appendChild(msgElement);
-    scrollToBottom(true);
+    
+    // Don't auto-scroll
+    if (scrollToBottomBtn) {
+      scrollToBottomBtn.style.display = 'flex';
+    }
     
     // Prepare form data for Cloudinary
     const formData = new FormData();
@@ -4008,13 +3916,23 @@
         const tempElement = document.getElementById(tempId);
         if (tempElement) tempElement.remove();
         
+        // Get audio duration
+        const audio = new Audio(data.secure_url);
+        await new Promise((resolve) => {
+          audio.addEventListener('loadedmetadata', () => {
+            resolve();
+          });
+        });
+        const duration = Math.floor(audio.duration);
+        
         // Send actual message
         await addDoc(collection(db, "conversations", currentChatId, "messages"), {
           mediaUrl: data.secure_url,
           mediaType: 'audio',
           text: '',
           senderId: currentUser.uid,
-          timestamp: serverTimestamp()
+          timestamp: serverTimestamp(),
+          duration: duration
         });
         
         await updateDoc(doc(db, "conversations", currentChatId), {
@@ -4022,8 +3940,6 @@
           updatedAt: serverTimestamp()
         });
         
-        // Scroll to bottom
-        scrollToBottom(true);
       }
     } catch (error) {
       console.error('Audio upload error:', error);
@@ -4093,7 +4009,11 @@
       
       const msgElement = renderMessageHTML(optimisticMsg, true, tempId);
       messagesContainer.appendChild(msgElement);
-      scrollToBottom(true);
+      
+      // Don't auto-scroll
+      if (scrollToBottomBtn) {
+        scrollToBottomBtn.style.display = 'flex';
+      }
       
       // Upload to Cloudinary
       const formData = new FormData();
@@ -4147,8 +4067,6 @@
             lastMessage: lastMessageText,
             updatedAt: serverTimestamp()
           });
-          
-          scrollToBottom(true);
         }
       } catch (error) {
         console.error('File upload error:', error);
@@ -4259,7 +4177,6 @@
         if (!window.userNameCache) window.userNameCache = {};
         window.userNameCache[user.uid] = displayName || 'User';
         
-        setupUserProfileListener();
         setupFeedNotifications();
         setupIncomingCallListener();
         
@@ -4286,29 +4203,6 @@
       }
     }
   });
-
-  function setupUserProfileListener() {
-    if (!currentUser) return;
-    
-    unsubscribeUserProfiles = onSnapshot(doc(db, "users", currentUser.uid), async (doc) => {
-      if (doc.exists()) {
-        const userData = doc.data();
-        const newPhotoURL = userData.photoURL;
-        const newName = userData.name || userData.displayName;
-        
-        if (newPhotoURL && navUserImg.src !== newPhotoURL) {
-          navUserImg.src = newPhotoURL;
-          
-          await updateConversationAvatars(currentUser.uid, newPhotoURL);
-        }
-        
-        if (newName && navUserName.textContent !== newName) {
-          navUserName.textContent = newName;
-          window.userNameCache[currentUser.uid] = newName;
-        }
-      }
-    });
-  }
 
   function setupFeedNotifications() {
     if (!currentUser) return;
@@ -4430,8 +4324,6 @@
         list.appendChild(div);
       });
       
-      setTimeout(setupConversationLongPress, 100);
-      
     }, (error) => {
       console.error("Error loading conversations:", error);
       showError("Failed to load conversations. Please refresh the page.");
@@ -4451,8 +4343,7 @@
       
       // Reset scroll state
       isInitialLoad = true;
-      shouldScrollToBottom = true;
-      newMessagesCount = 0;
+      userScrolledUp = false;
       
       // Create scroll to bottom button
       createScrollToBottomButton();
@@ -4552,14 +4443,17 @@
       
       if (hasMessages) {
         setTimeout(() => {
-          // On initial load, scroll to bottom
+          // Scroll to bottom on initial load only
           if (isInitialLoad) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             isInitialLoad = false;
           }
           
-          // Update scroll button
-          updateScrollButton();
+          // Hide scroll button if at bottom
+          const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
+          if (scrollToBottomBtn) {
+            scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
+          }
         }, 100);
       }
       
@@ -4574,13 +4468,6 @@
         </div>
       `;
     });
-  }
-
-  function updateScrollButton() {
-    if (!scrollToBottomBtn || !messagesContainer) return;
-    
-    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 100;
-    scrollToBottomBtn.style.display = isNearBottom ? 'none' : 'flex';
   }
 
   // Enhanced message sending with duplicate prevention
@@ -4645,8 +4532,13 @@
         updatedAt: serverTimestamp()
       });
       
-      // Scroll to bottom after sending message
-      scrollToBottom(true);
+      // Don't auto-scroll - show scroll button instead
+      if (scrollToBottomBtn) {
+        const isNearBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight - messagesContainer.scrollTop < 200;
+        if (!isNearBottom) {
+          scrollToBottomBtn.style.display = 'flex';
+        }
+      }
       
     } catch (error) {
       console.error("Send error:", error);
@@ -4694,37 +4586,42 @@
       // Create call document in Firestore
       const callRef = await addDoc(collection(db, "calls"), {
         callerId: currentUser.uid,
-        calleeId: currentChatUser,
+        receiverId: currentChatUser,
         type: type,
         status: "ringing",
-        createdAt: serverTimestamp(),
-        participants: [currentUser.uid, currentChatUser]
+        createdAt: serverTimestamp()
       });
 
       currentCallId = callRef.id;
       
       // Play ringtone
-      ringtone.play().catch(e => console.log("Ringtone play failed:", e));
+      try {
+        ringtone.play();
+        callRinging = true;
+      } catch (e) {
+        console.log("Ringtone play failed:", e);
+      }
       
       // Update UI
       document.getElementById('callUserName').textContent = currentChatUserName;
       document.getElementById('callStatus').textContent = "Calling...";
       callInterface.style.display = 'flex';
       
-      // Initialize WebRTC
-      await initializeCall(true, type);
-      
-      // Listen for call acceptance
+      // Listen for call acceptance or rejection
       const callDocRef = doc(db, "calls", currentCallId);
       const unsubscribe = onSnapshot(callDocRef, (doc) => {
         if (doc.exists()) {
           const callData = doc.data();
           if (callData.status === "accepted") {
             document.getElementById('callStatus').textContent = "Connected";
-            ringtone.pause();
-            ringtone.currentTime = 0;
+            if (callRinging) {
+              ringtone.pause();
+              ringtone.currentTime = 0;
+              callRinging = false;
+            }
+            initializeWebRTC(true, type);
             unsubscribe();
-          } else if (callData.status === "ended" || callData.status === "rejected") {
+          } else if (callData.status === "rejected" || callData.status === "ended") {
             endCall();
             unsubscribe();
           }
@@ -4738,7 +4635,8 @@
   }
 
   // === WEBRTC FUNCTIONS ===
-  async function initializeCall(isCaller, type) {
+
+  async function initializeWebRTC(isCaller, type) {
     try {
       // Get local media stream
       const constraints = {
@@ -4748,37 +4646,34 @@
       
       localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      // Display local video
-      if (type === "video") {
+      // Display local video if video call
+      if (type === "video" && localVideo) {
         localVideo.srcObject = localStream;
       }
       
       // Create peer connection
       peerConnection = new RTCPeerConnection(rtcConfig);
       
-      // Add local stream to connection
+      // Add local tracks to connection
       localStream.getTracks().forEach(track => {
         peerConnection.addTrack(track, localStream);
       });
       
-      // Set up remote stream
-      remoteStream = new MediaStream();
-      if (type === "video") {
-        remoteVideo.srcObject = remoteStream;
-      }
-      
       // Handle incoming tracks
       peerConnection.ontrack = (event) => {
-        event.streams[0].getTracks().forEach(track => {
-          remoteStream.addTrack(track);
-        });
+        remoteStream = event.streams[0];
+        if (type === "video" && remoteVideo) {
+          remoteVideo.srcObject = remoteStream;
+        }
       };
       
       // Handle ICE candidates
       peerConnection.onicecandidate = (event) => {
-        if (event.candidate && currentCallId) {
-          const candidateCollection = isCaller ? "callerCandidates" : "calleeCandidates";
-          addDoc(collection(db, "calls", currentCallId, candidateCollection), event.candidate.toJSON());
+        if (event.candidate) {
+          // Send ICE candidate to Firestore
+          const candidateRef = collection(db, "calls", currentCallId, 
+            isCaller ? "callerCandidates" : "calleeCandidates");
+          addDoc(candidateRef, event.candidate.toJSON());
         }
       };
       
@@ -4787,7 +4682,7 @@
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         
-        // Save offer to Firestore
+        // Send offer to Firestore
         await updateDoc(doc(db, "calls", currentCallId), {
           offer: {
             sdp: offer.sdp,
@@ -4796,92 +4691,37 @@
         });
         
         // Listen for answer
-        const callDocRef = doc(db, "calls", currentCallId);
-        onSnapshot(callDocRef, async (doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-            if (data.answer && !peerConnection.remoteDescription) {
-              await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-            }
+        onSnapshot(doc(db, "calls", currentCallId), async (snap) => {
+          const data = snap.data();
+          if (data.answer && !peerConnection.remoteDescription) {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
           }
         });
         
         // Listen for callee ICE candidates
-        onSnapshot(
-          collection(db, "calls", currentCallId, "calleeCandidates"),
-          snapshot => {
-            snapshot.docChanges().forEach(change => {
-              if (change.type === "added") {
-                const candidate = new RTCIceCandidate(change.doc.data());
-                peerConnection.addIceCandidate(candidate);
-              }
-            });
-          }
-        );
-        
+        onSnapshot(collection(db, "calls", currentCallId, "calleeCandidates"), (snap) => {
+          snap.docChanges().forEach(async (change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              await peerConnection.addIceCandidate(candidate);
+            }
+          });
+        });
       } else {
         // Listen for caller ICE candidates
-        onSnapshot(
-          collection(db, "calls", currentCallId, "callerCandidates"),
-          snapshot => {
-            snapshot.docChanges().forEach(change => {
-              if (change.type === "added") {
-                const candidate = new RTCIceCandidate(change.doc.data());
-                peerConnection.addIceCandidate(candidate);
-              }
-            });
-          }
-        );
-      }
-      
-    } catch (error) {
-      console.error("Error initializing call:", error);
-      showError("Failed to initialize call");
-    }
-  }
-
-  async function answerCall() {
-    if (!currentCallId) return;
-    
-    try {
-      // Get call document
-      const callDoc = await getDoc(doc(db, "calls", currentCallId));
-      if (!callDoc.exists()) {
-        showError("Call no longer exists");
-        return;
-      }
-      
-      const callData = callDoc.data();
-      
-      // Initialize as callee
-      await initializeCall(false, callData.type);
-      
-      // Set remote description from offer
-      if (callData.offer) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
-        
-        // Create answer
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        
-        // Save answer to Firestore
-        await updateDoc(doc(db, "calls", currentCallId), {
-          answer: {
-            sdp: answer.sdp,
-            type: answer.type
-          },
-          status: "accepted"
+        onSnapshot(collection(db, "calls", currentCallId, "callerCandidates"), (snap) => {
+          snap.docChanges().forEach(async (change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              await peerConnection.addIceCandidate(candidate);
+            }
+          });
         });
       }
       
-      // Update UI
-      document.getElementById('callStatus').textContent = "Connected";
-      ringtone.pause();
-      ringtone.currentTime = 0;
-      
     } catch (error) {
-      console.error("Error answering call:", error);
-      showError("Failed to answer call");
+      console.error("WebRTC initialization error:", error);
+      showError("Failed to initialize call");
     }
   }
 
@@ -4890,7 +4730,7 @@
     
     const q = query(
       collection(db, "calls"),
-      where("calleeId", "==", currentUser.uid),
+      where("receiverId", "==", currentUser.uid),
       where("status", "==", "ringing")
     );
     
@@ -4900,8 +4740,19 @@
           const callData = change.doc.data();
           const callId = change.doc.id;
           
+          // Stop any existing ringtone
+          if (callRinging) {
+            ringtone.pause();
+            ringtone.currentTime = 0;
+          }
+          
           // Play ringtone for incoming call
-          ringtone.play().catch(e => console.log("Ringtone play failed:", e));
+          try {
+            ringtone.play();
+            callRinging = true;
+          } catch (e) {
+            console.log("Ringtone play failed:", e);
+          }
           
           // Show incoming call modal
           const callerName = await getUserDisplayName(callData.callerId);
@@ -4910,13 +4761,14 @@
           document.getElementById('incomingCallName').textContent = callerName;
           document.getElementById('incomingCallAvatar').src = callerAvatar;
           document.getElementById('incomingCallType').textContent = 
-            `Incoming ${callData.type === "video" ? "Video" : "Voice"} Call`;
+            `Incoming ${callData.type === "video" ? "Video" : "Audio"} Call`;
           
           incomingCallModal.style.display = 'flex';
           
           // Store call info for accepting/rejecting
           window.currentIncomingCallId = callId;
           window.currentIncomingCallType = callData.type;
+          window.currentIncomingCallerId = callData.callerId;
         }
       });
     });
@@ -4924,15 +4776,24 @@
 
   window.acceptCall = async function() {
     const callId = window.currentIncomingCallId;
+    const callType = window.currentIncomingCallType;
     
     if (!callId) return;
     
     try {
       // Stop ringtone
-      ringtone.pause();
-      ringtone.currentTime = 0;
+      if (callRinging) {
+        ringtone.pause();
+        ringtone.currentTime = 0;
+        callRinging = false;
+      }
       
       currentCallId = callId;
+      
+      // Update call status to accepted
+      await updateDoc(doc(db, "calls", callId), {
+        status: "accepted"
+      });
       
       // Update UI
       document.getElementById('callUserName').textContent = document.getElementById('incomingCallName').textContent;
@@ -4940,8 +4801,28 @@
       incomingCallModal.style.display = 'none';
       callInterface.style.display = 'flex';
       
-      // Answer the call
-      await answerCall();
+      // Initialize WebRTC as callee
+      await initializeWebRTC(false, callType);
+      
+      // Get the offer from Firestore
+      const callDoc = await getDoc(doc(db, "calls", callId));
+      const callData = callDoc.data();
+      
+      if (callData.offer) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
+        
+        // Create answer
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        
+        // Send answer to Firestore
+        await updateDoc(doc(db, "calls", callId), {
+          answer: {
+            sdp: answer.sdp,
+            type: answer.type
+          }
+        });
+      }
       
     } catch (error) {
       console.error("Error accepting call:", error);
@@ -4956,8 +4837,11 @@
     
     try {
       // Stop ringtone
-      ringtone.pause();
-      ringtone.currentTime = 0;
+      if (callRinging) {
+        ringtone.pause();
+        ringtone.currentTime = 0;
+        callRinging = false;
+      }
       
       await updateDoc(doc(db, "calls", callId), {
         status: "rejected",
@@ -4973,8 +4857,11 @@
 
   window.endCall = async function() {
     // Stop ringtone
-    ringtone.pause();
-    ringtone.currentTime = 0;
+    if (callRinging) {
+      ringtone.pause();
+      ringtone.currentTime = 0;
+      callRinging = false;
+    }
     
     if (currentCallId) {
       try {
@@ -5236,7 +5123,7 @@
   // === INITIALIZATION ===
 
   document.addEventListener('DOMContentLoaded', () => {
-    console.log("MEET Chat Application initialized with enhanced features");
+    console.log("MEET Chat Application initialized with WhatsApp/Telegram features");
     
     window.addEventListener('resize', () => {
       const chatContainer = document.querySelector('.chat-container');
@@ -5291,8 +5178,10 @@
       localStream.getTracks().forEach(track => track.stop());
     }
     // Stop ringtone
-    ringtone.pause();
-    ringtone.currentTime = 0;
+    if (callRinging) {
+      ringtone.pause();
+      ringtone.currentTime = 0;
+    }
   });
 
 </script>
